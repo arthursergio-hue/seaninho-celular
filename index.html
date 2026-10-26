@@ -98,6 +98,31 @@ textarea:focus{outline:2px solid rgba(226,184,74,.6);border-color:transparent}
 .copia .ok{color:var(--green);font-weight:600}
 #imagem{position:fixed;inset:0;z-index:6;overflow:auto;background:#060f22;padding:calc(var(--top) + 8px) 16px calc(var(--bottom) + 24px)}
 #imagem img{display:block;width:100%;border-radius:12px;-webkit-touch-callout:default}
+.gear{flex:none;width:36px;height:36px;border-radius:50%;display:grid;place-items:center;background:var(--glass);color:var(--muted);font-size:18px}
+.gear.on{background:var(--gold);color:var(--navy)}
+.conta{font-size:13px;color:var(--muted);padding:9px 12px;border-radius:12px;background:var(--glass);border:1px solid var(--stroke);margin-bottom:10px}
+.conta b{color:var(--ink);font-weight:600}
+.conta .alto{color:var(--coral)}
+.barra{height:8px;border-radius:999px;background:var(--glass-2);overflow:hidden;margin:10px 0 4px}
+.barra i{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,#4FA3FF,#7FD3FF)}
+.mini{display:flex;gap:8px;margin-top:6px} .mini .btn{flex:1;padding:11px 6px;font-size:15px;margin-top:6px}
+.card > .btn.sec{margin-top:10px;padding:11px}
+.campo{width:100%;padding:12px;border-radius:12px;border:1px solid var(--stroke-2);background:rgba(0,0,0,.22);font-size:16px;color-scheme:dark}
+.campo:focus{outline:2px solid rgba(226,184,74,.6);border-color:transparent}
+.quando{gap:8px;margin-top:8px} .quando .campo{flex:1;min-width:0}
+.tarefa{display:flex;align-items:flex-start;gap:12px;padding:12px 2px;border-bottom:1px solid var(--stroke)}
+.tarefa .check{flex:none;width:26px;height:26px;border-radius:50%;border:2px solid var(--gold);margin-top:1px}
+.tarefa.feita{opacity:.45} .tarefa.feita .check{background:var(--gold)}
+.tarefa .txt{font-size:15px;word-wrap:break-word}
+.tarefa.atrasada .meta{color:#ffb3ad}
+.ev{display:flex;align-items:center;gap:10px;padding:10px 2px;border-bottom:1px solid var(--stroke);font-size:15px}
+.ev .h{flex:none;width:96px;color:var(--gold);font-weight:600;font-size:14px}
+.ev .t{flex:1;min-width:0}
+.ev.passou{opacity:.45}
+.ev a{flex:none;color:var(--navy);background:var(--gold);font-weight:650;font-size:13px;padding:5px 10px;border-radius:999px;text-decoration:none}
+details.card summary{cursor:pointer;font-weight:600;color:var(--muted)}
+.linha{display:flex;gap:10px;padding:7px 0;font-size:14px;border-bottom:1px solid var(--stroke)}
+.linha .h{flex:none;width:44px;color:var(--faint)}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
@@ -106,6 +131,7 @@ textarea:focus{outline:2px solid rgba(226,184,74,.6);border-color:transparent}
   <img src="icone-180.png" alt="">
   <h1>Seaninho</h1>
   <div class="pcs" id="pcs"></div>
+  <button class="gear hidden" id="gear" aria-label="Ajustes">⚙</button>
 </header>
 
 <section id="parear" class="hidden">
@@ -126,6 +152,24 @@ textarea:focus{outline:2px solid rgba(226,184,74,.6);border-color:transparent}
 
 <main id="app" class="hidden">
   <section id="tabClaude"></section>
+  <section id="tabHoje" class="hidden">
+    <div id="hojeMsg" class="status hidden"></div>
+    <h2>Saúde</h2>
+    <div id="hojeSaude"></div>
+    <h2>Agenda</h2>
+    <div id="hojeAgenda"></div>
+    <h2>Tarefas</h2>
+    <div class="card">
+      <input id="tarefaTexto" class="campo" placeholder="Nova tarefa (ex.: ligar pro cliente)" enterkeyhint="done">
+      <div class="row quando">
+        <input type="date" id="tarefaData" class="campo" aria-label="Dia (opcional)">
+        <input type="time" id="tarefaHora" class="campo" aria-label="Hora do lembrete (opcional)">
+      </div>
+      <button class="btn" id="tarefaAdd">Adicionar</button>
+      <p class="note">Com hora, o lembrete toca no PC. Vai também para o Google Tarefas.</p>
+    </div>
+    <div id="hojeTarefas"></div>
+  </section>
   <section id="tabPedir" class="hidden">
     <h2>Pedir ao Seaninho</h2>
     <textarea id="cmd" placeholder="Ex.: manda pro Rodrigo no Slack que o render saiu · me lembra de ligar pro cliente amanhã às 9h · qual minha próxima reunião?"></textarea>
@@ -152,10 +196,10 @@ textarea:focus{outline:2px solid rgba(226,184,74,.6);border-color:transparent}
 
 <nav id="nav" class="hidden">
   <button data-tab="Claude" class="on">Claude<span class="n hidden" id="nAsk"></span></button>
+  <button data-tab="Hoje">Hoje</button>
   <button data-tab="Pedir">Pedir</button>
   <button data-tab="Copias">Cópias</button>
   <button data-tab="Feed">Novidades</button>
-  <button data-tab="Ajustes">Ajustes</button>
 </nav>
 
 <div id="detalhe" class="hidden">
@@ -210,6 +254,8 @@ let aba = "Claude";
 let copias = {};         // pc -> [cópias], baixadas só quando o copias_em do PC muda e a aba está aberta
 const copiasEm = {};     // pc -> copias_em que já temos
 let listaCopias = [];    // o que está desenhado (o toque acha a cópia pelo índice)
+let ultimaAcao = "";     // o último toque da aba Hoje (água, pausa, tarefa…): o resultado aparece no topo
+const concluindo = new Map();   // tarefa marcada aqui -> pedido que a conclui (até o PC riscar ou dar erro)
 
 async function rpc(nome, args = {}, comChave = true) {
   const headers = {"apikey": CFG.publica, "Content-Type": "application/json"};
@@ -264,8 +310,9 @@ function desenharSessoes() {
   const varios = Object.keys(pcs).length > 1;
   const nAsk = ss.filter(s => s.estado === "perguntando").length;
   $("nAsk").textContent = nAsk; $("nAsk").classList.toggle("hidden", !nAsk);
-  if (!ss.length) { $("tabClaude").innerHTML = `<div class="empty">Nenhuma sessão do Claude aberta nos PCs.</div>`; return; }
-  $("tabClaude").innerHTML = ss.map(s => `
+  const conta = contaHtml();
+  if (!ss.length) { $("tabClaude").innerHTML = conta + `<div class="empty">Nenhuma sessão do Claude aberta nos PCs.</div>`; return; }
+  $("tabClaude").innerHTML = conta + ss.map(s => `
     <button class="card ${s.estado === "perguntando" ? "ask" : ""}" data-pc="${esc(s.pc)}" data-id="${esc(s.id)}">
       <div class="row"><div class="title">${esc(s.titulo)}</div><span class="chip ${esc(s.estado)}">${ESTADO[s.estado] || esc(s.estado)}</span></div>
       <div class="meta">${esc(s.pasta)}${varios ? " · " + esc(s.pc) : ""} · ${ha(s.desde * 1000)}</div>
@@ -292,6 +339,124 @@ function desenharFeed() {
       <div class="w">${hora(a.quando)}${varios ? " · " + esc(a.pc) : ""}</div></div></div>`;
   }
   $("tabFeed").innerHTML = html;
+}
+
+// ---- Hoje: saúde, agenda e tarefas do PC (o PC faz; o celular acompanha e manda) --------------------
+// O PC dos avisos (o principal) manda o dia; sem ele ligado, o que deu sinal por último.
+function pcHoje() {
+  const com = Object.values(pcs).filter(p => p.hoje && p.hoje.saude);
+  const vivos = com.filter(online).sort((a, b) => b.visto_em.localeCompare(a.visto_em));
+  return vivos.find(p => p.hoje.principal) || vivos[0] || com[0];
+}
+
+const hm = iso => { const d = new Date(iso); return isNaN(d) ? "" : hora(iso); };
+const diaIso = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+
+function contaHtml() {
+  const c = (pcHoje() || {}).hoje?.conta;
+  if (!c || !c.email) return "";
+  const volta = iso => { const d = new Date(iso); if (isNaN(d)) return "";
+    return d.toDateString() === new Date().toDateString() ? hm(iso)
+      : d.toLocaleDateString("pt-BR", {weekday: "short", day: "2-digit", month: "2-digit"}) + " " + hm(iso); };
+  const lim = (nome, l) => l ? `${nome} <b class="${l.pct >= 80 ? "alto" : ""}">${l.pct}%</b>${l.volta ? ` (volta ${volta(l.volta)})` : ""}` : "";
+  return `<div class="conta">Claude: <b>${esc(c.email)}</b> · ${[lim("sessão", c.sessao), lim("semana", c.semana)].filter(Boolean).join(" · ")}</div>`;
+}
+
+function desenharHoje() {
+  const p = pcHoje();
+  desenharMsgHoje();
+  if (!p) {
+    $("hojeSaude").innerHTML = `<p class="note">O PC ainda não mandou o dia. Precisa do Seaninho no celular 0.4 no PC.</p>`;
+    $("hojeAgenda").innerHTML = $("hojeTarefas").innerHTML = "";
+    return;
+  }
+  const h = p.hoje, s = h.saude || {}, prox = s.proximos || {};
+  const pct = s.meta_ml ? Math.min(100, Math.round(100 * (s.agua_ml || 0) / s.meta_ml)) : 0;
+  const doses = [...new Set([150, s.dose || 200, 300])].sort((a, b) => a - b);
+  const NOMES = {agua: "💧", pausa: "🚶", olhos: "👀", adiou: "⏸", pulou: "↷"};
+  const linhas = (s.eventos || []).slice().reverse().map(e => {
+    const txt = e.tipo === "agua" ? `Bebeu ${e.ml} ml` : e.tipo === "pausa" ? (e.titulo || "Pausa")
+      : e.tipo === "olhos" ? "Descansou os olhos" : e.tipo === "adiou" ? `Adiou ${e.min || 15} min` : "Pulou";
+    return `<div class="linha"><span class="h">${esc(e.h)}</span><span>${NOMES[e.tipo] || "•"} ${esc(txt)}${e.pc ? ` <span class="meta">· no ${esc(e.pc)}</span>` : ""}</span></div>`;
+  }).join("");
+  $("hojeSaude").innerHTML = `
+    <div class="card"><div class="row"><div class="title">💧 Água</div><span class="chip">${s.agua_ml || 0} / ${s.meta_ml || 0} ml</span></div>
+      <div class="barra"><i style="width:${pct}%"></i></div>
+      <div class="meta">${(s.agua_ml || 0) >= (s.meta_ml || 1) ? "Meta do dia batida!" : prox.water ? `Próximo lembrete às ${esc(prox.water)}` : ""}</div>
+      <div class="mini">${doses.map(ml => `<button class="btn ${ml === s.dose ? "" : "sec"}" data-acao-hoje="agua" data-ml="${ml}">+${ml} ml</button>`).join("")}</div></div>
+    <div class="card"><div class="row"><div class="title">🚶 Pausas</div><span class="chip">${s.pausas || 0} de ${s.pausas_meta || 0}</span></div>
+      <div class="meta">${prox.move ? `Próxima às ${esc(prox.move)}` : ""}</div>
+      <button class="btn sec" data-acao-hoje="pausa">Fiz uma pausa</button></div>
+    <div class="card"><div class="row"><div class="title">👀 Olhos</div><span class="chip">${s.olhos || 0} hoje</span></div>
+      <div class="meta">${prox.eyes ? `Próximo às ${esc(prox.eyes)}` : ""}</div>
+      <button class="btn sec" data-acao-hoje="olhos">Descansei os olhos</button></div>
+    ${linhas ? `<details class="card"><summary>Linha do tempo de hoje</summary>${linhas}</details>` : ""}`;
+
+  const agora = new Date(), hojeIso = diaIso(agora);
+  const amanha = new Date(agora); amanha.setDate(agora.getDate() + 1);
+  const eventos = h.agenda || [];
+  let agenda = "";
+  for (const [rotulo, iso] of [["Hoje", hojeIso], ["Amanhã", diaIso(amanha)]]) {
+    const doDia = eventos.filter(e => diaIso(new Date(e.inicio)) === iso);
+    if (!doDia.length) continue;
+    agenda += `<div class="label">${rotulo}</div>` + doDia.map(e => {
+      const passou = new Date(e.fim) < agora;
+      const link = /^https:\/\//.test(e.link || "") && !passou ? `<a href="${esc(e.link)}" target="_blank" rel="noopener">Entrar</a>` : "";
+      return `<div class="ev ${passou ? "passou" : ""}"><span class="h">${hm(e.inicio)}–${hm(e.fim)}</span><span class="t">${esc(e.titulo)}</span>${link}</div>`;
+    }).join("");
+  }
+  $("hojeAgenda").innerHTML = agenda || `<p class="note">Nada na agenda hoje nem amanhã.</p>`;
+
+  const tarefas = h.tarefas || [];
+  for (const [id, pid] of [...concluindo]) {   // o PC já riscou, ou não conseguiu: volta ao normal
+    const p = pedidos.find(x => x.id === pid);
+    if (!tarefas.some(t => t.id === id) || (p && p.estado === "erro")) concluindo.delete(id);
+  }
+  const amanhaIso = diaIso(amanha);
+  const grupo = t => !t.data ? "Sem data" : t.data < hojeIso ? "Atrasadas" : t.data === hojeIso ? "Hoje"
+    : t.data === amanhaIso ? "Amanhã" : "Próximas";
+  let ultimo = "", lista = "";
+  for (const t of tarefas) {
+    const g = grupo(t);
+    if (g !== ultimo) { lista += `<div class="label">${g}</div>`; ultimo = g; }
+    const dataBr = t.data ? `${t.data.slice(8, 10)}/${t.data.slice(5, 7)}` : "";
+    const quando = [g === "Próximas" || g === "Atrasadas" ? dataBr : "", t.hora].filter(Boolean).join(" ");
+    lista += `<div class="tarefa ${concluindo.has(t.id) ? "feita" : ""} ${g === "Atrasadas" ? "atrasada" : ""}">
+      <button class="check" data-feita="${esc(t.id)}" aria-label="Concluir: ${esc(t.texto)}"></button>
+      <div><div class="txt">${esc(t.texto)}</div>${quando || t.google ? `<div class="meta">${esc(quando)}${quando && t.google ? " · " : ""}${t.google ? "Google Tarefas" : ""}</div>` : ""}</div></div>`;
+  }
+  $("hojeTarefas").innerHTML = lista || `<p class="note">Nada pendente. Tudo em dia!</p>`;
+}
+
+function desenharMsgHoje() {
+  const p = pedidos.find(x => x.id === ultimaAcao);
+  const el = $("hojeMsg");
+  if (!ultimaAcao) { el.className = "status hidden"; return; }
+  if (!p || ["novo", "escrevendo"].includes(p.estado)) { el.innerHTML = `<span class="spin"></span>O PC está fazendo…`; el.className = "status"; }
+  else if (p.estado === "entregue") { el.textContent = "✓ " + (p.resposta || "Feito."); el.className = "status ok"; }
+  else if (p.estado === "erro") { el.textContent = "Não foi: " + (p.erro || "erro"); el.className = "status err"; }
+}
+
+async function acaoHoje(obj, botao) {
+  const p = pcHoje();
+  const el = $("hojeMsg");
+  if (!p || !online(p)) { el.textContent = "O PC parece desligado agora: tente quando ele ligar."; el.className = "status err"; return; }
+  if (botao) botao.disabled = true;
+  try {
+    ultimaAcao = await rpc("cel_pedir", {pc: p.pc, tipo: "acao", texto: JSON.stringify(obj)});
+    if (obj.acao === "tarefa_feita") concluindo.set(obj.id, ultimaAcao);
+    desenharMsgHoje();
+    await atualizar();
+    return ultimaAcao;
+  } catch (e) { el.textContent = "Não deu: " + (e.message || e); el.className = "status err"; }
+  finally { if (botao) botao.disabled = false; }
+}
+
+async function novaTarefa() {
+  const texto = $("tarefaTexto").value.trim();
+  if (!texto) return $("tarefaTexto").focus();
+  await acaoHoje({acao: "tarefa_nova", texto, data: $("tarefaData").value, hora: $("tarefaHora").value}, $("tarefaAdd"));
+  if ($("hojeMsg").className !== "status err") { $("tarefaTexto").value = $("tarefaData").value = $("tarefaHora").value = ""; }
 }
 
 // ---- Pedir (comandos) ---------------------------------------------------------------------------
@@ -568,7 +733,9 @@ async function atualizar() {
   pedidos = r.pedidos || [];
   const ativo = document.activeElement;
   const editando = ativo && ativo.id && ativo.id.startsWith("prompt-");
+  const digitando = ativo && ["tarefaTexto", "tarefaData", "tarefaHora"].includes(ativo.id);
   desenharPcs(); desenharSessoes(); desenharFeed(); desenharComandos();
+  if (!digitando) desenharHoje(); else desenharMsgHoje();
   if (!editando) desenharDetalhe();
   if (aba === "Copias") await carregarCopias();
 }
@@ -616,12 +783,13 @@ async function parear() {
 function entrar() {
   clearTimeout(timerSala);
   $("parear").classList.add("hidden");
-  ["app", "nav"].forEach(i => $(i).classList.remove("hidden"));
+  ["app", "nav", "gear"].forEach(i => $(i).classList.remove("hidden"));
   ciclo();
 }
 function sair() {
   chave = ""; store.set("seaninho.chave", "");
   fechar();
+  $("gear").classList.add("hidden");
   mostrarParear();
 }
 
@@ -653,13 +821,27 @@ async function ativarPush() {
 
 // ---- Ligações ----------------------------------------------------------------------------------------
 document.querySelectorAll(".mic").forEach(b => { b.innerHTML = MIC; b.addEventListener("click", () => alternarMic(b)); });
-document.querySelectorAll("nav button").forEach(b => b.addEventListener("click", () => {
-  aba = b.dataset.tab;
-  document.querySelectorAll("nav button").forEach(x => x.classList.toggle("on", x === b));
-  ["Claude", "Pedir", "Copias", "Feed", "Ajustes"].forEach(t => $("tab" + t).classList.toggle("hidden", t !== aba));
+function mostrarAba(nome) {
+  aba = nome;
+  document.querySelectorAll("nav button").forEach(x => x.classList.toggle("on", x.dataset.tab === nome));
+  $("gear").classList.toggle("on", nome === "Ajustes");
+  ["Claude", "Hoje", "Pedir", "Copias", "Feed", "Ajustes"].forEach(t => $("tab" + t).classList.toggle("hidden", t !== nome));
   window.scrollTo(0, 0);
-  if (aba === "Copias") carregarCopias();
-}));
+  if (nome === "Copias") carregarCopias();
+}
+document.querySelectorAll("nav button").forEach(b => b.addEventListener("click", () => mostrarAba(b.dataset.tab)));
+$("gear").addEventListener("click", () => mostrarAba(aba === "Ajustes" ? "Claude" : "Ajustes"));
+$("tabHoje").addEventListener("click", e => {
+  const b = e.target.closest("[data-acao-hoje]");
+  if (b) return acaoHoje({acao: b.dataset.acaoHoje, ml: Number(b.dataset.ml) || undefined}, b);
+  const f = e.target.closest("[data-feita]");
+  if (f && !concluindo.has(f.dataset.feita)) {
+    f.closest(".tarefa").classList.add("feita");
+    acaoHoje({acao: "tarefa_feita", id: f.dataset.feita});
+  }
+});
+$("tarefaAdd").addEventListener("click", novaTarefa);
+$("tarefaTexto").addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); novaTarefa(); } });
 $("tabCopias").addEventListener("click", e => { const c = e.target.closest(".copia"); if (c) tocarCopia(c); });
 $("imgVoltar").addEventListener("click", () => { $("imagem").classList.add("hidden"); $("imgGrande").removeAttribute("src"); });
 $("tabClaude").addEventListener("click", e => { const c = e.target.closest(".card"); if (c) abrir(c.dataset.pc, c.dataset.id); });
