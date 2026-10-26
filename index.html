@@ -56,7 +56,7 @@ button.card:active{background:var(--glass-2)}
 .feed .item.new .t::before{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--gold);margin-right:7px;vertical-align:2px}
 nav{position:fixed;left:0;right:0;bottom:0;display:flex;gap:4px;padding:8px 8px calc(var(--bottom) + 8px);
     background:rgba(8,20,46,.92);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-top:1px solid var(--stroke)}
-nav button{flex:1;padding:8px 0;border-radius:12px;color:var(--muted);font-size:14px;font-weight:600}
+nav button{flex:1;padding:8px 0;border-radius:12px;color:var(--muted);font-size:13px;font-weight:600}
 nav button.on{color:var(--navy);background:var(--gold)}
 nav .n{display:inline-block;min-width:18px;margin-left:4px;padding:0 5px;border-radius:999px;background:var(--coral);color:#fff;font-size:11px}
 #detalhe{position:fixed;inset:0;z-index:5;overflow:auto;background:linear-gradient(170deg,#0E224A,#08142E 60%);
@@ -90,6 +90,14 @@ textarea:focus{outline:2px solid rgba(226,184,74,.6);border-color:transparent}
 @keyframes r{to{transform:rotate(1turn)}}
 .cmd .eu{font-size:14px;color:var(--muted)}
 .cmd .res{margin-top:8px;font-size:15px}
+.quem{display:flex;align-items:center;gap:12px;margin-top:10px}
+.quem img{flex:none;width:56px;height:56px;border-radius:50%;object-fit:cover;background:var(--glass-2);border:2px solid var(--gold)}
+.quem .q{margin-top:0;flex:1;min-width:0}
+.copia .txt{font-size:15px;white-space:pre-wrap;word-wrap:break-word;display:-webkit-box;-webkit-line-clamp:6;-webkit-box-orient:vertical;overflow:hidden}
+.copia img{display:block;max-width:100%;max-height:220px;border-radius:10px;background:rgba(0,0,0,.25)}
+.copia .ok{color:var(--green);font-weight:600}
+#imagem{position:fixed;inset:0;z-index:6;overflow:auto;background:#060f22;padding:calc(var(--top) + 8px) 16px calc(var(--bottom) + 24px)}
+#imagem img{display:block;width:100%;border-radius:12px;-webkit-touch-callout:default}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
@@ -128,6 +136,7 @@ textarea:focus{outline:2px solid rgba(226,184,74,.6);border-color:transparent}
     <div class="micinfo" id="micinfo-cmd"></div>
     <div id="cmdLista"></div>
   </section>
+  <section id="tabCopias" class="hidden"></section>
   <section id="tabFeed" class="feed hidden"></section>
   <section id="tabAjustes" class="hidden">
     <h2>Notificações</h2>
@@ -144,6 +153,7 @@ textarea:focus{outline:2px solid rgba(226,184,74,.6);border-color:transparent}
 <nav id="nav" class="hidden">
   <button data-tab="Claude" class="on">Claude<span class="n hidden" id="nAsk"></span></button>
   <button data-tab="Pedir">Pedir</button>
+  <button data-tab="Copias">Cópias</button>
   <button data-tab="Feed">Novidades</button>
   <button data-tab="Ajustes">Ajustes</button>
 </nav>
@@ -171,6 +181,12 @@ textarea:focus{outline:2px solid rgba(226,184,74,.6);border-color:transparent}
   <div class="status hidden" id="dBloqueio"></div>
 </div>
 
+<div id="imagem" class="hidden">
+  <button class="back" id="imgVoltar">‹ Cópias</button>
+  <img id="imgGrande" alt="Print copiado no PC">
+  <p class="note">Toque e segure a imagem para copiar ou salvar.</p>
+</div>
+
 <script src="config.js"></script>
 <script>
 "use strict";
@@ -190,6 +206,10 @@ let aberta = null;       // {pc, id} da sessão aberta no detalhe
 let melhorar = store.get("seaninho.melhorar") !== "nao";
 const edicoes = {};      // id do pedido -> o texto como a pessoa editou (a tela se refaz a cada 4 s)
 let timer = null, timerSala = null;
+let aba = "Claude";
+let copias = {};         // pc -> [cópias], baixadas só quando o copias_em do PC muda e a aba está aberta
+const copiasEm = {};     // pc -> copias_em que já temos
+let listaCopias = [];    // o que está desenhado (o toque acha a cópia pelo índice)
 
 async function rpc(nome, args = {}, comChave = true) {
   const headers = {"apikey": CFG.publica, "Content-Type": "application/json"};
@@ -284,11 +304,15 @@ function desenharComandos() {
 function desenharComando(p) {
   let corpo = "";
   if (p.estado === "novo" || p.estado === "escrevendo") corpo = `<div class="res"><span class="spin"></span>Entendendo…</div>`;
-  else if (p.estado === "pronto") corpo = `<div class="q pre">${esc(p.prompt)}</div>
+  else if (p.estado === "pronto") corpo = (p.foto
+        ? `<div class="quem"><img src="${esc(p.foto)}" alt="Foto de quem recebe" referrerpolicy="no-referrer"><div class="q pre">${esc(p.prompt)}</div></div>`
+        : `<div class="q pre">${esc(p.prompt)}</div>`) + `
       <div class="dupla"><button class="btn" data-acao="confirmar" data-id="${esc(p.id)}">Confirmar</button>
       <button class="btn sec" data-acao="cancelar" data-id="${esc(p.id)}">Cancelar</button></div>`;
   else if (p.estado === "enviar" || p.estado === "enviando") corpo = `<div class="res"><span class="spin"></span>Fazendo…</div>`;
-  else if (p.estado === "entregue") corpo = `<div class="res pre">${esc(p.resposta || "Feito.")}</div>`;
+  else if (p.estado === "entregue") corpo = p.foto
+    ? `<div class="quem"><img src="${esc(p.foto)}" alt="" referrerpolicy="no-referrer"><div class="res pre">${esc(p.resposta || "Feito.")}</div></div>`
+    : `<div class="res pre">${esc(p.resposta || "Feito.")}</div>`;
   else if (p.estado === "erro") corpo = `<div class="status err">${esc(p.erro)}</div>`;
   else if (p.estado === "cancelado") corpo = `<div class="res meta">Cancelado</div>`;
   return `<div class="card cmd"><div class="eu">“${esc(p.texto)}” · ${hora(p.criado_em)}</div>${corpo}</div>`;
@@ -306,6 +330,62 @@ async function enviarComando() {
     await atualizar();
   } catch (e) { erroMic("cmd", "Não deu: " + (e.message || e)); }
   finally { $("cmdEnviar").disabled = false; }
+}
+
+// ---- Cópias: o histórico do Seaninho dos PCs (toque copia no iPhone) ------------------------------------
+async function carregarCopias() {
+  const mudou = Object.values(pcs).some(p => p.copias_em && p.copias_em !== copiasEm[p.pc]);
+  if (!mudou && listaCopias.length) return;   // nada novo: não redesenha (o "✓ Copiado" fica)
+  try {
+    for (const p of await rpc("cel_copias") || []) { copias[p.pc] = p.copias || []; copiasEm[p.pc] = p.copias_em; }
+  } catch { /* fica o que já tinha; tenta de novo no próximo ciclo */ }
+  desenharCopias();
+}
+
+function quandoCurto(iso) {
+  const d = new Date(iso);
+  return d.toDateString() === new Date().toDateString() ? hora(iso)
+    : d.toLocaleDateString("pt-BR", {day: "2-digit", month: "2-digit"}) + " " + hora(iso);
+}
+
+function desenharCopias() {
+  const varios = Object.keys(copias).length > 1;
+  listaCopias = [];
+  for (const [pc, itens] of Object.entries(copias)) for (const c of itens) listaCopias.push({...c, pc});
+  listaCopias.sort((a, b) => (b.fixada - a.fixada) || String(b.quando).localeCompare(String(a.quando)));
+  if (!listaCopias.length) {
+    $("tabCopias").innerHTML = `<div class="empty">Nada copiado ainda no Seaninho dos PCs.</div>`;
+    return;
+  }
+  $("tabCopias").innerHTML = `<p class="note">Toque num texto para copiar aqui no iPhone; num print, para ver grande.</p>` +
+    listaCopias.map((c, i) => `<button class="card copia" data-i="${i}">
+      ${c.imagem ? `<img src="${esc(c.imagem)}" alt="Print${c.tamanho ? " " + esc(c.tamanho) : ""}">`
+                 : `<div class="txt">${esc(c.texto)}</div>`}
+      <div class="meta">${c.fixada ? "📌 " : ""}${quandoCurto(c.quando)}${c.app ? " · " + esc(c.app) : ""}${varios ? " · " + esc(c.pc) : ""}${c.cortado ? " · texto cortado" : ""}${c.imagem && c.tamanho ? " · " + esc(c.tamanho) : ""}</div>
+    </button>`).join("");
+}
+
+async function tocarCopia(card) {
+  const c = listaCopias[Number(card.dataset.i)];
+  if (!c) return;
+  if (c.imagem) {
+    $("imgGrande").src = c.imagem;
+    $("imagem").classList.remove("hidden");
+    return;
+  }
+  let ok = false;
+  try { await navigator.clipboard.writeText(c.texto); ok = true; }
+  catch {
+    const t = document.createElement("textarea");   // Safari antigo: o jeito clássico
+    t.value = c.texto; t.setAttribute("readonly", ""); t.style.position = "fixed"; t.style.opacity = "0";
+    document.body.appendChild(t); t.select(); t.setSelectionRange(0, t.value.length);
+    try { ok = document.execCommand("copy"); } catch {}
+    t.remove();
+  }
+  const meta = card.querySelector(".meta");
+  const antes = meta.innerHTML;
+  meta.innerHTML = ok ? `<span class="ok">✓ Copiado</span>` : "Não consegui copiar: toque e segure o texto.";
+  setTimeout(() => { meta.innerHTML = antes; }, 1600);
 }
 
 // ---- Microfone: grava aqui, o PC transcreve com o transcritor do Seaninho ----------------------------
@@ -482,13 +562,15 @@ async function atualizar() {
   catch (e) { if (e.status && /chave/i.test(e.message)) { sair(); } return; }
   vapid = r.vapid || "";
   const novos = {};
-  for (const p of r.pcs || []) novos[p.pc] = p.igual && pcs[p.pc] ? {...pcs[p.pc], visto_em: p.visto_em, versao: p.versao} : p;
+  for (const p of r.pcs || []) novos[p.pc] = p.igual && pcs[p.pc]
+    ? {...pcs[p.pc], visto_em: p.visto_em, versao: p.versao, copias_em: p.copias_em} : p;
   pcs = novos;
   pedidos = r.pedidos || [];
   const ativo = document.activeElement;
   const editando = ativo && ativo.id && ativo.id.startsWith("prompt-");
   desenharPcs(); desenharSessoes(); desenharFeed(); desenharComandos();
   if (!editando) desenharDetalhe();
+  if (aba === "Copias") await carregarCopias();
 }
 
 function ciclo() {
@@ -572,10 +654,14 @@ async function ativarPush() {
 // ---- Ligações ----------------------------------------------------------------------------------------
 document.querySelectorAll(".mic").forEach(b => { b.innerHTML = MIC; b.addEventListener("click", () => alternarMic(b)); });
 document.querySelectorAll("nav button").forEach(b => b.addEventListener("click", () => {
+  aba = b.dataset.tab;
   document.querySelectorAll("nav button").forEach(x => x.classList.toggle("on", x === b));
-  ["Claude", "Pedir", "Feed", "Ajustes"].forEach(t => $("tab" + t).classList.toggle("hidden", t !== b.dataset.tab));
+  ["Claude", "Pedir", "Copias", "Feed", "Ajustes"].forEach(t => $("tab" + t).classList.toggle("hidden", t !== aba));
   window.scrollTo(0, 0);
+  if (aba === "Copias") carregarCopias();
 }));
+$("tabCopias").addEventListener("click", e => { const c = e.target.closest(".copia"); if (c) tocarCopia(c); });
+$("imgVoltar").addEventListener("click", () => { $("imagem").classList.add("hidden"); $("imgGrande").removeAttribute("src"); });
 $("tabClaude").addEventListener("click", e => { const c = e.target.closest(".card"); if (c) abrir(c.dataset.pc, c.dataset.id); });
 for (const lugar of ["dPedidos", "cmdLista"]) {
   $(lugar).addEventListener("click", e => { const b = e.target.closest("[data-acao]"); if (b) acaoPedido(b.dataset.acao, b.dataset.id); });
