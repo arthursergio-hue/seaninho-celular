@@ -35,7 +35,7 @@ header h1{margin:0;font-size:21px;font-weight:650;letter-spacing:.2px;flex:1}
 .pc.on i{background:var(--green)}
 h2{font-size:13px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin:18px 2px 8px}
 .card{display:block;width:100%;text-align:left;padding:14px;margin:0 0 10px;border-radius:16px;background:var(--glass);border:1px solid var(--stroke)}
-.card:active{background:var(--glass-2)}
+button.card:active{background:var(--glass-2)}
 .card.ask{border-color:rgba(226,184,74,.45);background:rgba(226,184,74,.07)}
 .row{display:flex;align-items:center;gap:8px}
 .title{font-weight:600;font-size:16px;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -46,6 +46,7 @@ h2{font-size:13px;font-weight:600;color:var(--muted);text-transform:uppercase;le
 .chip.trabalhando::before{content:"";display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--green);margin-right:6px;vertical-align:1px;animation:pulse 1.4s infinite}
 @keyframes pulse{50%{opacity:.25}}
 .q{margin-top:10px;padding:10px 12px;border-radius:12px;background:rgba(0,0,0,.18);font-size:15px;color:var(--ink)}
+.pre{white-space:pre-wrap;word-wrap:break-word}
 .empty{color:var(--muted);text-align:center;padding:40px 10px;font-size:15px}
 .feed .item{display:flex;gap:12px;padding:12px 2px;border-bottom:1px solid var(--stroke)}
 .feed .ico{flex:none;width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:var(--glass-2);font-size:17px}
@@ -53,12 +54,11 @@ h2{font-size:13px;font-weight:600;color:var(--muted);text-transform:uppercase;le
 .feed .s{font-size:14px;color:var(--muted)}
 .feed .w{font-size:12px;color:var(--faint);margin-top:2px}
 .feed .item.new .t::before{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--gold);margin-right:7px;vertical-align:2px}
-nav{position:fixed;left:0;right:0;bottom:0;display:flex;padding:8px 10px calc(var(--bottom) + 8px);
+nav{position:fixed;left:0;right:0;bottom:0;display:flex;gap:4px;padding:8px 8px calc(var(--bottom) + 8px);
     background:rgba(8,20,46,.92);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-top:1px solid var(--stroke)}
 nav button{flex:1;padding:8px 0;border-radius:12px;color:var(--muted);font-size:14px;font-weight:600}
 nav button.on{color:var(--navy);background:var(--gold)}
 nav .n{display:inline-block;min-width:18px;margin-left:4px;padding:0 5px;border-radius:999px;background:var(--coral);color:#fff;font-size:11px}
-/* detalhe da sessão */
 #detalhe{position:fixed;inset:0;z-index:5;overflow:auto;background:linear-gradient(170deg,#0E224A,#08142E 60%);
   padding:calc(var(--top) + 8px) 16px calc(var(--bottom) + 24px)}
 .back{display:flex;align-items:center;gap:6px;color:var(--gold);font-weight:600;padding:6px 0 12px}
@@ -67,6 +67,12 @@ nav .n{display:inline-block;min-width:18px;margin-left:4px;padding:0 5px;border-
 .label{font-size:12px;font-weight:600;color:var(--faint);text-transform:uppercase;letter-spacing:.6px;margin:16px 2px 6px}
 textarea{width:100%;min-height:96px;resize:vertical;padding:12px;border-radius:14px;border:1px solid var(--stroke-2);background:rgba(0,0,0,.22);font-size:16px;line-height:1.45}
 textarea:focus{outline:2px solid rgba(226,184,74,.6);border-color:transparent}
+.acoes{margin-top:10px}
+.mic{flex:none;width:52px;height:52px;border-radius:50%;display:grid;place-items:center;background:var(--glass-2);border:1px solid var(--stroke-2);color:var(--gold)}
+.mic svg{width:24px;height:24px}
+.mic.rec{background:var(--coral);border-color:var(--coral);color:#fff;animation:pulse 1.2s infinite}
+.micinfo{font-size:14px;color:var(--muted)}
+.acoes .btn{flex:1;margin:0}
 .toggle{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:10px 2px;font-size:15px;color:var(--muted)}
 .switch{width:46px;height:28px;border-radius:999px;background:var(--glass-2);position:relative;flex:none;transition:background .15s}
 .switch::after{content:"";position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:#fff;transition:transform .15s}
@@ -74,13 +80,16 @@ textarea:focus{outline:2px solid rgba(226,184,74,.6);border-color:transparent}
 .btn{display:block;width:100%;padding:14px;border-radius:14px;font-weight:650;font-size:16px;margin-top:10px;background:var(--gold);color:var(--navy)}
 .btn.sec{background:var(--glass-2);color:var(--ink)}
 .btn:disabled{opacity:.45}
+.dupla{display:flex;gap:8px} .dupla .btn{flex:1}
 .status{margin-top:12px;padding:12px;border-radius:14px;font-size:15px;background:var(--glass);border:1px solid var(--stroke)}
 .status.ok{border-color:rgba(72,214,128,.4);color:var(--green)}
 .status.err{border-color:rgba(255,90,79,.45);color:#ffb3ad}
-.note{font-size:14px;color:var(--muted);margin:10px 2px}
+.note{font-size:15px;color:var(--muted);margin:10px 2px}
 .code{font-size:34px;letter-spacing:10px;text-align:center;padding:14px;border-radius:14px;width:100%;border:1px solid var(--stroke-2);background:rgba(0,0,0,.22)}
 .spin{display:inline-block;width:14px;height:14px;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;animation:r .8s linear infinite;vertical-align:-2px;margin-right:8px}
 @keyframes r{to{transform:rotate(1turn)}}
+.cmd .eu{font-size:14px;color:var(--muted)}
+.cmd .res{margin-top:8px;font-size:15px}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
@@ -92,15 +101,33 @@ textarea:focus{outline:2px solid rgba(226,184,74,.6);border-color:transparent}
 </header>
 
 <section id="parear" class="hidden">
-  <p class="note">Para ligar este iPhone ao Seaninho do PC, rode no PC
-    <b>agente.py --codigo</b> e digite aqui o código que aparecer.</p>
-  <input id="codigo" class="code" inputmode="numeric" autocomplete="one-time-code" maxlength="7" placeholder="000000">
-  <button class="btn" id="parearBtn">Parear</button>
-  <div id="parearMsg" class="status hidden"></div>
+  <div id="instalar" class="hidden">
+    <h2>Instalar no iPhone</h2>
+    <p class="note">1. Toque em <b>Compartilhar</b> (o quadrado com a seta para cima) › <b>Adicionar à Tela de Início</b>.</p>
+    <p class="note">2. Abra o <b>Seaninho</b> pelo ícone novo. É por lá que ele funciona e recebe notificações.</p>
+  </div>
+  <div id="parearForm">
+    <h2>Conectar este celular</h2>
+    <p class="note">No computador, abra <b>Conectar celular</b> do Seaninho. O código aparece lá agora; digite aqui:</p>
+    <input id="codigo" class="code" inputmode="numeric" autocomplete="one-time-code" maxlength="7" placeholder="000000">
+    <button class="btn" id="parearBtn">Conectar</button>
+    <button class="btn sec" id="pedirDeNovo">Mostrar o código no computador de novo</button>
+    <div id="parearMsg" class="status hidden"></div>
+  </div>
 </section>
 
 <main id="app" class="hidden">
   <section id="tabClaude"></section>
+  <section id="tabPedir" class="hidden">
+    <h2>Pedir ao Seaninho</h2>
+    <textarea id="cmd" placeholder="Ex.: manda pro Rodrigo no Slack que o render saiu · me lembra de ligar pro cliente amanhã às 9h · qual minha próxima reunião?"></textarea>
+    <div class="row acoes">
+      <button class="mic" data-alvo="cmd" aria-label="Falar"></button>
+      <button class="btn" id="cmdEnviar">Enviar</button>
+    </div>
+    <div class="micinfo" id="micinfo-cmd"></div>
+    <div id="cmdLista"></div>
+  </section>
   <section id="tabFeed" class="feed hidden"></section>
   <section id="tabAjustes" class="hidden">
     <h2>Notificações</h2>
@@ -109,14 +136,15 @@ textarea:focus{outline:2px solid rgba(226,184,74,.6);border-color:transparent}
     <div id="pushMsg" class="status hidden"></div>
     <h2>PCs</h2>
     <div id="pcsLista"></div>
-    <h2>Este iPhone</h2>
-    <button class="btn sec" id="desparear">Desparear este iPhone</button>
+    <h2>Este celular</h2>
+    <button class="btn sec" id="desparear">Desconectar este celular</button>
   </section>
 </main>
 
 <nav id="nav" class="hidden">
   <button data-tab="Claude" class="on">Claude<span class="n hidden" id="nAsk"></span></button>
-  <button data-tab="Feed">Atualizações</button>
+  <button data-tab="Pedir">Pedir</button>
+  <button data-tab="Feed">Novidades</button>
   <button data-tab="Ajustes">Ajustes</button>
 </nav>
 
@@ -132,9 +160,13 @@ textarea:focus{outline:2px solid rgba(226,184,74,.6);border-color:transparent}
   <div id="dPedidos"></div>
   <div id="dCompor">
     <div class="label">Responder ou pedir</div>
-    <textarea id="texto" placeholder="Fale pelo microfone do teclado ou escreva…"></textarea>
+    <textarea id="texto" placeholder="Fale no microfone ou escreva…"></textarea>
+    <div class="row acoes">
+      <button class="mic" data-alvo="texto" aria-label="Falar"></button>
+      <button class="btn" id="mandar">Preparar</button>
+    </div>
+    <div class="micinfo" id="micinfo-texto"></div>
     <div class="toggle"><span>O Seaninho melhora o texto antes</span><button class="switch on" id="melhorar" aria-label="O Seaninho melhora o texto"></button></div>
-    <button class="btn" id="mandar">Preparar</button>
   </div>
   <div class="status hidden" id="dBloqueio"></div>
 </div>
@@ -149,14 +181,15 @@ const store = {
   get(k){ try { return localStorage.getItem(k) || ""; } catch { return ""; } },
   set(k, v){ try { v ? localStorage.setItem(k, v) : localStorage.removeItem(k); } catch {} },
 };
+const MIC = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>';
 let chave = store.get("seaninho.chave");
 let pcs = {};            // pc -> {pc, visto_em, mudou_em, sessoes, atualizacoes}
 let pedidos = [];
 let vapid = "";
 let aberta = null;       // {pc, id} da sessão aberta no detalhe
 let melhorar = store.get("seaninho.melhorar") !== "nao";
-const edicoes = {};      // id do pedido -> o prompt como a pessoa editou (a tela se refaz a cada 4 s)
-let timer = null;
+const edicoes = {};      // id do pedido -> o texto como a pessoa editou (a tela se refaz a cada 4 s)
+let timer = null, timerSala = null;
 
 async function rpc(nome, args = {}, comChave = true) {
   const headers = {"apikey": CFG.publica, "Content-Type": "application/json"};
@@ -172,7 +205,7 @@ async function rpc(nome, args = {}, comChave = true) {
   return t ? JSON.parse(t) : null;
 }
 
-// ---- Tempo -----------------------------------------------------------------------------
+// ---- Tempo e PCs -------------------------------------------------------------------------------
 function ha(ms) {
   const s = Math.max(0, (Date.now() - ms) / 1000);
   if (s < 60) return "agora";
@@ -182,8 +215,10 @@ function ha(ms) {
 }
 const hora = iso => new Date(iso).toLocaleTimeString("pt-BR", {hour: "2-digit", minute: "2-digit"});
 const online = p => Date.now() - new Date(p.visto_em).getTime() < 150000;
+// Comandos e microfone vão para o PC ligado que deu sinal por último.
+const pcAtivo = () => Object.values(pcs).filter(online).sort((a, b) => b.visto_em.localeCompare(a.visto_em))[0];
 
-// ---- Desenho -----------------------------------------------------------------------------
+// ---- Desenho -----------------------------------------------------------------------------------
 const ESTADO = {perguntando: "Perguntando", trabalhando: "Trabalhando", ociosa: "Parada"};
 const ICONE = {saude:"💧", reuniao:"📅", agenda:"📅", lembrete:"⏰", tarefas:"✅", claude_conta:"⏳", claude_sessoes:"✳️",
   copias:"🖼️", slack:"💬", whatsapp:"💬", email:"✉️", conexoes:"🔌", pesquisa:"🔎", dados:"📊", sistema:"🏠"};
@@ -222,7 +257,7 @@ function desenharFeed() {
   const itens = [];
   for (const p of Object.values(pcs)) for (const a of p.atualizacoes || []) itens.push({...a, pc: p.pc});
   itens.sort((a, b) => String(b.quando).localeCompare(String(a.quando)));
-  if (!itens.length) { $("tabFeed").innerHTML = `<div class="empty">Nenhuma atualização ainda.</div>`; return; }
+  if (!itens.length) { $("tabFeed").innerHTML = `<div class="empty">Nenhuma novidade ainda.</div>`; return; }
   const dia = q => { const d = new Date(q), h = new Date(); const y = new Date(); y.setDate(h.getDate() - 1);
     return d.toDateString() === h.toDateString() ? "Hoje" : d.toDateString() === y.toDateString() ? "Ontem"
       : d.toLocaleDateString("pt-BR", {weekday: "long", day: "numeric", month: "short"}); };
@@ -239,7 +274,101 @@ function desenharFeed() {
   $("tabFeed").innerHTML = html;
 }
 
-// ---- Detalhe da sessão -----------------------------------------------------------------------
+// ---- Pedir (comandos) ---------------------------------------------------------------------------
+function desenharComandos() {
+  const lista = pedidos.filter(p => p.tipo === "comando");
+  $("cmdLista").innerHTML = lista.length ? "<h2>Pedidos de hoje</h2>" + lista.slice(0, 15).map(desenharComando).join("")
+    : `<p class="note">Os pedidos e as respostas aparecem aqui.</p>`;
+}
+
+function desenharComando(p) {
+  let corpo = "";
+  if (p.estado === "novo" || p.estado === "escrevendo") corpo = `<div class="res"><span class="spin"></span>Entendendo…</div>`;
+  else if (p.estado === "pronto") corpo = `<div class="q pre">${esc(p.prompt)}</div>
+      <div class="dupla"><button class="btn" data-acao="confirmar" data-id="${esc(p.id)}">Confirmar</button>
+      <button class="btn sec" data-acao="cancelar" data-id="${esc(p.id)}">Cancelar</button></div>`;
+  else if (p.estado === "enviar" || p.estado === "enviando") corpo = `<div class="res"><span class="spin"></span>Fazendo…</div>`;
+  else if (p.estado === "entregue") corpo = `<div class="res pre">${esc(p.resposta || "Feito.")}</div>`;
+  else if (p.estado === "erro") corpo = `<div class="status err">${esc(p.erro)}</div>`;
+  else if (p.estado === "cancelado") corpo = `<div class="res meta">Cancelado</div>`;
+  return `<div class="card cmd"><div class="eu">“${esc(p.texto)}” · ${hora(p.criado_em)}</div>${corpo}</div>`;
+}
+
+async function enviarComando() {
+  const texto = $("cmd").value.trim();
+  if (!texto) return;
+  const pc = pcAtivo();
+  if (!pc) return erroMic("cmd", "Nenhum PC ligado agora: o Seaninho do PC é quem faz o pedido.");
+  $("cmdEnviar").disabled = true;
+  try {
+    await rpc("cel_pedir", {pc: pc.pc, tipo: "comando", texto});
+    $("cmd").value = ""; store.set("seaninho.rascunho.cmd", "");
+    await atualizar();
+  } catch (e) { erroMic("cmd", "Não deu: " + (e.message || e)); }
+  finally { $("cmdEnviar").disabled = false; }
+}
+
+// ---- Microfone: grava aqui, o PC transcreve com o transcritor do Seaninho ----------------------------
+let gravando = null;   // {rec, stream, alvo, inicio, timer}
+function erroMic(alvo, msg) { const el = $("micinfo-" + alvo); if (el) { el.textContent = msg; el.className = "micinfo status err"; } }
+function infoMic(alvo, msg) { const el = $("micinfo-" + alvo); if (el) { el.textContent = msg; el.className = "micinfo"; } }
+
+async function alternarMic(botao) {
+  const alvo = botao.dataset.alvo;
+  if (gravando) { if (gravando.alvo === alvo) gravando.rec.stop(); return; }
+  if (!pcAtivo()) return erroMic(alvo, "Nenhum PC ligado agora para transcrever.");
+  if (!navigator.mediaDevices || !window.MediaRecorder) return erroMic(alvo, "Este navegador não grava áudio. Use o microfone do teclado.");
+  let stream;
+  try { stream = await navigator.mediaDevices.getUserMedia({audio: true}); }
+  catch { return erroMic(alvo, "Sem permissão para o microfone. Libere em Ajustes do iPhone › Seaninho."); }
+  const tipo = ["audio/mp4", "audio/webm;codecs=opus", "audio/webm"].find(t => MediaRecorder.isTypeSupported(t)) || "";
+  const rec = new MediaRecorder(stream, tipo ? {mimeType: tipo, audioBitsPerSecond: 32000} : {});
+  const partes = [];
+  rec.ondataavailable = e => e.data && e.data.size && partes.push(e.data);
+  rec.onstop = () => {
+    stream.getTracks().forEach(t => t.stop());
+    clearInterval(gravando.timer);
+    botao.classList.remove("rec");
+    gravando = null;
+    const blob = new Blob(partes, {type: rec.mimeType || tipo || "audio/mp4"});
+    if (blob.size < 2000) return infoMic(alvo, "");
+    transcrever(blob, alvo);
+  };
+  gravando = {rec, stream, alvo, inicio: Date.now()};
+  gravando.timer = setInterval(() => {
+    const s = Math.floor((Date.now() - gravando.inicio) / 1000);
+    infoMic(alvo, `● Gravando ${s}s · toque de novo para parar`);
+    if (s >= 60) rec.stop();
+  }, 250);
+  botao.classList.add("rec");
+  rec.start();
+}
+
+async function transcrever(blob, alvo) {
+  infoMic(alvo, "Transcrevendo no PC…");
+  const audio = await new Promise(res => { const fr = new FileReader(); fr.onload = () => res(String(fr.result).split(",")[1] || ""); fr.readAsDataURL(blob); });
+  const pc = pcAtivo();
+  if (!pc) return erroMic(alvo, "O PC desligou no meio. Tente de novo.");
+  try {
+    const id = await rpc("cel_pedir", {pc: pc.pc, tipo: "transcrever", audio, mime: blob.type});
+    const fim = Date.now() + 60000;
+    while (Date.now() < fim) {
+      await new Promise(r => setTimeout(r, 1000));
+      const r = await rpc("cel_estado", {conhecidos: conhecidos()});
+      const p = (r.pedidos || []).find(x => x.id === id);
+      if (p && p.estado === "entregue") {
+        const caixa = $(alvo);
+        caixa.value = (caixa.value.trim() ? caixa.value.trim() + " " : "") + p.texto;
+        caixa.dispatchEvent(new Event("input"));
+        return infoMic(alvo, "");
+      }
+      if (p && p.estado === "erro") return erroMic(alvo, p.erro);
+    }
+    erroMic(alvo, "O PC não respondeu a tempo.");
+  } catch (e) { erroMic(alvo, "Não deu: " + (e.message || e)); }
+}
+
+// ---- Detalhe da sessão ---------------------------------------------------------------------------
 function abrir(pc, id) {
   aberta = {pc, id};
   $("texto").value = store.get("seaninho.rascunho." + id);
@@ -248,6 +377,7 @@ function abrir(pc, id) {
   desenharDetalhe();
 }
 function fechar() {
+  if (gravando && gravando.alvo === "texto") gravando.rec.stop();
   aberta = null;
   $("detalhe").classList.add("hidden");
   document.body.style.overflow = "";
@@ -257,7 +387,7 @@ function fechar() {
 function desenharDetalhe() {
   if (!aberta) return;
   const s = todasSessoes().find(x => x.id === aberta.id && x.pc === aberta.pc);
-  const ped = pedidos.filter(p => p.sessao === aberta.id && p.estado !== "cancelado");
+  const ped = pedidos.filter(p => (p.tipo || "claude") === "claude" && p.sessao === aberta.id && p.estado !== "cancelado");
   if (!s) {
     $("dTitulo").textContent = (ped[0] && ped[0].titulo) || "Sessão";
     $("dChip").textContent = "Fechada"; $("dChip").className = "chip";
@@ -305,7 +435,7 @@ function desenharPedido(p) {
   return "";
 }
 
-// ---- Ações -----------------------------------------------------------------------------------
+// ---- Ações ---------------------------------------------------------------------------------------
 async function mandar() {
   const texto = $("texto").value.trim();
   if (!texto || !aberta) return;
@@ -321,9 +451,11 @@ async function mandar() {
 async function acaoPedido(acao, id) {
   try {
     if (acao === "confirmar") {
-      const prompt = ($("prompt-" + id) || {}).value || "";
-      if (!prompt.trim()) return;
-      await rpc("cel_confirmar", {id, prompt: prompt.trim()});
+      const p = pedidos.find(x => x.id === id);
+      const caixa = $("prompt-" + id);
+      const prompt = (caixa ? caixa.value : (p && p.prompt) || "").trim();
+      if (!prompt) return;
+      await rpc("cel_confirmar", {id, prompt});
     } else {
       await rpc("cel_cancelar", {id});
     }
@@ -336,22 +468,26 @@ function alerta(e) {
   st.textContent = "Não deu: " + (e.message || e); st.className = "status err";
 }
 
-// ---- Laço --------------------------------------------------------------------------------------
+// ---- Laço ------------------------------------------------------------------------------------------
+function conhecidos() {
+  const c = {};
+  for (const p of Object.values(pcs)) c[p.pc] = p.mudou_em;
+  return c;
+}
+
 async function atualizar() {
   if (!chave) return;
-  const conhecidos = {};
-  for (const p of Object.values(pcs)) conhecidos[p.pc] = p.mudou_em;
   let r;
-  try { r = await rpc("cel_estado", {conhecidos}); }
+  try { r = await rpc("cel_estado", {conhecidos: conhecidos()}); }
   catch (e) { if (e.status && /chave/i.test(e.message)) { sair(); } return; }
   vapid = r.vapid || "";
   const novos = {};
   for (const p of r.pcs || []) novos[p.pc] = p.igual && pcs[p.pc] ? {...pcs[p.pc], visto_em: p.visto_em, versao: p.versao} : p;
   pcs = novos;
   pedidos = r.pedidos || [];
-  // não redesenha o detalhe enquanto a pessoa edita o prompt (perderia o texto)
-  const editando = document.activeElement && document.activeElement.id && document.activeElement.id.startsWith("prompt-");
-  desenharPcs(); desenharSessoes(); desenharFeed();
+  const ativo = document.activeElement;
+  const editando = ativo && ativo.id && ativo.id.startsWith("prompt-");
+  desenharPcs(); desenharSessoes(); desenharFeed(); desenharComandos();
   if (!editando) desenharDetalhe();
 }
 
@@ -361,32 +497,53 @@ function ciclo() {
   atualizar().finally(() => { timer = setTimeout(ciclo, 4000); });
 }
 
-// ---- Pareamento ----------------------------------------------------------------------------------
+// ---- Conectar (parear) -------------------------------------------------------------------------------
+const nomeAparelho = () => /iPhone/.test(navigator.userAgent) ? "iPhone" : /iPad/.test(navigator.userAgent) ? "iPad"
+  : /Android/.test(navigator.userAgent) ? "Android" : "Celular";
+const safariDoIphone = () => /iPhone|iPad|iPod/.test(navigator.userAgent) && navigator.standalone === false;
+
+function mostrarParear() {
+  ["app", "nav"].forEach(i => $(i).classList.add("hidden"));
+  $("parear").classList.remove("hidden");
+  const instalar = safariDoIphone();
+  $("instalar").classList.toggle("hidden", !instalar);
+  $("parearForm").classList.toggle("hidden", instalar);
+  if (!instalar) pedirCodigo();
+}
+
+async function pedirCodigo() {
+  clearTimeout(timerSala);
+  if (chave || $("parear").classList.contains("hidden")) return;
+  try { await rpc("cel_sala_pedir", {}, false); } catch {}
+  timerSala = setTimeout(pedirCodigo, 15000);   // a janela do PC pode abrir depois
+}
+
 async function parear() {
   const codigo = $("codigo").value.replace(/\D/g, "");
   if (codigo.length !== 6) return;
   $("parearBtn").disabled = true;
   try {
-    chave = await rpc("cel_parear", {codigo, nome: "iPhone"}, false);
+    chave = await rpc("cel_parear", {codigo, nome: nomeAparelho()}, false);
     store.set("seaninho.chave", chave);
     entrar();
   } catch (e) {
-    $("parearMsg").textContent = "Código errado ou vencido. Gere outro no PC."; $("parearMsg").className = "status err";
+    $("parearMsg").textContent = "Código errado ou vencido. Confira o número na janela do computador.";
+    $("parearMsg").className = "status err";
   } finally { $("parearBtn").disabled = false; }
 }
 function entrar() {
+  clearTimeout(timerSala);
   $("parear").classList.add("hidden");
   ["app", "nav"].forEach(i => $(i).classList.remove("hidden"));
   ciclo();
 }
 function sair() {
   chave = ""; store.set("seaninho.chave", "");
-  ["app", "nav"].forEach(i => $(i).classList.add("hidden"));
   fechar();
-  $("parear").classList.remove("hidden");
+  mostrarParear();
 }
 
-// ---- Notificações ----------------------------------------------------------------------------
+// ---- Notificações ------------------------------------------------------------------------------------
 function chaveVapid(b64) {
   const s = (b64 + "=".repeat((4 - b64.length % 4) % 4)).replace(/-/g, "+").replace(/_/g, "/");
   return Uint8Array.from(atob(s), c => c.charCodeAt(0));
@@ -396,11 +553,11 @@ async function ativarPush() {
   const ok = t => { msg.textContent = t; msg.className = "status ok"; };
   const err = t => { msg.textContent = t; msg.className = "status err"; };
   if (!("serviceWorker" in navigator) || !("PushManager" in window)) {
-    return err(navigator.standalone === false
+    return err(safariDoIphone()
       ? "No iPhone, primeiro toque em Compartilhar › Adicionar à Tela de Início e abra o Seaninho por lá."
       : "Este navegador não recebe notificações.");
   }
-  if (!vapid) return err("O PC ainda não criou as chaves das notificações (agente.py --vapid).");
+  if (!vapid) return err("O PC ainda não criou as chaves das notificações.");
   try {
     const perm = await Notification.requestPermission();
     if (perm !== "granted") return err("As notificações foram negadas. Ative em Ajustes › Notificações › Seaninho.");
@@ -412,24 +569,31 @@ async function ativarPush() {
   } catch (e) { err("Não deu: " + (e.message || e)); }
 }
 
-// ---- Ligações --------------------------------------------------------------------------------
+// ---- Ligações ----------------------------------------------------------------------------------------
+document.querySelectorAll(".mic").forEach(b => { b.innerHTML = MIC; b.addEventListener("click", () => alternarMic(b)); });
 document.querySelectorAll("nav button").forEach(b => b.addEventListener("click", () => {
   document.querySelectorAll("nav button").forEach(x => x.classList.toggle("on", x === b));
-  ["Claude", "Feed", "Ajustes"].forEach(t => $("tab" + t).classList.toggle("hidden", t !== b.dataset.tab));
+  ["Claude", "Pedir", "Feed", "Ajustes"].forEach(t => $("tab" + t).classList.toggle("hidden", t !== b.dataset.tab));
   window.scrollTo(0, 0);
 }));
 $("tabClaude").addEventListener("click", e => { const c = e.target.closest(".card"); if (c) abrir(c.dataset.pc, c.dataset.id); });
-$("dPedidos").addEventListener("click", e => { const b = e.target.closest("[data-acao]"); if (b) acaoPedido(b.dataset.acao, b.dataset.id); });
+for (const lugar of ["dPedidos", "cmdLista"]) {
+  $(lugar).addEventListener("click", e => { const b = e.target.closest("[data-acao]"); if (b) acaoPedido(b.dataset.acao, b.dataset.id); });
+}
 $("dPedidos").addEventListener("input", e => { if (e.target.dataset.id) edicoes[e.target.dataset.id] = e.target.value; });
 $("voltar").addEventListener("click", fechar);
 $("mandar").addEventListener("click", mandar);
+$("cmdEnviar").addEventListener("click", enviarComando);
 $("melhorar").addEventListener("click", () => { melhorar = !melhorar; store.set("seaninho.melhorar", melhorar ? "" : "nao"); desenharDetalhe(); });
 $("texto").addEventListener("input", () => aberta && store.set("seaninho.rascunho." + aberta.id, $("texto").value));
+$("cmd").value = store.get("seaninho.rascunho.cmd");
+$("cmd").addEventListener("input", () => store.set("seaninho.rascunho.cmd", $("cmd").value));
 $("parearBtn").addEventListener("click", parear);
+$("pedirDeNovo").addEventListener("click", () => { pedirCodigo(); $("parearMsg").textContent = "Pedi de novo: confira a janela do computador."; $("parearMsg").className = "status"; });
 $("codigo").addEventListener("input", () => { if ($("codigo").value.replace(/\D/g, "").length === 6) parear(); });
 $("pushBtn").addEventListener("click", ativarPush);
-$("desparear").addEventListener("click", () => { if (confirm("Desparear este iPhone?")) sair(); });
-document.addEventListener("visibilitychange", ciclo);
+$("desparear").addEventListener("click", () => { if (confirm("Desconectar este celular?")) sair(); });
+document.addEventListener("visibilitychange", () => { ciclo(); if (!chave) pedirCodigo(); });
 
 if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => {});
 if (!CFG.url || !CFG.publica) {
@@ -439,7 +603,7 @@ if (!CFG.url || !CFG.publica) {
   const h = new URLSearchParams(location.hash.slice(1));   // vindo de uma notificação
   if (h.get("sessao")) atualizar().then(() => abrir(h.get("pc") || "", h.get("sessao")));
 } else {
-  $("parear").classList.remove("hidden");
+  mostrarParear();
 }
 </script>
 </body>
