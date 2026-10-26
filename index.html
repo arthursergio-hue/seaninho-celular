@@ -1,0 +1,446 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Seaninho">
+<meta name="theme-color" content="#0B1E3F">
+<title>Seaninho</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icone-180.png">
+<link rel="icon" href="icone-192.png">
+<style>
+:root{
+  --navy:#0B1E3F; --coral:#FF5A4F; --gold:#E2B84A; --gold-2:#F6D77E; --green:#48D680;
+  --ink:#F4F6FB; --muted:#9AA8C4; --faint:#6B7A99; --stroke:rgba(255,255,255,.10); --stroke-2:rgba(255,255,255,.18);
+  --glass:rgba(255,255,255,.05); --glass-2:rgba(255,255,255,.09);
+  --font:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",system-ui,sans-serif;
+  --top:env(safe-area-inset-top,0px); --bottom:env(safe-area-inset-bottom,0px);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;min-height:100%;background:#08142e;color:var(--ink);font:16px/1.45 var(--font)}
+body{background:linear-gradient(170deg,#0E224A,#08142E 60%) fixed;padding:calc(var(--top) + 8px) 16px calc(var(--bottom) + 84px)}
+button,textarea,input{font:inherit;color:inherit}
+button{cursor:pointer;border:0;background:none}
+.hidden{display:none!important}
+header{display:flex;align-items:center;gap:10px;padding:6px 0 14px}
+header img{width:34px;height:34px;border-radius:50%}
+header h1{margin:0;font-size:21px;font-weight:650;letter-spacing:.2px;flex:1}
+.pcs{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.pc{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:5px;padding:3px 9px;border-radius:999px;background:var(--glass)}
+.pc i{width:7px;height:7px;border-radius:50%;background:var(--faint)}
+.pc.on i{background:var(--green)}
+h2{font-size:13px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin:18px 2px 8px}
+.card{display:block;width:100%;text-align:left;padding:14px;margin:0 0 10px;border-radius:16px;background:var(--glass);border:1px solid var(--stroke)}
+.card:active{background:var(--glass-2)}
+.card.ask{border-color:rgba(226,184,74,.45);background:rgba(226,184,74,.07)}
+.row{display:flex;align-items:center;gap:8px}
+.title{font-weight:600;font-size:16px;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.meta{font-size:13px;color:var(--faint);margin-top:3px}
+.chip{flex:none;font-size:12px;font-weight:600;padding:2px 9px;border-radius:999px;background:var(--glass-2);color:var(--muted)}
+.chip.perguntando{background:var(--gold);color:var(--navy)}
+.chip.trabalhando{background:rgba(72,214,128,.16);color:var(--green)}
+.chip.trabalhando::before{content:"";display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--green);margin-right:6px;vertical-align:1px;animation:pulse 1.4s infinite}
+@keyframes pulse{50%{opacity:.25}}
+.q{margin-top:10px;padding:10px 12px;border-radius:12px;background:rgba(0,0,0,.18);font-size:15px;color:var(--ink)}
+.empty{color:var(--muted);text-align:center;padding:40px 10px;font-size:15px}
+.feed .item{display:flex;gap:12px;padding:12px 2px;border-bottom:1px solid var(--stroke)}
+.feed .ico{flex:none;width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:var(--glass-2);font-size:17px}
+.feed .t{font-weight:600;font-size:15px}
+.feed .s{font-size:14px;color:var(--muted)}
+.feed .w{font-size:12px;color:var(--faint);margin-top:2px}
+.feed .item.new .t::before{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--gold);margin-right:7px;vertical-align:2px}
+nav{position:fixed;left:0;right:0;bottom:0;display:flex;padding:8px 10px calc(var(--bottom) + 8px);
+    background:rgba(8,20,46,.92);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-top:1px solid var(--stroke)}
+nav button{flex:1;padding:8px 0;border-radius:12px;color:var(--muted);font-size:14px;font-weight:600}
+nav button.on{color:var(--navy);background:var(--gold)}
+nav .n{display:inline-block;min-width:18px;margin-left:4px;padding:0 5px;border-radius:999px;background:var(--coral);color:#fff;font-size:11px}
+/* detalhe da sessão */
+#detalhe{position:fixed;inset:0;z-index:5;overflow:auto;background:linear-gradient(170deg,#0E224A,#08142E 60%);
+  padding:calc(var(--top) + 8px) 16px calc(var(--bottom) + 24px)}
+.back{display:flex;align-items:center;gap:6px;color:var(--gold);font-weight:600;padding:6px 0 12px}
+.reply{white-space:pre-wrap;word-wrap:break-word;font-size:15px;line-height:1.5;padding:12px;border-radius:14px;background:var(--glass);
+  border:1px solid var(--stroke);max-height:46vh;overflow:auto}
+.label{font-size:12px;font-weight:600;color:var(--faint);text-transform:uppercase;letter-spacing:.6px;margin:16px 2px 6px}
+textarea{width:100%;min-height:96px;resize:vertical;padding:12px;border-radius:14px;border:1px solid var(--stroke-2);background:rgba(0,0,0,.22);font-size:16px;line-height:1.45}
+textarea:focus{outline:2px solid rgba(226,184,74,.6);border-color:transparent}
+.toggle{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:10px 2px;font-size:15px;color:var(--muted)}
+.switch{width:46px;height:28px;border-radius:999px;background:var(--glass-2);position:relative;flex:none;transition:background .15s}
+.switch::after{content:"";position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:#fff;transition:transform .15s}
+.switch.on{background:var(--gold)} .switch.on::after{transform:translateX(18px)}
+.btn{display:block;width:100%;padding:14px;border-radius:14px;font-weight:650;font-size:16px;margin-top:10px;background:var(--gold);color:var(--navy)}
+.btn.sec{background:var(--glass-2);color:var(--ink)}
+.btn:disabled{opacity:.45}
+.status{margin-top:12px;padding:12px;border-radius:14px;font-size:15px;background:var(--glass);border:1px solid var(--stroke)}
+.status.ok{border-color:rgba(72,214,128,.4);color:var(--green)}
+.status.err{border-color:rgba(255,90,79,.45);color:#ffb3ad}
+.note{font-size:14px;color:var(--muted);margin:10px 2px}
+.code{font-size:34px;letter-spacing:10px;text-align:center;padding:14px;border-radius:14px;width:100%;border:1px solid var(--stroke-2);background:rgba(0,0,0,.22)}
+.spin{display:inline-block;width:14px;height:14px;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;animation:r .8s linear infinite;vertical-align:-2px;margin-right:8px}
+@keyframes r{to{transform:rotate(1turn)}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<header>
+  <img src="icone-180.png" alt="">
+  <h1>Seaninho</h1>
+  <div class="pcs" id="pcs"></div>
+</header>
+
+<section id="parear" class="hidden">
+  <p class="note">Para ligar este iPhone ao Seaninho do PC, rode no PC
+    <b>agente.py --codigo</b> e digite aqui o código que aparecer.</p>
+  <input id="codigo" class="code" inputmode="numeric" autocomplete="one-time-code" maxlength="7" placeholder="000000">
+  <button class="btn" id="parearBtn">Parear</button>
+  <div id="parearMsg" class="status hidden"></div>
+</section>
+
+<main id="app" class="hidden">
+  <section id="tabClaude"></section>
+  <section id="tabFeed" class="feed hidden"></section>
+  <section id="tabAjustes" class="hidden">
+    <h2>Notificações</h2>
+    <p class="note" id="pushNota">Avisa quando uma sessão do Claude pergunta ou termina e você não está no PC.</p>
+    <button class="btn" id="pushBtn">Ativar notificações</button>
+    <div id="pushMsg" class="status hidden"></div>
+    <h2>PCs</h2>
+    <div id="pcsLista"></div>
+    <h2>Este iPhone</h2>
+    <button class="btn sec" id="desparear">Desparear este iPhone</button>
+  </section>
+</main>
+
+<nav id="nav" class="hidden">
+  <button data-tab="Claude" class="on">Claude<span class="n hidden" id="nAsk"></span></button>
+  <button data-tab="Feed">Atualizações</button>
+  <button data-tab="Ajustes">Ajustes</button>
+</nav>
+
+<div id="detalhe" class="hidden">
+  <button class="back" id="voltar">‹ Sessões</button>
+  <div class="row"><div class="title" id="dTitulo"></div><span class="chip" id="dChip"></span></div>
+  <div class="meta" id="dMeta"></div>
+  <div class="q hidden" id="dPergunta"></div>
+  <div class="label">Última fala do Claude</div>
+  <div class="reply" id="dResposta"></div>
+  <div class="label hidden" id="dPedidoLabel">Seu último pedido no PC</div>
+  <div class="note hidden" id="dPedido"></div>
+  <div id="dPedidos"></div>
+  <div id="dCompor">
+    <div class="label">Responder ou pedir</div>
+    <textarea id="texto" placeholder="Fale pelo microfone do teclado ou escreva…"></textarea>
+    <div class="toggle"><span>O Seaninho melhora o texto antes</span><button class="switch on" id="melhorar" aria-label="O Seaninho melhora o texto"></button></div>
+    <button class="btn" id="mandar">Preparar</button>
+  </div>
+  <div class="status hidden" id="dBloqueio"></div>
+</div>
+
+<script src="config.js"></script>
+<script>
+"use strict";
+const CFG = window.SEANINHO || {};
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const store = {
+  get(k){ try { return localStorage.getItem(k) || ""; } catch { return ""; } },
+  set(k, v){ try { v ? localStorage.setItem(k, v) : localStorage.removeItem(k); } catch {} },
+};
+let chave = store.get("seaninho.chave");
+let pcs = {};            // pc -> {pc, visto_em, mudou_em, sessoes, atualizacoes}
+let pedidos = [];
+let vapid = "";
+let aberta = null;       // {pc, id} da sessão aberta no detalhe
+let melhorar = store.get("seaninho.melhorar") !== "nao";
+const edicoes = {};      // id do pedido -> o prompt como a pessoa editou (a tela se refaz a cada 4 s)
+let timer = null;
+
+async function rpc(nome, args = {}, comChave = true) {
+  const headers = {"apikey": CFG.publica, "Content-Type": "application/json"};
+  if ((CFG.publica || "").startsWith("ey")) headers.Authorization = "Bearer " + CFG.publica;
+  const body = comChave ? {chave, ...args} : args;
+  const r = await fetch(`${CFG.url}/rest/v1/rpc/${nome}`, {method: "POST", headers, body: JSON.stringify(body)});
+  if (!r.ok) {
+    let msg = r.statusText;
+    try { msg = (await r.json()).message || msg; } catch {}
+    const e = new Error(msg); e.status = r.status; throw e;
+  }
+  const t = await r.text();
+  return t ? JSON.parse(t) : null;
+}
+
+// ---- Tempo -----------------------------------------------------------------------------
+function ha(ms) {
+  const s = Math.max(0, (Date.now() - ms) / 1000);
+  if (s < 60) return "agora";
+  if (s < 3600) return `há ${Math.floor(s / 60)} min`;
+  if (s < 86400) return `há ${Math.floor(s / 3600)} h`;
+  return `há ${Math.floor(s / 86400)} d`;
+}
+const hora = iso => new Date(iso).toLocaleTimeString("pt-BR", {hour: "2-digit", minute: "2-digit"});
+const online = p => Date.now() - new Date(p.visto_em).getTime() < 150000;
+
+// ---- Desenho -----------------------------------------------------------------------------
+const ESTADO = {perguntando: "Perguntando", trabalhando: "Trabalhando", ociosa: "Parada"};
+const ICONE = {saude:"💧", reuniao:"📅", agenda:"📅", lembrete:"⏰", tarefas:"✅", claude_conta:"⏳", claude_sessoes:"✳️",
+  copias:"🖼️", slack:"💬", whatsapp:"💬", email:"✉️", conexoes:"🔌", pesquisa:"🔎", dados:"📊", sistema:"🏠"};
+
+function todasSessoes() {
+  const out = [];
+  for (const p of Object.values(pcs)) for (const s of p.sessoes || []) out.push({...s, pc: p.pc});
+  const ordem = {perguntando: 0, trabalhando: 1, ociosa: 2};
+  return out.sort((a, b) => (ordem[a.estado] - ordem[b.estado]) || (b.desde - a.desde));
+}
+
+function desenharPcs() {
+  const lista = Object.values(pcs).sort((a, b) => a.pc.localeCompare(b.pc));
+  $("pcs").innerHTML = lista.map(p => `<span class="pc ${online(p) ? "on" : ""}"><i></i>${esc(p.pc)}</span>`).join("");
+  $("pcsLista").innerHTML = lista.map(p => `<div class="card"><div class="row"><div class="title">${esc(p.pc)}</div>
+    <span class="chip">${online(p) ? "ligado" : "desligado"}</span></div>
+    <div class="meta">Visto ${ha(new Date(p.visto_em).getTime())} · versão ${esc(p.versao)}</div></div>`).join("")
+    || `<p class="note">Nenhum PC publicou ainda.</p>`;
+}
+
+function desenharSessoes() {
+  const ss = todasSessoes();
+  const varios = Object.keys(pcs).length > 1;
+  const nAsk = ss.filter(s => s.estado === "perguntando").length;
+  $("nAsk").textContent = nAsk; $("nAsk").classList.toggle("hidden", !nAsk);
+  if (!ss.length) { $("tabClaude").innerHTML = `<div class="empty">Nenhuma sessão do Claude aberta nos PCs.</div>`; return; }
+  $("tabClaude").innerHTML = ss.map(s => `
+    <button class="card ${s.estado === "perguntando" ? "ask" : ""}" data-pc="${esc(s.pc)}" data-id="${esc(s.id)}">
+      <div class="row"><div class="title">${esc(s.titulo)}</div><span class="chip ${esc(s.estado)}">${ESTADO[s.estado] || esc(s.estado)}</span></div>
+      <div class="meta">${esc(s.pasta)}${varios ? " · " + esc(s.pc) : ""} · ${ha(s.desde * 1000)}</div>
+      ${s.estado === "perguntando" && s.detalhe ? `<div class="q">${esc(s.detalhe)}</div>` : ""}
+    </button>`).join("");
+}
+
+function desenharFeed() {
+  const itens = [];
+  for (const p of Object.values(pcs)) for (const a of p.atualizacoes || []) itens.push({...a, pc: p.pc});
+  itens.sort((a, b) => String(b.quando).localeCompare(String(a.quando)));
+  if (!itens.length) { $("tabFeed").innerHTML = `<div class="empty">Nenhuma atualização ainda.</div>`; return; }
+  const dia = q => { const d = new Date(q), h = new Date(); const y = new Date(); y.setDate(h.getDate() - 1);
+    return d.toDateString() === h.toDateString() ? "Hoje" : d.toDateString() === y.toDateString() ? "Ontem"
+      : d.toLocaleDateString("pt-BR", {weekday: "long", day: "numeric", month: "short"}); };
+  let ultimo = "", html = "";
+  const varios = Object.keys(pcs).length > 1;
+  for (const a of itens.slice(0, 80)) {
+    const d = dia(a.quando);
+    if (d !== ultimo) { html += `<h2>${esc(d)}</h2>`; ultimo = d; }
+    html += `<div class="item ${a.lido ? "" : "new"}"><div class="ico">${ICONE[a.categoria] || "•"}</div><div>
+      <div class="t">${esc(a.titulo)}${a.n > 1 ? ` <span class="chip">${a.n}</span>` : ""}</div>
+      ${a.sub ? `<div class="s">${esc(a.sub)}</div>` : ""}
+      <div class="w">${hora(a.quando)}${varios ? " · " + esc(a.pc) : ""}</div></div></div>`;
+  }
+  $("tabFeed").innerHTML = html;
+}
+
+// ---- Detalhe da sessão -----------------------------------------------------------------------
+function abrir(pc, id) {
+  aberta = {pc, id};
+  $("texto").value = store.get("seaninho.rascunho." + id);
+  $("detalhe").classList.remove("hidden");
+  document.body.style.overflow = "hidden";
+  desenharDetalhe();
+}
+function fechar() {
+  aberta = null;
+  $("detalhe").classList.add("hidden");
+  document.body.style.overflow = "";
+  if (location.hash) history.replaceState(null, "", location.pathname);
+}
+
+function desenharDetalhe() {
+  if (!aberta) return;
+  const s = todasSessoes().find(x => x.id === aberta.id && x.pc === aberta.pc);
+  const ped = pedidos.filter(p => p.sessao === aberta.id && p.estado !== "cancelado");
+  if (!s) {
+    $("dTitulo").textContent = (ped[0] && ped[0].titulo) || "Sessão";
+    $("dChip").textContent = "Fechada"; $("dChip").className = "chip";
+    $("dMeta").textContent = "A sessão não está mais aberta no PC.";
+    ["dPergunta", "dPedidoLabel", "dPedido", "dCompor"].forEach(i => $(i).classList.add("hidden"));
+    $("dResposta").textContent = "";
+  } else {
+    $("dTitulo").textContent = s.titulo;
+    $("dChip").textContent = ESTADO[s.estado] || s.estado; $("dChip").className = "chip " + s.estado;
+    $("dMeta").textContent = `${s.pasta} · ${s.onde} · ${s.pc} · ${ha(s.desde * 1000)}`;
+    $("dPergunta").textContent = s.detalhe || "";
+    $("dPergunta").classList.toggle("hidden", !(s.estado === "perguntando" && s.detalhe));
+    $("dResposta").textContent = s.resposta || "(nada ainda)";
+    $("dPedido").textContent = s.pedido || "";
+    $("dPedidoLabel").classList.toggle("hidden", !s.pedido); $("dPedido").classList.toggle("hidden", !s.pedido);
+    const online_ = pcs[s.pc] && online(pcs[s.pc]);
+    const motivo = !online_ ? "O PC parece desligado (sem sinal há mais de 2 minutos)."
+      : !s.entregavel ? (s.onde !== "VS Code" ? `Por enquanto só entrego em sessões do VS Code (esta está no ${s.onde}).`
+                         : "A sessão está esperando uma permissão ou uma escolha de opções: isso ainda só se responde no PC.") : "";
+    const ocupado = ped.some(p => ["novo", "escrevendo", "pronto", "enviar", "enviando"].includes(p.estado));
+    $("dCompor").classList.toggle("hidden", !!motivo || ocupado);
+    $("dBloqueio").textContent = motivo; $("dBloqueio").className = "status" + (motivo ? "" : " hidden");
+  }
+  $("dPedidos").innerHTML = ped.slice(0, 3).map(desenharPedido).join("");
+  $("melhorar").classList.toggle("on", melhorar);
+  $("mandar").textContent = melhorar ? "Preparar" : "Enviar ao Claude";
+}
+
+function desenharPedido(p) {
+  const quando = hora(p.atualizado_em);
+  if (p.estado === "novo" || p.estado === "escrevendo")
+    return `<div class="status"><span class="spin"></span>O Seaninho está escrevendo o prompt…</div>`;
+  if (p.estado === "pronto")
+    return `<div class="label">Vai para o Claude assim (pode editar)</div>
+      ${p.erro ? `<p class="note">${esc(p.erro)}</p>` : ""}
+      <textarea id="prompt-${esc(p.id)}" data-id="${esc(p.id)}">${esc(edicoes[p.id] ?? p.prompt)}</textarea>
+      <button class="btn" data-acao="confirmar" data-id="${esc(p.id)}">Enviar ao Claude</button>
+      <button class="btn sec" data-acao="cancelar" data-id="${esc(p.id)}">Cancelar</button>`;
+  if (p.estado === "enviar" || p.estado === "enviando")
+    return `<div class="status"><span class="spin"></span>Entregando no PC…</div>`;
+  if (p.estado === "entregue")
+    return `<div class="status ok">✓ Entregue às ${quando}: “${esc(p.prompt.slice(0, 140))}${p.prompt.length > 140 ? "…" : ""}”</div>`;
+  if (p.estado === "erro")
+    return `<div class="status err">Não foi às ${quando}: ${esc(p.erro)}</div>`;
+  return "";
+}
+
+// ---- Ações -----------------------------------------------------------------------------------
+async function mandar() {
+  const texto = $("texto").value.trim();
+  if (!texto || !aberta) return;
+  const s = todasSessoes().find(x => x.id === aberta.id && x.pc === aberta.pc);
+  $("mandar").disabled = true;
+  try {
+    await rpc("cel_pedir", {pc: aberta.pc, sessao: aberta.id, titulo: s ? s.titulo : "", texto, direto: !melhorar});
+    $("texto").value = ""; store.set("seaninho.rascunho." + aberta.id, "");
+    await atualizar();
+  } catch (e) { alerta(e); } finally { $("mandar").disabled = false; }
+}
+
+async function acaoPedido(acao, id) {
+  try {
+    if (acao === "confirmar") {
+      const prompt = ($("prompt-" + id) || {}).value || "";
+      if (!prompt.trim()) return;
+      await rpc("cel_confirmar", {id, prompt: prompt.trim()});
+    } else {
+      await rpc("cel_cancelar", {id});
+    }
+    await atualizar();
+  } catch (e) { alerta(e); }
+}
+
+function alerta(e) {
+  const st = $("dBloqueio");
+  st.textContent = "Não deu: " + (e.message || e); st.className = "status err";
+}
+
+// ---- Laço --------------------------------------------------------------------------------------
+async function atualizar() {
+  if (!chave) return;
+  const conhecidos = {};
+  for (const p of Object.values(pcs)) conhecidos[p.pc] = p.mudou_em;
+  let r;
+  try { r = await rpc("cel_estado", {conhecidos}); }
+  catch (e) { if (e.status && /chave/i.test(e.message)) { sair(); } return; }
+  vapid = r.vapid || "";
+  const novos = {};
+  for (const p of r.pcs || []) novos[p.pc] = p.igual && pcs[p.pc] ? {...pcs[p.pc], visto_em: p.visto_em, versao: p.versao} : p;
+  pcs = novos;
+  pedidos = r.pedidos || [];
+  // não redesenha o detalhe enquanto a pessoa edita o prompt (perderia o texto)
+  const editando = document.activeElement && document.activeElement.id && document.activeElement.id.startsWith("prompt-");
+  desenharPcs(); desenharSessoes(); desenharFeed();
+  if (!editando) desenharDetalhe();
+}
+
+function ciclo() {
+  clearTimeout(timer);
+  if (document.visibilityState !== "visible" || !chave) return;
+  atualizar().finally(() => { timer = setTimeout(ciclo, 4000); });
+}
+
+// ---- Pareamento ----------------------------------------------------------------------------------
+async function parear() {
+  const codigo = $("codigo").value.replace(/\D/g, "");
+  if (codigo.length !== 6) return;
+  $("parearBtn").disabled = true;
+  try {
+    chave = await rpc("cel_parear", {codigo, nome: "iPhone"}, false);
+    store.set("seaninho.chave", chave);
+    entrar();
+  } catch (e) {
+    $("parearMsg").textContent = "Código errado ou vencido. Gere outro no PC."; $("parearMsg").className = "status err";
+  } finally { $("parearBtn").disabled = false; }
+}
+function entrar() {
+  $("parear").classList.add("hidden");
+  ["app", "nav"].forEach(i => $(i).classList.remove("hidden"));
+  ciclo();
+}
+function sair() {
+  chave = ""; store.set("seaninho.chave", "");
+  ["app", "nav"].forEach(i => $(i).classList.add("hidden"));
+  fechar();
+  $("parear").classList.remove("hidden");
+}
+
+// ---- Notificações ----------------------------------------------------------------------------
+function chaveVapid(b64) {
+  const s = (b64 + "=".repeat((4 - b64.length % 4) % 4)).replace(/-/g, "+").replace(/_/g, "/");
+  return Uint8Array.from(atob(s), c => c.charCodeAt(0));
+}
+async function ativarPush() {
+  const msg = $("pushMsg");
+  const ok = t => { msg.textContent = t; msg.className = "status ok"; };
+  const err = t => { msg.textContent = t; msg.className = "status err"; };
+  if (!("serviceWorker" in navigator) || !("PushManager" in window)) {
+    return err(navigator.standalone === false
+      ? "No iPhone, primeiro toque em Compartilhar › Adicionar à Tela de Início e abra o Seaninho por lá."
+      : "Este navegador não recebe notificações.");
+  }
+  if (!vapid) return err("O PC ainda não criou as chaves das notificações (agente.py --vapid).");
+  try {
+    const perm = await Notification.requestPermission();
+    if (perm !== "granted") return err("As notificações foram negadas. Ative em Ajustes › Notificações › Seaninho.");
+    const reg = await navigator.serviceWorker.ready;
+    let sub = await reg.pushManager.getSubscription();
+    if (!sub) sub = await reg.pushManager.subscribe({userVisibleOnly: true, applicationServerKey: chaveVapid(vapid)});
+    await rpc("cel_assinar", {assinatura: sub.toJSON()});
+    ok("Notificações ativadas.");
+  } catch (e) { err("Não deu: " + (e.message || e)); }
+}
+
+// ---- Ligações --------------------------------------------------------------------------------
+document.querySelectorAll("nav button").forEach(b => b.addEventListener("click", () => {
+  document.querySelectorAll("nav button").forEach(x => x.classList.toggle("on", x === b));
+  ["Claude", "Feed", "Ajustes"].forEach(t => $("tab" + t).classList.toggle("hidden", t !== b.dataset.tab));
+  window.scrollTo(0, 0);
+}));
+$("tabClaude").addEventListener("click", e => { const c = e.target.closest(".card"); if (c) abrir(c.dataset.pc, c.dataset.id); });
+$("dPedidos").addEventListener("click", e => { const b = e.target.closest("[data-acao]"); if (b) acaoPedido(b.dataset.acao, b.dataset.id); });
+$("dPedidos").addEventListener("input", e => { if (e.target.dataset.id) edicoes[e.target.dataset.id] = e.target.value; });
+$("voltar").addEventListener("click", fechar);
+$("mandar").addEventListener("click", mandar);
+$("melhorar").addEventListener("click", () => { melhorar = !melhorar; store.set("seaninho.melhorar", melhorar ? "" : "nao"); desenharDetalhe(); });
+$("texto").addEventListener("input", () => aberta && store.set("seaninho.rascunho." + aberta.id, $("texto").value));
+$("parearBtn").addEventListener("click", parear);
+$("codigo").addEventListener("input", () => { if ($("codigo").value.replace(/\D/g, "").length === 6) parear(); });
+$("pushBtn").addEventListener("click", ativarPush);
+$("desparear").addEventListener("click", () => { if (confirm("Desparear este iPhone?")) sair(); });
+document.addEventListener("visibilitychange", ciclo);
+
+if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => {});
+if (!CFG.url || !CFG.publica) {
+  document.body.insertAdjacentHTML("beforeend", `<div class="empty">Falta o config.js (endereço do Supabase).</div>`);
+} else if (chave) {
+  entrar();
+  const h = new URLSearchParams(location.hash.slice(1));   // vindo de uma notificação
+  if (h.get("sessao")) atualizar().then(() => abrir(h.get("pc") || "", h.get("sessao")));
+} else {
+  $("parear").classList.remove("hidden");
+}
+</script>
+</body>
+</html>
