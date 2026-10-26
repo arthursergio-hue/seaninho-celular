@@ -100,9 +100,21 @@ textarea:focus{outline:2px solid rgba(226,184,74,.6);border-color:transparent}
 #imagem img{display:block;width:100%;border-radius:12px;-webkit-touch-callout:default}
 .gear{flex:none;width:36px;height:36px;border-radius:50%;display:grid;place-items:center;background:var(--glass);color:var(--muted);font-size:18px}
 .gear.on{background:var(--gold);color:var(--navy)}
-.conta{font-size:13px;color:var(--muted);padding:9px 12px;border-radius:12px;background:var(--glass);border:1px solid var(--stroke);margin-bottom:10px}
-.conta b{color:var(--ink);font-weight:600}
-.conta .alto{color:var(--coral)}
+.conta{padding:14px;border-radius:16px;background:var(--glass);border:1px solid var(--stroke);margin-bottom:12px}
+.conta .topo{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted)}
+.conta .topo b{color:var(--ink);font-weight:600;font-size:15px;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.conta .lim{margin-top:12px}
+.conta .lim .row{justify-content:space-between;font-size:14px;color:var(--muted)}
+.conta .pct{font-weight:700;color:var(--ink)}
+.conta .alto{color:var(--gold)} .conta .critico{color:var(--coral)}
+.conta .barra{margin:6px 0 4px}
+.conta .barra i.alto{background:var(--gold)} .conta .barra i.critico{background:var(--coral)}
+.conta .volta{font-size:12px;color:var(--faint)}
+.conta .btn{margin-top:14px;padding:11px;font-size:15px}
+.conta .status{margin-top:10px;font-size:14px}
+.sugestoes{display:flex;flex-wrap:wrap;gap:8px;margin:2px 0 10px}
+.sug{padding:9px 13px;border-radius:999px;background:rgba(226,184,74,.12);border:1px solid rgba(226,184,74,.42);color:var(--gold-2);font-size:14px;line-height:1.3;text-align:left}
+.sug:active{background:rgba(226,184,74,.28)}
 .barra{height:8px;border-radius:999px;background:var(--glass-2);overflow:hidden;margin:10px 0 4px}
 .barra i{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,#4FA3FF,#7FD3FF)}
 .mini{display:flex;gap:8px;margin-top:6px} .mini .btn{flex:1;padding:11px 6px;font-size:15px;margin-top:6px}
@@ -214,6 +226,7 @@ details.card summary{cursor:pointer;font-weight:600;color:var(--muted)}
   <div id="dPedidos"></div>
   <div id="dCompor">
     <div class="label">Responder ou pedir</div>
+    <div class="sugestoes hidden" id="dSugestoes"></div>
     <textarea id="texto" placeholder="Fale no microfone ou escreva…"></textarea>
     <div class="row acoes">
       <button class="mic" data-alvo="texto" aria-label="Falar"></button>
@@ -249,6 +262,7 @@ let vapid = "";
 let aberta = null;       // {pc, id} da sessão aberta no detalhe
 let melhorar = store.get("seaninho.melhorar") !== "nao";
 const edicoes = {};      // id do pedido -> o texto como a pessoa editou (a tela se refaz a cada 4 s)
+let sugestoesAtuais = []; // as respostas prontas da sessão aberta (o PC pede à IA quando o Claude pergunta ou termina)
 let timer = null, timerSala = null;
 let aba = "Claude";
 let copias = {};         // pc -> [cópias], baixadas só quando o copias_em do PC muda e a aba está aberta
@@ -310,7 +324,7 @@ function desenharSessoes() {
   const varios = Object.keys(pcs).length > 1;
   const nAsk = ss.filter(s => s.estado === "perguntando").length;
   $("nAsk").textContent = nAsk; $("nAsk").classList.toggle("hidden", !nAsk);
-  const conta = contaHtml();
+  const conta = contasHtml();
   if (!ss.length) { $("tabClaude").innerHTML = conta + `<div class="empty">Nenhuma sessão do Claude aberta nos PCs.</div>`; return; }
   $("tabClaude").innerHTML = conta + ss.map(s => `
     <button class="card ${s.estado === "perguntando" ? "ask" : ""}" data-pc="${esc(s.pc)}" data-id="${esc(s.id)}">
@@ -352,14 +366,65 @@ function pcHoje() {
 const hm = iso => { const d = new Date(iso); return isNaN(d) ? "" : hora(iso); };
 const diaIso = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 
-function contaHtml() {
-  const c = (pcHoje() || {}).hoje?.conta;
-  if (!c || !c.email) return "";
-  const volta = iso => { const d = new Date(iso); if (isNaN(d)) return "";
-    return d.toDateString() === new Date().toDateString() ? hm(iso)
-      : d.toLocaleDateString("pt-BR", {weekday: "short", day: "2-digit", month: "2-digit"}) + " " + hm(iso); };
-  const lim = (nome, l) => l ? `${nome} <b class="${l.pct >= 80 ? "alto" : ""}">${l.pct}%</b>${l.volta ? ` (volta ${volta(l.volta)})` : ""}` : "";
-  return `<div class="conta">Claude: <b>${esc(c.email)}</b> · ${[lim("sessão", c.sessao), lim("semana", c.semana)].filter(Boolean).join(" · ")}</div>`;
+// ---- Conta do Claude: a janelinha do PC (sessão de 5 h e semana) com o "Trocar conta" ----------------
+const trocas = {};   // pc -> id do pedido de troca (ou "erro:…")
+const nivel = pct => pct >= 95 ? "critico" : pct >= 80 ? "alto" : "";
+
+// "às 15:30", "amanhã às 15:30", "qui 29/10 às 15:30" (o mesmo texto da janela do PC)
+function reinicia(iso) {
+  const d = new Date(iso); if (isNaN(d)) return "";
+  const hoje = new Date(), amanha = new Date(); amanha.setDate(hoje.getDate() + 1);
+  if (d.toDateString() === hoje.toDateString()) return `às ${hm(iso)}`;
+  if (d.toDateString() === amanha.toDateString()) return `amanhã às ${hm(iso)}`;
+  return `${d.toLocaleDateString("pt-BR", {weekday: "short"}).replace(".", "")} ${d.toLocaleDateString("pt-BR", {day: "2-digit", month: "2-digit"})} às ${hm(iso)}`;
+}
+function falta(iso) {
+  const s = (new Date(iso) - Date.now()) / 1000;
+  if (!(s > 0)) return "";
+  if (s >= 172800) return `em ${Math.round(s / 86400)} dias`;
+  const h = Math.floor(s / 3600), m = Math.round((s % 3600) / 60);
+  return h ? `em ${h} h ${String(m).padStart(2, "0")} min` : `em ${m} min`;
+}
+
+function contasHtml() {
+  const lista = Object.values(pcs).filter(p => p.hoje && p.hoje.conta && p.hoje.conta.email)
+    .sort((a, b) => a.pc.localeCompare(b.pc));
+  return lista.map(p => contaCartao(p, lista.length > 1)).join("");
+}
+
+function contaCartao(p, varios) {
+  const c = p.hoje.conta;
+  const lim = (nome, l) => !l ? "" : `<div class="lim">
+      <div class="row"><span>${nome}</span><span class="pct ${nivel(l.pct)}">${l.pct}%</span></div>
+      <div class="barra"><i class="${nivel(l.pct)}" style="width:${Math.max(2, Math.min(100, l.pct))}%"></i></div>
+      ${l.volta ? `<div class="volta">Reinicia ${reinicia(l.volta)}${falta(l.volta) ? " · " + falta(l.volta) : ""}</div>` : ""}</div>`;
+  const troca = trocas[p.pc];
+  const ped = troca && pedidos.find(x => x.id === troca);
+  if (ped && ["entregue", "erro"].includes(ped.estado) && Date.now() - new Date(ped.atualizado_em) > 120000) delete trocas[p.pc];
+  let status = "";
+  if (typeof troca === "string" && troca.startsWith("erro:")) status = `<div class="status err">Não deu: ${esc(troca.slice(5))}</div>`;
+  else if (troca && (!ped || ["novo", "escrevendo"].includes(ped.estado)))
+    status = `<div class="status"><span class="spin"></span>Trocando a conta no PC… (pode levar até 2 min)</div>`;
+  else if (ped && ped.estado === "entregue") status = `<div class="status ok">✓ ${esc(ped.resposta || "Conta trocada")}</div>`;
+  else if (ped && ped.estado === "erro") status = `<div class="status err">Não trocou: ${esc(ped.erro)}</div>`;
+  const ocupado = troca && (!ped || ["novo", "escrevendo"].includes(ped.estado)) && !String(troca).startsWith("erro:");
+  return `<div class="conta">
+    <div class="topo">⏳ <b>${esc(c.email)}</b>${varios ? esc(p.pc) : ""}</div>
+    <div class="meta">Conta do Claude${c.plano ? " · " + esc(c.plano) : ""}${c.lido ? " · lida " + ha(c.lido * 1000) : ""}</div>
+    ${lim("Sessão (5 h)", c.sessao)}${lim("Semana", c.semana)}
+    <button class="btn sec" data-trocar="${esc(p.pc)}" ${online(p) && !ocupado ? "" : "disabled"}>${online(p) ? "Trocar conta" : "Trocar conta (PC desligado)"}</button>
+    ${status}</div>`;
+}
+
+async function trocarConta(pc, botao) {
+  const p = pcs[pc];
+  if (!p || !online(p)) return;
+  if (!confirm(`Trocar a conta do Claude no ${pc}?\n\nO switcher escolhe a conta do pool com mais folga. As sessões abertas continuam, já na conta nova.`)) return;
+  botao.disabled = true;
+  try {
+    trocas[pc] = await rpc("cel_pedir", {pc, tipo: "acao", texto: JSON.stringify({acao: "trocar_conta"})});
+    await atualizar();
+  } catch (e) { trocas[pc] = "erro:" + (e.message || e); desenharSessoes(); }
 }
 
 function desenharHoje() {
@@ -654,6 +719,12 @@ function desenharDetalhe() {
                          : "A sessão está esperando uma permissão ou uma escolha de opções: isso ainda só se responde no PC.") : "";
     const ocupado = ped.some(p => ["novo", "escrevendo", "pronto", "enviar", "enviando"].includes(p.estado));
     $("dCompor").classList.toggle("hidden", !!motivo || ocupado);
+    const sug = Array.isArray(s.sugestoes) ? s.sugestoes : [];
+    if (sug.join("\u0001") !== sugestoesAtuais.join("\u0001")) {
+      sugestoesAtuais = sug;
+      $("dSugestoes").innerHTML = sug.map((t, i) => `<button class="sug" data-sug="${i}">${esc(t)}</button>`).join("");
+    }
+    $("dSugestoes").classList.toggle("hidden", !sug.length);
     $("dBloqueio").textContent = motivo; $("dBloqueio").className = "status" + (motivo ? "" : " hidden");
   }
   $("dPedidos").innerHTML = ped.slice(0, 3).map(desenharPedido).join("");
@@ -844,7 +915,18 @@ $("tarefaAdd").addEventListener("click", novaTarefa);
 $("tarefaTexto").addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); novaTarefa(); } });
 $("tabCopias").addEventListener("click", e => { const c = e.target.closest(".copia"); if (c) tocarCopia(c); });
 $("imgVoltar").addEventListener("click", () => { $("imagem").classList.add("hidden"); $("imgGrande").removeAttribute("src"); });
-$("tabClaude").addEventListener("click", e => { const c = e.target.closest(".card"); if (c) abrir(c.dataset.pc, c.dataset.id); });
+$("tabClaude").addEventListener("click", e => {
+  const t = e.target.closest("[data-trocar]");
+  if (t) return trocarConta(t.dataset.trocar, t);
+  const c = e.target.closest(".card"); if (c) abrir(c.dataset.pc, c.dataset.id);
+});
+$("dSugestoes").addEventListener("click", e => {
+  const b = e.target.closest("[data-sug]");
+  if (!b || !aberta) return;
+  $("texto").value = sugestoesAtuais[Number(b.dataset.sug)] || "";
+  $("texto").dispatchEvent(new Event("input"));
+  $("texto").focus();
+});
 for (const lugar of ["dPedidos", "cmdLista"]) {
   $(lugar).addEventListener("click", e => { const b = e.target.closest("[data-acao]"); if (b) acaoPedido(b.dataset.acao, b.dataset.id); });
 }
