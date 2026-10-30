@@ -101,7 +101,10 @@ nav .n{display:inline-block;min-width:18px;margin-left:4px;padding:0 5px;border-
 .nota{font-size:12.5px;color:var(--muted);margin-top:3px}
 .nota .spin{width:11px;height:11px;margin-right:6px}
 .fotos{margin:-2px -5px 6px -6px}
-.fotos img{display:block;width:100%;max-height:280px;object-fit:cover;border-radius:9px}
+.fotos img{display:block;width:100%;max-height:280px;object-fit:cover;border-radius:9px;cursor:zoom-in}
+.fotos.grade{display:grid;grid-template-columns:1fr 1fr;gap:3px}
+.fotos.grade img{height:140px;max-height:none}
+.bolha.so-foto{width:74%}
 .chip-foto{display:inline-block;font-size:13px;color:var(--muted);background:rgba(0,0,0,.22);padding:2px 9px;border-radius:999px;margin:1px 0 4px}
 .descer{position:absolute;right:12px;bottom:12px;width:42px;height:42px;border-radius:50%;background:#17294D;border:1px solid var(--stroke-2);
   color:var(--ink);font-size:20px;box-shadow:0 3px 10px rgba(0,0,0,.45)}
@@ -125,7 +128,14 @@ nav .n{display:inline-block;min-width:18px;margin-left:4px;padding:0 5px;border-
 .enq .btn{margin-top:8px;padding:11px}
 .enq-status{font-size:13px;color:var(--muted);margin-top:8px}
 .enq-status.err{color:#ffb3ad}
-.chat-baixo{flex:none;padding:6px 8px calc(var(--bottom) + 8px);background:rgba(8,20,46,.97);border-top:1px solid var(--stroke)}
+.perm .enq-q{font-size:15.5px}
+.perm-det{margin:6px 0 4px;padding:8px 10px;border-radius:10px;background:rgba(0,0,0,.3);font:12.5px/1.45 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  white-space:pre-wrap;word-break:break-word;max-height:none;overflow:hidden}
+.perm-det.longo{max-height:220px;-webkit-mask-image:linear-gradient(#000 75%,transparent)}
+.perm .btn{margin-top:8px;padding:11px;font-size:15px}
+.perm .perm-recado{margin-top:10px}
+.nota.obs{margin-top:4px}
+.chat-baixo{flex:none;position:relative;padding:6px 8px calc(var(--bottom) + 8px);background:rgba(8,20,46,.97);border-top:1px solid var(--stroke)}
 .chat-baixo .status{margin:4px 2px 2px}
 .chat-baixo .micinfo{padding:2px 8px 0}
 .compor{display:flex;align-items:flex-end;gap:6px}
@@ -136,6 +146,10 @@ nav .n{display:inline-block;min-width:18px;margin-left:4px;padding:0 5px;border-
 .clipe svg,.enviar svg{width:22px;height:22px}
 .compor .mic,.enviar{flex:none;width:44px;height:44px}
 .enviar{border-radius:50%;background:var(--gold);color:var(--navy);display:grid;place-items:center}
+.menu-anexo{position:absolute;left:8px;bottom:calc(100% + 6px);z-index:2;min-width:220px;padding:6px;border-radius:14px;background:#17294D;
+  border:1px solid var(--stroke-2);box-shadow:0 8px 24px rgba(0,0,0,.55)}
+.menu-anexo button{display:flex;align-items:center;gap:12px;width:100%;padding:12px;border-radius:10px;font-size:15.5px;text-align:left}
+.menu-anexo button:active{background:rgba(255,255,255,.08)}
 .anexo{position:relative;display:inline-block;margin:6px 0 8px 8px}
 .anexo img{display:block;height:84px;max-width:60vw;object-fit:cover;border-radius:10px;border:1px solid var(--stroke-2)}
 .anexo button{position:absolute;top:-8px;right:-8px;width:26px;height:26px;border-radius:50%;background:rgba(0,0,0,.8);color:#fff;font-size:17px;line-height:1}
@@ -180,6 +194,64 @@ textarea:focus{outline:2px solid rgba(226,184,74,.6);border-color:transparent}
 .copia .txt{font-size:15px;white-space:pre-wrap;word-wrap:break-word;display:-webkit-box;-webkit-line-clamp:6;-webkit-box-orient:vertical;overflow:hidden}
 .copia img{display:block;max-width:100%;max-height:220px;border-radius:10px;background:rgba(0,0,0,.25)}
 .copia .ok{color:var(--green);font-weight:600}
+/* ---- Imagem em tela cheia e o editor de marcações (marcar.js) ---- */
+#visor{position:fixed;inset:0;z-index:7;background:#000;overscroll-behavior:none;-webkit-user-select:none;user-select:none}
+.v-palco{position:absolute;inset:0;overflow:hidden;touch-action:none}
+#visor button,#editor button,#editor label{touch-action:manipulation}
+#vImg{position:absolute;max-width:none;transform-origin:center center;will-change:transform;-webkit-user-drag:none;-webkit-touch-callout:none}
+.v-topo{position:absolute;left:0;right:0;top:0;display:flex;align-items:center;gap:4px;padding:calc(var(--top) + 6px) 8px 22px;
+  background:linear-gradient(rgba(0,0,0,.7),transparent);transition:opacity .2s}
+.v-topo.some{opacity:0;pointer-events:none}
+.v-topo button,.e-topo button{flex:none;min-width:42px;height:42px;border-radius:21px;color:#fff;display:grid;place-items:center}
+.v-topo svg,.e-topo svg,.e-ferr svg{width:23px;height:23px}
+.v-nome{flex:1;min-width:0;color:#fff;font-size:15px;font-weight:600;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.v-nome small{display:block;color:rgba(255,255,255,.65);font-size:12.5px;font-weight:400}
+.v-topo .v-marcar{display:flex;gap:6px;padding:0 14px;background:rgba(255,255,255,.18);font-weight:650}
+.v-marcar svg{width:19px;height:19px}
+#editor{position:fixed;left:0;right:0;top:0;z-index:8;height:var(--altura,100dvh);display:flex;flex-direction:column;background:#000;
+  overscroll-behavior:none;-webkit-user-select:none;user-select:none}
+.e-topo{flex:none;display:flex;align-items:center;gap:2px;padding:calc(var(--top) + 6px) 6px 4px}
+.e-topo .vao{flex:1}
+.e-topo button:disabled{opacity:.3}
+.e-palco{flex:1;min-height:0;position:relative;overflow:hidden;touch-action:none}
+#eTela{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);touch-action:none;border-radius:3px}
+.e-barra{position:absolute;right:4px;top:10%;bottom:10%;width:40px;touch-action:none;z-index:3}
+.e-trilho{position:absolute;left:50%;top:0;bottom:0;width:14px;transform:translateX(-50%);background:rgba(255,255,255,.6);
+  clip-path:polygon(0 0,100% 0,60% 100%,40% 100%)}
+.e-bola{position:absolute;left:50%;width:26px;height:26px;margin:-13px 0 0 -13px;border-radius:50%;background:#fff;box-shadow:0 1px 6px rgba(0,0,0,.6)}
+.e-previa{position:absolute;right:56px;z-index:3;transform:translateY(-50%);display:grid;place-items:center;pointer-events:none;min-width:30px}
+.e-previa i{display:block;border-radius:50%;border:1.5px solid rgba(255,255,255,.9);box-shadow:0 0 0 1px rgba(0,0,0,.4)}
+.e-previa span{font-weight:600;text-shadow:0 1px 4px rgba(0,0,0,.7);line-height:1}
+.e-escrever{position:absolute;inset:0;z-index:2;background:rgba(0,0,0,.6);display:flex;flex-direction:column;align-items:center;
+  justify-content:center;gap:12px;padding:16px 56px 16px 16px}
+#eTexto{width:100%;min-height:0;max-height:260px;resize:none;border:0;outline:none;text-align:center;font-weight:600;line-height:1.22;
+  border-radius:10px;padding:8px 12px;overflow:hidden}
+#eTextoOk{padding:8px 22px;border-radius:999px;background:#fff;color:#000;font-weight:650}
+.e-ferr{flex:none;display:flex;justify-content:space-between;align-items:center;padding:2px 8px}
+.e-ferr button{width:44px;height:44px;border-radius:22px;color:#fff;display:grid;place-items:center}
+.e-ferr button.on{background:#fff;color:#000}
+#eEstilo{font-weight:800;font-size:19px;border:2px solid #fff}
+#eEstilo[data-estilo="caixa"]{background:#fff;color:#000}
+#eEstilo[data-estilo="meio"]{background:rgba(255,255,255,.35)}
+.e-cores{flex:none;display:flex;align-items:center;gap:10px;overflow-x:auto;padding:7px 12px 9px;scrollbar-width:none;touch-action:pan-x}
+.e-cores::-webkit-scrollbar{display:none}
+.e-cor{flex:none;width:30px;height:30px;border-radius:50%;background:var(--c);border:2px solid rgba(255,255,255,.9)}
+.e-cor.on{box-shadow:0 0 0 2px #000,0 0 0 4px #fff;transform:scale(1.08)}
+.e-livre{position:relative;overflow:hidden;background:conic-gradient(#f33,#fc0,#3c5,#0cf,#36f,#c3f,#f33)}
+.e-livre.on{background:var(--c)}
+.e-livre input{position:absolute;inset:-4px;width:calc(100% + 8px);height:calc(100% + 8px);opacity:0;border:0;padding:0;cursor:pointer}
+.e-baixo{flex:none;padding:4px 8px calc(var(--bottom) + 8px)}
+.e-baixo textarea{flex:1;min-width:0;min-height:42px;max-height:110px;resize:none;border-radius:21px;padding:10px 14px;
+  border:1px solid var(--stroke-2);background:rgba(255,255,255,.08)}
+.e-baixo .mic{width:44px;height:44px}
+#eEnviar.enviando{position:relative}
+#eEnviar.enviando svg{opacity:0}
+#eEnviar.enviando::after{content:"";position:absolute;inset:12px;border:2.5px solid var(--navy);border-right-color:transparent;border-radius:50%;
+  animation:r .8s linear infinite}
+.e-zoom{position:absolute;left:10px;top:8px;padding:5px 11px;border-radius:999px;background:rgba(0,0,0,.6);color:#fff;font-weight:700;font-size:14px}
+.e-erro{margin:0 4px 6px;padding:8px 12px;border-radius:12px;font-size:14px;color:#ffb3ad;background:rgba(255,90,79,.14);border:1px solid rgba(255,90,79,.4)}
+.anexo .marcar{position:absolute;left:6px;bottom:6px;width:34px;height:34px;border-radius:50%;background:rgba(0,0,0,.72);color:#fff;display:grid;place-items:center}
+.anexo .marcar svg{width:18px;height:18px}
 #imagem{position:fixed;inset:0;z-index:6;overflow:auto;background:#060f22;padding:calc(var(--top) + 8px) 16px calc(var(--bottom) + 24px)}
 #imagem img{display:block;width:100%;border-radius:12px;-webkit-touch-callout:default}
 .gear{flex:none;width:36px;height:36px;border-radius:50%;display:grid;place-items:center;background:var(--glass);color:var(--muted);font-size:18px}
@@ -312,11 +384,16 @@ details.card summary{cursor:pointer;font-weight:600;color:var(--muted)}
     <div id="dRascunho"></div>
     <div class="status hidden" id="dBloqueio"></div>
     <div id="dCompor">
+      <div class="menu-anexo hidden" id="dMenuAnexo" role="menu">
+        <button role="menuitem" id="dEscolher">🖼️ Foto ou print</button>
+        <button role="menuitem" id="dColar">📋 Colar imagem</button>
+      </div>
       <div class="sugestoes" id="dSugestoes"></div>
-      <div class="anexo hidden" id="dAnexo"><img id="dAnexoImg" alt="Imagem que vai junto"><button id="dAnexoTirar" aria-label="Tirar a imagem">×</button></div>
+      <div class="anexo hidden" id="dAnexo"><img id="dAnexoImg" alt="Imagem que vai junto"><button id="dAnexoTirar" aria-label="Tirar a imagem">×</button>
+        <button class="marcar" id="dAnexoMarcar" data-icone="lapis" aria-label="Marcar na imagem antes de mandar"></button></div>
       <div class="compor">
         <div class="caixa">
-          <button class="clipe hidden" id="dClipe" aria-label="Anexar foto ou print"></button>
+          <button class="clipe hidden" id="dClipe" aria-label="Anexar foto ou print" aria-haspopup="menu" aria-expanded="false"></button>
           <textarea id="texto" rows="1" placeholder="Mensagem"></textarea>
         </div>
         <button class="mic" data-alvo="texto" aria-label="Falar"></button>
@@ -328,6 +405,57 @@ details.card summary{cursor:pointer;font-weight:600;color:var(--muted)}
   <input type="file" id="dArquivo" accept="image/*" hidden>
 </div>
 
+<div id="visor" class="hidden" role="dialog" aria-label="Imagem em tela cheia">
+  <div class="v-palco" id="vPalco"><img id="vImg" alt="" draggable="false"></div>
+  <div class="v-topo" id="vTopo">
+    <button id="vFechar" data-icone="fechar" aria-label="Fechar"></button>
+    <div class="v-nome" id="vNome"></div>
+    <button id="vSalvar" data-icone="compartilhar" aria-label="Salvar ou compartilhar"></button>
+    <button class="v-marcar hidden" id="vMarcar" data-icone="lapis">Marcar</button>
+  </div>
+</div>
+
+<div id="editor" class="hidden" role="dialog" aria-label="Marcar a imagem">
+  <div class="e-topo">
+    <button id="eFechar" data-icone="fechar" aria-label="Sair sem mandar"></button>
+    <span class="vao"></span>
+    <button id="eApagar" class="hidden" data-icone="lixo" aria-label="Apagar a marca selecionada"></button>
+    <button id="eDesfazer" data-icone="desfazer" aria-label="Desfazer"></button>
+    <button id="eRefazer" data-icone="refazer" aria-label="Refazer"></button>
+    <button id="eSalvar" data-icone="salvar" aria-label="Salvar no celular"></button>
+  </div>
+  <div class="e-palco" id="ePalco">
+    <canvas id="eTela"></canvas>
+    <button class="e-zoom hidden" id="eZoom" aria-label="Ver a imagem inteira">1×</button>
+    <div class="e-barra" id="eBarra" role="slider" aria-label="Espessura e tamanho do texto" aria-valuemin="0" aria-valuemax="100">
+      <div class="e-trilho"></div><div class="e-bola" id="eBola"></div></div>
+    <div class="e-previa hidden" id="ePrevia"></div>
+    <div class="e-escrever hidden" id="eEscrever">
+      <textarea id="eTexto" rows="1" placeholder="Escreva"></textarea>
+      <button id="eTextoOk">Pronto</button>
+    </div>
+  </div>
+  <div class="e-ferr" id="eFerr">
+    <button data-f="lapis" data-icone="lapis" aria-label="Lápis"></button>
+    <button data-f="borracha" data-icone="borracha" aria-label="Borracha (apaga a marca que tocar)"></button>
+    <button data-f="texto" data-icone="texto" aria-label="Texto"></button>
+    <button data-f="seta" data-icone="seta" aria-label="Seta"></button>
+    <button data-f="ret" data-icone="ret" aria-label="Retângulo"></button>
+    <button data-f="circ" data-icone="circ" aria-label="Círculo"></button>
+    <button id="eEstilo" class="hidden">A</button>
+  </div>
+  <div class="e-cores" id="eCores"><label class="e-cor e-livre" id="eCorLivre" aria-label="Outra cor"><input type="color" id="eCor" value="#ff3b30"></label></div>
+  <div class="e-baixo">
+    <div class="e-erro hidden" id="eErro"></div>
+    <div class="compor">
+      <textarea id="eLegenda" rows="1" placeholder="Legenda (opcional)"></textarea>
+      <button class="mic" data-alvo="eLegenda" aria-label="Falar a legenda"></button>
+      <button class="enviar" id="eEnviar" aria-label="Enviar"></button>
+    </div>
+    <div class="micinfo" id="micinfo-eLegenda"></div>
+  </div>
+</div>
+
 <div id="imagem" class="hidden">
   <button class="back" id="imgVoltar">‹ Cópias</button>
   <img id="imgGrande" alt="Print copiado no PC">
@@ -336,6 +464,7 @@ details.card summary{cursor:pointer;font-weight:600;color:var(--muted)}
 
 <script src="config.js"></script>
 <script src="chat.js"></script>
+<script src="marcar.js"></script>
 <script>
 "use strict";
 const CFG = window.SEANINHO || {};
@@ -421,17 +550,19 @@ function desenharSessoes() {
     <button class="card ${s.estado === "perguntando" ? "ask" : ""}" data-pc="${esc(s.pc)}" data-id="${esc(s.id)}">
       <div class="row"><div class="title">${esc(s.titulo)}</div><span class="chip ${esc(s.estado)}">${ESTADO[s.estado] || esc(s.estado)}</span></div>
       <div class="meta">${esc(s.pasta)}${varios ? " · " + esc(s.pc) : ""} · ${ha(s.desde * 1000)}</div>
-      ${s.estado === "perguntando" && (s.enquete || s.detalhe) ? `<div class="q">${s.enquete ? "📊 " : ""}${esc(s.enquete ? s.enquete.perguntas[0].pergunta : s.detalhe)}</div>`
+      ${s.permissao && !s.enquete ? `<div class="q">${esc(previa(s))}</div>`
+        : s.estado === "perguntando" && (s.enquete || s.detalhe) ? `<div class="q">${s.enquete ? "📊 " : ""}${esc(s.enquete ? s.enquete.perguntas[0].pergunta : s.detalhe)}</div>`
         : previa(s) ? `<div class="prev">${esc(previa(s))}</div>` : ""}
     </button>`).join("");
 }
 
 // A última mensagem da conversa, numa linha (como a lista de conversas do WhatsApp).
 function previa(s) {
+  if (s.permissao && !s.enquete) return ((s.permissao.plano ? "📋 Plano para aprovar: " : "🔐 Pede permissão: ") + s.permissao.titulo).slice(0, 160);
   const c = Chat.conversaDe(s).filter(m => ["eu", "claude", "sessao"].includes(m.de));
   const m = c[c.length - 1];
   if (!m) return "";
-  const texto = m.texto || (m.enquete ? "📊 Enquete" : m.n_imagens ? "📷 Imagem" : "");
+  const texto = m.texto || (m.enquete ? "📊 Enquete" : m.n_imagens || (m.fotos || []).length ? "📷 Imagem" : "");
   return (m.de === "eu" ? "Você: " : m.de === "sessao" ? `↪ ${m.nome || "outra sessão"}: ` : "") + texto.replace(/\s+/g, " ").slice(0, 160);
 }
 
@@ -782,6 +913,7 @@ async function transcrever(blob, alvo) {
 // ---- Chat de uma sessão (agente 0.8: a conversa, a enquete e a imagem) -------------------------------
 // A lógica (juntar a conversa com os pedidos, os sinais) está em chat.js; aqui, o desenho e os toques.
 const AGENTE_CHAT = "0.8.0";        // o agente que responde enquete e recebe imagem
+const AGENTE_PERMISSAO = "0.8.1";   // o que responde o pedido de permissão (e aprova o plano)
 const CLIPE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5l-8.6 8.6a5.5 5.5 0 0 1-7.8-7.8l9.2-9.2a3.7 3.7 0 0 1 5.2 5.2l-9.2 9.2a1.8 1.8 0 0 1-2.6-2.6l8.5-8.5"/></svg>';
 const SETA = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M3.4 20.4l17.5-7.5a1 1 0 0 0 0-1.8L3.4 3.6a.9.9 0 0 0-1.3 1L4 11l9 1-9 1-1.9 6.4a.9.9 0 0 0 1.3 1z"/></svg>';
 const NOME_SINAL = {mandando: "mandando", enviado: "enviado", entregue: "entregue", lido: "a sessão respondeu", erro: "não foi"};
@@ -792,6 +924,10 @@ const abertos = new Set();          // balões longos abertos ("Ler mais")
 const vistas = {};                  // id da sessão -> a última sessão vista (o chat continua depois que ela fecha)
 let anexo = null;                   // {b64, mime, mini}: a imagem que vai no próximo envio
 let assinaturaChat = "", ultimaMsg = "", novas = 0;
+const fotosNaTela = new Map();      // a foto tocada no chat -> o que o visor mostra (a grande, se tiver)
+const grandesNaTela = new Map();    // pedido -> a minha foto grande (do IndexedDB), para o balão não ficar borrado
+const grandesPedidas = new Set(), grandesFaltam = new Set();
+const permRecados = {};             // id do pedido de permissão -> o recado escrito (vai com o "Não")
 const miniaturas = (() => { try { return JSON.parse(store.get("seaninho.miniaturas") || "{}"); } catch { return {}; } })();
 
 function guardarMiniatura(id, url) {   // as imagens mandadas daqui aparecem no balão (as 20 mais novas)
@@ -801,7 +937,7 @@ function guardarMiniatura(id, url) {   // as imagens mandadas daqui aparecem no 
   store.set("seaninho.miniaturas", JSON.stringify(miniaturas));
 }
 
-const agenteNovo = pc => !!(pcs[pc] && Chat.versaoMin(pcs[pc].versao, AGENTE_CHAT));
+const agenteNovo = (pc, minimo = AGENTE_CHAT) => !!(pcs[pc] && Chat.versaoMin(pcs[pc].versao, minimo));
 const dentro = el => !!(document.activeElement && el.contains(document.activeElement) && document.activeElement !== el);
 const escrevendoEm = el => dentro(el) && /^(INPUT|TEXTAREA)$/.test(document.activeElement.tagName);
 const horaDe = t => t ? new Date(t * 1000).toLocaleTimeString("pt-BR", {hour: "2-digit", minute: "2-digit"}) : "";
@@ -814,9 +950,11 @@ function sessaoAberta() {
 }
 
 function abrir(pc, id) {
+  if (Marcar.aberto() && !Marcar.sairEditor(true)) return;   // marcando uma imagem: pergunta antes de trocar de conversa
+  Marcar.fecharVisor();
   aberta = {pc, id};
   locais = []; assinaturaChat = ""; ultimaMsg = ""; novas = 0;
-  tirarAnexo();
+  tirarAnexo(); menuAnexo(false);
   $("texto").value = store.get("seaninho.rascunho." + id);
   $("detalhe").classList.remove("hidden");
   document.body.style.overflow = "hidden";
@@ -826,7 +964,7 @@ function abrir(pc, id) {
 }
 function fechar() {
   if (gravando && gravando.alvo === "texto") gravando.rec.stop();
-  aberta = null; locais = [];
+  aberta = null; locais = []; menuAnexo(false);
   $("detalhe").classList.add("hidden");
   document.body.style.overflow = "";
   if (location.hash) history.replaceState(null, "", location.pathname);
@@ -857,21 +995,26 @@ function desenharDetalhe(paraOFim = false) {
   }
   const ligado = s && pcs[s.pc] && online(pcs[s.pc]);
   const enquete = s && s.enquete && s.enquete.aberta !== false && s.respondivel && agenteNovo(s.pc) ? s.enquete : null;
+  const permissao = s && s.permissao && !s.enquete ? s.permissao : null;
+  const respondePerm = !!(permissao && s.respondivel && agenteNovo(s.pc, AGENTE_PERMISSAO));
   let motivo = "";
   if (!s) motivo = "A sessão não está mais aberta no PC.";
   else if (!ligado) motivo = "O PC parece desligado (sem sinal há mais de 2 minutos).";
-  else if (enquete) motivo = "";
+  else if (enquete || respondePerm) motivo = "";
   else if (!s.entregavel) motivo = s.onde !== "VS Code" ? `Por enquanto só entrego em sessões do VS Code (esta está no ${s.onde}).`
     : s.enquete ? "A pergunta com opções desta sessão ainda só se responde no PC."
+    : permissao ? `Para responder a permissão daqui, o ${s.pc} precisa do Seaninho no celular ${AGENTE_PERMISSAO}.`
     : "A sessão está esperando uma permissão: isso ainda só se responde no PC.";
   const rascunho = ped.find(p => p.estado === "pronto" && (p.tipo || "claude") === "claude");
   if (!escrevendoEm($("dRascunho"))) $("dRascunho").innerHTML = rascunho ? desenharRascunho(rascunho) : "";
-  $("dCompor").classList.toggle("hidden", !!motivo || !!rascunho || !!enquete);
-  const info = enquete ? "Responda a enquete acima. Se nenhuma opção servir, use “Outra resposta”." : motivo;
+  $("dCompor").classList.toggle("hidden", !!motivo || !!rascunho || !!enquete || respondePerm);
+  const info = enquete ? "Responda a enquete acima. Se nenhuma opção servir, use “Outra resposta”."
+    : respondePerm ? (permissao.plano ? "Aprove ou não o plano acima." : "Responda o pedido de permissão acima.") : motivo;
   $("dBloqueio").textContent = info;
   $("dBloqueio").className = "status" + (info ? "" : " hidden");
   desenharSugestoes(s);
   $("dClipe").classList.toggle("hidden", !(s && agenteNovo(s.pc)));
+  if ($("dClipe").classList.contains("hidden") || $("dCompor").classList.contains("hidden")) menuAnexo(false);
   desenharMensagens(base, paraOFim);
 }
 
@@ -903,8 +1046,13 @@ function desenharMensagens(s, paraOFim = false, forcar = false) {
   if (escrevendoEm(caixa) && !forcar) return;   // escrevendo a "Outra resposta" da enquete: não refaz por baixo
   const meus = locais.filter(l => l.sessao === s.id);
   const linhas = Chat.montar(s, pedidos, meus, Date.now());
+  const viva = sessaoAberta();
+  if (viva && viva.id === s.id && viva.permissao && !viva.enquete)   // o pedido de permissão que espera: no fim
+    linhas.push({tipo: "msg", id: "perm:" + viva.permissao.id, de: "claude", texto: "", t: viva.permissao.t || 0, permissao: viva.permissao});
+  fotosNaTela.clear();
   const html = linhas.map((l, i) => desenharLinha(l, linhas[i - 1], s)).join("")
     || `<div class="empty">Nada na conversa ainda.</div>`;
+  if (grandesFaltam.size) buscarGrandes();
   if (html === assinaturaChat && !paraOFim) return;
   const fim = paraOFim || !assinaturaChat || pertoDoFim(caixa);
   let ancora = null;
@@ -926,6 +1074,17 @@ function desenharMensagens(s, paraOFim = false, forcar = false) {
   mostrarDescer();
 }
 
+// As minhas fotos no balão: a grande (guardada no celular quando mandei) no lugar da miniatura, que fica borrada.
+function buscarGrandes() {
+  const ids = [...grandesFaltam];
+  grandesFaltam.clear();
+  ids.forEach(id => grandesPedidas.add(id));
+  Promise.all(ids.map(id => Marcar.Grandes.ler(id).then(url => {
+    if (url) grandesNaTela.set(id, URL.createObjectURL(Marcar.blobDe(url)));
+    return !!url;
+  }))).then(achou => { if (achou.some(Boolean) && aberta) desenharDetalhe(); });
+}
+
 function mostrarDescer() {
   const longe = !pertoDoFim($("dMsgs"));
   if (!longe) novas = 0;
@@ -941,13 +1100,30 @@ function desenharLinha(l, ant, s) {
   }
   if (l.de === "sessao")
     return `<div class="aviso sessao" data-id="${esc(l.id)}"><span>↪ ${esc(l.nome || "outra sessão")}: ${esc(l.texto)}</span></div>`;
+  if (l.permissao)
+    return `<div class="linha-msg ele" data-id="${esc(l.id)}"><div class="bolha enq perm">${desenharPermissao(l.permissao, s)}`
+      + `<span class="hora">${horaDe(l.t)}</span></div></div>`;
   const eu = l.de === "eu";
+  const fotos = !eu && Array.isArray(l.fotos) ? l.fotos : [];
+  if (!eu && !l.texto && !l.enquete && !fotos.length) return "";   // balão só de foto sem a foto (agente antigo)
   const seguida = ant && ant.tipo === "msg" && ant.de === l.de && !(ant.enquete || l.enquete);
   let corpo = l.enquete ? desenharEnquete(l.enquete, s) : "";
   if (eu) {
     const mini = l.mini || (l.pedido && miniaturas[l.pedido]);
-    if (mini) corpo += `<div class="fotos"><img src="${esc(mini)}" alt="Imagem mandada daqui"></div>`;
-    else if (l.n_imagens || String(l.mime || "").startsWith("image/")) corpo += `<span class="chip-foto">📷 Imagem</span>`;
+    if (mini) {
+      const grande = l.grande || (l.pedido && grandesNaTela.get(l.pedido)) || "";
+      if (!grande && l.pedido && !grandesPedidas.has(l.pedido)) grandesFaltam.add(l.pedido);
+      fotosNaTela.set(l.id, {src: l.grande || mini, nome: "Imagem que você mandou", arquivo: "foto", sub: "Você · " + horaDe(l.t),
+                             chave: l.pedido || ""});
+      corpo += `<div class="fotos"><img src="${esc(grande || mini)}" data-ver="${esc(l.id)}" alt="Imagem mandada daqui"></div>`;
+    } else if (l.n_imagens || String(l.mime || "").startsWith("image/")) corpo += `<span class="chip-foto">📷 Imagem</span>`;
+  } else if (fotos.length) {
+    const com = fotos.filter(f => f.src);
+    com.forEach((f, i) => fotosNaTela.set(`${l.id}#${i}`, {src: f.src, nome: f.nome, caminho: f.caminho, sub: "Claude · " + horaDe(l.t)}));
+    if (com.length) corpo += `<div class="fotos${com.length > 1 ? " grade" : ""}">` + com.map((f, i) =>
+      `<img src="${esc(f.src)}" data-ver="${esc(l.id)}#${i}" alt="${esc(f.nome)}">`).join("") + `</div>`;
+    corpo += fotos.filter(f => !f.src).map(f =>
+      `<span class="chip-foto" title="Está no PC; só as mais novas vêm em foto">📷 ${esc(f.nome)}</span> `).join("");
   }
   if (l.texto) {
     const longo = l.texto.length > 700 || l.texto.split("\n").length > 14;
@@ -956,11 +1132,12 @@ function desenharLinha(l, ant, s) {
       + (longo ? `<button class="mais" data-mais="${esc(l.id)}">${aberto ? "Mostrar menos" : "Ler mais"}</button>` : "");
   }
   if (l.nota) corpo += `<div class="nota"><span class="spin"></span>${esc(l.nota)}</div>`;
+  if (l.obs) corpo += `<div class="nota obs">${esc(l.obs)}</div>`;
   const sinal = eu && l.sinal ? `<i class="sinal ${l.sinal}" title="${NOME_SINAL[l.sinal]}" aria-label="${NOME_SINAL[l.sinal]}">${Chat.SINAL[l.sinal]}</i>` : "";
   const erro = eu && l.sinal === "erro"
     ? `<div class="erro-linha" data-erro="${esc(l.id)}">⚠ ${esc(l.erro)}${l.reenviar ? " · toque para tentar de novo" : ""}</div>` : "";
   return `<div class="linha-msg ${eu ? "eu" : "ele"}${seguida ? " seguida" : ""}" data-id="${esc(l.id)}">`
-    + `<div class="bolha${l.enquete ? " enq" : ""}">${corpo}<span class="hora">${horaDe(l.t)}${sinal}</span></div>${erro}</div>`;
+    + `<div class="bolha${l.enquete ? " enq" : ""}${!eu && !l.texto && !l.enquete ? " so-foto" : ""}">${corpo}<span class="hora">${horaDe(l.t)}${sinal}</span></div>${erro}</div>`;
 }
 
 // ---- Enquete (a pergunta com opções do Claude) ------------------------------------------------------------
@@ -1029,18 +1206,101 @@ async function responderEnquete(id) {
   await enviarLocal(local, {pc: s.pc, tipo: "acao", texto: JSON.stringify(acao)});
 }
 
+// ---- Pedido de permissão (e o plano para aprovar) -----------------------------------------------------------
+function respostaPermissaoEmAndamento(s, id) {
+  if (locais.some(l => l.permissao_a === id && l.sinal === "mandando")) return true;
+  return pedidos.some(p => { const a = Chat.respostaDePermissao(p, s.id); return a && a.id === id && ["novo", "escrevendo"].includes(p.estado); });
+}
+
+function desenharPermissao(perm, s) {
+  const enviando = respostaPermissaoEmAndamento(s, perm.id);
+  const pode = s.respondivel && agenteNovo(s.pc, AGENTE_PERMISSAO) && !!pcs[s.pc] && online(pcs[s.pc]) && !enviando;
+  let h = `<div class="enq-topo">${perm.plano ? "📋 Plano para aprovar" : "🔐 Pedido de permissão" + (perm.ferramenta ? " · " + esc(perm.ferramenta) : "")}</div>`
+    + `<div class="enq-q">${esc(perm.titulo)}</div>`;
+  if (perm.detalhe) {
+    const id = "perm:" + perm.id, aberto = abertos.has(id);
+    const longo = perm.detalhe.length > 600 || perm.detalhe.split("\n").length > 12;
+    h += perm.plano ? `<div class="txt${longo && !aberto ? " longo" : ""}">${Chat.marcacao(perm.detalhe)}</div>`
+                    : `<pre class="perm-det${longo && !aberto ? " longo" : ""}">${esc(perm.detalhe)}</pre>`;
+    if (longo) h += `<button class="mais" data-mais="${esc(id)}">${aberto ? "Mostrar menos" : "Ler tudo"}</button>`;
+  }
+  if (pode) {
+    const botoes = Chat.botoesPermissao(perm), botao = b => `<button class="btn${b.escolha === "sim" ? "" : " sec"}" data-perm="${esc(perm.id)}"
+      data-escolha="${b.escolha}"${b.original ? ` title="No PC: ${esc(b.original)}"` : ""}>${esc(b.rotulo)}</button>`;
+    h += botoes.filter(b => b.escolha !== "nao").map(botao).join("");
+    h += `<input class="enq-outra perm-recado" data-perm-recado="${esc(perm.id)}" value="${esc(permRecados[perm.id] || "")}"
+      placeholder="${perm.plano ? "O que mudar no plano (vai com o “Não”)" : "Recado para o Claude (vai com o “Não”)"}" enterkeyhint="done">`;
+    h += botoes.filter(b => b.escolha === "nao").map(botao).join("");
+  } else if (enviando) h += `<div class="enq-status"><span class="spin"></span>Respondendo na aba do PC…</div>`;
+  else if (!s.respondivel) h += `<div class="enq-status">Esta só se responde no PC (a sessão não está no VS Code).</div>`;
+  else if (!agenteNovo(s.pc, AGENTE_PERMISSAO)) h += `<div class="enq-status">Para responder daqui, o ${esc(s.pc)} precisa do Seaninho no celular ${AGENTE_PERMISSAO}.</div>`;
+  else h += `<div class="enq-status">O PC parece desligado.</div>`;
+  const ultimo = pedidos.find(p => { const a = Chat.respostaDePermissao(p, s.id); return a && a.id === perm.id; });   // o mais novo
+  if (!enviando && ultimo && ultimo.estado === "erro") h += `<div class="enq-status err">⚠ ${esc(ultimo.erro)}</div>`;
+  return h;
+}
+
+async function responderPermissao(id, escolha) {
+  const s = sessaoAberta();
+  if (!s || !s.permissao || s.permissao.id !== id || respostaPermissaoEmAndamento(s, id)) return;
+  const perm = s.permissao, b = Chat.botoesPermissao(perm).find(x => x.escolha === escolha);
+  if (escolha === "sempre" && !perm.plano
+      && !confirm(`${b ? b.rotulo : "Permitir sempre"}?\n\nO Claude não vai mais pedir antes de fazer isso${b && b.original ? "" : " (vale a regra que o PC sugerir)"}.`)) return;
+  const texto = escolha === "nao" ? (permRecados[id] || "").trim() : "";
+  const acao = {acao: "responder_permissao", sessao: s.id, id, escolha, texto, titulo: perm.titulo};
+  const local = {id: "local" + (++nLocal), sessao: s.id, de: "eu", texto: Chat.textoPermissao(acao), t: Math.floor(Date.now() / 1000),
+                 permissao_a: id};
+  delete permRecados[id];
+  await enviarLocal(local, {pc: s.pc, tipo: "acao", texto: JSON.stringify(acao)});
+}
+
 // ---- Mandar (com imagem, se tiver) --------------------------------------------------------------------
 async function mandar() {
   const texto = $("texto").value.trim();
   if ((!texto && !anexo) || !aberta) return;
-  const s = sessaoAberta();
-  const im = anexo, corpo = texto || "Segue a imagem.";
-  const local = {id: "local" + (++nLocal), sessao: aberta.id, de: "eu", texto: corpo, t: Math.floor(Date.now() / 1000),
-                 mini: im ? im.mini : "", mime: im ? im.mime : ""};
+  const im = anexo;
   $("texto").value = ""; store.set("seaninho.rascunho." + aberta.id, "");
   tirarAnexo(); ajustarCaixa();
-  await enviarLocal(local, {pc: aberta.pc, sessao: aberta.id, titulo: s ? s.titulo : "", texto: corpo, direto: !melhorar,
-                            ...(im ? {audio: im.b64, mime: im.mime} : {})});
+  await enviarMensagem(texto || "Segue a imagem.", im);
+}
+
+function enviarMensagem(corpo, im) {
+  const s = sessaoAberta();
+  const local = {id: "local" + (++nLocal), sessao: aberta.id, de: "eu", texto: corpo, t: Math.floor(Date.now() / 1000),
+                 mini: im ? im.mini : "", grande: im ? "data:image/jpeg;base64," + im.b64 : "", mime: im ? im.mime : ""};
+  return enviarLocal(local, {pc: aberta.pc, sessao: aberta.id, titulo: s ? s.titulo : "", texto: corpo, direto: !melhorar,
+                             ...(im ? {audio: im.b64, mime: im.mime} : {})});
+}
+
+// Dá para mandar agora para a sessão aberta (a caixa de escrever e o 📎 estão na tela)?
+const podeMandar = () => !!aberta && !$("dCompor").classList.contains("hidden") && !$("dClipe").classList.contains("hidden");
+
+// ---- Imagem em tela cheia e marcar (marcar.js) ---------------------------------------------------------------
+function abrirFoto(el) {   // as fotos do chat em sequência, a partir da tocada
+  const ids = [...fotosNaTela.keys()], i = ids.indexOf(el.dataset.ver);
+  if (i < 0) return;
+  Marcar.ver({lista: [...fotosNaTela.values()].map(f => ({...f})), indice: i, aoMarcar: podeMandar() ? marcar : null});
+}
+
+// O editor manda para a sessão aberta, pelo mesmo caminho do 📎; a legenda é a caixa do chat (vai e volta com ela).
+function marcar(f) {
+  const sessao = aberta && aberta.id;
+  Marcar.editar({src: f.src, nome: f.arquivo || f.nome, legenda: $("texto").value,
+    aoSair: legenda => {
+      if (!aberta || aberta.id !== sessao) return;
+      $("texto").value = legenda; store.set("seaninho.rascunho." + sessao, legenda); ajustarCaixa();
+    },
+    aoEnviar: async (tela, legenda) => {
+      if (!aberta || aberta.id !== sessao || !podeMandar()) throw new Error("a sessão não está recebendo agora.");
+      const im = imagemDe(tela);
+      let corpo = legenda.trim() || "Marquei na imagem o que precisa ajustar.";
+      if (f.caminho) corpo += `\n(As marcações estão em cima de ${f.caminho})`;
+      $("texto").value = ""; store.set("seaninho.rascunho." + sessao, "");
+      if (f.anexo) tirarAnexo();
+      ajustarCaixa();
+      enviarMensagem(corpo, im);   // o balão aparece já com 🕓; erro de rede vira ⚠ com "tentar de novo"
+    },
+    aoEnviado: () => Marcar.fecharVisor()});
 }
 
 // O balão aparece na hora com 🕓; quando o banco aceita, vira o pedido (✓); se não aceitar, ⚠ e tocar tenta de novo.
@@ -1051,6 +1311,7 @@ async function enviarLocal(local, args) {
   try {
     local.pedidoId = await rpc("cel_pedir", args);
     if (local.mini && local.pedidoId) guardarMiniatura(local.pedidoId, local.mini);
+    if (local.grande && local.pedidoId) Marcar.Grandes.guardar(local.pedidoId, local.grande);
     await atualizar();
   } catch (e) {
     Object.assign(local, {sinal: "erro", erro: "Não saiu do celular: " + (e.message || e), reenviar: () => enviarLocal(local, args)});
@@ -1067,20 +1328,23 @@ function carregarImagem(arquivo) {
     img.src = url;
   });
 }
-function reduzir(img, lado, qualidade) {
-  const k = Math.min(1, lado / Math.max(img.naturalWidth, img.naturalHeight));
+function reduzir(img, lado, qualidade) {   // img: a foto (Image) ou a imagem marcada (canvas)
+  const w = img.naturalWidth || img.width, h = img.naturalHeight || img.height;
+  const k = Math.min(1, lado / Math.max(w, h));
   const c = document.createElement("canvas");
-  c.width = Math.max(1, Math.round(img.naturalWidth * k)); c.height = Math.max(1, Math.round(img.naturalHeight * k));
+  c.width = Math.max(1, Math.round(w * k)); c.height = Math.max(1, Math.round(h * k));
   c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
   return c.toDataURL("image/jpeg", qualidade).split(",")[1] || "";
 }
+function imagemDe(img) {   // 1600 px em JPEG (menor, se passar de ~1 MB) e a miniatura do balão
+  let b64 = "", lado = 1600, q = 0.82;
+  for (let i = 0; i < 4; i++) { b64 = reduzir(img, lado, q); if (b64.length < 1400000) break; lado = Math.round(lado * 0.8); q -= 0.1; }
+  if (!b64 || b64.length >= 1900000) throw new Error("a imagem ficou grande demais.");
+  return {b64, mime: "image/jpeg", mini: "data:image/jpeg;base64," + reduzir(img, 480, 0.7)};
+}
 async function prepararImagem(arquivo) {
   try {
-    const img = await carregarImagem(arquivo);
-    let b64 = "", lado = 1600, q = 0.82;
-    for (let i = 0; i < 4; i++) { b64 = reduzir(img, lado, q); if (b64.length < 1400000) break; lado = Math.round(lado * 0.8); q -= 0.1; }
-    if (!b64 || b64.length >= 1900000) throw new Error("grande");
-    anexo = {b64, mime: "image/jpeg", mini: "data:image/jpeg;base64," + reduzir(img, 480, 0.7)};
+    anexo = imagemDe(await carregarImagem(arquivo));
     $("dAnexoImg").src = anexo.mini;
     $("dAnexo").classList.remove("hidden");
     infoMic("texto", "");
@@ -1090,6 +1354,49 @@ async function prepararImagem(arquivo) {
 function tirarAnexo() {
   anexo = null;
   $("dAnexo").classList.add("hidden"); $("dAnexoImg").removeAttribute("src");
+}
+
+// ---- Colar imagem: na caixa (paste) ou pelo 📎 › "Colar imagem". No iPhone, a caixa de texto às vezes não oferece
+// "Colar" quando só tem imagem copiada; o "Colar imagem" lê a área de transferência (o iOS mostra o balão "Colar").
+// As duas vão pelo mesmo caminho do 📎 (prepararImagem: 1600 px, JPEG).
+const podeColar = () => !!(navigator.clipboard && navigator.clipboard.read);
+
+function menuAnexo(abrir) {
+  $("dMenuAnexo").classList.toggle("hidden", !abrir);
+  $("dClipe").setAttribute("aria-expanded", String(!!abrir));
+}
+
+function tocarClipe() {
+  if (!podeColar()) return $("dArquivo").click();   // sem como ler a área de transferência: direto à galeria
+  menuAnexo($("dMenuAnexo").classList.contains("hidden"));
+}
+
+function colarDoMenu() {
+  let leitura;
+  try { leitura = navigator.clipboard.read(); }   // ainda no toque, sem await antes: o Safari exige o gesto
+  catch (e) { leitura = Promise.reject(e); }
+  menuAnexo(false);
+  infoMic("texto", "");
+  return leitura.then(Chat.imagemDosItens).then(img => {
+    if (img) return prepararImagem(img);
+    erroMic("texto", "Não achei imagem copiada. Copie a foto ou o print e toque de novo em “Colar imagem”.");
+  }).catch(e => erroMic("texto", e && e.name === "NotAllowedError"
+    ? "Não colei: toque em “Colar” no balão que aparece (ou escolha a foto em 🖼️)." : "Não consegui ler a imagem copiada."));
+}
+
+function colarNaCaixa(e) {
+  const img = Chat.imagemDaColagem(e.clipboardData);
+  if (!img) return;                                 // texto: cola normal
+  e.preventDefault();
+  const texto = e.clipboardData.getData("text/plain") || "";
+  if (texto.trim() && !/^\s*https?:\/\/\S+\s*$/.test(texto)) {   // o texto que veio junto entra (o link da imagem, não)
+    const t = $("texto");
+    t.setRangeText(texto, t.selectionStart, t.selectionEnd, "end");
+    t.dispatchEvent(new Event("input"));
+  }
+  const s = sessaoAberta();
+  if (!(s && agenteNovo(s.pc))) return erroMic("texto", `Para mandar imagem, o PC precisa do Seaninho no celular ${AGENTE_CHAT}.`);
+  prepararImagem(img);
 }
 
 // A caixa cresce com o texto (até ~5 linhas); vazia mostra o microfone, com texto ou imagem, o enviar.
@@ -1279,11 +1586,15 @@ $("dMsgs").addEventListener("click", e => {
   if (o && !o.disabled) return tocarOpcao(o);
   const r = e.target.closest("[data-responder]");
   if (r && !r.disabled) return responderEnquete(r.dataset.responder);
+  const pb = e.target.closest("[data-perm]");
+  if (pb && !pb.disabled) return responderPermissao(pb.dataset.perm, pb.dataset.escolha);
   const m = e.target.closest("[data-mais]");
   if (m) {
     if (abertos.has(m.dataset.mais)) abertos.delete(m.dataset.mais); else abertos.add(m.dataset.mais);
     return desenharMensagens(vistas[aberta.id] || {id: aberta.id, conversa: []}, false, true);
   }
+  const foto = e.target.closest("img[data-ver]");
+  if (foto) return abrirFoto(foto);
   const er = e.target.closest("[data-erro]");
   if (er) {
     const l = locais.find(x => x.id === er.dataset.erro);
@@ -1292,6 +1603,8 @@ $("dMsgs").addEventListener("click", e => {
   }
 });
 $("dMsgs").addEventListener("input", e => {
+  const rc = e.target.closest("[data-perm-recado]");
+  if (rc) { permRecados[rc.dataset.permRecado] = rc.value; return; }
   const c = e.target.closest(".enq-outra");
   if (!c) return;
   const marcadas = escolhas[c.dataset.enq];
@@ -1306,9 +1619,19 @@ $("voltar").addEventListener("click", fechar);
 $("mandar").innerHTML = SETA;
 $("dClipe").innerHTML = CLIPE;
 $("mandar").addEventListener("click", mandar);
-$("dClipe").addEventListener("click", () => $("dArquivo").click());
+$("dClipe").addEventListener("click", tocarClipe);
+$("dEscolher").addEventListener("click", () => { menuAnexo(false); $("dArquivo").click(); });
+$("dColar").addEventListener("click", colarDoMenu);
+$("texto").addEventListener("paste", colarNaCaixa);
+$("detalhe").addEventListener("click", e => {   // tocar fora do menu fecha
+  if (!$("dMenuAnexo").classList.contains("hidden") && !e.target.closest("#dMenuAnexo, #dClipe")) menuAnexo(false);
+});
 $("dArquivo").addEventListener("change", e => { const f = e.target.files && e.target.files[0]; e.target.value = ""; if (f) prepararImagem(f); });
 $("dAnexoTirar").addEventListener("click", () => { tirarAnexo(); ajustarCaixa(); });
+$("dAnexoMarcar").addEventListener("click", () => anexo && marcar({src: "data:image/jpeg;base64," + anexo.b64, nome: "foto.jpg", anexo: true}));
+$("dAnexoImg").addEventListener("click", () => anexo && marcar({src: "data:image/jpeg;base64," + anexo.b64, nome: "foto.jpg", anexo: true}));
+$("eEnviar").innerHTML = SETA;
+Marcar.iniciar();
 $("cmdEnviar").addEventListener("click", enviarComando);
 $("texto").addEventListener("input", () => { ajustarCaixa(); if (aberta) store.set("seaninho.rascunho." + aberta.id, $("texto").value); });
 if (window.visualViewport) {

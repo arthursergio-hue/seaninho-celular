@@ -45,6 +45,55 @@ function respostaDeEnquete(p, sessao) {
   return a.acao === "responder_enquete" && (!sessao || a.sessao === sessao) ? a : null;
 }
 
+// O pedido de resposta a um pedido de permissão (tipo acao) desta sessão, ou null.
+function respostaDePermissao(p, sessao) {
+  if (p.tipo !== "acao") return null;
+  const a = lerJson(p.texto);
+  return a.acao === "responder_permissao" && (!sessao || a.sessao === sessao) ? a : null;
+}
+
+// Os botões que o PC mostra, em português. "Yes, allow Bash(git push:*) for this project (just you)" vira
+// "Permitir sempre Bash(git push:*) neste projeto (só você)"; o que não se conhece vai como veio, depois de "Permitir".
+const DESTINOS = {"this project (just you)": "neste projeto (só você)", "all projects": "em todos os projetos",
+  "this project (shared)": "neste projeto (para o time)", "this session": "nesta sessão", "startup options": "nas opções de início"};
+const BOTOES = {"yes": "Permitir", "no": "Não", "yes, allow all edits this session": "Permitir todas as edições nesta sessão",
+  "yes, and don't ask again": "Permitir e não perguntar de novo", "yes, return to normal mode": "Permitir e voltar ao modo normal",
+  "yes, and use auto mode": "Aprovar e seguir no modo auto", "yes, and auto-accept": "Aprovar e aceitar as edições",
+  "yes, and manually approve edits": "Aprovar e revisar cada edição", "no, keep planning": "Não, continuar planejando",
+  "send feedback and keep planning": "Mandar os comentários e continuar planejando"};
+function traduzirBotao(rotulo) {
+  const r = String(rotulo || "").trim(), chave = r.toLowerCase();
+  if (BOTOES[chave]) return BOTOES[chave];
+  const m = /^Yes, allow (access to )?(.+?) for (.+)$/i.exec(r);
+  if (m) return `Permitir sempre ${m[1] ? "acesso a " : ""}${m[2]} ${DESTINOS[m[3].toLowerCase()] || "(" + m[3] + ")"}`;
+  return r.replace(/^Yes,?\s*/i, "Permitir ").replace(/^No,?\s*/i, "Não ").trim() || r;
+}
+
+// Os botões do cartão de permissão: os que o PC mostra (lidos da tela; mesma regra do agente: o 1º Yes, o 2º Yes e
+// o No) ou, sem eles, os de sempre. [{escolha: "sim"|"sempre"|"nao", rotulo, original?}]
+function botoesPermissao(perm) {
+  const opcoes = Array.isArray(perm.opcoes) ? perm.opcoes : null;
+  if (opcoes) {
+    const sim = opcoes.filter(r => /^yes\b/i.test(r)), nao = opcoes.find(r => /^(no\b|send feedback)/i.test(r));
+    const out = [];
+    if (sim[0]) out.push({escolha: "sim", rotulo: traduzirBotao(sim[0]), original: sim[0]});
+    if (sim[1]) out.push({escolha: "sempre", rotulo: traduzirBotao(sim[1]), original: sim[1]});
+    if (nao) out.push({escolha: "nao", rotulo: traduzirBotao(nao), original: nao});
+    if (out.length >= 2) return out;
+  }
+  return perm.plano
+    ? [{escolha: "sim", rotulo: "Aprovar o plano"}, {escolha: "sempre", rotulo: "Aprovar e revisar cada edição"},
+       {escolha: "nao", rotulo: "Não, continuar planejando"}]
+    : [{escolha: "sim", rotulo: "Permitir"}, {escolha: "sempre", rotulo: "Permitir sempre (a regra que o PC sugerir)"},
+       {escolha: "nao", rotulo: "Não"}];
+}
+
+// O balão meu da resposta: o que escolhi e o pedido.
+function textoPermissao(acao) {
+  const o = {sim: "✅ Permiti", sempre: "✅ Permiti sempre", nao: "🚫 Não permiti"}[acao.escolha] || "Respondi";
+  return o + (acao.titulo ? `: ${acao.titulo}` : "") + (acao.escolha === "nao" && acao.texto ? `\n“${acao.texto}”` : "");
+}
+
 function textoResposta(acao, enquete) {
   const perguntas = (enquete && enquete.perguntas) || [];
   const partes = (acao.respostas || []).map((r, i) => {
@@ -57,16 +106,16 @@ function textoResposta(acao, enquete) {
 
 // O estado de um pedido meu, do jeito do chat: {sinal, texto, erro, nota}. sinal null = não vira balão.
 function estadoDoPedido(p, enquete) {
-  const resp = respostaDeEnquete(p);
-  const texto = resp ? textoResposta(resp, enquete) : (p.prompt || p.texto || "");
+  const resp = respostaDeEnquete(p), perm = respostaDePermissao(p);
+  const texto = resp ? textoResposta(resp, enquete) : perm ? textoPermissao(perm) : (p.prompt || p.texto || "");
   switch (p.estado) {
     case "novo": case "escrevendo":
-      return {sinal: "enviado", texto: resp ? texto : p.texto, nota: resp ? "" : "O Seaninho está escrevendo o texto…"};
+      return {sinal: "enviado", texto: resp || perm ? texto : p.texto, nota: resp || perm ? "" : "O Seaninho está escrevendo o texto…"};
     case "pronto": return {sinal: null, texto};   // a prévia para conferir aparece em cima da caixa
     case "enviar": case "enviando": return {sinal: "enviado", texto};
     case "entregue":
       if (String(p.resposta || "").startsWith(NAO_SABE)) return {sinal: "erro", texto, erro: p.resposta};
-      return {sinal: "entregue", texto};
+      return {sinal: "entregue", texto, obs: perm ? String(p.resposta || "") : ""};   // "Apertei “Yes” no PC."
     case "erro": return {sinal: "erro", texto, erro: p.erro || "Não foi."};
     default: return {sinal: null, texto};         // cancelado
   }
@@ -75,7 +124,7 @@ function estadoDoPedido(p, enquete) {
 // Os pedidos meus desta sessão (claude e respostas de enquete), mais velhos primeiro.
 function pedidosDaSessao(pedidos, sessao) {
   return (pedidos || []).filter(p => ((p.tipo || "claude") === "claude" && p.sessao === sessao)
-    || respostaDeEnquete(p, sessao)).sort((a, b) => String(a.criado_em).localeCompare(String(b.criado_em)));
+    || respostaDeEnquete(p, sessao) || respostaDePermissao(p, sessao)).sort((a, b) => String(a.criado_em).localeCompare(String(b.criado_em)));
 }
 
 // Sessão de agente antigo (sem "conversa"): o último pedido e a última fala, como antes.
@@ -97,13 +146,13 @@ function montar(s, pedidos, locais, agora) {
   if (s.enquete) enquetes[s.enquete.id] = s.enquete;
   const casados = new Set(), soltos = [];
   for (const p of pedidosDaSessao(pedidos, s.id)) {
-    const resp = respostaDeEnquete(p);
+    const resp = respostaDeEnquete(p), perm = respostaDePermissao(p);
     const est = estadoDoPedido(p, resp && enquetes[resp.id]);
     if (!est.sinal) continue;
     const criado = epoca(p.criado_em);
     let alvo = null;
     if (resp) alvo = conversa.find(m => m.de === "eu" && m.resposta_a === resp.id && !casados.has(m.id));
-    else if (est.sinal !== "enviado" || p.estado !== "novo") {
+    else if (!perm && (est.sinal !== "enviado" || p.estado !== "novo")) {
       const procura = normalizar(p.prompt || p.texto);
       alvo = procura && conversa.find(m => m.de === "eu" && !casados.has(m.id) && (!m.t || m.t >= criado - JANELA_CASAR)
         && mesmaMensagem(m.texto, procura));
@@ -115,7 +164,8 @@ function montar(s, pedidos, locais, agora) {
       continue;   // está na conversa: entregue com certeza (o sinal sai do "visto" dela)
     }
     soltos.push({id: "p:" + p.id, de: "eu", texto: est.texto, t: criado, pedido: p.id, mime: p.mime || "",
-                 sinal: est.sinal, erro: est.erro || "", nota: est.nota || "", resposta_a: resp ? resp.id : ""});
+                 sinal: est.sinal, erro: est.erro || "", nota: est.nota || "", obs: est.obs || "",
+                 resposta_a: resp ? resp.id : "", permissao_a: perm ? perm.id : ""});
   }
   for (const m of conversa) if (m.de === "eu" && !m.sinal) m.sinal = m.visto === "lido" ? "lido" : "entregue";
   // os soltos entram na ordem do tempo, depois das mensagens da conversa da mesma hora
@@ -192,8 +242,31 @@ function acaoResponder(s, enquete, escolhas) {
           })};
 }
 
+// ---- Colar imagem ------------------------------------------------------------------------------------------------
+const ehImagem = tipo => /^image\//.test(String(tipo || ""));
+
+// A imagem de uma colagem na caixa (evento paste): o arquivo image/* que veio junto, ou null (aí o texto cola normal).
+function imagemDaColagem(dados) {
+  if (!dados) return null;
+  for (const f of Array.from(dados.files || [])) if (f && ehImagem(f.type)) return f;
+  for (const it of Array.from(dados.items || [])) {
+    if (it && it.kind === "file" && ehImagem(it.type)) { const f = it.getAsFile(); if (f) return f; }
+  }
+  return null;
+}
+
+// A imagem do que o navigator.clipboard.read() devolveu ("Colar imagem" do 📎): o primeiro image/*, ou null.
+async function imagemDosItens(itens) {
+  for (const it of Array.from(itens || [])) {
+    const tipo = Array.from(it.types || []).find(ehImagem);
+    if (tipo) return it.getType(tipo);
+  }
+  return null;
+}
+
 const Chat = {SINAL, normalizar, versaoMin, montar, estadoDoPedido, pedidosDaSessao, respostaDeEnquete, textoResposta,
-  rotuloDia, marcacao, escolhidas, completas, acaoResponder, conversaDe, esc};
+  respostaDePermissao, traduzirBotao, botoesPermissao, textoPermissao,
+  rotuloDia, marcacao, escolhidas, completas, acaoResponder, conversaDe, imagemDaColagem, imagemDosItens, esc};
 if (typeof module !== "undefined" && module.exports) module.exports = Chat;
 else raiz.Chat = Chat;
 })(typeof window !== "undefined" ? window : globalThis);
