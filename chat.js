@@ -209,20 +209,10 @@ function rotuloDia(t, agora) {
 
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"}[c]));
 
-// O texto do Claude (markdown) em HTML seguro: blocos de código, `código`, **negrito**, títulos e links. O resto fica
-// como está (a quebra de linha vem do CSS).
-function marcacao(texto) {
-  const blocos = [];
-  let t = esc(texto).replace(/```[^\n]*\n?([\s\S]*?)(```|$)/g, (_, codigo) => {
-    blocos.push(`<pre>${codigo.replace(/\n$/, "")}</pre>`);
-    return `\u0000${blocos.length - 1}\u0000`;
-  });
-  t = t.replace(/`([^`\n]+)`/g, "<code>$1</code>")
-       .replace(/\*\*([^*\n]+)\*\*/g, "<b>$1</b>")
-       .replace(/^#{1,4} +(.+)$/gm, "<b>$1</b>")
-       .replace(/(^|[\s(])(https?:\/\/[^\s<)]*[^\s<).,;:!?])/g, (_, a, url) => `${a}<a href="${url}" target="_blank" rel="noopener">${url}</a>`);
-  return t.replace(/\u0000(\d+)\u0000/g, (_, i) => blocos[Number(i)]);
-}
+// O texto do Claude (markdown) em HTML seguro: markdown.js (0.8.8: títulos, listas, citação, código com Copiar e
+// tabelas de verdade). O balão põe a classe "md" (as quebras de linha vêm de lá, não do pre-wrap).
+const Md = typeof module !== "undefined" && module.exports ? require("./markdown.js") : raiz.Markdown;
+const marcacao = texto => Md.html(texto);
 
 // A enquete respondida: quais opções foram escolhidas e o que foi escrito à mão ("Outra").
 function escolhidas(pergunta, resposta) {

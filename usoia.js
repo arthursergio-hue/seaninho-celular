@@ -19,6 +19,7 @@ const BANDAS = ["P0", "P25", "P50", "P75", "P100"];
 const DIARIAS = [["mensagens", "Mensagens"], ["sessoes_iniciadas", "Sessões"], ["tokens_saida", "Tokens"],
   ["workflows", "Workflows"], ["linhas", "Código"]];
 
+const VIRADA_MS = 24 * 3600 * 1000;   // nas primeiras 24 h da semana nova, a que fechou aparece ao lado (0.8.8)
 const num = v => typeof v === "number" && isFinite(v);
 const arred1 = v => Math.round(v * 10) / 10;
 
@@ -94,14 +95,17 @@ function porDia(lista) {
   return Object.values(dias).sort((a, b) => a.dia.localeCompare(b.dia));
 }
 
-// As semanas anteriores (o que cada agente guardou), somando os PCs, das mais novas para as mais velhas.
+// As semanas anteriores (o que cada agente guardou), somando os PCs, das mais novas para as mais velhas. "fechada": todos
+// os PCs têm a medida da semana inteira (o agente 0.8.8 mede de novo até sexta 17h); senão, "medido_em" é a mais velha.
 function semanas(lista, regua, bandas = BANDAS, pontos = {}) {
   const por = {};
   for (const u of lista || []) for (const s of (u && u.semanas) || []) if (s && s.semana && s.valores)
-    (por[s.semana] = por[s.semana] || []).push(s);
+    (por[s.semana] = por[s.semana] || []).push({...s, pc: u.pc});
   return Object.entries(por).sort((a, b) => b[0].localeCompare(a[0])).map(([semana, itens]) => {
     const t = somar(itens);
-    return {semana, valores: t.valores, ...banda(t.valores, t.dias, regua, bandas, pontos), pcs: itens.length};
+    return {semana, valores: t.valores, ...banda(t.valores, t.dias, regua, bandas, pontos), pcs: itens.length,
+      nomes: itens.map(s => s.pc), fechada: itens.every(s => s.fechada),
+      medido_em: itens.map(s => String(s.medido_em || "")).sort()[0] || ""};
   });
 }
 
@@ -124,11 +128,22 @@ function montar(lista, agoraMs) {
       pct: Math.min(100, Math.round(100 * Number(valor || 0) / max)),
       pcs: doPc.map(u => ({pc: u.pc, valor: u.valores[m]}))};
   });
+  const anteriores = semanas(lista, regua, bandas, pontos);
+  // A virada (sexta 17h): a semana nova começa do zero; nas primeiras 24 h, a que fechou vai ao lado, com a faixa final.
+  const comeco = Date.parse(ref.inicio), fechou = anteriores.find(w => w.semana < ref.semana) || null;
+  const virada = fechou && agoraMs >= comeco && agoraMs - comeco < VIRADA_MS ? {desde: agoraMs - comeco, fechou} : null;
+  if (virada) for (const c of criterios) c.anterior = fechou.valores[c.chave];
   return {semana: ref.semana, numero: String(ref.semana || "").split("-W")[1] || "", inicio: ref.inicio, fim: ref.fim,
     hoje: ref.hoje, medido: Math.max(...doPc.map(u => u.gerado || 0)), pcs: doPc.map(u => u.pc), bandas, pontos,
-    ...b, criterios, faltam: Object.keys(b.faltas).length, dias: porDia(doPc), diaHoje: hoje,
-    anteriores: semanas(lista, regua, bandas, pontos)};
+    ...b, criterios, faltam: Object.keys(b.faltas).length, dias: porDia(doPc), diaHoje: hoje, anteriores, virada,
+    encerrada: Date.parse(ref.fim) <= agoraMs,                    // a semana desta medida já fechou (a nova vem já)
+    atrasados: (lista || []).filter(u => u && u.valores && u.semana && u.semana < ref.semana).map(u => ({pc: u.pc, semana: u.semana})),
+    erros: erros(lista)};
 }
+
+// A medida que falhou de verdade (o agente 0.8.8 manda "erro"): diferente da virada, que não é erro.
+const erros = lista => (lista || []).filter(u => u && u.erro).map(u => ({pc: u.pc, erro: String(u.erro),
+  quando: Number(u.falhou_em || 0), medido: Number(u.gerado || 0), semNumeros: !u.valores}));
 
 // Números como o coletor escreve: tokens em milhões ("50,2 MM"), o resto com ponto de milhar.
 function formatar(v, chave) {
@@ -138,8 +153,8 @@ function formatar(v, chave) {
   return Math.round(v).toLocaleString("pt-BR");
 }
 
-const UsoIa = {ORDEM, ROTULO, ESTIMADAS, ESTADOS, BANDAS, DIARIAS, DIAS_MIN, daSemana, somar, bate, banda, ritmo, porDia,
-  semanas, montar, formatar};
+const UsoIa = {ORDEM, ROTULO, ESTIMADAS, ESTADOS, BANDAS, DIARIAS, DIAS_MIN, VIRADA_MS, daSemana, somar, bate, banda, ritmo, porDia,
+  semanas, montar, erros, formatar};
 if (typeof module !== "undefined" && module.exports) module.exports = UsoIa;
 else raiz.UsoIa = UsoIa;
 })(typeof window !== "undefined" ? window : globalThis);

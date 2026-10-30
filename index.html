@@ -95,6 +95,168 @@ nav .n{position:absolute;top:-1px;left:calc(50% + 7px);min-width:18px;padding:0 
 .bolha pre{white-space:pre-wrap;background:rgba(0,0,0,.3);padding:8px;border-radius:8px;font-size:12.5px;margin:6px 0;font-family:ui-monospace,Menlo,monospace}
 .bolha code{background:rgba(0,0,0,.28);padding:1px 4px;border-radius:4px;font-size:13.5px;font-family:ui-monospace,Menlo,monospace}
 .bolha a{color:#7FD3FF}
+/* ---- 0.8.8: o markdown do Claude (markdown.js): títulos, listas, citação, código e tabelas de verdade ---- */
+:root{--md-fundo:#17294D;--md-zebra:#1B2E57;--md-cab:#223B66;--md-linha:rgba(255,255,255,.09);--md-texto:var(--ink);--md-suave:var(--muted);
+  --md-cartao:rgba(255,255,255,.045);--md-trilho:rgba(255,255,255,.13);--md-barra:linear-gradient(90deg,#C99A2E,#F6D77E);--md-cheia:#48D680;
+  --md-hora-fundo:rgba(127,211,255,.13);--md-hora:#E6F4FF;--md-codigo:rgba(0,0,0,.32);--md-link:#7FD3FF;--md-idx:rgba(226,184,74,.16);--md-idx-t:#F6D77E;
+  --tag-ok:#86E8AE;--tag-ok-f:rgba(72,214,128,.15);--tag-espera:#F6D77E;--tag-espera-f:rgba(226,184,74,.17);
+  --tag-anda:#A5DBFF;--tag-anda-f:rgba(127,211,255,.15);--tag-erro:#FFA49C;--tag-erro-f:rgba(255,90,79,.17)}
+.bolha .txt.md{white-space:normal}
+.linha-msg .bolha:has(.md-tab){max-width:100%;width:100%}
+.bolha .txt.longo:has(.md-tab){max-height:34em}
+.md-p{margin:0 0 .55em}
+.md>:last-child,.md-cita>:last-child,.md-aviso>:last-child,.md-lista li>:last-child{margin-bottom:0}
+.md-h{font-weight:700;line-height:1.25;margin:.9em 0 .35em;color:var(--md-texto)}
+.md>.md-h:first-child{margin-top:.15em}
+.md-h1{font-size:1.28em}.md-h2{font-size:1.16em}.md-h3{font-size:1.06em}.md-h4,.md-h5,.md-h6{font-size:1em;color:var(--md-suave)}
+.md-h1,.md-h2{padding-bottom:.25em;border-bottom:1px solid var(--md-linha)}
+.md-hr{border:0;height:1px;background:var(--md-linha);margin:.9em 0}
+.md-lista{margin:.2em 0 .6em;padding-left:1.4em}
+.md-lista li{margin:.2em 0;padding-left:.15em}
+.md-lista li::marker{color:var(--gold);font-variant-numeric:tabular-nums;font-weight:650}
+ul.md-lista>li::marker{color:var(--md-suave)}
+.md-lista .md-lista{margin:.15em 0 .25em}
+.md-tarefas{list-style:none;padding-left:.1em}
+.md-tarefas>li{display:flex;gap:.5em;align-items:flex-start}
+.md-caixa{flex:none;width:1.05em;height:1.05em;margin-top:.16em;border-radius:5px;border:1.5px solid var(--md-suave);display:grid;place-items:center;
+  font-size:.74em;font-weight:800;line-height:1}
+.md-caixa svg{width:.82em;height:.82em;stroke-width:3.2}
+.md-tarefa.feita .md-caixa{background:var(--md-cheia);border-color:var(--md-cheia);color:#06241A}
+.md-tarefa.feita .md-tarefa-t{color:var(--md-suave);text-decoration:line-through;text-decoration-color:rgba(154,168,196,.6)}
+.md-cita{margin:.4em 0 .6em;padding:.1em 0 .1em .8em;border-left:3px solid var(--gold);color:#D5DCEB}
+.md-aviso{margin:.45em 0 .65em;padding:.5em .75em;border-radius:10px;border-left:3px solid var(--c);background:var(--cf)}
+.md-aviso-t{font-weight:700;font-size:.82em;letter-spacing:.4px;text-transform:uppercase;color:var(--c);margin-bottom:.2em}
+.md-aviso.nota{--c:#7FD3FF;--cf:rgba(127,211,255,.08)}.md-aviso.dica{--c:#48D680;--cf:rgba(72,214,128,.08)}
+.md-aviso.importante{--c:#C3AEFF;--cf:rgba(185,162,255,.09)}.md-aviso.atencao{--c:#E2B84A;--cf:rgba(226,184,74,.09)}
+.md-aviso.cuidado{--c:#FF7A70;--cf:rgba(255,90,79,.09)}
+.md-codigo{margin:.45em 0 .65em;border-radius:10px;background:var(--md-codigo);border:1px solid var(--md-linha);overflow:hidden}
+.md-codigo-topo{display:flex;align-items:center;justify-content:space-between;padding:2px 3px 2px 10px;font-size:12px;color:var(--md-suave);
+  border-bottom:1px solid var(--md-linha)}
+.md-copiar{display:inline-flex;align-items:center;gap:5px;font-size:12.5px;font-weight:600;color:var(--md-texto);padding:6px 9px;border-radius:7px;min-height:32px}
+.md-copiar svg{width:15px;height:15px}
+.md-copiar:active{background:rgba(255,255,255,.1)}
+.bolha .md-codigo pre{margin:0;padding:9px 10px;background:none;border-radius:0;white-space:pre;overflow-x:auto;font-size:12.5px;line-height:1.45;
+  -webkit-overflow-scrolling:touch;-webkit-user-select:text;user-select:text}
+.bolha .md-codigo code{background:none;padding:0;font-size:inherit;border-radius:0}
+.md-mais{color:#86E8AE}.md-menos{color:#FFA49C}.md-arroba{color:#A5DBFF}
+.md-local{color:var(--md-link);border-bottom:1px dotted currentColor}
+.md-corte{margin:.5em 0 .6em;padding:.45em .7em;border-radius:9px;border:1px dashed rgba(226,184,74,.5);background:rgba(226,184,74,.07);color:var(--gold-2);font-size:.88em;line-height:1.35}
+.bolha del{color:var(--md-suave)}
+.md-hora{display:inline-block;padding:0 .3em;border-radius:5px;background:var(--md-hora-fundo);color:var(--md-hora);font-weight:650;
+  font-variant-numeric:tabular-nums;white-space:nowrap;line-height:1.38}
+.md-tag{display:inline-flex;align-items:center;gap:.36em;padding:.06em .55em .08em .5em;margin-right:.12em;border-radius:999px;font-size:.84em;
+  font-weight:650;white-space:nowrap;line-height:1.38;color:var(--tag-ok);background:var(--tag-ok-f);vertical-align:.04em}
+.md-tag::before{content:"";flex:none;width:.46em;height:.46em;border-radius:50%;background:currentColor}
+.md-tag.espera{color:var(--tag-espera);background:var(--tag-espera-f)}
+.md-tag.espera::before{background:none;box-shadow:inset 0 0 0 1.6px currentColor}
+.md-tag.anda{color:var(--tag-anda);background:var(--tag-anda-f)}
+.md-tag.anda::before{animation:md-pulso 1.6s ease-in-out infinite}
+.md-tag.erro{color:var(--tag-erro);background:var(--tag-erro-f)}
+.md-tag.erro::before{border-radius:1px;transform:rotate(45deg) scale(.9)}
+@keyframes md-pulso{50%{opacity:.3}}
+@media (prefers-reduced-motion:reduce){.md-tag.anda::before{animation:none}}
+/* a tabela: a barra, os cartões (celular em pé) e a rolagem com o cabeçalho e a 1ª coluna fixos */
+.md-tab{margin:.5em 0 .7em;border-radius:12px;border:1px solid var(--md-linha);background:rgba(0,0,0,.14);overflow:hidden}
+.md-tab-barra{display:flex;align-items:center;gap:4px;padding:4px 4px 4px 10px;border-bottom:1px solid var(--md-linha)}
+.md-tab-info{flex:1;min-width:0;font-size:12px;color:var(--md-suave);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.md-seg{display:inline-flex;padding:2px;border-radius:9px;background:rgba(255,255,255,.07)}
+.md-seg button{font-size:12.5px;font-weight:600;padding:0 9px;border-radius:7px;color:var(--md-suave);min-height:30px}
+.md-tab-bt{min-width:36px;height:36px;border-radius:9px;color:var(--md-texto);display:grid;place-items:center}
+.md-tab-bt:active,.md-seg button:active{background:rgba(255,255,255,.12)}
+.md-cartoes{display:none}
+.md-seg [data-tab-modo="tabela"],.md-tab.larga .md-seg [data-tab-modo="cartoes"]{background:var(--md-cab);color:var(--md-texto)}
+.md-tab.larga .md-seg [data-tab-modo="tabela"]{background:none;color:var(--md-suave)}
+.md-tab.larga .md-cartoes{display:grid}
+.md-tab.larga .md-rolo{display:none}
+@media (min-width:600px){
+  .md-tab.larga .md-cartoes{display:none}
+  .md-tab.larga .md-rolo{display:block}
+  .md-tab.larga .md-seg [data-tab-modo="tabela"]{background:var(--md-cab);color:var(--md-texto)}
+  .md-tab.larga .md-seg [data-tab-modo="cartoes"]{background:none;color:var(--md-suave)}
+}
+body.md-ver-cartoes .md-tab .md-cartoes{display:grid}
+body.md-ver-cartoes .md-tab .md-rolo{display:none}
+body.md-ver-tabela .md-tab .md-cartoes{display:none}
+body.md-ver-tabela .md-tab .md-rolo{display:block}
+body.md-ver-cartoes .md-tab .md-seg [data-tab-modo="cartoes"],body.md-ver-tabela .md-tab .md-seg [data-tab-modo="tabela"]{background:var(--md-cab);color:var(--md-texto)}
+body.md-ver-cartoes .md-tab .md-seg [data-tab-modo="tabela"],body.md-ver-tabela .md-tab .md-seg [data-tab-modo="cartoes"]{background:none;color:var(--md-suave)}
+.md-cartoes{gap:8px;padding:8px}
+.md-cartao{border-radius:11px;background:var(--md-cartao);border:1px solid var(--md-linha);padding:10px 11px 10px}
+.md-cartao header{display:flex;flex-wrap:wrap;align-items:flex-start;gap:6px 8px;padding:0}
+.md-cartao-t{flex:1 1 0;min-width:0;font-weight:650;line-height:1.3;padding-top:.05em}
+.md-cartao-t strong,.md-fixa strong{font-weight:inherit}
+.md-cartao header .md-pct{flex-basis:100%}
+.md-idx{display:inline-grid;place-items:center;flex:none;min-width:1.6em;height:1.6em;padding:0 .3em;border-radius:7px;background:var(--md-idx);
+  color:var(--md-idx-t);font-size:.8em;font-weight:700;font-variant-numeric:tabular-nums;line-height:1}
+.md-cartao dl{margin:9px 0 0;display:grid;gap:8px}
+.md-campo dt{font-size:11px;font-weight:650;color:var(--md-suave);text-transform:uppercase;letter-spacing:.45px;margin-bottom:2px}
+.md-campo dd{margin:0;line-height:1.4}
+.md-pct{display:inline-flex;align-items:center;gap:7px;min-width:5.6em;font-variant-numeric:tabular-nums;vertical-align:middle}
+.md-pct b{font-weight:650;font-size:.92em;min-width:2.5em;text-align:right}
+.md-barra{position:relative;flex:1;min-width:2.6em;height:6px;border-radius:4px;background:var(--md-trilho);overflow:hidden}
+.md-barra i{position:absolute;left:0;top:0;bottom:0;width:var(--p);border-radius:4px;background:var(--md-barra)}
+.md-pct.cheia .md-barra i{background:var(--md-cheia)}
+.md-pct.sem .md-barra{background:repeating-linear-gradient(90deg,var(--md-trilho) 0 5px,transparent 5px 9px)}
+.md-pct.sem b{color:var(--md-suave)}
+.md-pct.larga{display:flex;width:100%}
+.md-pct.larga .md-barra{height:7px}
+.md-rolo{overflow:auto;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain}
+.md-tab.alta .md-rolo{max-height:min(64vh,580px)}
+.md-t{border-collapse:separate;border-spacing:0;min-width:100%;font-size:14px;line-height:1.38}
+.md-t th,.md-t td{padding:8px 10px;text-align:left;vertical-align:top;border-bottom:1px solid var(--md-linha);background:var(--md-fundo);
+  overflow-wrap:break-word;word-break:normal}
+.md-t thead th{position:sticky;top:0;z-index:2;background:var(--md-cab);font-size:11.5px;font-weight:650;color:var(--md-suave);
+  text-transform:uppercase;letter-spacing:.4px;white-space:nowrap;vertical-align:bottom}
+.md-t tbody tr:nth-child(even)>*{background:var(--md-zebra)}
+.md-t tbody tr:last-child>*{border-bottom:0}
+.md-t .fixa{position:sticky;left:0;z-index:1;box-shadow:1px 0 0 var(--md-linha),6px 0 10px -6px rgba(0,0,0,.45)}
+.md-t thead .fixa{z-index:3}
+.md-t tbody th{font-weight:600;color:var(--md-texto)}
+.md-fixa{display:flex;gap:7px;align-items:flex-start;min-width:min(10.5em,40vw);max-width:min(40vw,15em)}
+.md-fixa>span{min-width:0}
+.md-t td{min-width:9em}
+.md-t td.longa{min-width:16em}
+.md-t .estreita{min-width:0;white-space:nowrap}
+.md-t .direita{text-align:right}
+.md-t .centro{text-align:center}
+.md-t td.pct .md-pct{min-width:7em}
+/* a tela cheia da tabela: pinça para o zoom, deitada, cartões ou tabela, tema claro */
+#tabelaCheia{position:fixed;inset:0;z-index:7;display:flex;flex-direction:column;background:#0A1630;color:var(--md-texto);
+  --md-fundo:#0E1C3B;--md-zebra:#13244B;--md-cab:#1B2F59;overscroll-behavior:none}
+#tabelaCheia.claro{background:#F3F5F9;color-scheme:light;--md-fundo:#FFFFFF;--md-zebra:#F5F7FB;--md-cab:#EAEFF6;--md-linha:#DCE3ED;--md-texto:#14213D;
+  --md-suave:#5B6B86;--md-cartao:#FFFFFF;--md-trilho:#E1E6EF;--md-barra:linear-gradient(90deg,#C48A12,#E2B84A);--md-cheia:#1E9E57;
+  --md-hora-fundo:#E5EDF8;--md-hora:#14213D;--md-link:#1D5FA8;--md-idx:#FFF1CC;--md-idx-t:#7A5200;--md-codigo:#F1F4F9;
+  --tag-ok:#17733F;--tag-ok-f:#E1F5E8;--tag-espera:#7A5200;--tag-espera-f:#FFF1CC;--tag-anda:#1D5FA8;--tag-anda-f:#E2EFFD;--tag-erro:#B3261E;--tag-erro-f:#FDE4E1}
+#tabelaCheia.claro .md-t .fixa{box-shadow:1px 0 0 var(--md-linha),6px 0 10px -6px rgba(20,33,61,.18)}
+#tabelaCheia.claro .tc-topo,#tabelaCheia.claro .tc-baixo{background:#FFFFFF}
+#tabelaCheia button{touch-action:manipulation;color:inherit}
+.tc-topo{flex:none;display:flex;align-items:center;gap:2px;padding:calc(var(--top) + 4px) 4px 4px;border-bottom:1px solid var(--md-linha);background:#0C1A38}
+.tc-topo button,.tc-baixo button{flex:none;min-width:44px;height:44px;border-radius:12px;display:grid;place-items:center;font-size:15px;font-weight:600}
+.tc-topo button:active,.tc-baixo button:active{background:rgba(127,127,127,.18)}
+.tc-topo svg{width:23px;height:23px}
+.tc-nome{flex:1;min-width:0;padding:0 4px;font-weight:650;font-size:15px;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tc-nome small{display:block;font-weight:400;font-size:12px;color:var(--md-suave);overflow:hidden;text-overflow:ellipsis}
+.tc-topo .tc-modo{display:flex;gap:6px;padding:0 10px;font-size:13.5px}
+.tc-baixo .tc-copiar{display:flex;gap:6px}
+.tc-baixo svg,.tc-modo svg{width:17px;height:17px}
+.menu-balao svg{flex:none;width:19px;height:19px;color:var(--muted)}
+.tc-palco{position:relative;flex:1;min-height:0;overflow:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
+.tc-palco .md-rolo{overflow:visible;max-height:none}
+.tc-palco .md-t{font-size:calc(14px * var(--z,1))}
+.tc-palco .md-t thead th{font-size:calc(11.5px * var(--z,1))}
+.tc-palco .md-fixa{max-width:min(38vw,17em)}
+.tc-palco .md-cartoes{display:grid;padding:10px;gap:10px;font-size:calc(15px * var(--z,1));grid-template-columns:repeat(auto-fill,minmax(min(100%,330px),1fr))}
+.tc-baixo{flex:none;display:flex;align-items:center;gap:2px;padding:4px 6px calc(var(--bottom) + 4px);border-top:1px solid var(--md-linha);background:#0C1A38;
+  overflow-x:auto;scrollbar-width:none}
+.tc-zoom{min-width:3.3em;text-align:center;font-size:13px;color:var(--md-suave);font-variant-numeric:tabular-nums}
+.tc-baixo .vao{flex:1}
+.tc-baixo .tc-copiar{padding:0 11px;font-size:13.5px;white-space:nowrap;background:rgba(127,127,127,.14)}
+.tc-aviso{position:absolute;left:50%;bottom:calc(var(--bottom) + 64px);transform:translateX(-50%);max-width:90%;padding:9px 15px;border-radius:999px;
+  background:rgba(0,0,0,.8);color:#fff;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;pointer-events:none;opacity:0;transition:opacity .2s}
+.tc-aviso.ver{opacity:1}
+#tabelaCheia.deitada{inset:auto;top:0;left:100vw;width:100vh;height:100vw;transform-origin:0 0;transform:rotate(90deg)}
+#tabelaCheia.deitada .tc-topo{padding-top:4px}
+@media (orientation:landscape){#tcGirar{display:none}}
 .hora{float:right;margin:7px -2px -3px 12px;font-size:11px;color:var(--faint);white-space:nowrap;line-height:1.2}
 .eu .hora{color:rgba(244,246,251,.6)}
 .sinal{font-style:normal;margin-left:4px;font-size:12.5px;letter-spacing:-.32em;color:rgba(244,246,251,.6)}
@@ -430,6 +592,31 @@ button.bloco-cab{display:block;width:100%;text-align:left}
 .regua span.feita{color:var(--ink);background:#1D3566}
 .regua span.atual{color:var(--navy);background:var(--gold);border-color:var(--gold)}
 .regua span.prox{color:var(--gold-2);border:1.5px dashed var(--gold)}
+/* 0.8.8: a virada da semana (a que fechou ao lado da que começou) e o erro de verdade */
+.uso-lado{display:grid;grid-template-columns:1fr 1fr;gap:8px;width:100%;text-align:left;margin:4px 0 2px}
+.ul{display:flex;flex-direction:column;gap:3px;padding:10px 11px;border-radius:14px;background:rgba(0,0,0,.25);border:1px solid var(--stroke);min-width:0}
+.ul.fechou{border-color:rgba(226,184,74,.45);background:rgba(226,184,74,.07)}
+.ul.nova{border:1px dashed rgba(127,211,255,.45)}
+.ul small{font-size:11.5px;color:var(--muted);line-height:1.3}
+.ul .ul-t{font-size:12px;font-weight:650;color:var(--ink);letter-spacing:.2px}
+.ul .ul-fx{display:flex;align-items:baseline;gap:6px}
+.ul .ul-fx b{font-size:26px;line-height:1.05;color:var(--ink)}
+.ul.fechou .ul-fx b{color:var(--gold-2)}
+.ul .ul-fx i{font-style:normal;font-size:12.5px;color:var(--muted);white-space:nowrap}
+.uso-virada-nota{margin:8px 0 2px;font-size:13px;line-height:1.4;color:#C3D3EE}
+.uv-tit{margin:0 0 10px;font-size:14.5px;line-height:1.45}
+.uv-crit{margin-top:10px}
+.uv-crit>small{display:block;font-size:12.5px;color:var(--muted);margin-bottom:6px}
+.uv-chips{display:flex;flex-wrap:wrap;gap:5px}
+.uv-chip{font-size:12.5px;padding:3px 9px;border-radius:999px;background:rgba(72,214,128,.13);color:#86E8AE;white-space:nowrap}
+.uv-chip.falta{background:rgba(255,255,255,.07);color:var(--muted)}
+.uv-chip.falta b{color:var(--gold-2);font-weight:650}
+.uso-erro{margin:8px 0 2px;padding:9px 11px;border-radius:12px;border:1px solid rgba(255,90,79,.5);background:rgba(255,90,79,.1);
+  color:#FFC2BD;font-size:13.5px;line-height:1.4}
+.uso-erro b{color:#FFD9D6}
+.uc-ant{font-size:12px;color:var(--muted);margin-top:3px}
+.uc-ant b{color:var(--gold-2);font-weight:650}
+.us .n3 small{display:block;text-align:right}
 .uc{padding:10px 0;border-top:1px solid var(--stroke)}
 .uc:first-of-type{border-top:0}
 .uc-cab{display:flex;justify-content:space-between;gap:10px;font-size:14.5px}
@@ -759,6 +946,32 @@ button.bloco-cab{display:block;width:100%;text-align:left}
   <button role="menuitem" data-menu="copiar">⧉ Copiar o texto</button>
 </div>
 
+<div class="menu-balao hidden" id="tabMenu" role="menu" aria-label="Copiar a tabela">
+  <button role="menuitem" data-copiar-como="sheets" data-md-icone="grade">Copiar para o Sheets</button>
+  <button role="menuitem" data-copiar-como="texto" data-md-icone="linhas">Copiar como texto</button>
+  <button role="menuitem" data-copiar-como="md" data-md-icone="cerquilha">Copiar em markdown</button>
+  <button role="menuitem" data-copiar-como="cheia" data-md-icone="cheia">Abrir em tela cheia</button>
+</div>
+
+<div id="tabelaCheia" class="hidden" role="dialog" aria-label="Tabela em tela cheia">
+  <div class="tc-topo">
+    <button id="tcFechar" data-icone="fechar" aria-label="Fechar"></button>
+    <div class="tc-nome" id="tcNome"></div>
+    <button class="tc-modo" id="tcModo"></button>
+    <button id="tcGirar" data-md-icone="girar" aria-label="Deitar a tabela (paisagem)"></button>
+    <button id="tcTema" aria-label="Tema claro ou escuro"></button>
+  </div>
+  <div class="tc-palco" id="tcPalco"><div id="tcConteudo"></div></div>
+  <div class="tc-baixo">
+    <button id="tcMenos" aria-label="Diminuir">A−</button><span class="tc-zoom" id="tcZoom">100%</span><button id="tcMais" aria-label="Aumentar">A+</button>
+    <span class="vao"></span>
+    <button class="tc-copiar" data-tc-copiar="sheets" data-md-icone="grade" aria-label="Copiar para o Sheets">Sheets</button>
+    <button class="tc-copiar" data-tc-copiar="texto" data-md-icone="linhas" aria-label="Copiar como texto">Texto</button>
+    <button class="tc-copiar" data-tc-copiar="md" data-md-icone="cerquilha" aria-label="Copiar em markdown">MD</button>
+  </div>
+  <div class="tc-aviso" id="tcAviso" role="status"></div>
+</div>
+
 <div id="visor" class="hidden" role="dialog" aria-label="Imagem em tela cheia">
   <div class="v-palco" id="vPalco"><img id="vImg" alt="" draggable="false"><img id="vRecorte" class="v-recorte hidden" alt="" draggable="false"></div>
   <div class="v-topo" id="vTopo">
@@ -820,6 +1033,7 @@ button.bloco-cab{display:block;width:100%;text-align:left}
 </div>
 
 <script src="config.js"></script>
+<script src="markdown.js"></script>
 <script src="chat.js"></script>
 <script src="lista.js"></script>
 <script src="usoia.js"></script>
@@ -844,9 +1058,10 @@ const edicoes = {};      // id do pedido -> o texto como a pessoa editou (a tela
 let sugestoesAtuais = []; // as respostas prontas da sessão aberta (o PC pede à IA quando o Claude pergunta ou termina)
 let timer = null, timerSala = null;
 let aba = "Inicio";
-const VERSAO_APP = "0.8.7";     // esta página
-const AGENTE_ATUAL = "0.8.7";   // o agente que acompanha esta página (os PCs atrás dele aparecem no painel)
+const VERSAO_APP = "0.8.8";     // esta página
+const AGENTE_ATUAL = "0.8.8";   // o agente que acompanha esta página (os PCs atrás dele aparecem no painel)
 const NOVIDADES_APP = [
+  ["0.8.8", "Tabelas do Claude de verdade: cartões no celular em pé, tabela com cabeçalho e 1ª coluna fixos, tela cheia com pinça, deitada e tema claro, Copiar para o Sheets; % em barra, status em etiqueta, hora em destaque. Títulos, listas, citação e código com Copiar. A mensagem longa nunca é cortada (agente 0.8.8). Uso de IA: na virada da semana (sexta 17h), a que fechou ao lado da nova, com a faixa final e o que bateu; o erro de uma medida aparece à parte."],
   ["0.8.7", "Uso de IA da semana (a régua da Seazone, os dois PCs somados) no Início e numa tela com gráficos; o fundo de galáxia do Monitor geral em todas as telas."],
   ["0.8.6", "Para você: o Responder vai para a sessão que perguntou (em qualquer PC) e o maestro fica sabendo; responder o Slack com o rascunho pronto; ✓ Resolvido; o contador Esperando você conta esses itens."],
   ["0.8.5", "PDF no chat: páginas em tela cheia, zoom nítido nas pranchas, marcar várias páginas e mandar; PDF do celular para a sessão; galeria das fotos."],
@@ -1476,14 +1691,46 @@ function faltaTxt(c, curto = false) {
   if (c.dias != null && !c.falta) return `${c.dias} de ${UsoIa.DIAS_MIN} dias com tarefa`;
   return `faltam ${fmtUso(c.falta, c.chave)}` + (c.porDia ? (curto ? ` · <b>+${fmtUso(c.porDia, c.chave)} hoje</b>` : ` · +${fmtUso(c.porDia, c.chave)} por dia`) : "");
 }
+// ---- 0.8.8: a virada da semana (sexta 17h) e o erro de verdade -------------------------------------------------
+// O Arthur viu a tela às 17h28 com 0 pontos, P0 e 3 sessões e achou que era erro: era a semana nova. Nas primeiras 24 h,
+// a semana que fechou vai ao lado, com a faixa final; o erro de uma medida aparece à parte, em vermelho.
+const horaCurta = d => `${d.getHours()}h${d.getMinutes() ? String(d.getMinutes()).padStart(2, "0") : ""}`;
+function quandoFoi(iso) {
+  const d = new Date(iso), hoje = new Date(), ontem = new Date();
+  ontem.setDate(hoje.getDate() - 1);
+  if (isNaN(d)) return "";
+  return d.toDateString() === hoje.toDateString() ? `hoje às ${horaCurta(d)}` : d.toDateString() === ontem.toDateString()
+    ? `ontem às ${horaCurta(d)}` : `${DIA_SEMANA[d.getDay()]} às ${horaCurta(d)}`;
+}
+const haTempo = ms => ms < 3600000 ? `há ${Math.max(1, Math.round(ms / 60000))} min` : `há ${Math.floor(ms / 3600000)} h`;
+const numSemana = s => String(s || "").split("-W")[1] || s;
+const somandoPcs = w => w.pcs > 1 ? `somando os ${w.pcs} PCs` : `só o ${nomeCurtoPc(w.nomes[0])}`;
+const pts = p => String(p).replace(".", ",");
+function ladoALado(r, tag = "div") {
+  const w = r.virada.fechou, quando = w.fechada ? "resultado final" : `última medida ${quandoFoi(w.medido_em)}`;
+  return `<${tag} class="uso-lado"${tag === "button" ? " data-uso" : ""} aria-label="Semana ${esc(numSemana(w.semana))} fechou em ${esc(w.banda)}; semana ${esc(r.numero)} em ${esc(r.banda)}">
+    <span class="ul fechou"><span class="ul-t">Semana ${esc(numSemana(w.semana))} · fechou</span>
+      <span class="ul-fx"><b>${esc(w.banda)}</b><i>${pts(w.pontos)} pts</i></span><small>${esc(quando)} · ${esc(somandoPcs(w))}</small></span>
+    <span class="ul nova"><span class="ul-t">Semana ${esc(r.numero)} · começou</span>
+      <span class="ul-fx"><b>${esc(r.banda)}</b><i>${pts(r.pontos)} pts</i></span><small>${esc(quandoFoi(r.inicio))} · ${haTempo(r.virada.desde)}</small></span></${tag}>`;
+}
+function errosUso(r, lista) {
+  const es = r ? r.erros : UsoIa.erros(lista);
+  return es.map(e => `<div class="uso-erro" role="alert">⚠ <b>A medida do ${esc(nomeCurtoPc(e.pc))} falhou</b>${e.quando ? " " + ha(e.quando * 1000) : ""}: ${esc(e.erro)}.
+    ${e.semNumeros ? "Ainda sem os números dele." : `Os números dele são da medida de ${ha(e.medido * 1000)}; ele tenta de novo sozinho.`}</div>`).join("");
+}
 function blocoUsoIa() {
   const lista = usosDosPcs();
   if (!lista.length) return "";
   const r = UsoIa.montar(lista, Date.now());
   if (!r) {
     if (!lista.some(u => u.instalado)) return "";
-    return `<section class="bloco"><h3>📊 Uso de IA</h3><p class="note">${lista.some(u => u.medindo) ? "Medindo a semana com o coletor da Seazone (1 a 3 min)…" : "Ainda sem a medida da semana."}</p></section>`;
+    return `<section class="bloco"><h3>📊 Uso de IA</h3>${errosUso(null, lista)}<p class="note">${lista.some(u => u.medindo) ? "Medindo a semana com o coletor da Seazone (1 a 3 min)…" : "Ainda sem a medida da semana."}</p></section>`;
   }
+  if (r.virada) return `<section class="bloco"><button class="bloco-cab" data-uso><h3>📊 Uso de IA · semana ${esc(r.numero)} <span class="ir">Abrir ›</span></h3></button>
+    ${ladoALado(r, "button")}
+    <p class="uso-virada-nota">🗓 A semana ${esc(r.numero)} começou ${esc(quandoFoi(r.inicio))}: os números começam do zero. Não é erro.</p>
+    ${errosUso(r)}<div class="rodape">${esc(nomesPcs(r))} · medido ${quandoMedido(r.medido)}</div></section>`;
   const total = r.faltam + r.cumpridas.length, feito = total ? Math.round(100 * r.cumpridas.length / total) : 100;
   const hoje = r.criterios.filter(c => !c.ok).slice(0, 3);
   return `<section class="bloco"><button class="bloco-cab" data-uso><h3>📊 Uso de IA · semana ${esc(r.numero)} <span class="ir">Abrir ›</span></h3></button>
@@ -1494,7 +1741,7 @@ function blocoUsoIa() {
     </button>
     ${r.proxima ? `<div class="prog" role="img" aria-label="${r.cumpridas.length} de ${total} critérios cumpridos"><i style="width:${feito}%"></i></div>` : ""}
     ${hoje.length ? `<div class="uso-hoje">${hoje.map(c => `<div class="uh"><span>${esc(c.rotulo)}</span><span>${faltaTxt(c, true)}</span></div>`).join("")}</div>` : ""}
-    <div class="rodape">${esc(nomesPcs(r))} · medido ${quandoMedido(r.medido)}</div></section>`;
+    ${errosUso(r)}<div class="rodape">${esc(nomesPcs(r))} · medido ${quandoMedido(r.medido)}</div></section>`;
 }
 
 // A tela: a régua, cada critério contra a próxima faixa, a evolução de cada dia e as semanas anteriores.
@@ -1536,17 +1783,38 @@ function criterioUso(c, r) {
       <span class="uc-v">${fmtUso(c.valor, c.chave)}${c.meta != null ? ` <small>/ ${fmtUso(c.meta, c.chave)}</small>` : ""}</span></div>
     <div class="uc-barra" role="img" aria-label="${esc(c.rotulo)}: ${esc(fmtUso(c.valor, c.chave))}${c.meta != null ? " de " + esc(fmtUso(c.meta, c.chave)) + " para a " + esc(r.proxima) : ""}"><i style="width:${c.pct}%"></i>${ticks}</div>
     <div class="uc-pe"><span>faixa <span class="fxa">${esc(c.faixa)}</span></span><span class="st">${faltaTxt(c)}</span></div>
-    ${c.pcs.length > 1 ? `<div class="uc-pcs">${c.pcs.map(x => `${esc(nomeCurtoPc(x.pc))} ${esc(fmtUso(x.valor, c.chave))}`).join(" · ")}</div>` : ""}</div>`;
+    ${c.pcs.length > 1 ? `<div class="uc-pcs">${c.pcs.map(x => `${esc(nomeCurtoPc(x.pc))} ${esc(fmtUso(x.valor, c.chave))}`).join(" · ")}</div>` : ""}
+    ${r.virada && c.anterior != null ? `<div class="uc-ant">A semana ${esc(numSemana(r.virada.fechou.semana))} fechou com <b>${esc(fmtUso(c.anterior, c.chave))}</b></div>` : ""}</div>`;
+}
+// O topo da tela na virada: o aviso, as duas semanas lado a lado e o que bateu na que fechou.
+function viradaUso(r) {
+  const w = r.virada.fechou, n = numSemana(w.semana);
+  const chaves = UsoIa.ORDEM.filter(m => w.proxima && ((r.criterios.find(c => c.chave === m) || {}).minimos || {})[w.proxima] != null);
+  const chips = chaves.map(m => {
+    const rot = UsoIa.ROTULO[m] || m, f = w.faltas[m];
+    if (!f) return `<span class="uv-chip">✓ ${esc(rot)}</span>`;
+    return `<span class="uv-chip falta">✗ ${esc(rot)} <b>${f.falta ? `${esc(fmtUso(f.valor, m))}/${esc(fmtUso(f.minimo, m))}` : `${f.dias} de ${f.dias_minimos} dias`}</b></span>`;
+  }).join("");
+  return `<section class="bloco"><p class="uv-tit">🗓 <b>A semana ${esc(r.numero)} começou ${esc(quandoFoi(r.inicio))}.</b> A semana ${esc(n)} fechou em
+      <b>${esc(w.banda)}</b> · ${pts(w.pontos)} pts (${esc(somandoPcs(w))}).</p>
+    ${ladoALado(r)}
+    ${w.proxima ? `<div class="uv-crit"><small>Na semana ${esc(n)}, para a ${esc(w.proxima)}: ${w.cumpridas.length} de ${chaves.length} critérios bateram</small><div class="uv-chips">${chips}</div></div>` : ""}
+    ${w.fechada ? "" : `<p class="note">Valores da última medida de cada PC (${esc(quandoFoi(w.medido_em))}): o agente 0.8.8 mede a semana inteira, até sexta 17h, e o resultado final aparece aqui.</p>`}
+    <p class="uso-virada-nota">Os números da semana ${esc(r.numero)} começam do zero: não é erro.</p></section>`;
 }
 function desenharUsoIa() {
   if (!usoAberto) return;
   const lista = usosDosPcs(), r = UsoIa.montar(lista, Date.now());
-  if (!r) return por($("usoCorpo"), `<div class="empty">${lista.some(u => u.medindo) ? "Medindo a semana com o coletor da Seazone…" : "Ainda sem a medida da semana."}</div>`);
-  const sem = lista.filter(u => !r.pcs.includes(u.pc)).map(u => `${esc(nomeCurtoPc(u.pc))}: ${u.instalado === false ? "sem o coletor" : u.medindo ? "medindo…" : "sem medida desta semana"}`);
+  if (!r) return por($("usoCorpo"), `${errosUso(null, lista)}<div class="empty">${lista.some(u => u.medindo) ? "Medindo a semana com o coletor da Seazone…" : "Ainda sem a medida da semana."}</div>`);
+  const sem = lista.filter(u => !r.pcs.includes(u.pc)).map(u => `${esc(nomeCurtoPc(u.pc))}: ${u.instalado === false ? "sem o coletor"
+    : u.semana && u.semana < r.semana ? `ainda com a semana ${esc(numSemana(u.semana))} (a ${esc(r.numero)} chega em poucos minutos)`
+    : u.medindo ? "medindo…" : "sem medida desta semana"}`);
   const ordem = [...r.criterios.filter(c => !c.ok), ...r.criterios.filter(c => c.ok)];
   const fmtData = iso => { const d = new Date(iso); return isNaN(d) ? "" : `${DIA_SEMANA[d.getDay()]} ${String(d.getDate()).padStart(2, "0")}/${String(d.getMonth() + 1).padStart(2, "0")}`; };
   const pos = r.bandas.indexOf(r.banda);
-  por($("usoCorpo"), `<section class="bloco"><h3>Semana ${esc(r.numero)} <span class="n3">${esc(fmtData(r.inicio))} a ${esc(fmtData(r.fim))}, 17h</span></h3>
+  por($("usoCorpo"), `${r.erros.length ? `<section class="bloco">${errosUso(r)}</section>` : ""}${r.virada ? viradaUso(r) : ""}
+    <section class="bloco"><h3>Semana ${esc(r.numero)} <span class="n3">${r.encerrada ? `fechou ${esc(quandoFoi(r.fim))}` : `${esc(fmtData(r.inicio))} a ${esc(fmtData(r.fim))}, 17h`}</span></h3>
+      ${r.encerrada ? `<p class="uso-virada-nota">🗓 Esta semana fechou ${esc(quandoFoi(r.fim))}. Medindo a semana nova (1 a 3 min)…</p>` : ""}
       <div class="regua" role="img" aria-label="Faixa ${esc(r.banda)}${r.proxima ? ", próxima " + esc(r.proxima) : ""}">${r.bandas.map((b, i) =>
         `<span class="${i === pos ? "atual" : i < pos ? "feita" : b === r.proxima ? "prox" : ""}">${esc(b)}</span>`).join("")}</div>
       <p class="pv-resumo" style="margin:10px 0 0">${String(r.pontos).replace(".", ",")} pontos · ${r.proxima ? `faltam <b>${r.faltam}</b> de ${r.faltam + r.cumpridas.length} critérios para a <b>${esc(r.proxima)}</b>` : "faixa máxima da régua"}</p>
@@ -1554,8 +1822,8 @@ function desenharUsoIa() {
     <section class="bloco"><h3>${r.proxima ? `Critérios para a ${esc(r.proxima)}` : "Critérios"}</h3>${ordem.map(c => criterioUso(c, r)).join("")}</section>
     <section class="bloco"><h3>Evolução da semana</h3>${graficoUso(r)}</section>
     <section class="bloco"><h3>Semanas anteriores</h3>${r.anteriores.length ? r.anteriores.map(w => `<div class="us"><span class="fx-mini">${esc(w.banda)}</span>
-        <span class="us-t"><b>Semana ${esc(w.semana.split("-W")[1] || w.semana)}</b><br>${fmtUso(w.valores.mensagens, "mensagens")} mensagens · ${fmtUso(w.valores.sessoes_iniciadas, "sessoes_iniciadas")} sessões · ${fmtUso(w.valores.tokens_saida, "tokens_saida")} tokens</span>
-        <span class="n3">${String(w.pontos).replace(".", ",")} pts</span></div>`).join("")
+        <span class="us-t"><b>Semana ${esc(w.semana.split("-W")[1] || w.semana)}</b>${w.fechada ? " · fechada" : w.medido_em ? ` · última medida ${esc(quandoFoi(w.medido_em))}` : ""}<br>${fmtUso(w.valores.mensagens, "mensagens")} mensagens · ${fmtUso(w.valores.sessoes_iniciadas, "sessoes_iniciadas")} sessões · ${fmtUso(w.valores.tokens_saida, "tokens_saida")} tokens</span>
+        <span class="n3">${pts(w.pontos)} pts<small>${esc(somandoPcs(w))}</small></span></div>`).join("")
       : `<p class="note">Aparecem aqui a partir da próxima sexta: o agente guarda a última medida de cada semana.</p>`}</section>`);
 }
 
@@ -2639,7 +2907,7 @@ function desenharLinha(l, ant, s) {
   if (texto) {
     const longo = texto.length > 700 || texto.split("\n").length > 14;
     const aberto = abertos.has(l.id);
-    corpo += `<div class="txt${longo && !aberto ? " longo" : ""}">${eu ? esc(texto) : Chat.marcacao(texto)}</div>`
+    corpo += `<div class="txt${eu ? "" : " md"}${longo && !aberto ? " longo" : ""}">${eu ? esc(texto) : Chat.marcacao(texto)}</div>`
       + (longo ? `<button class="mais" data-mais="${esc(l.id)}">${aberto ? "Mostrar menos" : "Ler mais"}</button>` : "");
   }
   if (l.nota) corpo += `<div class="nota"><span class="spin"></span>${esc(l.nota)}</div>`;
@@ -2742,7 +3010,7 @@ function desenharPermissao(perm, s) {
   if (perm.detalhe) {
     const id = "perm:" + perm.id, aberto = abertos.has(id);
     const longo = perm.detalhe.length > 600 || perm.detalhe.split("\n").length > 12;
-    h += perm.plano ? `<div class="txt${longo && !aberto ? " longo" : ""}">${Chat.marcacao(perm.detalhe)}</div>`
+    h += perm.plano ? `<div class="txt md${longo && !aberto ? " longo" : ""}">${Chat.marcacao(perm.detalhe)}</div>`
                     : `<pre class="perm-det${longo && !aberto ? " longo" : ""}">${esc(perm.detalhe)}</pre>`;
     if (longo) h += `<button class="mais" data-mais="${esc(id)}">${aberto ? "Mostrar menos" : "Ler tudo"}</button>`;
   }
@@ -2827,7 +3095,7 @@ function abrirMenuBalao(linha) {
 function fecharMenuBalao() { $("dMenuBalao").classList.add("hidden"); }
 function pegarBalao(e) {
   const linha = e.target.closest(".linha-msg");
-  if (!linha || (e.button || 0) > 0 || e.target.closest("input, textarea, button, a, .opc")) return;
+  if (!linha || (e.button || 0) > 0 || e.target.closest("input, textarea, button, a, .opc, .md-rolo, .md-codigo pre")) return;
   const g = gestoBalao = {linha, id: e.pointerId, x0: e.clientX, y0: e.clientY, modo: "", passou: false};
   g.longo = setTimeout(() => { if (gestoBalao === g && !g.modo) { g.modo = "longo"; abrirMenuBalao(linha); } }, 500);
 }
@@ -3008,6 +3276,137 @@ async function reenviarPedido(l) {
 
 // Dá para mandar agora para a sessão aberta (a caixa de escrever e o 📎 estão na tela)?
 const podeMandar = () => !!aberta && !$("dCompor").classList.contains("hidden") && !$("dClipe").classList.contains("hidden");
+
+// ---- 0.8.8: as tabelas do Claude (markdown.js): cartões ou tabela, Copiar, tela cheia com pinça, deitada e tema claro ----
+// A escolha Cartões | Tabela vale para todas (fica no celular); sem escolha, o CSS decide: cartões no celular em pé
+// quando a tabela tem 4 colunas ou mais.
+const PREF_TABELA = "seaninho.tabela", PREF_CHEIA = "seaninho.tabela.cheia", PREF_TEMA = "seaninho.tabela.tema", PREF_ZOOM = "seaninho.tabela.zoom";
+const lerPref = k => { try { return localStorage.getItem(k) || ""; } catch { return ""; } };
+const gravarPref = (k, v) => { try { localStorage.setItem(k, v); } catch {} };
+function aplicarModoTabela() {
+  const m = lerPref(PREF_TABELA);
+  document.body.classList.toggle("md-ver-cartoes", m === "cartoes");
+  document.body.classList.toggle("md-ver-tabela", m === "tabela");
+}
+aplicarModoTabela();
+document.querySelectorAll("[data-md-icone]").forEach(b => b.insertAdjacentHTML("afterbegin", Markdown.ICONE[b.dataset.mdIcone]));
+function trocarModoTabela(b) {
+  const tab = b.closest(".md-tab"), c = $("dMsgs"), antes = tab.getBoundingClientRect().top;
+  gravarPref(PREF_TABELA, b.dataset.tabModo);
+  aplicarModoTabela();
+  c.scrollTop += tab.getBoundingClientRect().top - antes;   // a tabela tocada fica no mesmo lugar
+}
+const textoDaTabela = (id, como) => como === "sheets" ? Markdown.paraSheets(id) : como === "texto" ? Markdown.comoTexto(id) : Markdown.emMarkdown(id);
+const COPIADA = {sheets: "✓ Tabela copiada: cole no Sheets", texto: "✓ Tabela copiada como texto", md: "✓ Tabela copiada em markdown"};
+async function copiarTabela(id, como, avisoNa = null) {
+  let ok = false;
+  try { await navigator.clipboard.writeText(textoDaTabela(id, como)); ok = true; } catch {}
+  const msg = ok ? COPIADA[como] : "Não consegui copiar a tabela.";
+  if (avisoNa) return avisoTabela(msg);
+  avisar("dAviso", msg, ok ? {ok: true, ...chatAviso()} : {erro: true, ...chatAviso()});
+}
+function abrirMenuTabela(b) {
+  const m = $("tabMenu"), r = b.getBoundingClientRect();
+  m.dataset.tab = b.dataset.tabCopiar;
+  m.classList.remove("hidden");
+  const h = m.offsetHeight, w = m.offsetWidth;
+  m.style.top = Math.max(8, Math.min(innerHeight - h - 8, r.bottom + 6)) + "px";
+  m.style.left = Math.max(8, Math.min(innerWidth - w - 8, r.right - w)) + "px";
+}
+const fecharMenuTabela = () => $("tabMenu").classList.add("hidden");
+$("tabMenu").addEventListener("click", e => {
+  const b = e.target.closest("[data-copiar-como]");
+  if (!b) return;
+  const id = $("tabMenu").dataset.tab;
+  fecharMenuTabela();
+  if (b.dataset.copiarComo === "cheia") return abrirTabela(id, $("dMsgs").querySelector(`.md-tab[data-tab="${CSS.escape(id)}"]`));
+  copiarTabela(id, b.dataset.copiarComo);
+});
+document.addEventListener("pointerdown", e => { if (!e.target.closest("#tabMenu, [data-tab-copiar]")) fecharMenuTabela(); }, true);
+async function copiarCodigo(b) {
+  const pre = b.closest(".md-codigo").querySelector("pre");
+  try { await navigator.clipboard.writeText(pre.innerText.replace(/\n$/, "")); avisar("dAviso", "✓ Código copiado", {ok: true, ...chatAviso()}); }
+  catch { avisar("dAviso", "Não consegui copiar o código.", {erro: true, ...chatAviso()}); }
+}
+// Um toque no markdown do balão: devolve true quando era dele.
+function tocarMarkdown(e) {
+  const mt = e.target.closest("[data-tab-modo]");
+  if (mt) { trocarModoTabela(mt); return true; }
+  const tc = e.target.closest("[data-tab-copiar]");
+  if (tc) { $("tabMenu").classList.contains("hidden") || $("tabMenu").dataset.tab !== tc.dataset.tabCopiar ? abrirMenuTabela(tc) : fecharMenuTabela(); return true; }
+  const tf = e.target.closest("[data-tab-cheia]");
+  if (tf) { abrirTabela(tf.dataset.tabCheia, tf.closest(".md-tab")); return true; }
+  const cc = e.target.closest("[data-copiar-codigo]");
+  if (cc) { copiarCodigo(cc); return true; }
+  const corpo = !e.target.closest("a, button") && e.target.closest(".md-cartoes, .md-rolo");
+  if (corpo && !(getSelection() || "").toString()) { const tab = corpo.closest(".md-tab"); abrirTabela(tab.dataset.tab, tab); return true; }
+  return false;
+}
+
+let tcId = null, tcZoom = 1, tcAvisoT = 0;
+function abrirTabela(id, tab) {
+  const d = Markdown.dados(id);
+  if (!d) return;
+  tcId = id;
+  const ant = tab && tab.previousElementSibling, s = aberta && sessaoAberta();
+  const antes = ant && /\bmd-(h|p)\b/.test(ant.className) ? ant.textContent.trim().replace(/\s+/g, " ").replace(/:$/, "") : "";
+  const nome = antes && (/\bmd-h\b/.test(ant.className) || antes.length <= 60) ? antes : "";
+  const cols = d.cab.length - (d.indice >= 0 ? 1 : 0);
+  $("tcNome").innerHTML = esc(nome.length > 80 ? nome.slice(0, 79) + "…" : nome || "Tabela")
+    + `<small>${d.linhas.length} ${d.linhas.length === 1 ? "linha" : "linhas"} · ${cols} ${cols === 1 ? "coluna" : "colunas"}${s ? " · " + esc(s.titulo || "") : ""}</small>`;
+  tcZoom = Math.min(2.5, Math.max(0.6, Number(lerPref(PREF_ZOOM)) || 1));
+  const v = $("tabelaCheia");
+  v.classList.toggle("claro", lerPref(PREF_TEMA) === "claro");
+  v.classList.remove("hidden", "deitada");
+  desenharTabelaCheia();
+  $("tcPalco").scrollTo(0, 0);
+}
+function desenharTabelaCheia() {
+  const cartoes = lerPref(PREF_CHEIA) === "cartoes";
+  $("tcConteudo").innerHTML = Markdown.tabelaCheia(tcId, cartoes ? "cartoes" : "tabela");
+  $("tcModo").innerHTML = Markdown.ICONE[cartoes ? "grade" : "cartoes"] + (cartoes ? "Tabela" : "Cartões");
+  $("tcModo").setAttribute("aria-label", cartoes ? "Ver como tabela" : "Ver como cartões");
+  $("tcTema").innerHTML = Markdown.ICONE[$("tabelaCheia").classList.contains("claro") ? "lua" : "sol"];
+  zoomTabela(tcZoom);
+}
+function zoomTabela(z) {
+  tcZoom = Math.min(2.5, Math.max(0.6, Math.round(z * 100) / 100));
+  $("tcPalco").style.setProperty("--z", tcZoom);
+  $("tcZoom").textContent = Math.round(tcZoom * 100) + "%";
+}
+function fecharTabela() { $("tabelaCheia").classList.add("hidden"); $("tabelaCheia").classList.remove("deitada"); tcId = null; }
+function avisoTabela(msg) {
+  const a = $("tcAviso");
+  a.textContent = msg; a.classList.add("ver");
+  clearTimeout(tcAvisoT); tcAvisoT = setTimeout(() => a.classList.remove("ver"), 1800);
+}
+$("tcFechar").addEventListener("click", fecharTabela);
+$("tcModo").addEventListener("click", () => { gravarPref(PREF_CHEIA, lerPref(PREF_CHEIA) === "cartoes" ? "tabela" : "cartoes"); desenharTabelaCheia(); });
+$("tcTema").addEventListener("click", () => {
+  const claro = !$("tabelaCheia").classList.contains("claro");
+  $("tabelaCheia").classList.toggle("claro", claro); gravarPref(PREF_TEMA, claro ? "claro" : "escuro"); desenharTabelaCheia();
+});
+$("tcGirar").addEventListener("click", () => $("tabelaCheia").classList.toggle("deitada"));
+matchMedia("(orientation: landscape)").addEventListener("change", e => { if (e.matches) $("tabelaCheia").classList.remove("deitada"); });
+$("tcMenos").addEventListener("click", () => { zoomTabela(tcZoom - 0.15); gravarPref(PREF_ZOOM, tcZoom); });
+$("tcMais").addEventListener("click", () => { zoomTabela(tcZoom + 0.15); gravarPref(PREF_ZOOM, tcZoom); });
+document.querySelectorAll("[data-tc-copiar]").forEach(b => b.addEventListener("click", () => copiarTabela(tcId, b.dataset.tcCopiar, true)));
+document.addEventListener("keydown", e => { if (e.key === "Escape" && tcId) fecharTabela(); });
+// A pinça: o tamanho da letra acompanha os dedos, com o ponto entre eles parado na tela.
+let pinca = null;
+const distancia = t => Math.hypot(t[0].clientX - t[1].clientX, t[0].clientY - t[1].clientY);
+$("tcPalco").addEventListener("touchstart", e => { if (e.touches.length === 2) pinca = {d: distancia(e.touches) || 1, z: tcZoom}; }, {passive: true});
+$("tcPalco").addEventListener("touchmove", e => {
+  if (!pinca || e.touches.length !== 2) return;
+  e.preventDefault();
+  const p = $("tcPalco"), r = p.getBoundingClientRect(), antes = tcZoom;
+  const mx = (e.touches[0].clientX + e.touches[1].clientX) / 2 - r.left, my = (e.touches[0].clientY + e.touches[1].clientY) / 2 - r.top;
+  zoomTabela(pinca.z * distancia(e.touches) / pinca.d);
+  const k = tcZoom / antes;
+  p.scrollLeft = (p.scrollLeft + mx) * k - mx; p.scrollTop = (p.scrollTop + my) * k - my;
+}, {passive: false});
+$("tcPalco").addEventListener("touchend", e => { if (pinca && e.touches.length < 2) { pinca = null; gravarPref(PREF_ZOOM, tcZoom); } });
+document.addEventListener("gesturestart", e => { if (tcId) e.preventDefault(); });
 
 // ---- Imagem em tela cheia e marcar (marcar.js) ---------------------------------------------------------------
 function abrirFoto(el) {   // as fotos do chat em sequência, a partir da tocada
@@ -3773,6 +4172,7 @@ document.addEventListener("pointerdown", e => { if (!e.target.closest("#dMenuBal
 $("dBloqueio").addEventListener("click", e => { const rx = e.target.closest("[data-recusar]"); if (rx) recusarEnquete(rx.dataset.recusar); });
 $("dMsgs").addEventListener("click", e => {
   if (Date.now() - arrastouBalao < 350) return;   // o fim do arrasto (ou do toque longo) não é um toque
+  if (tocarMarkdown(e)) return;
   const cb = e.target.closest(".cita-balao");
   if (cb) return irParaCitada(cb);
   const o = e.target.closest(".opc[data-enq]");
