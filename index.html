@@ -22,7 +22,9 @@
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;min-height:100%;background:#08142e;color:var(--ink);font:16px/1.45 var(--font)}
-body{background:linear-gradient(170deg,#0E224A,#08142E 60%) fixed;padding:calc(var(--top) + 8px) 16px calc(var(--bottom) + 84px)}
+body{background:#050C24;padding:calc(var(--top) + 8px) 16px calc(var(--bottom) + 84px)}
+/* 0.8.7: o céu do Monitor geral (uma imagem parada, desenhada uma vez por tamanho de tela: não gasta bateria) */
+body::before{content:"";position:fixed;inset:0;z-index:-1;background:#050C24 var(--ceu,linear-gradient(170deg,#0E224A,#08142E 60%)) 0 0/100vw auto no-repeat}
 button,textarea,input{font:inherit;color:inherit}
 button{cursor:pointer;border:0;background:none}
 .hidden{display:none!important}
@@ -65,7 +67,7 @@ nav .n{position:absolute;top:-1px;left:calc(50% + 7px);min-width:18px;padding:0 
 .back{display:flex;align-items:center;gap:6px;color:var(--gold);font-weight:600;padding:6px 0 12px}
 /* ---- Chat de uma sessão (0.8): balões, sinais (🕓 ✓ ✓✓ ✓✓ azul ⚠), enquete e a caixa embaixo ---- */
 #detalhe{position:fixed;left:0;right:0;top:0;z-index:5;height:var(--altura,100dvh);display:flex;flex-direction:column;
-  background:#0A1630 radial-gradient(rgba(255,255,255,.035) 1px,transparent 1.3px) 0 0/18px 18px}
+  background:#050C24 var(--ceu,linear-gradient(170deg,#0E224A,#08142E 60%)) 0 0/100vw auto no-repeat}
 .chat-topo{flex:none;display:flex;align-items:center;gap:6px;padding:calc(var(--top) + 6px) 12px 8px 2px;
   background:rgba(11,30,63,.97);border-bottom:1px solid var(--stroke)}
 .chat-topo .voltar{flex:none;width:40px;height:40px;font-size:34px;line-height:1;color:var(--gold);display:grid;place-items:center;padding-bottom:4px}
@@ -85,7 +87,7 @@ nav .n{position:absolute;top:-1px;left:calc(50% + 7px);min-width:18px;padding:0 
 .linha-msg.seguida{margin-top:2px}
 .bolha{position:relative;max-width:85%;min-width:72px;padding:6px 9px 5px 10px;border-radius:12px;font-size:15.5px;line-height:1.38;overflow-wrap:anywhere}
 .ele .bolha{background:#17294D;border:1px solid rgba(255,255,255,.07);border-top-left-radius:4px;margin-right:auto}
-.eu .bolha{background:rgba(226,184,74,.2);border:1px solid rgba(226,184,74,.32);border-top-right-radius:4px;margin-left:auto}
+.eu .bolha{background:#33342F;border:1px solid rgba(226,184,74,.32);border-top-right-radius:4px;margin-left:auto}
 .seguida .bolha{border-top-left-radius:12px;border-top-right-radius:12px}
 .bolha .txt{white-space:pre-wrap}
 .bolha .txt.longo{max-height:17em;overflow:hidden;-webkit-mask-image:linear-gradient(#000 70%,transparent);mask-image:linear-gradient(#000 70%,transparent)}
@@ -101,6 +103,11 @@ nav .n{position:absolute;top:-1px;left:calc(50% + 7px);min-width:18px;padding:0 
 .sinal.mandando{letter-spacing:0;font-size:11px}
 .erro-linha{margin:3px 2px 0 auto;max-width:85%;font-size:12.5px;color:#ffb3ad;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:right}
 .erro-linha.aberta{white-space:normal}
+.erro-linha.esperando{color:var(--gold-2)}
+/* 0.8.7: a mensagem que não saiu nunca se perde: tentar de novo, editar, copiar, apagar */
+.acoes-msg{display:flex;flex-wrap:wrap;gap:6px;justify-content:flex-end;margin:5px 2px 2px auto;max-width:92%}
+.acoes-msg button{font-size:12.5px;font-weight:600;padding:5px 10px;border-radius:999px;background:var(--glass-2);color:var(--ink)}
+.acoes-msg button.forte{background:var(--gold);color:var(--navy)}
 .nota{font-size:12.5px;color:var(--muted);margin-top:3px}
 .nota .spin{width:11px;height:11px;margin-right:6px}
 .fotos{margin:-2px -5px 6px -6px}
@@ -123,7 +130,9 @@ nav .n{position:absolute;top:-1px;left:calc(50% + 7px);min-width:18px;padding:0 
   color:var(--ink);font-size:20px;box-shadow:0 3px 10px rgba(0,0,0,.45)}
 .descer b{position:absolute;top:-6px;right:-4px;min-width:20px;padding:1px 5px;border-radius:999px;background:var(--gold);color:var(--navy);font-size:11.5px}
 .enq{min-width:78%}
-.enq-topo{font-size:12.5px;font-weight:650;color:var(--gold);margin:2px 0 4px}
+.enq-topo{font-size:12.5px;font-weight:650;color:var(--gold);margin:2px 0 4px;display:flex;align-items:center;gap:8px}
+.enq-topo .enq-x{margin-left:auto;width:30px;height:30px;border-radius:50%;background:var(--glass-2);color:var(--muted);font-size:15px;flex:none}
+.status .bloq-acao{display:inline-block;margin-left:6px;padding:3px 10px;border-radius:999px;background:var(--glass-2);color:var(--ink);font-size:13px;font-weight:600}
 .enq-q{font-weight:650;margin:8px 0 1px}
 .enq-dica{font-size:12px;color:var(--faint);margin-bottom:4px}
 .opc{display:flex;align-items:flex-start;gap:10px;width:100%;text-align:left;padding:9px 10px;margin:5px 0;border-radius:10px;
@@ -399,6 +408,51 @@ button.bloco-cab{display:block;width:100%;text-align:left}
 .pv-acoes a{background:var(--glass-2);color:var(--ink)}
 .pv-mais{width:100%;padding:10px;margin-top:4px;border-radius:12px;background:var(--glass-2);font-size:14px;font-weight:600;color:var(--muted)}
 .bloco .rodape{font-size:12.5px;color:var(--faint);margin-top:8px}
+/* 0.8.7: o uso de IA da semana (régua da Seazone) */
+.uf{display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:4px 0 2px}
+.uf .fx{display:flex;flex-direction:column;align-items:center;min-width:64px;padding:8px 10px;border-radius:14px;background:rgba(0,0,0,.25)}
+.uf .fx b{font-size:26px;line-height:1.05;color:var(--ink)}
+.uf .fx.prox b{color:var(--gold)}
+.uf .fx small{font-size:11.5px;color:var(--muted);white-space:nowrap}
+.uf .seta{color:var(--faint);font-size:20px}
+.uf .uf-txt{flex:1;min-width:0;font-size:13.5px;color:var(--muted);line-height:1.35}
+.uf .uf-txt b{color:var(--ink)}
+.prog{height:6px;border-radius:999px;background:rgba(255,255,255,.08);overflow:hidden;margin:10px 0 4px}
+.prog i{display:block;height:100%;border-radius:999px;background:var(--gold)}
+.uh{display:flex;justify-content:space-between;gap:10px;padding:6px 0;border-top:1px solid var(--stroke);font-size:14px}
+.uh:first-child{border-top:0}
+.uh span:last-child{color:var(--muted);text-align:right}
+.uh b{color:var(--gold-2);font-weight:650}
+.regua{display:flex;justify-content:space-between;align-items:center;margin:6px 0 4px;position:relative}
+.regua:before{content:"";position:absolute;left:18px;right:18px;top:50%;height:2px;background:rgba(255,255,255,.12)}
+.regua span{position:relative;z-index:1;width:46px;padding:6px 0;text-align:center;border-radius:999px;font-size:13px;font-weight:650;
+  background:#0E1C3A;border:1px solid var(--stroke);color:var(--faint)}
+.regua span.feita{color:var(--ink);background:#1D3566}
+.regua span.atual{color:var(--navy);background:var(--gold);border-color:var(--gold)}
+.regua span.prox{color:var(--gold-2);border:1.5px dashed var(--gold)}
+.uc{padding:10px 0;border-top:1px solid var(--stroke)}
+.uc:first-of-type{border-top:0}
+.uc-cab{display:flex;justify-content:space-between;gap:10px;font-size:14.5px}
+.uc-cab i{font-style:normal;color:var(--faint);font-size:12.5px}
+.uc-v{font-weight:650;white-space:nowrap}
+.uc-v small{color:var(--muted);font-weight:500}
+.uc-barra{position:relative;height:8px;border-radius:999px;background:rgba(255,255,255,.08);margin:7px 0 5px}
+.uc-barra i{position:absolute;left:0;top:0;bottom:0;border-radius:999px;background:var(--gold)}
+.uc.ok .uc-barra i{background:var(--green)}
+.uc-barra .tk{position:absolute;top:-3px;bottom:-3px;width:2px;margin-left:-1px;background:rgba(255,255,255,.35);border-radius:1px}
+.uc-pe{display:flex;justify-content:space-between;gap:10px;font-size:12.5px;color:var(--muted)}
+.uc-pe .fxa{font-weight:650;color:var(--ink)}
+.uc.ok .uc-pe .st{color:var(--green)}
+.uc:not(.ok) .uc-pe .st{color:var(--gold-2)}
+.uc-pcs{font-size:12px;color:var(--faint);margin-top:3px}
+.um{display:flex;gap:6px;flex-wrap:wrap;margin:2px 0 8px}
+.um button{font-size:13px;padding:5px 11px;border-radius:999px;background:var(--glass-2);color:var(--muted)}
+.um button.on{background:var(--gold);color:var(--navy);font-weight:650}
+.us{display:flex;align-items:center;gap:10px;padding:9px 0;border-top:1px solid var(--stroke);font-size:14px}
+.us:first-of-type{border-top:0}
+.us .fx-mini{min-width:46px;text-align:center;padding:3px 0;border-radius:999px;background:#1D3566;font-weight:650;font-size:13px}
+.us .us-t{flex:1;min-width:0;color:var(--muted);font-size:13px}
+.us .us-t b{color:var(--ink);font-size:14px}
 .tiles{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
 .tile{padding:10px 12px;border-radius:12px;background:rgba(0,0,0,.2)}
 .tile b{display:block;font-size:22px;font-weight:700;line-height:1.15}
@@ -506,7 +560,7 @@ button.bloco-cab{display:block;width:100%;text-align:left}
 .ar-bloco .mini{margin-top:12px}
 .ar-estado{display:flex;align-items:center;gap:8px;font-size:14.5px}
 .ar-estado a{margin-left:auto;font-size:13.5px;font-weight:650;color:var(--navy);background:var(--gold);padding:6px 12px;border-radius:999px;text-decoration:none}
-#aiRats{position:fixed;inset:0;z-index:7;display:flex;flex-direction:column;background:#0B1A38}
+#aiRats,#usoIa{position:fixed;inset:0;z-index:7;display:flex;flex-direction:column;background:#050C24 var(--ceu,linear-gradient(170deg,#0E224A,#08142E 60%)) 0 0/100vw auto no-repeat}
 .ar-topo{flex:none;display:flex;align-items:center;gap:8px;padding:calc(var(--top) + 8px) 12px 10px;border-bottom:1px solid var(--stroke)}
 .ar-topo b{flex:1;font-size:17px}
 .ar-topo button{width:40px;height:40px;border-radius:50%;font-size:20px;color:var(--muted);background:var(--glass)}
@@ -655,6 +709,10 @@ button.bloco-cab{display:block;width:100%;text-align:left}
   <div class="ar-corpo" id="arCorpo"></div>
   <div class="ar-baixo" id="arBaixo"></div>
 </div>
+<div id="usoIa" class="hidden" role="dialog" aria-modal="true" aria-label="Uso de IA da semana">
+  <div class="ar-topo"><b>📊 Uso de IA</b><button id="usoFechar" aria-label="Fechar">✕</button></div>
+  <div class="ar-corpo" id="usoCorpo"></div>
+</div>
 <div class="folha-fundo hidden" id="folhaFundo"><div class="folha" id="folha" role="dialog" aria-modal="true"></div></div>
 
 <div id="detalhe" class="hidden">
@@ -764,6 +822,7 @@ button.bloco-cab{display:block;width:100%;text-align:left}
 <script src="config.js"></script>
 <script src="chat.js"></script>
 <script src="lista.js"></script>
+<script src="usoia.js"></script>
 <script src="marcar.js"></script>
 <script>
 "use strict";
@@ -785,9 +844,10 @@ const edicoes = {};      // id do pedido -> o texto como a pessoa editou (a tela
 let sugestoesAtuais = []; // as respostas prontas da sessão aberta (o PC pede à IA quando o Claude pergunta ou termina)
 let timer = null, timerSala = null;
 let aba = "Inicio";
-const VERSAO_APP = "0.8.6";     // esta página
-const AGENTE_ATUAL = "0.8.6";   // o agente que acompanha esta página (os PCs atrás dele aparecem no painel)
+const VERSAO_APP = "0.8.7";     // esta página
+const AGENTE_ATUAL = "0.8.7";   // o agente que acompanha esta página (os PCs atrás dele aparecem no painel)
 const NOVIDADES_APP = [
+  ["0.8.7", "Uso de IA da semana (a régua da Seazone, os dois PCs somados) no Início e numa tela com gráficos; o fundo de galáxia do Monitor geral em todas as telas."],
   ["0.8.6", "Para você: o Responder vai para a sessão que perguntou (em qualquer PC) e o maestro fica sabendo; responder o Slack com o rascunho pronto; ✓ Resolvido; o contador Esperando você conta esses itens."],
   ["0.8.5", "PDF no chat: páginas em tela cheia, zoom nítido nas pranchas, marcar várias páginas e mandar; PDF do celular para a sessão; galeria das fotos."],
   ["0.8.4", "Início com o painel do dia; Sessões com busca, filtros e fixadas no topo; contas do Claude compactas."],
@@ -1097,7 +1157,7 @@ function previa(s) {
 }
 
 // ---- Início: o painel do dia (blocos resumidos; cada um leva à aba ou à tela completa) -------------------
-const PAINEL_BLOCOS = ["airats", "esperando", "sessoes", "paravoce", "contas", "metricas", "saude", "versoes", "resumos"];
+const PAINEL_BLOCOS = ["airats", "esperando", "sessoes", "paravoce", "usoia", "contas", "metricas", "saude", "versoes", "resumos"];
 const painelDe = p => (p && p.hoje && p.hoje.painel) || null;
 function motivoRede(e) {
   const m = String((e && e.message) || e || "");
@@ -1124,6 +1184,7 @@ function desenharInicio() {
   por($("p-sessoes"), blocoSessoes(c, lista));
   const escrevendo = document.activeElement && document.activeElement.matches && document.activeElement.matches("#p-paravoce textarea");
   if (!escrevendo) por($("p-paravoce"), blocoParaVoce(lista));
+  por($("p-usoia"), blocoUsoIa());
   por($("p-contas"), contasCompactas() ? `<section class="bloco"><h3>⏳ Contas do Claude</h3>${contasCompactas()}</section>` : "");
   por($("p-metricas"), blocoMetricas(lista, paineis));
   por($("p-saude"), blocoSaude(lista, paineis, agora));
@@ -1403,6 +1464,100 @@ async function processarNotas() {
 }
 const novoId = () => (crypto.randomUUID ? crypto.randomUUID() : [...crypto.getRandomValues(new Uint8Array(16))]
   .map(b => b.toString(16).padStart(2, "0")).join("")).toLowerCase();
+
+// ---- Uso de IA da semana (0.8.7): o painel "Seu uso de IA" do Monitor geral, com os PCs somados (usoia.js) ------
+const usosDosPcs = () => Object.values(pcs).map(p => ({...((painelDe(p) || {}).uso_ia || {}), pc: p.pc}))
+  .filter(u => u.valores || u.instalado !== undefined);
+const fmtUso = (v, k) => UsoIa.formatar(v, k);
+const quandoMedido = t => t ? ha(t * 1000) : "?";
+const nomesPcs = r => r.pcs.map(nomeCurtoPc).join(" + ");
+function faltaTxt(c, curto = false) {
+  if (c.ok) return "✓ ok";
+  if (c.dias != null && !c.falta) return `${c.dias} de ${UsoIa.DIAS_MIN} dias com tarefa`;
+  return `faltam ${fmtUso(c.falta, c.chave)}` + (c.porDia ? (curto ? ` · <b>+${fmtUso(c.porDia, c.chave)} hoje</b>` : ` · +${fmtUso(c.porDia, c.chave)} por dia`) : "");
+}
+function blocoUsoIa() {
+  const lista = usosDosPcs();
+  if (!lista.length) return "";
+  const r = UsoIa.montar(lista, Date.now());
+  if (!r) {
+    if (!lista.some(u => u.instalado)) return "";
+    return `<section class="bloco"><h3>📊 Uso de IA</h3><p class="note">${lista.some(u => u.medindo) ? "Medindo a semana com o coletor da Seazone (1 a 3 min)…" : "Ainda sem a medida da semana."}</p></section>`;
+  }
+  const total = r.faltam + r.cumpridas.length, feito = total ? Math.round(100 * r.cumpridas.length / total) : 100;
+  const hoje = r.criterios.filter(c => !c.ok).slice(0, 3);
+  return `<section class="bloco"><button class="bloco-cab" data-uso><h3>📊 Uso de IA · semana ${esc(r.numero)} <span class="ir">Abrir ›</span></h3></button>
+    <button class="uf" data-uso aria-label="Faixa ${esc(r.banda)}${r.proxima ? ", próxima " + esc(r.proxima) : ""}">
+      <span class="fx"><b>${esc(r.banda)}</b><small>${String(r.pontos).replace(".", ",")} pts</small></span>
+      ${r.proxima ? `<span class="seta">→</span><span class="fx prox"><b>${esc(r.proxima)}</b><small>próxima</small></span>
+      <span class="uf-txt">Faltam <b>${r.faltam}</b> de ${total} critérios para a ${esc(r.proxima)}</span>` : `<span class="uf-txt"><b>Faixa máxima da régua.</b></span>`}
+    </button>
+    ${r.proxima ? `<div class="prog" role="img" aria-label="${r.cumpridas.length} de ${total} critérios cumpridos"><i style="width:${feito}%"></i></div>` : ""}
+    ${hoje.length ? `<div class="uso-hoje">${hoje.map(c => `<div class="uh"><span>${esc(c.rotulo)}</span><span>${faltaTxt(c, true)}</span></div>`).join("")}</div>` : ""}
+    <div class="rodape">${esc(nomesPcs(r))} · medido ${quandoMedido(r.medido)}</div></section>`;
+}
+
+// A tela: a régua, cada critério contra a próxima faixa, a evolução de cada dia e as semanas anteriores.
+let usoAberto = false, usoMetrica = store.get("seaninho.usoMetrica") || "mensagens", usoDia = -1;
+function abrirUsoIa() { usoAberto = true; usoDia = -1; $("usoIa").classList.remove("hidden"); document.body.style.overflow = "hidden"; desenharUsoIa(); $("usoCorpo").scrollTop = 0; }
+function fecharUsoIa() { usoAberto = false; $("usoIa").classList.add("hidden"); document.body.style.overflow = ""; }
+const diaUso = iso => { const d = new Date(iso + "T12:00:00"); return `${DIA_SEMANA[d.getDay()]} ${iso.slice(8, 10)}/${iso.slice(5, 7)}`; };
+function graficoUso(r) {
+  const dias = r.dias, k = usoMetrica;
+  if (!dias.length) return `<p class="note">Sem os dias da semana ainda.</p>`;
+  const W = 340, H = 150, base = 118, topo = 22, n = dias.length, faixa = W / n, larg = Math.min(24, faixa * .5);
+  const max = Math.max(1, ...dias.map(d => d[k] || 0)), iMax = dias.findIndex(d => (d[k] || 0) === max);
+  const ult = dias.length - 1, sel = usoDia >= 0 && usoDia <= ult ? usoDia : (dias.findIndex(d => d.dia === r.hoje) >= 0 ? dias.findIndex(d => d.dia === r.hoje) : ult);
+  const y = v => base - (base - topo) * v / max;
+  const barras = dias.map((d, i) => {
+    const v = d[k] || 0, x0 = faixa * i + (faixa - larg) / 2, x1 = x0 + larg, yt = y(v), rr = Math.min(4, (base - yt) / 2);
+    const hoje = d.dia === r.hoje;
+    return `${i === sel ? `<rect x="${faixa * i + 2}" y="${topo - 16}" width="${faixa - 4}" height="${base - topo + 16}" rx="8" fill="rgba(255,255,255,.07)"/>` : ""}
+      ${v ? `<path d="M${x0} ${base}V${yt + rr}Q${x0} ${yt} ${x0 + rr} ${yt}H${x1 - rr}Q${x1} ${yt} ${x1} ${yt + rr}V${base}Z" fill="#3D8FEB"/>` : ""}
+      ${v && (hoje || i === iMax) ? `<text x="${x0 + larg / 2}" y="${yt - 6}" text-anchor="middle" font-size="11.5" font-weight="700" fill="#F4F6FB">${esc(fmtUso(v, k))}</text>` : ""}
+      <text x="${faixa * i + faixa / 2}" y="${base + 20}" text-anchor="middle" font-size="12" fill="${i === sel ? "#F4F6FB" : "#9AA8C4"}" font-weight="${hoje ? 700 : 500}">${hoje ? "hoje" : DIA_SEMANA[new Date(d.dia + "T12:00:00").getDay()]}</text>
+      <rect x="${faixa * i}" y="0" width="${faixa}" height="${H}" fill="transparent" data-ud="${i}" style="cursor:pointer"><title>${esc(diaUso(d.dia))}: ${esc(fmtUso(v, k))}</title></rect>`;
+  }).join("");
+  const d = dias[sel], rot = (UsoIa.DIARIAS.find(x => x[0] === k) || [k, k])[1];
+  return `<div class="um" role="tablist">${UsoIa.DIARIAS.map(([c, t]) => `<button role="tab" aria-selected="${c === k}" class="${c === k ? "on" : ""}" data-um="${c}">${t}</button>`).join("")}</div>
+    <div class="grafico"><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(rot)} por dia: ${dias.map(x => diaUso(x.dia) + " " + fmtUso(x[k] || 0, k)).join(", ")}">
+      <line x1="0" x2="${W}" y1="${base}" y2="${base}" stroke="rgba(255,255,255,.16)"/>${barras}</svg>
+      <div class="det" aria-live="polite"><b>${esc(diaUso(d.dia))}${d.dia === r.hoje ? " (hoje)" : ""}:</b> ${fmtUso(d.mensagens, "mensagens")} mensagens · ${fmtUso(d.sessoes_iniciadas, "sessoes_iniciadas")} sessões · ${fmtUso(d.tokens_saida, "tokens_saida")} tokens · ${fmtUso(d.workflows, "workflows")} workflows · ${fmtUso(d.linhas, "linhas")} linhas de código</div>
+      <details data-uso-tabela><summary>Ver em tabela</summary><table>
+        <tr><th>Dia</th><th>Mensagens</th><th>Sessões</th><th>Tokens</th><th>Workflows</th><th>Código</th></tr>
+        ${dias.map(x => `<tr><td>${esc(diaUso(x.dia))}</td><td>${fmtUso(x.mensagens, "mensagens")}</td><td>${fmtUso(x.sessoes_iniciadas, "sessoes_iniciadas")}</td><td>${fmtUso(x.tokens_saida, "tokens_saida")}</td><td>${fmtUso(x.workflows, "workflows")}</td><td>${fmtUso(x.linhas, "linhas")}</td></tr>`).join("")}
+      </table></details></div>`;
+}
+function criterioUso(c, r) {
+  const top = c.minimos[r.bandas[r.bandas.length - 1]] || Math.max(1, ...Object.values(c.minimos));
+  const ticks = Object.entries(c.minimos).map(([b, v]) => `<span class="tk" style="left:${Math.min(100, 100 * v / top)}%" title="${esc(b)}: ${esc(fmtUso(v, c.chave))}"></span>`).join("");
+  return `<div class="uc ${c.ok ? "ok" : ""}">
+    <div class="uc-cab"><span>${esc(c.rotulo)}${c.estimada ? ` <i>(estimativa)</i>` : ""}</span>
+      <span class="uc-v">${fmtUso(c.valor, c.chave)}${c.meta != null ? ` <small>/ ${fmtUso(c.meta, c.chave)}</small>` : ""}</span></div>
+    <div class="uc-barra" role="img" aria-label="${esc(c.rotulo)}: ${esc(fmtUso(c.valor, c.chave))}${c.meta != null ? " de " + esc(fmtUso(c.meta, c.chave)) + " para a " + esc(r.proxima) : ""}"><i style="width:${c.pct}%"></i>${ticks}</div>
+    <div class="uc-pe"><span>faixa <span class="fxa">${esc(c.faixa)}</span></span><span class="st">${faltaTxt(c)}</span></div>
+    ${c.pcs.length > 1 ? `<div class="uc-pcs">${c.pcs.map(x => `${esc(nomeCurtoPc(x.pc))} ${esc(fmtUso(x.valor, c.chave))}`).join(" · ")}</div>` : ""}</div>`;
+}
+function desenharUsoIa() {
+  if (!usoAberto) return;
+  const lista = usosDosPcs(), r = UsoIa.montar(lista, Date.now());
+  if (!r) return por($("usoCorpo"), `<div class="empty">${lista.some(u => u.medindo) ? "Medindo a semana com o coletor da Seazone…" : "Ainda sem a medida da semana."}</div>`);
+  const sem = lista.filter(u => !r.pcs.includes(u.pc)).map(u => `${esc(nomeCurtoPc(u.pc))}: ${u.instalado === false ? "sem o coletor" : u.medindo ? "medindo…" : "sem medida desta semana"}`);
+  const ordem = [...r.criterios.filter(c => !c.ok), ...r.criterios.filter(c => c.ok)];
+  const fmtData = iso => { const d = new Date(iso); return isNaN(d) ? "" : `${DIA_SEMANA[d.getDay()]} ${String(d.getDate()).padStart(2, "0")}/${String(d.getMonth() + 1).padStart(2, "0")}`; };
+  const pos = r.bandas.indexOf(r.banda);
+  por($("usoCorpo"), `<section class="bloco"><h3>Semana ${esc(r.numero)} <span class="n3">${esc(fmtData(r.inicio))} a ${esc(fmtData(r.fim))}, 17h</span></h3>
+      <div class="regua" role="img" aria-label="Faixa ${esc(r.banda)}${r.proxima ? ", próxima " + esc(r.proxima) : ""}">${r.bandas.map((b, i) =>
+        `<span class="${i === pos ? "atual" : i < pos ? "feita" : b === r.proxima ? "prox" : ""}">${esc(b)}</span>`).join("")}</div>
+      <p class="pv-resumo" style="margin:10px 0 0">${String(r.pontos).replace(".", ",")} pontos · ${r.proxima ? `faltam <b>${r.faltam}</b> de ${r.faltam + r.cumpridas.length} critérios para a <b>${esc(r.proxima)}</b>` : "faixa máxima da régua"}</p>
+      <div class="rodape">Somando ${esc(nomesPcs(r))}, como o servidor da Seazone soma · medido ${quandoMedido(r.medido)}${sem.length ? `<br>${sem.join(" · ")}` : ""}</div></section>
+    <section class="bloco"><h3>${r.proxima ? `Critérios para a ${esc(r.proxima)}` : "Critérios"}</h3>${ordem.map(c => criterioUso(c, r)).join("")}</section>
+    <section class="bloco"><h3>Evolução da semana</h3>${graficoUso(r)}</section>
+    <section class="bloco"><h3>Semanas anteriores</h3>${r.anteriores.length ? r.anteriores.map(w => `<div class="us"><span class="fx-mini">${esc(w.banda)}</span>
+        <span class="us-t"><b>Semana ${esc(w.semana.split("-W")[1] || w.semana)}</b><br>${fmtUso(w.valores.mensagens, "mensagens")} mensagens · ${fmtUso(w.valores.sessoes_iniciadas, "sessoes_iniciadas")} sessões · ${fmtUso(w.valores.tokens_saida, "tokens_saida")} tokens</span>
+        <span class="n3">${String(w.pontos).replace(".", ",")} pts</span></div>`).join("")
+      : `<p class="note">Aparecem aqui a partir da próxima sexta: o agente guarda a última medida de cada semana.</p>`}</section>`);
+}
 
 const DIA_SEMANA = ["dom", "seg", "ter", "qua", "qui", "sex", "sáb"];
 const diaDe = iso => new Date(iso + "T12:00:00");
@@ -2152,7 +2307,18 @@ const AGENTE_CHAT = "0.8.0";        // o agente que responde enquete e recebe im
 const AGENTE_PERMISSAO = "0.8.1";   // o que responde o pedido de permissão (e aprova o plano)
 const CLIPE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5l-8.6 8.6a5.5 5.5 0 0 1-7.8-7.8l9.2-9.2a3.7 3.7 0 0 1 5.2 5.2l-9.2 9.2a1.8 1.8 0 0 1-2.6-2.6l8.5-8.5"/></svg>';
 const SETA = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M3.4 20.4l17.5-7.5a1 1 0 0 0 0-1.8L3.4 3.6a.9.9 0 0 0-1.3 1L4 11l9 1-9 1-1.9 6.4a.9.9 0 0 0 1.3 1z"/></svg>';
-const NOME_SINAL = {mandando: "mandando", enviado: "enviado", entregue: "entregue", lido: "a sessão respondeu", erro: "não foi"};
+const NOME_SINAL = {mandando: "mandando", enviado: "enviado", entregue: "entregue", lido: "a sessão respondeu", erro: "não foi",
+                    esperando: "esperando para entrar"};
+// As mensagens com erro que saíram do chat (Tentar de novo, Editar, Apagar), lembradas no aparelho por 3 dias: depois
+// de recarregar, o balão velho não volta.
+let ocultos = lerJson("seaninho.ocultos", {});
+function ocultar(id) {
+  if (!id) return;
+  const agora = Date.now();
+  ocultos[id] = agora;
+  ocultos = Object.fromEntries(Object.entries(ocultos).filter(([, t]) => agora - t < 3 * 86400e3));
+  store.set("seaninho.ocultos", JSON.stringify(ocultos));
+}
 let locais = [];                    // balões que ainda não chegaram ao banco (🕓) ou não conseguiram (⚠)
 let nLocal = 0;
 const reenviados = new Set();       // pedidos com erro que o toque mandou de novo: o balão velho sai
@@ -2162,7 +2328,8 @@ const vistas = {};                  // id da sessão -> a última sessão vista 
 let anexos = [];                    // [{id, b64, mime, mini}]: as imagens que vão no próximo envio (até 10)
 let nAnexo = 0, arrastou = 0;
 const AGENTE_IMAGENS = "0.8.2";     // o que recebe várias imagens numa mensagem (uma por pedido "anexo")
-const AGENTE_PDF = "0.8.5";         // o PDF no chat (páginas, recorte, mandar PDF)
+const AGENTE_PDF = "0.8.5";
+const AGENTE_RECUSA = "0.8.7";      // o X da enquete (recusar, como o Esc no PC)         // o PDF no chat (páginas, recorte, mandar PDF)
 let assinaturaChat = "", ultimaMsg = "", novas = 0;
 const fotosNaTela = new Map();      // a foto tocada no chat -> o que o visor mostra (a grande, se tiver)
 const linhasNaTela = new Map();     // id da mensagem -> a linha desenhada (para responder a ela e achar a citada)
@@ -2271,6 +2438,8 @@ function desenharDetalhe(paraOFim = false) {
   const info = enquete ? "Responda a enquete acima. Se nenhuma opção servir, use “Outra resposta”."
     : respondePerm ? (permissao.plano ? "Aprove ou não o plano acima." : "Responda o pedido de permissão acima.") : motivo;
   $("dBloqueio").textContent = info;
+  if (enquete && s && pcs[s.pc] && online(pcs[s.pc]) && Lista.compararVersao(pcs[s.pc].versao, AGENTE_RECUSA) >= 0 && !respostaEmAndamento(s, s.enquete.id))
+    $("dBloqueio").insertAdjacentHTML("beforeend", ` <button class="bloq-acao" data-recusar="${esc(s.enquete.id)}">✕ Não quero responder</button>`);
   $("dBloqueio").className = "status" + (info ? "" : " hidden");
   desenharSugestoes(s);
   $("dClipe").classList.toggle("hidden", !(s && agenteNovo(s.pc)));
@@ -2305,7 +2474,7 @@ function desenharMensagens(s, paraOFim = false, forcar = false) {
   const caixa = $("dMsgs");
   if (escrevendoEm(caixa) && !forcar) return;   // escrevendo a "Outra resposta" da enquete: não refaz por baixo
   const meus = locais.filter(l => l.sessao === s.id);
-  const linhas = Chat.montar(s, pedidos.filter(p => !reenviados.has(p.id)), meus, Date.now());
+  const linhas = Chat.montar(s, pedidos.filter(p => !reenviados.has(p.id) && !ocultos[p.id]), meus, Date.now());
   const viva = sessaoAberta();
   if (viva && viva.id === s.id && viva.permissao && !viva.enquete)   // o pedido de permissão que espera: no fim
     linhas.push({tipo: "msg", id: "perm:" + viva.permissao.id, de: "claude", texto: "", t: viva.permissao.t || 0, permissao: viva.permissao});
@@ -2476,8 +2645,8 @@ function desenharLinha(l, ant, s) {
   if (l.nota) corpo += `<div class="nota"><span class="spin"></span>${esc(l.nota)}</div>`;
   if (l.obs) corpo += `<div class="nota obs">${esc(l.obs)}</div>`;
   const sinal = eu && l.sinal ? `<i class="sinal ${l.sinal}" title="${NOME_SINAL[l.sinal]}" aria-label="${NOME_SINAL[l.sinal]}">${Chat.SINAL[l.sinal]}</i>` : "";
-  const erro = eu && l.sinal === "erro"
-    ? `<div class="erro-linha" data-erro="${esc(l.id)}">⚠ ${esc(l.erro)}${l.reenviar ? " · toque para tentar de novo" : ""}</div>` : "";
+  const erro = eu && (l.sinal === "erro" || l.sinal === "esperando")
+    ? `<div class="erro-linha ${l.sinal}" data-erro="${esc(l.id)}">${l.sinal === "esperando" ? "⏳ " : "⚠ Não entregue: "}${esc(l.erro)}</div>${acoesDaMsg(l)}` : "";
   return `<div class="linha-msg ${eu ? "eu" : "ele"}${seguida ? " seguida" : ""}" data-id="${esc(l.id)}">${icone}`
     + `<div class="bolha${l.enquete ? " enq" : ""}${!eu && !l.texto && !l.enquete ? " so-foto" : ""}">${corpo}<span class="hora">${horaDe(l.t)}${sinal}</span></div>${erro}</div>`;
 }
@@ -2494,7 +2663,8 @@ function desenharEnquete(enq, s) {
   const pode = pendente && s.respondivel && agenteNovo(s.pc) && online(pcs[s.pc]) && !enviando;
   const marcadas = escolhas[enq.id] || (escolhas[enq.id] = enq.perguntas.map(() => ({opcoes: [], outraMarcada: false, outra: ""})));
   const titulos = enq.perguntas.map(q => q.titulo).filter(Boolean).join(" · ");
-  let h = `<div class="enq-topo">📊 Enquete${titulos ? " · " + esc(titulos) : ""}</div>`;
+  const recusa = pode && Lista.compararVersao(pcs[s.pc].versao, AGENTE_RECUSA) >= 0;
+  let h = `<div class="enq-topo"><span>📊 Enquete${titulos ? " · " + esc(titulos) : ""}</span>${recusa ? `<button class="enq-x" data-recusar="${esc(enq.id)}" aria-label="Não quero responder (como o Esc no PC)" title="Não quero responder">✕</button>` : ""}</div>`;
   enq.perguntas.forEach((q, i) => {
     const resp = !pendente && enq.respostas && q.pergunta in enq.respostas ? Chat.escolhidas(q, enq.respostas[q.pergunta]) : null;
     const e = marcadas[i];
@@ -2537,6 +2707,16 @@ function tocarOpcao(b) {
     const campo = $("dMsgs").querySelector(`.enq-outra[data-enq="${CSS.escape(id)}"][data-q="${i}"]`);
     if (campo) campo.focus();
   }
+}
+
+// O X da enquete (0.8.7): recusa a pergunta como o Esc no PC; a sessão fica sabendo e a caixa volta.
+async function recusarEnquete(id) {
+  const s = sessaoAberta();
+  if (!s || !s.enquete || s.enquete.id !== id || respostaEmAndamento(s, id)) return;
+  if (!confirm("Não responder a enquete?\n\nO Claude fica sabendo que você não quis responder (como o Esc no PC) e a caixa de mensagem volta.")) return;
+  const acao = {acao: "recusar_enquete", sessao: s.id, id};
+  const local = {id: "local" + (++nLocal), sessao: s.id, de: "eu", texto: Chat.textoResposta(acao), t: Math.floor(Date.now() / 1000), resposta_a: id};
+  await enviarLocal(local, {pc: s.pc, tipo: "acao", texto: JSON.stringify(acao)});
 }
 
 async function responderEnquete(id) {
@@ -2737,24 +2917,93 @@ async function subirVarias(local, ims, args) {
 
 function enviarMensagem(corpo, im, pv = null) {
   const s = sessaoAberta();
+  if (!im && reusoEditar && reusoEditar.mime) {   // a editada leva as imagens do envio que não saiu
+    const r = reusoEditar;
+    reusoEditar = null;
+    const local = {id: "local" + (++nLocal), sessao: aberta.id, de: "eu", texto: corpo, t: Math.floor(Date.now() / 1000),
+                   mini: "", grande: r.grande || "", mime: r.mime, pv};
+    return enviarLocal(local, {pc: aberta.pc, sessao: aberta.id, titulo: s ? s.titulo : "", texto: corpo, direto: !melhorar, ...r.args});
+  }
   const local = {id: "local" + (++nLocal), sessao: aberta.id, de: "eu", texto: corpo, t: Math.floor(Date.now() / 1000),
                  mini: im ? im.mini : "", grande: im ? "data:image/jpeg;base64," + im.b64 : "", mime: im ? im.mime : "", pv};
   return enviarLocal(local, {pc: aberta.pc, sessao: aberta.id, titulo: s ? s.titulo : "", texto: corpo, direto: !melhorar,
                              ...(im ? {audio: im.b64, mime: im.mime} : {})});
 }
 
-// Erro do PC em que nada foi escrito nem enviado (Chat.reenviavel): o toque manda o mesmo texto, como foi, num balão
-// novo; o velho sai da conversa.
-function reenviarPedido(l) {
+// A mensagem que não saiu nunca se perde (0.8.7, a de 15h27): o balão fica com o texto e as imagens e com os botões.
+// Com erro: Tentar de novo, Editar, Copiar e Apagar. Esperando (o PC tenta de novo sozinho quando a causa some):
+// Tentar agora e, com um rascunho do Arthur na caixa do PC, Juntar e enviar e Mandar pelo maestro.
+function acoesDaMsg(l) {
+  const minha = l.tipoPedido === "claude" || (!l.pedido && l.reenviar);
+  if (!minha || l.resposta_a || l.permissao_a) return "";
+  const b = (acao, rotulo, forte = false) => `<button class="${forte ? "forte" : ""}" data-acao-msg="${acao}" data-msg="${esc(l.id)}">${rotulo}</button>`;
+  const o = orquestraDe(Object.values(pcs)), maestro = o && aberta && o.pc === aberta.pc;
+  const botoes = l.sinal === "esperando"
+    ? [b("agora", "↻ Tentar agora"), ...(l.rascunho ? [b("juntar", "Juntar e enviar", true), ...(maestro ? [b("maestro", "Mandar pelo maestro")] : [])] : [])]
+    : [b("tentar", "↻ Tentar de novo", true)];
+  return `<div class="acoes-msg">${botoes.join("")}${l.pedido ? b("editar", "✎ Editar") : ""}${b("copiar", "⧉ Copiar")}${b("apagar", "🗑 Apagar")}</div>`;
+}
+async function acaoMsg(acao, l) {
+  if (!l || !aberta) return;
+  const p = pedidos.find(x => x.id === l.pedido) || null;
+  if (acao === "copiar") {
+    try { await navigator.clipboard.writeText(l.texto || ""); avisar("dAviso", "Texto copiado.", {ok: true, sessao: aberta.id}); }
+    catch { avisar("dAviso", "Não deu para copiar aqui: segure o texto do balão para copiar.", {erro: true, sessao: aberta.id}); }
+    return;
+  }
+  if (acao === "tentar") return p ? reenviarPedido(l) : l.reenviar && l.reenviar();
+  if (["agora", "juntar", "maestro"].includes(acao)) {
+    try {
+      await rpc("cel_pedir", {pc: aberta.pc, tipo: "acao", texto: JSON.stringify({acao: "entrega_opcao", pedido: l.pedido, opcao: acao})});
+      avisar("dAviso", {agora: "O PC vai tentar de novo agora.", juntar: "O PC vai juntar com o rascunho da caixa e mandar.",
+                        maestro: "Vai pelo maestro."}[acao], {ok: true, sessao: aberta.id});
+    } catch (e) { avisar("dAviso", "Não saiu do celular: " + motivoRede(e), {erro: true, sessao: aberta.id}); }
+    return;
+  }
+  if (acao === "apagar") {
+    if (!confirm("Apagar esta mensagem do chat?" + (p && p.estado === "enviar" ? "\n\nEla não vai mais para o PC." : ""))) return;
+    if (p && ["novo", "pronto", "enviar"].includes(p.estado)) { try { await rpc("cel_cancelar", {id: p.id}); } catch {} }
+    if (p) ocultar(p.id); else locais = locais.filter(x => x !== l);
+    return desenharDetalhe();
+  }
+  if (acao === "editar") {
+    if (p && ["novo", "pronto", "enviar"].includes(p.estado)) { try { await rpc("cel_cancelar", {id: p.id}); } catch {} }
+    reusoEditar = p ? await reusoDoPedido(p) : null;
+    ocultar(l.pedido);
+    $("texto").value = l.texto || "";
+    store.set("seaninho.rascunho." + aberta.id, $("texto").value);
+    ajustarCaixa(); desenharDetalhe(); $("texto").focus();
+    if (reusoEditar && reusoEditar.mime) avisar("dAviso", "A mensagem voltou para a caixa; as imagens vão junto quando mandar.",
+      {ok: true, sessao: aberta.id, acao: () => { reusoEditar = null; }, rotulo: "Sem as imagens", passa: true});
+  }
+}
+// As imagens do pedido, para mandar de novo: as do grupo e a do PDF continuam no PC; a da foto única vem da cópia
+// guardada neste aparelho ou, sem ela, da que o PC guardou ("salva/<id8>", agente 0.8.7).
+let reusoEditar = null;
+async function reusoDoPedido(p) {
+  const mime = String((p && p.mime) || "");
+  if (mime.startsWith("imagens/") || mime.startsWith("salva/")) return {mime, args: {mime}};
+  if (mime.startsWith("image/") || mime === "application/pdf") {
+    const grande = mime.startsWith("image/") ? await Marcar.Grandes.ler(p.id).catch(() => "") : "";
+    if (grande) return {mime, grande, args: {mime, audio: String(grande).split(",")[1] || ""}};
+    return {mime: "salva/" + p.id.slice(0, 8), args: {mime: "salva/" + p.id.slice(0, 8)}};
+  }
+  return {mime: "", args: {}};
+}
+
+// Tentar de novo: o mesmo texto e as mesmas imagens, num balão novo; o velho sai da conversa (também depois de recarregar).
+async function reenviarPedido(l) {
   if (!aberta || !podeMandar()) return;
-  const s = sessaoAberta();
+  const s = sessaoAberta(), p = pedidos.find(x => x.id === l.pedido) || {};
   reenviados.add(l.pedido);
+  ocultar(l.pedido);
   const n = notasMaestro.find(x => x.pedido && x.pedido === l.pedido);   // a resposta a um item do Para você: o aviso vai junto
   if (n) notasMaestro = notasMaestro.filter(x => x !== n);
+  const reuso = await reusoDoPedido(p);
   const local = {id: "local" + (++nLocal), sessao: aberta.id, de: "eu", texto: l.texto, t: Math.floor(Date.now() / 1000),
-                 mini: "", grande: "", mime: "",
+                 mini: "", grande: reuso.grande || "", mime: reuso.mime || "",
                  pv: n ? {chave: n.chave, item: n.item, pc: n.pc_sessao, sessao: n.sessao, nome: n.nome, maestro: n.maestro} : null};
-  return enviarLocal(local, {pc: aberta.pc, sessao: aberta.id, titulo: s ? s.titulo : "", texto: l.texto, direto: true});
+  return enviarLocal(local, {pc: aberta.pc, sessao: aberta.id, titulo: s ? s.titulo : "", texto: l.texto, direto: true, ...reuso.args});
 }
 
 // Dá para mandar agora para a sessão aberta (a caixa de escrever e o 📎 estão na tela)?
@@ -3199,13 +3448,55 @@ async function atualizar() {
   pedidos = r.pedidos || [];
   const ativo = document.activeElement;
   const digitando = ativo && ["tarefaTexto", "tarefaData", "tarefaHora"].includes(ativo.id);
-  desenharPcs(); desenharSessoes(); desenharInicio(); desenharFeed(); desenharComandos(); desenharAiRats();
+  desenharPcs(); desenharSessoes(); desenharInicio(); desenharFeed(); desenharComandos(); desenharAiRats(); desenharUsoIa();
   if (!digitando) desenharHoje(); else desenharMsgHoje();
   desenharDetalhe();   // o chat cuida do que está sendo editado (a prévia e a "Outra resposta" não se refazem por baixo)
   if (aba === "Copias") await carregarCopias();
   processarNotas().then(m => { if (m) { desenharInicio(); desenharSessoes(); } });
   return true;
 }
+
+// ---- O céu (0.8.7): o fundo de galáxia do Monitor geral do Seaninho Pro, atrás de todas as telas --------------
+// O mesmo desenho do sizeCosmos do Monitor (céu, 4 nebulosas e as estrelas fixas), feito uma vez por tamanho de tela
+// numa imagem parada (nada anima: não gasta bateria) e usado no fundo da página, do chat e das telas cheias. Sem o
+// canvas, fica o degradê de antes. Só muda quando a tela gira (a altura vem da tela, não do teclado).
+let ceuChave = "", ceuUrl = "";
+function rngCeu(seed) { return () => { seed = (seed + 0x6D2B79F5) | 0; let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+  t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
+function desenharCeu() {
+  const w = Math.round(innerWidth), h = Math.round(Math.max(innerHeight, innerWidth < innerHeight ? screen.height || 0 : screen.width || 0));
+  const chave = `${w}x${h}`;
+  if (!w || !h || chave === ceuChave) return;
+  ceuChave = chave;
+  try {
+    const dpr = Math.min(2, window.devicePixelRatio || 1), cv = document.createElement("canvas");
+    cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr);
+    const g = cv.getContext("2d");
+    g.setTransform(dpr, 0, 0, dpr, 0, 0);
+    const ceu = g.createLinearGradient(0, 0, 0, h);
+    ceu.addColorStop(0, "#050C24"); ceu.addColorStop(1, "#02060F");
+    g.fillStyle = ceu; g.fillRect(0, 0, w, h);
+    const R = rngCeu(7);
+    for (const [x, y, raio, cor] of [[.2, .25, .45, "70,60,160"], [.78, .7, .5, "20,90,150"], [.55, .15, .35, "140,60,120"], [.35, .85, .4, "30,70,140"]]) {
+      const n = g.createRadialGradient(x * w, y * h, 0, x * w, y * h, raio * Math.max(w, h));
+      n.addColorStop(0, `rgba(${cor},.16)`); n.addColorStop(1, `rgba(${cor},0)`);
+      g.fillStyle = n; g.fillRect(0, 0, w, h);
+    }
+    for (let i = 0, n = Math.round(w * h / 2600); i < n; i++) {
+      g.fillStyle = `rgba(${200 + R() * 55 | 0},${210 + R() * 45 | 0},255,${.15 + R() * .55})`;
+      g.fillRect(R() * w, R() * h, R() < .9 ? 1 : 1.6, R() < .9 ? 1 : 1.6);
+    }
+    cv.toBlob(b => {
+      if (!b) return;
+      const url = URL.createObjectURL(b);
+      document.documentElement.style.setProperty("--ceu", `url("${url}")`);
+      if (ceuUrl) URL.revokeObjectURL(ceuUrl);
+      ceuUrl = url;
+    }, "image/jpeg", .9);
+  } catch {}
+}
+desenharCeu();
+addEventListener("resize", () => { clearTimeout(desenharCeu.t); desenharCeu.t = setTimeout(desenharCeu, 400); });
 
 function ciclo() {
   clearTimeout(timer);
@@ -3309,6 +3600,7 @@ $("tabInicio").addEventListener("click", e => {
   if (t) return trocarConta(t.dataset.trocar, t);
   const cc = e.target.closest("[data-conta]");
   if (cc) return alternarConta(cc.dataset.conta);
+  if (e.target.closest("[data-uso]")) return abrirUsoIa();
   const ok = e.target.closest("[data-pv-ok]");
   if (ok) return resolverParaVoce(Number(ok.dataset.pvOk));
   const ja = e.target.closest("[data-pv-ja]");
@@ -3333,6 +3625,13 @@ $("tabInicio").addEventListener("click", e => {
     mostrarAba(ir.dataset.ir);
     desenharSessoes();
   }
+});
+$("usoIa").addEventListener("click", e => {
+  if (e.target.closest("#usoFechar")) return fecharUsoIa();
+  const m = e.target.closest("[data-um]");
+  if (m) { usoMetrica = m.dataset.um; store.set("seaninho.usoMetrica", usoMetrica); return desenharUsoIa(); }
+  const d = e.target.closest("[data-ud]");
+  if (d) { usoDia = Number(d.dataset.ud); return desenharUsoIa(); }
 });
 $("aiRats").addEventListener("click", e => {
   if (e.target.closest("#arFechar")) return fecharAiRats();
@@ -3471,12 +3770,15 @@ $("dMenuBalao").addEventListener("click", async e => {
   catch { avisar("dAviso", "Não consegui copiar o texto.", {erro: true, ...chatAviso()}); }
 });
 document.addEventListener("pointerdown", e => { if (!e.target.closest("#dMenuBalao")) fecharMenuBalao(); }, true);
+$("dBloqueio").addEventListener("click", e => { const rx = e.target.closest("[data-recusar]"); if (rx) recusarEnquete(rx.dataset.recusar); });
 $("dMsgs").addEventListener("click", e => {
   if (Date.now() - arrastouBalao < 350) return;   // o fim do arrasto (ou do toque longo) não é um toque
   const cb = e.target.closest(".cita-balao");
   if (cb) return irParaCitada(cb);
   const o = e.target.closest(".opc[data-enq]");
   if (o && !o.disabled) return tocarOpcao(o);
+  const rx = e.target.closest("[data-recusar]");
+  if (rx) return recusarEnquete(rx.dataset.recusar);
   const r = e.target.closest("[data-responder]");
   if (r && !r.disabled) return responderEnquete(r.dataset.responder);
   const pb = e.target.closest("[data-perm]");
@@ -3492,6 +3794,8 @@ $("dMsgs").addEventListener("click", e => {
   if (doc) return abrirPdf(doc.dataset.doc);
   const foto = e.target.closest("img[data-ver]");
   if (foto) return abrirFoto(foto);
+  const am = e.target.closest("[data-acao-msg]");
+  if (am) return acaoMsg(am.dataset.acaoMsg, locais.find(x => x.id === am.dataset.msg) || linhasNaTela.get(am.dataset.msg));
   const er = e.target.closest("[data-erro]");
   if (er) {
     const l = locais.find(x => x.id === er.dataset.erro);

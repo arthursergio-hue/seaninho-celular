@@ -6,7 +6,8 @@
 (function (raiz) {
 "use strict";
 
-const SINAL = {mandando: "🕓", enviado: "✓", entregue: "✓✓", lido: "✓✓", erro: "⚠"};
+const SINAL = {mandando: "🕓", enviado: "✓", entregue: "✓✓", lido: "✓✓", erro: "⚠", esperando: "⏳"};
+const ESPERANDO = "Esperando: ";   // o "erro" do pedido que o PC ainda vai tentar de novo (0.8.7): não é erro
 const NAO_SABE = "Isso ainda não dá";   // o agente antigo responde assim a uma ação que não conhece
 const JANELA_CASAR = 300;               // s: a mensagem da conversa pode ter hora um pouco antes do pedido (relógios)
 
@@ -42,7 +43,7 @@ const lerJson = t => { try { return JSON.parse(t || "{}"); } catch { return {}; 
 function respostaDeEnquete(p, sessao) {
   if (p.tipo !== "acao") return null;
   const a = lerJson(p.texto);
-  return a.acao === "responder_enquete" && (!sessao || a.sessao === sessao) ? a : null;
+  return ["responder_enquete", "recusar_enquete"].includes(a.acao) && (!sessao || a.sessao === sessao) ? a : null;   // o X (0.8.7) também
 }
 
 // O pedido de resposta a um pedido de permissão (tipo acao) desta sessão, ou null.
@@ -95,6 +96,7 @@ function textoPermissao(acao) {
 }
 
 function textoResposta(acao, enquete) {
+  if (acao.acao === "recusar_enquete") return "✕ Não quis responder a enquete";
   const perguntas = (enquete && enquete.perguntas) || [];
   const partes = (acao.respostas || []).map((r, i) => {
     const valor = [...(r.opcoes || []), ...(r.outra ? [r.outra] : [])].join(", ");
@@ -112,7 +114,10 @@ function estadoDoPedido(p, enquete) {
     case "novo": case "escrevendo":
       return {sinal: "enviado", texto: resp || perm ? texto : p.texto, nota: resp || perm ? "" : "O Seaninho está escrevendo o texto…"};
     case "pronto": return {sinal: null, texto};   // a prévia para conferir aparece em cima da caixa
-    case "enviar": case "enviando": return {sinal: "enviado", texto};
+    case "enviar": case "enviando":
+      if (String(p.erro || "").startsWith(ESPERANDO))   // o PC espera a causa sumir (rascunho na caixa, alguém no PC)
+        return {sinal: "esperando", texto, erro: p.erro.slice(ESPERANDO.length), rascunho: /rascunho/i.test(p.erro)};
+      return {sinal: "enviado", texto};
     case "entregue":
       if (String(p.resposta || "").startsWith(NAO_SABE)) return {sinal: "erro", texto, erro: p.resposta};
       return {sinal: "entregue", texto,   // "Apertei “Yes” no PC." / "Respondida pelo plano B: …"
@@ -173,7 +178,8 @@ function montar(s, pedidos, locais, agora) {
     }
     soltos.push({id: "p:" + p.id, de: "eu", texto: est.texto, t: criado, pedido: p.id, mime: p.mime || "",
                  sinal: est.sinal, erro: est.erro || "", nota: est.nota || "", obs: est.obs || "",
-                 resposta_a: resp ? resp.id : "", permissao_a: perm ? perm.id : "", reenviar: reenviavel(p)});
+                 resposta_a: resp ? resp.id : "", permissao_a: perm ? perm.id : "", reenviar: reenviavel(p),
+                 estado: p.estado, rascunho: !!est.rascunho, tipoPedido: p.tipo || "claude"});
   }
   for (const m of conversa) if (m.de === "eu" && !m.sinal) m.sinal = m.visto === "lido" ? "lido" : "entregue";
   // os soltos entram na ordem do tempo, depois das mensagens da conversa da mesma hora
@@ -281,7 +287,7 @@ const imagemDosItens = async itens => (await imagensDosItens(itens))[0] || null;
 // pedido acao "anexo" à parte (0.8.2).
 function nImagens(mime) {
   const m = /^imagens\/[^/]+\/(\d+)$/.exec(String(mime || ""));
-  return m ? Number(m[1]) : ehImagem(mime) ? 1 : 0;
+  return m ? Number(m[1]) : ehImagem(mime) || /^salva\//.test(String(mime || "")) ? 1 : 0;
 }
 
 // ---- Responder a uma mensagem (0.8.3, arrastar o balão para o lado como no WhatsApp) -------------------------
@@ -321,7 +327,7 @@ function mover(lista, i, j) {
 }
 
 const Chat = {SINAL, normalizar, versaoMin, montar, estadoDoPedido, pedidosDaSessao, respostaDeEnquete, textoResposta,
-  respostaDePermissao, traduzirBotao, botoesPermissao, textoPermissao, reenviavel, MAX_IMAGENS, imagensDaColagem, imagensDosItens,
+  ESPERANDO, respostaDePermissao, traduzirBotao, botoesPermissao, textoPermissao, reenviavel, MAX_IMAGENS, imagensDaColagem, imagensDosItens,
   nImagens, mover, citacao, comCitacao, separarCitacao, acharCitada,
   rotuloDia, marcacao, escolhidas, completas, acaoResponder, conversaDe, imagemDaColagem, imagemDosItens, esc};
 if (typeof module !== "undefined" && module.exports) module.exports = Chat;
