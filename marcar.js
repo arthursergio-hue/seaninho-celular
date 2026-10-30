@@ -199,6 +199,7 @@ const ICONE = {
   salvar: '<path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M5 21h14"/>',
   compartilhar: '<path d="M12 15V3"/><path d="M7 8l5-5 5 5"/><path d="M5 12v8h14v-8"/>',
   fechar: '<path d="M6 6l12 12M18 6L6 18"/>',
+  certo: '<path d="M5 12.5l4.5 4.5L19 7"/>',
 };
 const svg = nome => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${ICONE[nome]}</svg>`;
 const CORES = ["#FF3B30", "#FF9500", "#FFCC00", "#34C759", "#00C7BE", "#0A84FF", "#5856D6", "#AF52DE", "#FF2D55",
@@ -221,7 +222,8 @@ function baixar(arq) {
   return "baixado";
 }
 
-// As imagens grandes das que mandei daqui (o localStorage só comporta as miniaturas): as 30 mais novas.
+// As imagens grandes das que mandei daqui (o localStorage só comporta as miniaturas): as 60 mais novas (uma mensagem
+// leva até 10).
 const Grandes = {
   _db: null,
   abrir() {
@@ -241,7 +243,7 @@ const Grandes = {
       loja.openCursor().onsuccess = e => {   // as mais velhas saem ainda dentro da transação
         const c = e.target.result;
         if (c) { todas.push([c.key, c.value.t]); return c.continue(); }
-        todas.sort((a, b) => b[1] - a[1]).slice(30).forEach(([k]) => loja.delete(k));
+        todas.sort((a, b) => b[1] - a[1]).slice(60).forEach(([k]) => loja.delete(k));
       };
     } catch {}
   },
@@ -287,6 +289,25 @@ function mostrarFoto() {
     Object.assign(f, {src: url, grande: true});
     if (fotoAtual() === f) img.src = url;
   });
+  baixarAlta(f);
+}
+// A foto do Claude em alta (até 2560 px), para ler com zoom: a do balão aparece na hora e a alta entra quando chega.
+function baixarAlta(f) {
+  const aviso = $("vAlta");
+  if (!f.carregarAlta || f.alta) { aviso.classList.add("hidden"); return; }
+  aviso.innerHTML = `<i class="spin"></i>Baixando em alta…`;
+  aviso.classList.remove("hidden");
+  aviso.onclick = null;
+  f.carregarAlta().then(url => {
+    Object.assign(f, {src: url, alta: true});
+    if (fotoAtual() !== f) return;
+    $("vImg").src = url;
+    aviso.classList.add("hidden");
+  }).catch(() => {
+    if (fotoAtual() !== f) return;
+    aviso.textContent = "Não veio em alta · tocar para tentar de novo";
+    aviso.onclick = () => baixarAlta(f);
+  });
 }
 function passar(passo) {
   const i = V.opts.indice + passo;
@@ -297,6 +318,7 @@ function passar(passo) {
 }
 function fecharVisor() {
   $("visor").classList.add("hidden");
+  $("vAlta").classList.add("hidden");
   $("vImg").removeAttribute("src");
   V.opts = null; V.dedos.clear();
 }
@@ -413,6 +435,8 @@ function editar(opts) {
   $("eErro").classList.add("hidden");
   $("eEscrever").classList.add("hidden");
   $("eLegenda").value = opts.legenda || "";
+  $("eEnviar").innerHTML = opts.aoConcluir ? svg("certo") : E.seta;
+  $("eEnviar").setAttribute("aria-label", opts.aoConcluir ? "Pronto" : "Enviar");
   $("editor").classList.remove("hidden");
   alturaEditor();
   ajustarLegenda();
@@ -471,9 +495,16 @@ function clienteEditor(e) {   // do centro do palco, em px da tela
   return [e.clientX - p.left - p.width / 2, e.clientY - p.top - p.height / 2];
 }
 
-function erroEditor(msg) {
-  $("eErro").textContent = msg;
-  $("eErro").classList.toggle("hidden", !msg);
+function erroEditor(msg) {   // o erro de mandar fica (a marcação também), com o ✕ para fechar
+  const el = $("eErro");
+  el.textContent = "";
+  el.classList.toggle("hidden", !msg);
+  if (!msg) return;
+  const texto = document.createElement("span"), x = document.createElement("button");
+  texto.textContent = msg;
+  x.className = "aviso-x"; x.textContent = "✕"; x.setAttribute("aria-label", "Fechar o aviso");
+  x.onclick = () => erroEditor("");
+  el.append(texto, x);
 }
 
 // ---- Desenho
@@ -850,9 +881,10 @@ async function enviarMarcada() {
   $("eEnviar").classList.add("enviando");
   erroEditor("");
   try {
-    await E.opts.aoEnviar(exportar(), $("eLegenda").value);
+    const concluir = !!E.opts.aoConcluir;
+    await (concluir ? E.opts.aoConcluir : E.opts.aoEnviar)(exportar(), $("eLegenda").value);
     const depois = E.opts.aoEnviado;
-    $("eLegenda").value = "";
+    if (!concluir) $("eLegenda").value = "";   // "Pronto" devolve a legenda para a caixa do chat (aoSair)
     E.objs = [];
     sairEditor(false);
     if (depois) depois();
@@ -871,6 +903,7 @@ function ajustarLegenda() {
 
 // ---- Começo: liga os botões (o index.html chama depois de montar a página)
 function iniciar() {
+  E.seta = $("eEnviar").innerHTML;   // o ícone de enviar que a página pôs (o "Pronto" troca e volta)
   document.querySelectorAll("[data-icone]").forEach(b => { b.insertAdjacentHTML("afterbegin", svg(b.dataset.icone)); });
   $("eCores").insertAdjacentHTML("afterbegin", CORES.map(c =>
     `<button class="e-cor" data-cor="${c}" style="--c:${c}" aria-label="Cor ${c}"></button>`).join(""));
@@ -933,6 +966,6 @@ function iniciar() {
   if (window.visualViewport) visualViewport.addEventListener("resize", seguir);
 }
 
-raiz.Marcar = {...Conta, ver, fecharVisor, editar, sairEditor, iniciar, salvar, Grandes, blobDe,
+raiz.Marcar = {...Conta, ver, fecharVisor, editar, sairEditor, iniciar, salvar, Grandes, blobDe, icone: svg,
                aberto: () => !$("editor").classList.contains("hidden"), estado: () => E, visor: () => V};
 })(typeof window !== "undefined" ? window : globalThis);

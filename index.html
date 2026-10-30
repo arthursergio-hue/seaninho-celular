@@ -103,7 +103,17 @@ nav .n{display:inline-block;min-width:18px;margin-left:4px;padding:0 5px;border-
 .fotos{margin:-2px -5px 6px -6px}
 .fotos img{display:block;width:100%;max-height:280px;object-fit:cover;border-radius:9px;cursor:zoom-in}
 .fotos.grade{display:grid;grid-template-columns:1fr 1fr;gap:3px}
-.fotos.grade img{height:140px;max-height:none}
+.fotos.grade img{width:100%;height:140px;max-height:none}
+.fotos.grade.tres .foto-celula:first-child{grid-column:1 / -1}
+.fotos.grade.tres .foto-celula:first-child img{height:170px}
+.foto-celula{position:relative;min-width:0;overflow:hidden;border-radius:9px}
+.foto-celula.carregando img{filter:blur(5px);transform:scale(1.04)}
+.foto-estado{position:absolute;inset:0;display:grid;place-items:center;pointer-events:none}
+.foto-estado .spin{width:34px;height:34px;margin:0;border-width:3px;color:#fff;background:rgba(0,0,0,.35);border-radius:50%;box-shadow:0 0 0 6px rgba(0,0,0,.35)}
+.foto-estado.erro{pointer-events:auto;align-content:center;gap:4px;background:rgba(0,0,0,.5);color:#fff;font-size:30px;line-height:1}
+.foto-estado.erro small{font-size:12.5px;font-weight:600}
+.mais-fotos{position:absolute;inset:0;display:grid;place-items:center;border-radius:9px;background:rgba(0,0,0,.55);color:#fff;
+  font-size:26px;font-weight:600;pointer-events:none}
 .bolha.so-foto{width:74%}
 .chip-foto{display:inline-block;font-size:13px;color:var(--muted);background:rgba(0,0,0,.22);padding:2px 9px;border-radius:999px;margin:1px 0 4px}
 .descer{position:absolute;right:12px;bottom:12px;width:42px;height:42px;border-radius:50%;background:#17294D;border:1px solid var(--stroke-2);
@@ -150,15 +160,48 @@ nav .n{display:inline-block;min-width:18px;margin-left:4px;padding:0 5px;border-
   border:1px solid var(--stroke-2);box-shadow:0 8px 24px rgba(0,0,0,.55)}
 .menu-anexo button{display:flex;align-items:center;gap:12px;width:100%;padding:12px;border-radius:10px;font-size:15.5px;text-align:left}
 .menu-anexo button:active{background:rgba(255,255,255,.08)}
-.anexo{display:flex;align-items:flex-end;gap:14px;margin:12px 0 8px 8px}
-.anexo-foto{position:relative;flex:none}
-.anexo-foto img{display:block;height:116px;min-width:84px;max-width:52vw;object-fit:cover;border-radius:12px;border:1px solid var(--stroke-2)}
-.anexo-tirar{position:absolute;top:-14px;right:-14px;width:44px;height:44px;display:grid;place-items:center;isolation:isolate;
-  color:#fff;font-size:19px;line-height:1}
-.anexo-tirar::before{content:"";position:absolute;inset:9px;z-index:-1;border-radius:50%;background:rgba(0,0,0,.85);border:1px solid rgba(255,255,255,.35)}
-.anexo-marcar{display:flex;align-items:center;gap:7px;height:44px;padding:0 16px;border-radius:22px;background:var(--glass-2);
-  border:1px solid var(--stroke-2);color:var(--ink);font-weight:600;font-size:15px}
-.anexo-marcar svg{width:18px;height:18px}
+/* responder a uma mensagem: o balão segue o dedo, o ↩ aparece; a citação no balão e na caixa */
+.linha-msg{position:relative;touch-action:pan-y}
+.linha-msg .bolha{transition:transform .22s ease;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+.linha-msg.arrastando .bolha{transition:none}
+.resp-icone{position:absolute;left:2px;top:50%;width:32px;height:32px;margin-top:-16px;border-radius:50%;display:grid;place-items:center;
+  background:rgba(255,255,255,.14);color:var(--ink);font-size:17px;opacity:0;transform:scale(.6);pointer-events:none}
+.resp-icone::before{content:"↩"}
+.linha-msg.pronto .resp-icone{background:var(--gold);color:var(--navy)}
+.cita-balao{display:block;width:100%;min-width:120px;text-align:left;margin:0 0 6px;padding:6px 9px;border-radius:8px;
+  background:rgba(0,0,0,.24);border-left:3px solid var(--gold);font-size:13px;line-height:1.35;color:var(--muted)}
+.cita-balao b{display:block;color:var(--gold);font-size:12.5px;font-weight:650}
+.cita-balao span{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.linha-msg.destacada .bolha{animation:destacar 1.6s ease}
+@keyframes destacar{0%,45%{box-shadow:0 0 0 3px rgba(226,184,74,.85);transform:scale(1.02)}100%{box-shadow:none;transform:none}}
+.citando{display:flex;align-items:center;gap:10px;margin:0 0 8px;padding:7px 4px 7px 11px;border-radius:12px;background:rgba(255,255,255,.07);
+  border-left:3px solid var(--gold)}
+.citando .q{flex:1;min-width:0}
+.citando b{display:block;color:var(--gold);font-size:13px}
+.citando span{display:block;color:var(--muted);font-size:13.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.citando img{flex:none;width:40px;height:40px;object-fit:cover;border-radius:6px}
+.citando .x{flex:none;width:40px;height:40px;display:grid;place-items:center;color:var(--muted);font-size:16px}
+.menu-balao{position:fixed;z-index:6;min-width:180px;padding:6px;border-radius:14px;background:#17294D;border:1px solid var(--stroke-2);
+  box-shadow:0 8px 24px rgba(0,0,0,.55);animation:aviso-entra .15s ease-out}
+.menu-balao button{display:flex;align-items:center;gap:12px;width:100%;padding:12px;border-radius:10px;font-size:15.5px;text-align:left}
+.menu-balao button:active{background:rgba(255,255,255,.08)}
+.anexo{display:flex;align-items:flex-start;gap:12px;margin:2px 0 4px;padding:14px 16px 10px 8px;overflow-x:auto;scrollbar-width:none;
+  touch-action:pan-x;-webkit-user-select:none;user-select:none}
+.anexo::-webkit-scrollbar{display:none}
+.anexo-foto{position:relative;flex:none;transition:transform .15s}
+.anexo-foto img{display:block;width:84px;height:112px;object-fit:cover;border-radius:12px;border:1px solid var(--stroke-2);
+  -webkit-touch-callout:none;-webkit-user-drag:none}
+.anexo-foto:only-of-type img{width:auto;min-width:84px;max-width:52vw}
+.anexo-foto.arrastando{z-index:3;transition:none;opacity:.92}
+.anexo-foto.arrastando img{box-shadow:0 8px 22px rgba(0,0,0,.6);outline:2px solid var(--gold)}
+.anexo-tirar,.anexo-marcar{position:absolute;width:44px;height:44px;display:grid;place-items:center;isolation:isolate;color:#fff;line-height:1}
+.anexo-tirar{top:-14px;right:-14px;font-size:17px}
+.anexo-marcar{left:-4px;bottom:-4px}
+.anexo-tirar::before,.anexo-marcar::before{content:"";position:absolute;inset:9px;z-index:-1;border-radius:50%;background:rgba(0,0,0,.82);
+  border:1px solid rgba(255,255,255,.35)}
+.anexo-marcar svg{width:16px;height:16px}
+.anexo-mais{flex:none;width:84px;height:112px;border-radius:12px;border:1.5px dashed var(--stroke-2);color:var(--muted);font-size:34px;font-weight:300}
+.anexo-conta{flex:none;align-self:center;font-size:12.5px;color:var(--faint);padding-right:4px}
 #dSugestoes{flex-wrap:nowrap;overflow-x:auto;margin:0 0 6px;padding:2px 2px 3px;scrollbar-width:none}
 #dSugestoes .sug{flex:none;white-space:nowrap;max-width:78vw;overflow:hidden;text-overflow:ellipsis;padding:7px 12px}
 .sug.liga{background:var(--glass-2);border-color:var(--stroke-2);color:var(--muted)}
@@ -188,6 +231,16 @@ textarea:focus{outline:2px solid rgba(226,184,74,.6);border-color:transparent}
 .status{margin-top:12px;padding:12px;border-radius:14px;font-size:15px;background:var(--glass);border:1px solid var(--stroke)}
 .status.ok{border-color:rgba(72,214,128,.4);color:var(--green)}
 .status.err{border-color:rgba(255,90,79,.45);color:#ffb3ad}
+/* avisos: o passageiro entra e sai com uma animação curta; o que pede ação tem o botão e o ✕ */
+.aviso{display:flex;align-items:center;gap:8px;animation:aviso-entra .18s ease-out}
+.aviso>span{flex:1;min-width:0}
+.aviso.saindo{animation:aviso-sai .26s ease-in forwards}
+.aviso.destaque{animation:aviso-destaque .7s ease-out}
+.aviso-acao{flex:none;padding:7px 13px;border-radius:999px;background:rgba(255,255,255,.13);color:inherit;font-weight:650;font-size:13.5px}
+.aviso-x{flex:none;width:40px;height:40px;margin:-10px -10px -10px -4px;display:grid;place-items:center;color:inherit;font-size:15px;opacity:.85}
+@keyframes aviso-entra{from{opacity:0;transform:translateY(5px)}}
+@keyframes aviso-sai{to{opacity:0;transform:translateY(5px)}}
+@keyframes aviso-destaque{0%{opacity:0;transform:translateY(8px) scale(.96)}55%{opacity:1;transform:scale(1.03)}100%{transform:none}}
 .note{font-size:15px;color:var(--muted);margin:10px 2px}
 .code{font-size:34px;letter-spacing:10px;text-align:center;padding:14px;border-radius:14px;width:100%;border:1px solid var(--stroke-2);background:rgba(0,0,0,.22)}
 .spin{display:inline-block;width:14px;height:14px;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;animation:r .8s linear infinite;vertical-align:-2px;margin-right:8px}
@@ -214,6 +267,9 @@ textarea:focus{outline:2px solid rgba(226,184,74,.6);border-color:transparent}
 .v-nome small{display:block;color:rgba(255,255,255,.65);font-size:12.5px;font-weight:400}
 .v-topo .v-marcar{display:flex;gap:6px;padding:0 14px;background:rgba(255,255,255,.18);font-weight:650}
 .v-marcar svg{width:19px;height:19px}
+.v-alta{position:absolute;left:50%;bottom:calc(var(--bottom) + 22px);transform:translateX(-50%);display:flex;align-items:center;gap:8px;
+  padding:9px 16px;border-radius:999px;background:rgba(0,0,0,.7);color:#fff;font-size:14px;white-space:nowrap}
+.v-alta .spin{width:15px;height:15px;margin:0}
 #editor{position:fixed;left:0;right:0;top:0;z-index:8;height:var(--altura,100dvh);display:flex;flex-direction:column;background:#000;
   overscroll-behavior:none;-webkit-user-select:none;user-select:none}
 .e-topo{flex:none;display:flex;align-items:center;gap:6px;padding:calc(var(--top) + 6px) 6px 4px}
@@ -255,7 +311,7 @@ textarea:focus{outline:2px solid rgba(226,184,74,.6);border-color:transparent}
 #eEnviar.enviando::after{content:"";position:absolute;inset:12px;border:2.5px solid var(--navy);border-right-color:transparent;border-radius:50%;
   animation:r .8s linear infinite}
 .e-zoom{position:absolute;left:10px;top:8px;min-width:44px;height:40px;padding:0 12px;border-radius:999px;background:rgba(0,0,0,.6);color:#fff;font-weight:700;font-size:14px}
-.e-erro{margin:0 4px 6px;padding:8px 12px;border-radius:12px;font-size:14px;color:#ffb3ad;background:rgba(255,90,79,.14);border:1px solid rgba(255,90,79,.4)}
+.e-erro{display:flex;align-items:center;gap:8px;margin:0 4px 6px;padding:8px 12px;border-radius:12px;font-size:14px;color:#ffb3ad;background:rgba(255,90,79,.14);border:1px solid rgba(255,90,79,.4)}
 #imagem{position:fixed;inset:0;z-index:6;overflow:auto;background:#060f22;padding:calc(var(--top) + 8px) 16px calc(var(--bottom) + 24px)}
 #imagem img{display:block;width:100%;border-radius:12px;-webkit-touch-callout:default}
 .gear{flex:none;width:36px;height:36px;border-radius:50%;display:grid;place-items:center;background:var(--glass);color:var(--muted);font-size:18px}
@@ -387,16 +443,15 @@ details.card summary{cursor:pointer;font-weight:600;color:var(--muted)}
   <div class="chat-baixo">
     <div id="dRascunho"></div>
     <div class="status hidden" id="dBloqueio"></div>
+    <div class="status hidden" id="dAviso" role="status"></div>
     <div id="dCompor">
       <div class="menu-anexo hidden" id="dMenuAnexo" role="menu">
         <button role="menuitem" id="dEscolher">🖼️ Foto ou print</button>
         <button role="menuitem" id="dColar">📋 Colar imagem</button>
       </div>
       <div class="sugestoes" id="dSugestoes"></div>
-      <div class="anexo hidden" id="dAnexo">
-        <div class="anexo-foto"><img id="dAnexoImg" alt="Imagem que vai junto"><button class="anexo-tirar" id="dAnexoTirar" aria-label="Tirar a imagem">✕</button></div>
-        <button class="anexo-marcar" id="dAnexoMarcar" data-icone="lapis" aria-label="Marcar na imagem antes de mandar">Marcar</button>
-      </div>
+      <div class="anexo hidden" id="dAnexo" aria-label="Imagens que vão junto"></div>
+      <div class="citando hidden" id="dCitando"></div>
       <div class="compor">
         <div class="caixa">
           <button class="clipe hidden" id="dClipe" aria-label="Anexar foto ou print" aria-haspopup="menu" aria-expanded="false"></button>
@@ -408,7 +463,12 @@ details.card summary{cursor:pointer;font-weight:600;color:var(--muted)}
       <div class="micinfo" id="micinfo-texto"></div>
     </div>
   </div>
-  <input type="file" id="dArquivo" accept="image/*" hidden>
+  <input type="file" id="dArquivo" accept="image/*" multiple hidden>
+</div>
+
+<div class="menu-balao hidden" id="dMenuBalao" role="menu">
+  <button role="menuitem" data-menu="responder">↩ Responder</button>
+  <button role="menuitem" data-menu="copiar">⧉ Copiar o texto</button>
 </div>
 
 <div id="visor" class="hidden" role="dialog" aria-label="Imagem em tela cheia">
@@ -419,6 +479,7 @@ details.card summary{cursor:pointer;font-weight:600;color:var(--muted)}
     <button id="vSalvar" data-icone="compartilhar" aria-label="Salvar ou compartilhar"></button>
     <button class="v-marcar hidden" id="vMarcar" data-icone="lapis">Marcar</button>
   </div>
+  <button class="v-alta hidden" id="vAlta" aria-live="polite"></button>
 </div>
 
 <div id="editor" class="hidden" role="dialog" aria-label="Marcar a imagem">
@@ -568,7 +629,8 @@ function previa(s) {
   const c = Chat.conversaDe(s).filter(m => ["eu", "claude", "sessao"].includes(m.de));
   const m = c[c.length - 1];
   if (!m) return "";
-  const texto = m.texto || (m.enquete ? "📊 Enquete" : m.n_imagens || (m.fotos || []).length ? "📷 Imagem" : "");
+  const sem = m.de === "eu" ? Chat.separarCitacao(m.texto) : {cita: null, texto: m.texto};
+  const texto = (sem.cita ? "↩ " : "") + (sem.texto || (m.enquete ? "📊 Enquete" : m.n_imagens || (m.fotos || []).length ? "📷 Imagem" : ""));
   return (m.de === "eu" ? "Você: " : m.de === "sessao" ? `↪ ${m.nome || "outra sessão"}: ` : "") + texto.replace(/\s+/g, " ").slice(0, 160);
 }
 
@@ -638,7 +700,8 @@ function contaCartao(p, varios) {
       ${l.volta ? `<div class="volta">Reinicia ${reinicia(l.volta)}${falta(l.volta) ? " · " + falta(l.volta) : ""}</div>` : ""}</div>`;
   const troca = trocas[p.pc];
   const ped = troca && pedidos.find(x => x.id === troca);
-  if (ped && ["entregue", "erro"].includes(ped.estado) && Date.now() - new Date(ped.atualizado_em) > 120000) delete trocas[p.pc];
+  if (ped && ["entregue", "erro"].includes(ped.estado)
+      && Date.now() - new Date(ped.atualizado_em) > (ped.estado === "entregue" ? 6000 : 120000)) delete trocas[p.pc];
   let status = "";
   if (typeof troca === "string" && troca.startsWith("erro:")) status = `<div class="status err">Não deu: ${esc(troca.slice(5))}</div>`;
   else if (troca && (!ped || ["novo", "escrevendo"].includes(ped.estado)))
@@ -731,19 +794,26 @@ function desenharHoje() {
   $("hojeTarefas").innerHTML = lista || `<p class="note">Nada pendente. Tudo em dia!</p>`;
 }
 
+let ultimoToque = null;   // o toque da aba Hoje que está em andamento (para o "Tentar de novo")
 function desenharMsgHoje() {
   const p = pedidos.find(x => x.id === ultimaAcao);
   const el = $("hojeMsg");
-  if (!ultimaAcao) { el.className = "status hidden"; return; }
-  if (!p || ["novo", "escrevendo"].includes(p.estado)) { el.innerHTML = `<span class="spin"></span>O PC está fazendo…`; el.className = "status"; }
-  else if (p.estado === "entregue") { el.textContent = "✓ " + (p.resposta || "Feito."); el.className = "status ok"; }
-  else if (p.estado === "erro") { el.textContent = "Não foi: " + (p.erro || "erro"); el.className = "status err"; }
+  if (!ultimaAcao) return;   // o que tinha para mostrar já está na fila de avisos
+  if (!p || ["novo", "escrevendo"].includes(p.estado)) {
+    andamento(el, "O PC está fazendo…", true);
+  } else if (p.estado === "entregue") { ultimaAcao = null; andamento(el, ""); avisar(el, "✓ " + (p.resposta || "Feito."), {ok: true}); }
+  else if (p.estado === "erro") {
+    ultimaAcao = null; andamento(el, "");
+    const toque = ultimoToque;
+    avisar(el, "Não foi: " + (p.erro || "erro"), {erro: true, acao: toque ? () => acaoHoje(toque) : null, fica: true});
+  }
 }
 
 async function acaoHoje(obj, botao) {
   const p = pcHoje();
   const el = $("hojeMsg");
-  if (!p || !online(p)) { el.textContent = "O PC parece desligado agora: tente quando ele ligar."; el.className = "status err"; return; }
+  ultimoToque = obj;
+  if (!p || !online(p)) return avisar(el, "O PC parece desligado agora: tente quando ele ligar.", {erro: true});
   if (botao) botao.disabled = true;
   try {
     ultimaAcao = await rpc("cel_pedir", {pc: p.pc, tipo: "acao", texto: JSON.stringify(obj)});
@@ -751,7 +821,7 @@ async function acaoHoje(obj, botao) {
     desenharMsgHoje();
     await atualizar();
     return ultimaAcao;
-  } catch (e) { el.textContent = "Não deu: " + (e.message || e); el.className = "status err"; }
+  } catch (e) { avisar(el, "Não deu: " + (e.message || e), {erro: true, acao: () => acaoHoje(obj)}); }
   finally { if (botao) botao.disabled = false; }
 }
 
@@ -759,7 +829,7 @@ async function novaTarefa() {
   const texto = $("tarefaTexto").value.trim();
   if (!texto) return $("tarefaTexto").focus();
   await acaoHoje({acao: "tarefa_nova", texto, data: $("tarefaData").value, hora: $("tarefaHora").value}, $("tarefaAdd"));
-  if ($("hojeMsg").className !== "status err") { $("tarefaTexto").value = $("tarefaData").value = $("tarefaHora").value = ""; }
+  if (!$("hojeMsg").classList.contains("err")) { $("tarefaTexto").value = $("tarefaData").value = $("tarefaHora").value = ""; }
 }
 
 // ---- Pedir (comandos) ---------------------------------------------------------------------------
@@ -789,6 +859,7 @@ function desenharComando(p) {
 async function enviarComando() {
   const texto = $("cmd").value.trim();
   if (!texto) return;
+  sumirAviso("micinfo-cmd");
   const pc = pcAtivo();
   if (!pc) return erroMic("cmd", "Nenhum PC ligado agora: o Seaninho do PC é quem faz o pedido.");
   $("cmdEnviar").disabled = true;
@@ -796,7 +867,7 @@ async function enviarComando() {
     await rpc("cel_pedir", {pc: pc.pc, tipo: "comando", texto});
     $("cmd").value = ""; store.set("seaninho.rascunho.cmd", "");
     await atualizar();
-  } catch (e) { erroMic("cmd", "Não deu: " + (e.message || e)); }
+  } catch (e) { erroMic("cmd", "Não deu: " + (e.message || e), {acao: enviarComando}); }
   finally { $("cmdEnviar").disabled = false; }
 }
 
@@ -858,8 +929,103 @@ async function tocarCopia(card) {
 
 // ---- Microfone: grava aqui, o PC transcreve com o transcritor do Seaninho ----------------------------
 let gravando = null;   // {rec, stream, alvo, inicio, timer}
-function erroMic(alvo, msg) { const el = $("micinfo-" + alvo); if (el) { el.textContent = msg; el.className = "micinfo status err"; } }
-function infoMic(alvo, msg) { const el = $("micinfo-" + alvo); if (el) { el.textContent = msg; el.className = "micinfo"; } }
+// ---- Avisos (30/10: o "Não ouvi nada no áudio." ficava para sempre). Cada lugar de aviso tem uma fila: um por vez,
+// nenhum some sem ter sido visto. O passageiro conta AVISO_MS só enquanto está de fato na frente da pessoa (app na
+// frente e com foco, a tela dele aberta e ele na área visível); saiu, a conta pausa e volta de onde parou. O que
+// chegou com ela fora entra com destaque quando ela vê. Some também no toque, ao digitar, gravar ou mandar. O que
+// pede ação fica até resolver, com o botão dela e o ✕. O andamento (gravando, transcrevendo, "O PC está fazendo…")
+// não é aviso: ocupa o lugar enquanto dura e a fila espera. Aviso do chat é da sessão em que nasceu.
+const AVISO_MS = window.__avisoMs || 4500;
+const lugaresDeAviso = new Set();
+const naArea = new IntersectionObserver(es => { for (const e of es) { e.target._naArea = e.isIntersecting; contarAviso(e.target); } });
+const lugar = el => typeof el === "string" ? $(el) : el;
+const naFrente = el => document.visibilityState === "visible" && document.hasFocus() && !!el._naArea && el.offsetParent !== null;
+const daTela = a => !a.sessao || (aberta && aberta.id === a.sessao);   // aviso do chat: só no chat daquela sessão
+
+function avisar(el, msg, {erro = false, ok = false, acao = null, rotulo = "Tentar de novo", fica = false, sessao = null} = {}) {
+  el = lugar(el);
+  if (!el) return;
+  if (!lugaresDeAviso.has(el)) { lugaresDeAviso.add(el); naArea.observe(el); el._fila = []; }
+  if (!msg) { el._fila = []; return mostrarAviso(el, null); }   // limpar o lugar
+  if ([el._atual, ...el._fila].some(a => a && a.msg === msg && a.sessao === sessao)) return;   // o mesmo já está lá
+  el._fila.push({msg, erro, ok, acao, rotulo, fica: !!(acao || fica), sessao, resta: AVISO_MS});
+  if (!el._atual && !el._andamento) proximoAviso(el);
+}
+function proximoAviso(el) {
+  const i = el._andamento ? -1 : el._fila.findIndex(daTela);
+  mostrarAviso(el, i < 0 ? null : el._fila.splice(i, 1)[0]);
+}
+function mostrarAviso(el, a) {
+  clearTimeout(el._sumir); el._sumir = null;
+  el._atual = a;
+  const base = el.classList.contains("micinfo") ? "micinfo" : "status";
+  if (!a) {
+    if (el._andamento) { el.textContent = el._andamento.texto; el.className = base; if (el._andamento.spin) el.insertAdjacentHTML("afterbegin", `<span class="spin"></span>`); }
+    else { el.textContent = ""; el.className = base + (base === "status" ? " hidden" : ""); }
+    return;
+  }
+  a.chegouFora = a.chegouFora ?? !naFrente(el);
+  el.className = `${base} aviso${base === "micinfo" ? " status" : ""}${a.erro ? " err" : a.ok ? " ok" : ""}`;
+  el.innerHTML = `<span>${esc(a.msg)}</span>` + (a.acao ? `<button class="aviso-acao" data-aviso="acao">${esc(a.rotulo)}</button>` : "")
+    + (a.fica ? `<button class="aviso-x" data-aviso="fechar" aria-label="Fechar o aviso">✕</button>` : "");
+  contarAviso(el);
+}
+// A conta do passageiro: corre só com ele na frente da pessoa.
+function contarAviso(el) {
+  const a = el._atual;
+  if (!a) return;
+  if (!naFrente(el)) {
+    if (el._sumir) { clearTimeout(el._sumir); el._sumir = null; a.resta -= Date.now() - a.desde; }   // pausa
+    return;
+  }
+  if (!a.visto) {
+    a.visto = true;
+    if (a.chegouFora) { el.classList.remove("destaque"); void el.offsetWidth; el.classList.add("destaque"); }
+  }
+  if (!a.fica && !el._sumir) { a.desde = Date.now(); el._sumir = setTimeout(() => sumirAviso(el), Math.max(300, a.resta)); }
+}
+function contarAvisos() { for (const el of lugaresDeAviso) contarAviso(el); }
+document.addEventListener("visibilitychange", contarAvisos);
+addEventListener("focus", contarAvisos);
+addEventListener("blur", contarAvisos);
+
+function sumirAviso(el, soPassageiro = false) {
+  el = lugar(el);
+  if (!el || !el._atual || (soPassageiro && el._atual.fica)) return;
+  clearTimeout(el._sumir); el._sumir = null;
+  const a = el._atual;
+  el.classList.add("saindo");
+  setTimeout(() => { if (el._atual === a) { el.classList.remove("saindo", "destaque"); proximoAviso(el); } }, 260);
+}
+// Trocou de conversa: o aviso do chat que é de outra sessão volta para a fila (espera a sessão dele).
+function avisosDaTela() {
+  for (const el of lugaresDeAviso) {
+    if (el._atual && !daTela(el._atual)) { el._fila.unshift(el._atual); mostrarAviso(el, null); }
+    if (!el._atual && !el._andamento) proximoAviso(el);
+    else contarAviso(el);
+  }
+}
+document.addEventListener("click", e => {
+  const el = e.target.closest(".aviso");
+  if (!el || !el._atual) return;
+  const acao = e.target.closest('[data-aviso="acao"]') && el._atual.acao;
+  if (acao || e.target.closest('[data-aviso="fechar"]') || !el._atual.fica) sumirAviso(el);   // o com ação só fecha no ✕
+  if (acao) acao();
+});
+// O andamento ocupa o lugar enquanto dura (o aviso que estava na frente e já foi visto sai; o não visto espera).
+function andamento(el, texto, spin = false) {
+  el = lugar(el);
+  if (!el) return;
+  if (!lugaresDeAviso.has(el)) { lugaresDeAviso.add(el); naArea.observe(el); el._fila = []; }
+  const a = el._atual;
+  if (a && !(a.visto && !a.fica)) { if (el._sumir) a.resta -= Date.now() - a.desde; el._fila.unshift(a); }
+  el._andamento = texto ? {texto, spin} : null;
+  el._atual = null;
+  if (texto) mostrarAviso(el, null); else proximoAviso(el);
+}
+const chatAviso = () => ({sessao: aberta ? aberta.id : null});
+function erroMic(alvo, msg, opcoes = {}) { avisar("micinfo-" + alvo, msg, {erro: true, ...(alvo === "texto" ? chatAviso() : {}), ...opcoes}); }
+function infoMic(alvo, msg) { andamento("micinfo-" + alvo, msg); }   // andamento (ou limpar o andamento)
 
 async function alternarMic(botao) {
   const alvo = botao.dataset.alvo;
@@ -868,7 +1034,7 @@ async function alternarMic(botao) {
   if (!navigator.mediaDevices || !window.MediaRecorder) return erroMic(alvo, "Este navegador não grava áudio. Use o microfone do teclado.");
   let stream;
   try { stream = await navigator.mediaDevices.getUserMedia({audio: true}); }
-  catch { return erroMic(alvo, "Sem permissão para o microfone. Libere em Ajustes do iPhone › Seaninho."); }
+  catch { return erroMic(alvo, "Sem permissão para o microfone. Libere em Ajustes do iPhone › Seaninho.", {fica: true}); }
   const tipo = ["audio/mp4", "audio/webm;codecs=opus", "audio/webm"].find(t => MediaRecorder.isTypeSupported(t)) || "";
   const rec = new MediaRecorder(stream, tipo ? {mimeType: tipo, audioBitsPerSecond: 32000} : {});
   const partes = [];
@@ -895,8 +1061,8 @@ async function alternarMic(botao) {
 async function transcrever(blob, alvo) {
   infoMic(alvo, "Transcrevendo no PC…");
   const audio = await new Promise(res => { const fr = new FileReader(); fr.onload = () => res(String(fr.result).split(",")[1] || ""); fr.readAsDataURL(blob); });
-  const pc = pcAtivo();
-  if (!pc) return erroMic(alvo, "O PC desligou no meio. Tente de novo.");
+  const pc = pcAtivo(), denovo = {acao: () => transcrever(blob, alvo)};
+  if (!pc) return erroMic(alvo, "O PC desligou no meio.", denovo);
   try {
     const id = await rpc("cel_pedir", {pc: pc.pc, tipo: "transcrever", audio, mime: blob.type});
     const fim = Date.now() + 60000;
@@ -910,10 +1076,10 @@ async function transcrever(blob, alvo) {
         caixa.dispatchEvent(new Event("input"));
         return infoMic(alvo, "");
       }
-      if (p && p.estado === "erro") return erroMic(alvo, p.erro);
+      if (p && p.estado === "erro") return /não ouvi/i.test(p.erro || "") ? erroMic(alvo, p.erro) : erroMic(alvo, p.erro, denovo);
     }
-    erroMic(alvo, "O PC não respondeu a tempo.");
-  } catch (e) { erroMic(alvo, "Não deu: " + (e.message || e)); }
+    erroMic(alvo, "O PC não respondeu a tempo.", denovo);
+  } catch (e) { erroMic(alvo, "Não deu: " + (e.message || e), denovo); }
 }
 
 // ---- Chat de uma sessão (agente 0.8: a conversa, a enquete e a imagem) -------------------------------
@@ -925,21 +1091,42 @@ const SETA = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M3.4 20.4l17
 const NOME_SINAL = {mandando: "mandando", enviado: "enviado", entregue: "entregue", lido: "a sessão respondeu", erro: "não foi"};
 let locais = [];                    // balões que ainda não chegaram ao banco (🕓) ou não conseguiram (⚠)
 let nLocal = 0;
+const reenviados = new Set();       // pedidos com erro que o toque mandou de novo: o balão velho sai
 const escolhas = {};                // id da enquete -> [{opcoes, outraMarcada, outra}]: o que está marcado na tela
 const abertos = new Set();          // balões longos abertos ("Ler mais")
 const vistas = {};                  // id da sessão -> a última sessão vista (o chat continua depois que ela fecha)
-let anexo = null;                   // {b64, mime, mini}: a imagem que vai no próximo envio
+let anexos = [];                    // [{id, b64, mime, mini}]: as imagens que vão no próximo envio (até 10)
+let nAnexo = 0, arrastou = 0;
+const AGENTE_IMAGENS = "0.8.2";     // o que recebe várias imagens numa mensagem (uma por pedido "anexo")
 let assinaturaChat = "", ultimaMsg = "", novas = 0;
 const fotosNaTela = new Map();      // a foto tocada no chat -> o que o visor mostra (a grande, se tiver)
+const linhasNaTela = new Map();     // id da mensagem -> a linha desenhada (para responder a ela e achar a citada)
+let citando = null;                 // a mensagem que a próxima vai responder (arrastar o balão ou toque longo)
 const grandesNaTela = new Map();    // pedido -> a minha foto grande (do IndexedDB), para o balão não ficar borrado
 const grandesPedidas = new Set(), grandesFaltam = new Set();
 const permRecados = {};             // id do pedido de permissão -> o recado escrito (vai com o "Não")
+// As fotos do Claude nítidas (0.8.3): no cel_estado vem só a prévia; a de ~1080 px vem do banco (cel_foto) quando
+// aparece, e a de até 2560 px quando abre em tela cheia ou no editor. Ficam guardadas no aparelho (IndexedDB).
+const nitidas = new Map(), nitidasDados = new Map();   // id da foto -> URL curta (balão) / data URL (visor, salvar)
+const nitidasFaltam = new Map(), nitidasPedidas = new Set(), nitidasErro = new Set();
+let baixandoNitidas = 0;
+// A imagem que mandei e que o Claude abriu (celular-anexos/<data>-<id>.jpg): a "ref" dela -> a grande guardada aqui.
+const refs = (() => { try { return JSON.parse(store.get("seaninho.anexos") || "{}"); } catch { return {}; } })();
+function guardarRef(ref, chave) {
+  refs[ref] = chave;
+  const ks = Object.keys(refs);
+  for (const k of ks.slice(0, Math.max(0, ks.length - 120))) delete refs[k];
+  store.set("seaninho.anexos", JSON.stringify(refs));
+}
 const miniaturas = (() => { try { return JSON.parse(store.get("seaninho.miniaturas") || "{}"); } catch { return {}; } })();
 
-function guardarMiniatura(id, url) {   // as imagens mandadas daqui aparecem no balão (as 20 mais novas)
-  miniaturas[id] = url;
-  const ids = Object.keys(miniaturas);
-  for (const k of ids.slice(0, Math.max(0, ids.length - 20))) delete miniaturas[k];
+function guardarMiniatura(id, urls) {   // as imagens mandadas daqui aparecem no balão (as 40 mais novas)
+  miniaturas[id] = urls;                  // uma (texto) ou várias (lista)
+  let total = 0;
+  for (const k of Object.keys(miniaturas).reverse()) {
+    total += [].concat(miniaturas[k]).length;
+    if (total > 40) delete miniaturas[k];
+  }
   store.set("seaninho.miniaturas", JSON.stringify(miniaturas));
 }
 
@@ -960,7 +1147,8 @@ function abrir(pc, id) {
   Marcar.fecharVisor();
   aberta = {pc, id};
   locais = []; assinaturaChat = ""; ultimaMsg = ""; novas = 0;
-  tirarAnexo(); menuAnexo(false);
+  limparAnexos(); menuAnexo(false); naoCitar(); fecharMenuBalao();
+  avisosDaTela();
   $("texto").value = store.get("seaninho.rascunho." + id);
   $("detalhe").classList.remove("hidden");
   document.body.style.overflow = "hidden";
@@ -969,6 +1157,7 @@ function abrir(pc, id) {
   ajustarCaixa();
 }
 function fechar() {
+  setTimeout(avisosDaTela, 0);
   if (gravando && gravando.alvo === "texto") gravando.rec.stop();
   aberta = null; locais = []; menuAnexo(false);
   $("detalhe").classList.add("hidden");
@@ -1051,14 +1240,15 @@ function desenharMensagens(s, paraOFim = false, forcar = false) {
   const caixa = $("dMsgs");
   if (escrevendoEm(caixa) && !forcar) return;   // escrevendo a "Outra resposta" da enquete: não refaz por baixo
   const meus = locais.filter(l => l.sessao === s.id);
-  const linhas = Chat.montar(s, pedidos, meus, Date.now());
+  const linhas = Chat.montar(s, pedidos.filter(p => !reenviados.has(p.id)), meus, Date.now());
   const viva = sessaoAberta();
   if (viva && viva.id === s.id && viva.permissao && !viva.enquete)   // o pedido de permissão que espera: no fim
     linhas.push({tipo: "msg", id: "perm:" + viva.permissao.id, de: "claude", texto: "", t: viva.permissao.t || 0, permissao: viva.permissao});
-  fotosNaTela.clear();
+  fotosNaTela.clear(); linhasNaTela.clear();
   const html = linhas.map((l, i) => desenharLinha(l, linhas[i - 1], s)).join("")
     || `<div class="empty">Nada na conversa ainda.</div>`;
   if (grandesFaltam.size) buscarGrandes();
+  if (nitidasFaltam.size) carregarNitidas();
   if (html === assinaturaChat && !paraOFim) return;
   const fim = paraOFim || !assinaturaChat || pertoDoFim(caixa);
   let ancora = null;
@@ -1098,6 +1288,66 @@ function mostrarDescer() {
   $("dNovas").textContent = novas; $("dNovas").classList.toggle("hidden", !novas);
 }
 
+// As fotos de um balão como o álbum do WhatsApp: uma inteira; várias em grade (três: uma grande em cima), até 4 à
+// mostra e "+N" na última. Tocar abre o visor, que passa por todas.
+function album(fotos) {
+  const um = fotos.length === 1;
+  const img = f => `<img src="${esc(f.src)}" data-ver="${esc(f.ver)}" alt="${esc(f.alt)}"${um && f.aspecto
+    ? ` style="aspect-ratio:${f.aspecto.toFixed(4)}"` : ""}>`;
+  const estado = f => f.estado === "carregando" ? `<span class="foto-estado"><i class="spin"></i></span>`
+    : f.estado === "erro" ? `<button class="foto-estado erro" data-recarregar="${esc(f.id)}">↻<small>Tocar para tentar de novo</small></button>` : "";
+  const celula = (f, mais = "") => `<div class="foto-celula${f.estado ? " " + f.estado : ""}">${img(f)}${estado(f)}${mais}</div>`;
+  if (um) return `<div class="fotos">${celula(fotos[0])}</div>`;
+  const resto = fotos.length - 4;
+  return `<div class="fotos grade${fotos.length === 3 ? " tres" : ""}">` + fotos.slice(0, 4).map((f, i) =>
+    celula(f, i === 3 && resto > 0 ? `<span class="mais-fotos">+${resto}</span>` : "")).join("") + `</div>`;
+}
+
+// A nítida (~1080 px) de cada foto do Claude que apareceu: a minha original, se for uma que mandei; senão a guardada
+// aqui; senão do banco (o agente sobe numa linha à parte: pode levar alguns segundos para chegar). Duas por vez.
+function carregarNitidas() {
+  for (const [id, f] of [...nitidasFaltam]) {
+    if (baixandoNitidas >= 2) break;
+    nitidasFaltam.delete(id); nitidasPedidas.add(id); baixandoNitidas++;
+    baixarNitida(f).then(url => {
+      if (!url) throw new Error("não veio");
+      nitidasDados.set(id, url);
+      nitidas.set(id, URL.createObjectURL(Marcar.blobDe(url)));
+    }).catch(() => nitidasErro.add(id)).finally(() => {
+      baixandoNitidas--; nitidasPedidas.delete(id);
+      if (aberta) desenharDetalhe();
+    });
+  }
+}
+async function baixarNitida(f) {
+  const minha = f.ref && refs[f.ref] ? await Marcar.Grandes.ler(refs[f.ref]) : "";
+  if (minha) return minha;
+  const guardada = await Marcar.Grandes.ler(`foto:${f.id}`);
+  if (guardada) return guardada;
+  for (let i = 0; i < 20; i++) {
+    const r = await rpc("cel_foto", {id: f.id, tamanho: "media"});
+    if (r && r.dados) {
+      const url = `data:${r.mime || "image/jpeg"};base64,${r.dados}`;
+      Marcar.Grandes.guardar(`foto:${f.id}`, url);
+      return url;
+    }
+    await new Promise(ok => setTimeout(ok, 3000));
+  }
+  return "";
+}
+// A de tela cheia e do editor (até 2560 px).
+async function fotoAlta(f) {
+  const minha = f.ref && refs[f.ref] ? await Marcar.Grandes.ler(refs[f.ref]) : "";
+  if (minha) return minha;
+  const guardada = await Marcar.Grandes.ler(`foto:${f.id}:alta`);
+  if (guardada) return guardada;
+  const r = await rpc("cel_foto", {id: f.id, tamanho: "alta"});
+  if (!r || !r.dados) throw new Error("ainda não chegou ao banco");
+  const url = `data:${r.mime || "image/jpeg"};base64,${r.dados}`;
+  Marcar.Grandes.guardar(`foto:${f.id}:alta`, url);
+  return url;
+}
+
 function desenharLinha(l, ant, s) {
   if (l.tipo === "dia") return `<div class="dia"><span>${esc(l.rotulo)}</span></div>`;
   if (l.de === "aviso") {
@@ -1106,35 +1356,53 @@ function desenharLinha(l, ant, s) {
   }
   if (l.de === "sessao")
     return `<div class="aviso sessao" data-id="${esc(l.id)}"><span>↪ ${esc(l.nome || "outra sessão")}: ${esc(l.texto)}</span></div>`;
+  linhasNaTela.set(l.id, l);
+  const icone = `<span class="resp-icone" aria-hidden="true"></span>`;
   if (l.permissao)
-    return `<div class="linha-msg ele" data-id="${esc(l.id)}"><div class="bolha enq perm">${desenharPermissao(l.permissao, s)}`
+    return `<div class="linha-msg ele" data-id="${esc(l.id)}">${icone}<div class="bolha enq perm">${desenharPermissao(l.permissao, s)}`
       + `<span class="hora">${horaDe(l.t)}</span></div></div>`;
   const eu = l.de === "eu";
+  const citada = eu ? Chat.separarCitacao(l.texto) : {cita: null, texto: l.texto || ""};
   const fotos = !eu && Array.isArray(l.fotos) ? l.fotos : [];
   if (!eu && !l.texto && !l.enquete && !fotos.length) return "";   // balão só de foto sem a foto (agente antigo)
   const seguida = ant && ant.tipo === "msg" && ant.de === l.de && !(ant.enquete || l.enquete);
   let corpo = l.enquete ? desenharEnquete(l.enquete, s) : "";
   if (eu) {
-    const mini = l.mini || (l.pedido && miniaturas[l.pedido]);
-    if (mini) {
-      const grande = l.grande || (l.pedido && grandesNaTela.get(l.pedido)) || "";
-      if (!grande && l.pedido && !grandesPedidas.has(l.pedido)) grandesFaltam.add(l.pedido);
-      fotosNaTela.set(l.id, {src: l.grande || mini, nome: "Imagem que você mandou", arquivo: "foto", sub: "Você · " + horaDe(l.t),
-                             chave: l.pedido || ""});
-      corpo += `<div class="fotos"><img src="${esc(grande || mini)}" data-ver="${esc(l.id)}" alt="Imagem mandada daqui"></div>`;
-    } else if (l.n_imagens || String(l.mime || "").startsWith("image/")) corpo += `<span class="chip-foto">📷 Imagem</span>`;
+    const minis = [].concat(l.minis || l.mini || (l.pedido && miniaturas[l.pedido]) || []).filter(Boolean);
+    const grandes = l.grandes || (l.grande ? [l.grande] : []), n = minis.length;
+    if (n) {
+      const chave = i => !l.pedido ? "" : n > 1 ? `${l.pedido}#${i}` : l.pedido;   // a grande guardada no celular
+      corpo += album(minis.map((mini, i) => {
+        const grande = grandes[i] || (chave(i) && grandesNaTela.get(chave(i))) || "";
+        if (!grande && chave(i) && !grandesPedidas.has(chave(i))) grandesFaltam.add(chave(i));
+        fotosNaTela.set(`${l.id}#${i}`, {src: grandes[i] || mini, nome: n > 1 ? `Imagem ${i + 1} de ${n}` : "Imagem que você mandou",
+                                         arquivo: "foto", sub: "Você · " + horaDe(l.t), chave: chave(i)});
+        return {src: grande || mini, ver: `${l.id}#${i}`, alt: n > 1 ? `Imagem ${i + 1} de ${n}` : "Imagem mandada daqui"};
+      }));
+    } else if (l.n_imagens || Chat.nImagens(l.mime)) {
+      const k = l.n_imagens || Chat.nImagens(l.mime);
+      corpo += `<span class="chip-foto">📷 ${k > 1 ? k + " imagens" : "Imagem"}</span>`;
+    }
   } else if (fotos.length) {
     const com = fotos.filter(f => f.src);
-    com.forEach((f, i) => fotosNaTela.set(`${l.id}#${i}`, {src: f.src, nome: f.nome, caminho: f.caminho, sub: "Claude · " + horaDe(l.t)}));
-    if (com.length) corpo += `<div class="fotos${com.length > 1 ? " grade" : ""}">` + com.map((f, i) =>
-      `<img src="${esc(f.src)}" data-ver="${esc(l.id)}#${i}" alt="${esc(f.nome)}">`).join("") + `</div>`;
+    if (com.length) corpo += album(com.map((f, i) => {
+      const nitida = f.id ? nitidas.get(f.id) : "";
+      if (f.id && !nitida && !nitidasErro.has(f.id) && !nitidasPedidas.has(f.id)) nitidasFaltam.set(f.id, f);
+      const estado = !f.id || nitida ? "" : nitidasErro.has(f.id) ? "erro" : "carregando";
+      fotosNaTela.set(`${l.id}#${i}`, {src: (f.id && nitidasDados.get(f.id)) || f.src, nome: f.nome, caminho: f.caminho,
+                                       sub: "Claude · " + horaDe(l.t), carregarAlta: f.id ? () => fotoAlta(f) : null});
+      return {src: nitida || f.src, ver: `${l.id}#${i}`, alt: f.nome, estado, id: f.id || "", aspecto: f.w && f.h ? f.w / f.h : 0};
+    }));
     corpo += fotos.filter(f => !f.src).map(f =>
       `<span class="chip-foto" title="Está no PC; só as mais novas vêm em foto">📷 ${esc(f.nome)}</span> `).join("");
   }
-  if (l.texto) {
-    const longo = l.texto.length > 700 || l.texto.split("\n").length > 14;
+  if (citada.cita) corpo = `<button class="cita-balao" data-cita-hora="${esc(citada.cita.hora)}" data-cita-trecho="${esc(citada.cita.trecho)}">`
+    + `<b>${esc(citada.cita.nome === "minha mensagem" ? "Você" : citada.cita.nome)}</b><span>${esc(citada.cita.trecho)}</span></button>` + corpo;
+  const texto = citada.texto;
+  if (texto) {
+    const longo = texto.length > 700 || texto.split("\n").length > 14;
     const aberto = abertos.has(l.id);
-    corpo += `<div class="txt${longo && !aberto ? " longo" : ""}">${eu ? esc(l.texto) : Chat.marcacao(l.texto)}</div>`
+    corpo += `<div class="txt${longo && !aberto ? " longo" : ""}">${eu ? esc(texto) : Chat.marcacao(texto)}</div>`
       + (longo ? `<button class="mais" data-mais="${esc(l.id)}">${aberto ? "Mostrar menos" : "Ler mais"}</button>` : "");
   }
   if (l.nota) corpo += `<div class="nota"><span class="spin"></span>${esc(l.nota)}</div>`;
@@ -1142,7 +1410,7 @@ function desenharLinha(l, ant, s) {
   const sinal = eu && l.sinal ? `<i class="sinal ${l.sinal}" title="${NOME_SINAL[l.sinal]}" aria-label="${NOME_SINAL[l.sinal]}">${Chat.SINAL[l.sinal]}</i>` : "";
   const erro = eu && l.sinal === "erro"
     ? `<div class="erro-linha" data-erro="${esc(l.id)}">⚠ ${esc(l.erro)}${l.reenviar ? " · toque para tentar de novo" : ""}</div>` : "";
-  return `<div class="linha-msg ${eu ? "eu" : "ele"}${seguida ? " seguida" : ""}" data-id="${esc(l.id)}">`
+  return `<div class="linha-msg ${eu ? "eu" : "ele"}${seguida ? " seguida" : ""}" data-id="${esc(l.id)}">${icone}`
     + `<div class="bolha${l.enquete ? " enq" : ""}${!eu && !l.texto && !l.enquete ? " so-foto" : ""}">${corpo}<span class="hora">${horaDe(l.t)}${sinal}</span></div>${erro}</div>`;
 }
 
@@ -1260,14 +1528,142 @@ async function responderPermissao(id, escolha) {
   await enviarLocal(local, {pc: s.pc, tipo: "acao", texto: JSON.stringify(acao)});
 }
 
+// ---- Responder a uma mensagem (arrastar o balão para a direita, ou toque longo › Responder) ------------------
+// O balão segue o dedo (só para a direita) e o ↩ aparece; passou do ponto, o celular vibra e soltar responde. Os
+// balões têm touch-action: pan-y, então rolar para cima e para baixo continua com o navegador; um toque sem arrastar
+// segue para a foto, o "Ler mais" e o resto.
+const PONTO_RESPONDER = 64;
+let gestoBalao = null, arrastouBalao = 0;
+function nomeDe(l) { return l.de === "eu" ? "minha mensagem" : l.de === "sessao" ? `sessão ${l.nome || "outra"}` : "Claude"; }
+function responderA(id) {
+  const l = linhasNaTela.get(id);
+  if (!l || !aberta) return;
+  const eu = l.de === "eu", texto = eu ? Chat.separarCitacao(l.texto).texto : (l.texto || "");
+  const fotos = !eu ? (l.fotos || []) : [], minis = eu ? [].concat(l.minis || l.mini || (l.pedido && miniaturas[l.pedido]) || []) : [];
+  const resumo = texto || (l.enquete ? "Enquete: " + l.enquete.perguntas[0].pergunta : l.permissao ? l.permissao.titulo : "");
+  const foto = fotos[0] ? fotos[0].nome : minis.length ? "enviada" : "";
+  citando = {id, nome: eu ? "Você" : "Claude", texto: resumo || (foto ? "📷 Foto" : ""),
+             mini: (fotos.find(f => f.src) || {}).src || minis[0] || "",
+             cita: Chat.citacao({nome: nomeDe(l), hora: horaDe(l.t), texto: resumo, foto})};
+  desenharCitando();
+  $("texto").focus();
+}
+function desenharCitando() {
+  const el = $("dCitando");
+  el.classList.toggle("hidden", !citando);
+  el.innerHTML = !citando ? "" : `<div class="q"><b>${esc(citando.nome)}</b><span>${esc(citando.texto)}</span></div>`
+    + (citando.mini ? `<img src="${esc(citando.mini)}" alt="">` : "")
+    + `<button class="x" data-cancelar-cita aria-label="Cancelar a resposta">✕</button>`;
+  ajustarCaixa();
+}
+function naoCitar() { citando = null; desenharCitando(); }
+function irParaCitada(botao) {
+  const cita = {hora: botao.dataset.citaHora, trecho: botao.dataset.citaTrecho};
+  const l = Chat.acharCitada([...linhasNaTela.values()], cita, horaDe);
+  const el = l && [...$("dMsgs").querySelectorAll(".linha-msg[data-id]")].find(x => x.dataset.id === l.id);
+  if (!el) return avisar("dAviso", "A mensagem citada é mais antiga do que as que estão aqui.", chatAviso());
+  el.scrollIntoView({block: "center", behavior: "smooth"});
+  el.classList.remove("destacada"); void el.offsetWidth; el.classList.add("destacada");
+  setTimeout(() => el.classList.remove("destacada"), 1700);
+}
+function abrirMenuBalao(linha) {
+  const m = $("dMenuBalao"), r = linha.querySelector(".bolha").getBoundingClientRect();
+  m.dataset.id = linha.dataset.id;
+  m.classList.remove("hidden");
+  const h = m.offsetHeight, w = m.offsetWidth;
+  m.style.top = Math.max(8, Math.min(innerHeight - h - 8, r.top - h - 8 > 60 ? r.top - h - 8 : r.bottom + 8)) + "px";
+  m.style.left = Math.max(8, Math.min(innerWidth - w - 8, linha.classList.contains("eu") ? r.right - w : r.left)) + "px";
+  if (navigator.vibrate) navigator.vibrate(8);
+}
+function fecharMenuBalao() { $("dMenuBalao").classList.add("hidden"); }
+function pegarBalao(e) {
+  const linha = e.target.closest(".linha-msg");
+  if (!linha || (e.button || 0) > 0 || e.target.closest("input, textarea, button, a, .opc")) return;
+  const g = gestoBalao = {linha, id: e.pointerId, x0: e.clientX, y0: e.clientY, modo: "", passou: false};
+  g.longo = setTimeout(() => { if (gestoBalao === g && !g.modo) { g.modo = "longo"; abrirMenuBalao(linha); } }, 500);
+}
+function moverBalao(e) {
+  const g = gestoBalao;
+  if (!g || e.pointerId !== g.id) return;
+  const dx = e.clientX - g.x0, dy = e.clientY - g.y0;
+  if (!g.modo) {
+    if (Math.abs(dy) > 10 && Math.abs(dy) >= Math.abs(dx)) { clearTimeout(g.longo); gestoBalao = null; return; }   // rolagem
+    if (dx < -10) { clearTimeout(g.longo); gestoBalao = null; return; }
+    if (dx <= 12 || dx < Math.abs(dy) * 1.5) return;
+    clearTimeout(g.longo); g.modo = "arrastar"; g.linha.classList.add("arrastando");
+    try { g.linha.setPointerCapture(g.id); } catch {}
+  }
+  if (g.modo !== "arrastar") return;
+  const x = dx <= PONTO_RESPONDER ? Math.max(0, dx) : PONTO_RESPONDER + (dx - PONTO_RESPONDER) * 0.35;
+  g.linha.querySelector(".bolha").style.transform = `translateX(${Math.min(x, 110)}px)`;
+  const ic = g.linha.querySelector(".resp-icone");
+  ic.style.opacity = Math.min(1, x / PONTO_RESPONDER);
+  ic.style.transform = `scale(${0.6 + 0.4 * Math.min(1, x / PONTO_RESPONDER)})`;
+  const passou = dx >= PONTO_RESPONDER;
+  if (passou && !g.passou && navigator.vibrate) navigator.vibrate(12);
+  g.passou = passou;
+  g.linha.classList.toggle("pronto", passou);
+}
+function soltarBalao(e) {
+  const g = gestoBalao;
+  if (!g || e.pointerId !== g.id) return;
+  clearTimeout(g.longo); gestoBalao = null;
+  if (g.modo === "longo") arrastouBalao = Date.now();   // o soltar do toque longo não abre a foto
+  if (g.modo !== "arrastar") return;
+  arrastouBalao = Date.now();
+  const b = g.linha.querySelector(".bolha"), ic = g.linha.querySelector(".resp-icone");
+  b.style.transform = ""; ic.style.opacity = ""; ic.style.transform = "";
+  g.linha.classList.remove("arrastando", "pronto");
+  if (g.passou && e.type === "pointerup") responderA(g.linha.dataset.id);
+}
+
 // ---- Mandar (com imagem, se tiver) --------------------------------------------------------------------
 async function mandar() {
   const texto = $("texto").value.trim();
-  if ((!texto && !anexo) || !aberta) return;
-  const im = anexo;
+  if ((!texto && !anexos.length) || !aberta) return;
+  sumirAviso("micinfo-texto");
+  const ims = anexos, cita = citando ? citando.cita : "";
   $("texto").value = ""; store.set("seaninho.rascunho." + aberta.id, "");
-  tirarAnexo(); ajustarCaixa();
-  await enviarMensagem(texto || "Segue a imagem.", im);
+  limparAnexos(); naoCitar(); ajustarCaixa();
+  const corpo = Chat.comCitacao(cita, texto || (ims.length > 1 ? "Seguem as imagens." : "Segue a imagem."));
+  if (ims.length > 1) return enviarVarias(corpo, ims);
+  await enviarMensagem(corpo, ims[0] || null);
+}
+
+// Várias imagens (agente 0.8.2): cada uma sobe num pedido "anexo" {grupo, ordem, total}, uma por vez, com o andamento
+// no balão; a que falhar avisa qual e o toque continua dali, sem subir de novo as que já foram. Com todas no banco,
+// vai a mensagem (mime "imagens/<grupo>/<n>"): o agente espera as n guardadas e entrega um [imagem: …] por imagem.
+function enviarVarias(corpo, ims) {
+  const s = sessaoAberta(), n = ims.length;
+  const grupo = (crypto.randomUUID ? crypto.randomUUID() : [...crypto.getRandomValues(new Uint8Array(16))]
+    .map(b => b.toString(16).padStart(2, "0")).join("")).toLowerCase();
+  const local = {id: "local" + (++nLocal), sessao: aberta.id, de: "eu", texto: corpo, t: Math.floor(Date.now() / 1000),
+                 minis: ims.map(im => im.mini), grandes: ims.map(im => "data:image/jpeg;base64," + im.b64),
+                 mime: `imagens/${grupo}/${n}`, grupo, subidas: ims.map(() => "")};
+  const args = {pc: aberta.pc, sessao: aberta.id, titulo: s ? s.titulo : "", texto: corpo, direto: !melhorar, mime: local.mime};
+  return subirVarias(local, ims, args);
+}
+
+async function subirVarias(local, ims, args) {
+  const n = ims.length;
+  Object.assign(local, {sinal: "mandando", erro: "", reenviar: null});
+  if (!locais.includes(local)) locais.push(local);
+  for (let i = 0; i < n; i++) {
+    if (local.subidas[i]) continue;   // subiu na tentativa de antes
+    local.nota = `Enviando as imagens: ${i + 1} de ${n}`;
+    desenharDetalhe(true);
+    try {
+      local.subidas[i] = await rpc("cel_pedir", {pc: args.pc, sessao: args.sessao, titulo: args.titulo, tipo: "acao",
+        texto: JSON.stringify({acao: "anexo", grupo: local.grupo, ordem: i, total: n}), audio: ims[i].b64, mime: ims[i].mime});
+    } catch (e) {
+      Object.assign(local, {sinal: "erro", nota: "",
+        erro: `Imagem ${i + 1} de ${n} não saiu (${/fetch|network/i.test(String(e.message)) ? "sem internet?" : e.message || e})`,
+        reenviar: () => subirVarias(local, ims, args)});
+      return desenharDetalhe();
+    }
+  }
+  local.nota = "";
+  await enviarLocal(local, args);   // a mensagem: ✓ quando o banco aceita, ✓✓ quando entra na sessão
 }
 
 function enviarMensagem(corpo, im) {
@@ -1276,6 +1672,17 @@ function enviarMensagem(corpo, im) {
                  mini: im ? im.mini : "", grande: im ? "data:image/jpeg;base64," + im.b64 : "", mime: im ? im.mime : ""};
   return enviarLocal(local, {pc: aberta.pc, sessao: aberta.id, titulo: s ? s.titulo : "", texto: corpo, direto: !melhorar,
                              ...(im ? {audio: im.b64, mime: im.mime} : {})});
+}
+
+// Erro do PC em que nada foi escrito nem enviado (Chat.reenviavel): o toque manda o mesmo texto, como foi, num balão
+// novo; o velho sai da conversa.
+function reenviarPedido(l) {
+  if (!aberta || !podeMandar()) return;
+  const s = sessaoAberta();
+  reenviados.add(l.pedido);
+  const local = {id: "local" + (++nLocal), sessao: aberta.id, de: "eu", texto: l.texto, t: Math.floor(Date.now() / 1000),
+                 mini: "", grande: "", mime: ""};
+  return enviarLocal(local, {pc: aberta.pc, sessao: aberta.id, titulo: s ? s.titulo : "", texto: l.texto, direto: true});
 }
 
 // Dá para mandar agora para a sessão aberta (a caixa de escrever e o 📎 estão na tela)?
@@ -1289,8 +1696,9 @@ function abrirFoto(el) {   // as fotos do chat em sequência, a partir da tocada
 }
 
 // O editor manda para a sessão aberta, pelo mesmo caminho do 📎; a legenda é a caixa do chat (vai e volta com ela).
-function marcar(f) {
+async function marcar(f) {
   const sessao = aberta && aberta.id;
+  if (f.carregarAlta && !f.alta) f.src = await f.carregarAlta().catch(() => f.src);   // as marcas em cima da alta
   Marcar.editar({src: f.src, nome: f.arquivo || f.nome, legenda: $("texto").value,
     aoSair: legenda => {
       if (!aberta || aberta.id !== sessao) return;
@@ -1302,7 +1710,6 @@ function marcar(f) {
       let corpo = legenda.trim() || "Marquei na imagem o que precisa ajustar.";
       if (f.caminho) corpo += `\n(As marcações estão em cima de ${f.caminho})`;
       $("texto").value = ""; store.set("seaninho.rascunho." + sessao, "");
-      if (f.anexo) tirarAnexo();
       ajustarCaixa();
       enviarMensagem(corpo, im);   // o balão aparece já com 🕓; erro de rede vira ⚠ com "tentar de novo"
     },
@@ -1316,8 +1723,15 @@ async function enviarLocal(local, args) {
   desenharDetalhe(true);
   try {
     local.pedidoId = await rpc("cel_pedir", args);
-    if (local.mini && local.pedidoId) guardarMiniatura(local.pedidoId, local.mini);
-    if (local.grande && local.pedidoId) Marcar.Grandes.guardar(local.pedidoId, local.grande);
+    if (local.pedidoId && (local.minis || local.mini)) guardarMiniatura(local.pedidoId, local.minis || local.mini);
+    if (local.pedidoId && local.grande) {
+      Marcar.Grandes.guardar(local.pedidoId, local.grande);
+      guardarRef(local.pedidoId.slice(0, 8), local.pedidoId);   // o PC guarda como <data>-<id8>.jpg
+    }
+    if (local.pedidoId && local.grandes) local.grandes.forEach((g, i) => {
+      Marcar.Grandes.guardar(`${local.pedidoId}#${i}`, g);
+      if (local.grupo) guardarRef(`${local.grupo.slice(0, 8)}-${i}`, `${local.pedidoId}#${i}`);
+    });
     await atualizar();
   } catch (e) {
     Object.assign(local, {sinal: "erro", erro: "Não saiu do celular: " + (e.message || e), reenviar: () => enviarLocal(local, args)});
@@ -1348,18 +1762,99 @@ function imagemDe(img) {   // 1600 px em JPEG (menor, se passar de ~1 MB) e a mi
   if (!b64 || b64.length >= 1900000) throw new Error("a imagem ficou grande demais.");
   return {b64, mime: "image/jpeg", mini: "data:image/jpeg;base64," + reduzir(img, 480, 0.7)};
 }
-async function prepararImagem(arquivo) {
-  try {
-    anexo = imagemDe(await carregarImagem(arquivo));
-    $("dAnexoImg").src = anexo.mini;
-    $("dAnexo").classList.remove("hidden");
-    infoMic("texto", "");
-    ajustarCaixa();
-  } catch { erroMic("texto", "Não consegui abrir essa imagem."); }
+// ---- As imagens que vão junto (até 10): a fileira de prévias ---------------------------------------------------
+// Com o agente de antes do 0.8.2, uma só (a nova troca a que estava, como era).
+async function adicionarImagens(arquivos) {
+  const s = sessaoAberta(), varias = !!(s && agenteNovo(s.pc, AGENTE_IMAGENS)), max = varias ? Chat.MAX_IMAGENS : 1;
+  let lista = Array.from(arquivos || []), aviso = "";
+  if (!lista.length) return;
+  if (!varias) {
+    if (lista.length > 1) aviso = `Para mandar várias imagens numa mensagem, o ${s ? s.pc : "PC"} precisa do Seaninho no celular ${AGENTE_IMAGENS}; vai a primeira.`;
+    anexos = []; lista = lista.slice(0, 1);
+  } else if (anexos.length + lista.length > max) {
+    aviso = `Cabem ${max} imagens por mensagem; ficaram as ${max} primeiras.`;
+    lista = lista.slice(0, Math.max(0, max - anexos.length));
+  }
+  let falhas = 0;
+  for (const arquivo of lista) {
+    try { anexos.push({...imagemDe(await carregarImagem(arquivo)), id: "a" + (++nAnexo)}); }
+    catch { falhas++; }
+  }
+  desenharAnexos(); ajustarCaixa();
+  if (falhas) aviso = falhas > 1 ? `Não consegui abrir ${falhas} das imagens.` : "Não consegui abrir uma das imagens.";
+  if (aviso) erroMic("texto", aviso); else infoMic("texto", "");
 }
-function tirarAnexo() {
-  anexo = null;
-  $("dAnexo").classList.add("hidden"); $("dAnexoImg").removeAttribute("src");
+const prepararImagem = arquivo => adicionarImagens([arquivo]);
+function limparAnexos() { anexos = []; desenharAnexos(); }
+
+function desenharAnexos() {
+  const caixa = $("dAnexo"), s = sessaoAberta(), n = anexos.length;
+  caixa.classList.toggle("hidden", !n);
+  if (!n) { caixa.innerHTML = ""; return; }
+  const mais = n < Chat.MAX_IMAGENS && s && agenteNovo(s.pc, AGENTE_IMAGENS);
+  caixa.innerHTML = anexos.map((a, i) => `<div class="anexo-foto" data-anexo="${i}">
+      <img src="${esc(a.mini)}" alt="Imagem ${i + 1} de ${n}" draggable="false">
+      <button class="anexo-tirar" data-tirar="${i}" aria-label="Tirar a imagem ${i + 1}">✕</button>
+      <button class="anexo-marcar" data-marcar-anexo="${i}" aria-label="Marcar na imagem ${i + 1}">${Marcar.icone("lapis")}</button></div>`).join("")
+    + (mais ? `<button class="anexo-mais" id="dAnexoMais" aria-label="Mais imagens">+</button>` : "")
+    + (n > 1 ? `<span class="anexo-conta">${n} de ${Chat.MAX_IMAGENS}</span>` : "");
+}
+
+// Tocar na prévia abre o visor (passa pelas outras e tem o Marcar); o ✏️ abre direto o editor, que volta com "Pronto".
+function verAnexo(i) {
+  const n = anexos.length;
+  Marcar.ver({lista: anexos.map((a, j) => ({src: "data:image/jpeg;base64," + a.b64, nome: `Imagem ${j + 1} de ${n}`, arquivo: "foto",
+                                             sub: "Ainda não mandada", anexo: a.id})),
+              indice: i, aoMarcar: f => marcarAnexo(anexos.findIndex(a => a.id === f.anexo))});
+}
+function marcarAnexo(i) {
+  const a = anexos[i];
+  if (!a) return;
+  Marcar.fecharVisor();
+  Marcar.editar({src: "data:image/jpeg;base64," + a.b64, nome: "foto", legenda: $("texto").value,
+    aoSair: legenda => { if (!aberta) return; $("texto").value = legenda; store.set("seaninho.rascunho." + aberta.id, legenda); ajustarCaixa(); },
+    aoConcluir: async tela => {
+      const j = anexos.findIndex(x => x.id === a.id);
+      if (j < 0) throw new Error("essa imagem saiu da lista.");
+      anexos[j] = {...imagemDe(tela), id: a.id};   // a marcada no lugar dela
+      desenharAnexos(); ajustarCaixa();
+    }});
+}
+
+// Reordenar: tocar e segurar uma prévia (0,35 s) e arrastar para o lado. No iPhone, com o arrasto valendo, o dedo não
+// rola a fileira (touchmove cancelado).
+let arrasto = null;
+function pegarAnexo(e) {
+  const el = e.target.closest(".anexo-foto");
+  if (!el || e.target.closest("button") || anexos.length < 2) return;
+  const a = arrasto = {i: Number(el.dataset.anexo), el, x0: e.clientX, y0: e.clientY, id: e.pointerId, ativo: false};
+  a.timer = setTimeout(() => {
+    if (arrasto !== a) return;
+    a.ativo = true;
+    el.classList.add("arrastando");
+    try { el.setPointerCapture(a.id); } catch {}
+  }, 350);
+}
+function arrastarAnexo(e) {
+  const a = arrasto;
+  if (!a || e.pointerId !== a.id) return;
+  const dx = e.clientX - a.x0;
+  if (!a.ativo) { if (Math.hypot(dx, e.clientY - a.y0) > 8) { clearTimeout(a.timer); arrasto = null; } return; }
+  a.el.style.transform = `translateX(${dx}px) scale(1.06)`;
+}
+function soltarAnexo(e) {
+  const a = arrasto;
+  if (!a || e.pointerId !== a.id) return;
+  clearTimeout(a.timer);
+  arrasto = null;
+  if (!a.ativo) return;
+  arrastou = Date.now();
+  if (e.type === "pointerup") {
+    const outros = [...$("dAnexo").querySelectorAll(".anexo-foto")].filter(f => f !== a.el);
+    const j = outros.filter(f => { const r = f.getBoundingClientRect(); return r.left + r.width / 2 < e.clientX; }).length;
+    anexos = Chat.mover(anexos, a.i, j);
+  }
+  desenharAnexos();
 }
 
 // ---- Colar imagem: na caixa (paste) ou pelo 📎 › "Colar imagem". No iPhone, a caixa de texto às vezes não oferece
@@ -1383,16 +1878,16 @@ function colarDoMenu() {
   catch (e) { leitura = Promise.reject(e); }
   menuAnexo(false);
   infoMic("texto", "");
-  return leitura.then(Chat.imagemDosItens).then(img => {
-    if (img) return prepararImagem(img);
+  return leitura.then(Chat.imagensDosItens).then(imgs => {
+    if (imgs.length) return adicionarImagens(imgs);
     erroMic("texto", "Não achei imagem copiada. Copie a foto ou o print e toque de novo em “Colar imagem”.");
   }).catch(e => erroMic("texto", e && e.name === "NotAllowedError"
     ? "Não colei: toque em “Colar” no balão que aparece (ou escolha a foto em 🖼️)." : "Não consegui ler a imagem copiada."));
 }
 
 function colarNaCaixa(e) {
-  const img = Chat.imagemDaColagem(e.clipboardData);
-  if (!img) return;                                 // texto: cola normal
+  const imgs = Chat.imagensDaColagem(e.clipboardData);
+  if (!imgs.length) return;                         // texto: cola normal
   e.preventDefault();
   const texto = e.clipboardData.getData("text/plain") || "";
   if (texto.trim() && !/^\s*https?:\/\/\S+\s*$/.test(texto)) {   // o texto que veio junto entra (o link da imagem, não)
@@ -1402,7 +1897,7 @@ function colarNaCaixa(e) {
   }
   const s = sessaoAberta();
   if (!(s && agenteNovo(s.pc))) return erroMic("texto", `Para mandar imagem, o PC precisa do Seaninho no celular ${AGENTE_CHAT}.`);
-  prepararImagem(img);
+  adicionarImagens(imgs);
 }
 
 // A caixa cresce com o texto (até ~5 linhas); vazia mostra o microfone, com texto ou imagem, o enviar.
@@ -1410,7 +1905,7 @@ function ajustarCaixa() {
   const t = $("texto");
   t.style.height = "auto";
   t.style.height = Math.min(140, t.scrollHeight) + "px";
-  const tem = !!(t.value.trim() || anexo);
+  const tem = !!(t.value.trim() || anexos.length);
   $("mandar").classList.toggle("hidden", !tem);
   document.querySelector('#dCompor .mic').classList.toggle("hidden", tem && !gravando);
 }
@@ -1432,10 +1927,7 @@ async function acaoPedido(acao, id) {
   } catch (e) { alerta(e); }
 }
 
-function alerta(e) {
-  const st = $("dBloqueio");
-  st.textContent = "Não deu: " + (e.message || e); st.className = "status err";
-}
+function alerta(e) { avisar("dAviso", "Não deu: " + (e.message || e), {erro: true, ...chatAviso()}); }
 
 // ---- Laço ------------------------------------------------------------------------------------------
 function conhecidos() {
@@ -1523,8 +2015,8 @@ function chaveVapid(b64) {
 }
 async function ativarPush() {
   const msg = $("pushMsg");
-  const ok = t => { msg.textContent = t; msg.className = "status ok"; };
-  const err = t => { msg.textContent = t; msg.className = "status err"; };
+  const ok = t => avisar(msg, t, {ok: true});
+  const err = t => avisar(msg, t, {erro: true, fica: true});
   if (!("serviceWorker" in navigator) || !("PushManager" in window)) {
     return err(safariDoIphone()
       ? "No iPhone, primeiro toque em Compartilhar › Adicionar à Tela de Início e abra o Seaninho por lá."
@@ -1587,7 +2079,26 @@ for (const lugar of ["dRascunho", "cmdLista"]) {
   $(lugar).addEventListener("click", e => { const b = e.target.closest("[data-acao]"); if (b) acaoPedido(b.dataset.acao, b.dataset.id); });
 }
 $("dRascunho").addEventListener("input", e => { if (e.target.dataset.id) edicoes[e.target.dataset.id] = e.target.value; });
+$("dMsgs").addEventListener("pointerdown", pegarBalao);
+$("dMsgs").addEventListener("pointermove", moverBalao);
+$("dMsgs").addEventListener("pointerup", soltarBalao);
+$("dMsgs").addEventListener("pointercancel", soltarBalao);
+$("dCitando").addEventListener("click", e => { if (e.target.closest("[data-cancelar-cita]")) naoCitar(); });
+$("dMenuBalao").addEventListener("click", async e => {
+  const b = e.target.closest("[data-menu]"), id = $("dMenuBalao").dataset.id;
+  fecharMenuBalao();
+  if (!b) return;
+  if (b.dataset.menu === "responder") return responderA(id);
+  const l = linhasNaTela.get(id);
+  const texto = l ? (l.de === "eu" ? Chat.separarCitacao(l.texto).texto : l.texto) || "" : "";
+  try { await navigator.clipboard.writeText(texto); avisar("dAviso", "✓ Texto copiado", {ok: true, ...chatAviso()}); }
+  catch { avisar("dAviso", "Não consegui copiar o texto.", {erro: true, ...chatAviso()}); }
+});
+document.addEventListener("pointerdown", e => { if (!e.target.closest("#dMenuBalao")) fecharMenuBalao(); }, true);
 $("dMsgs").addEventListener("click", e => {
+  if (Date.now() - arrastouBalao < 350) return;   // o fim do arrasto (ou do toque longo) não é um toque
+  const cb = e.target.closest(".cita-balao");
+  if (cb) return irParaCitada(cb);
   const o = e.target.closest(".opc[data-enq]");
   if (o && !o.disabled) return tocarOpcao(o);
   const r = e.target.closest("[data-responder]");
@@ -1599,12 +2110,16 @@ $("dMsgs").addEventListener("click", e => {
     if (abertos.has(m.dataset.mais)) abertos.delete(m.dataset.mais); else abertos.add(m.dataset.mais);
     return desenharMensagens(vistas[aberta.id] || {id: aberta.id, conversa: []}, false, true);
   }
+  const rec = e.target.closest("[data-recarregar]");
+  if (rec) { nitidasErro.delete(rec.dataset.recarregar); return desenharDetalhe(); }   // de novo: entra na fila
   const foto = e.target.closest("img[data-ver]");
   if (foto) return abrirFoto(foto);
   const er = e.target.closest("[data-erro]");
   if (er) {
     const l = locais.find(x => x.id === er.dataset.erro);
     if (l && l.reenviar) return l.reenviar();
+    const lp = linhasNaTela.get(er.dataset.erro);
+    if (lp && lp.reenviar === true && lp.pedido) return reenviarPedido(lp);
     er.classList.toggle("aberta");   // o motivo inteiro
   }
 });
@@ -1630,23 +2145,38 @@ $("dEscolher").addEventListener("click", () => { menuAnexo(false); $("dArquivo")
 $("dColar").addEventListener("click", colarDoMenu);
 $("texto").addEventListener("paste", colarNaCaixa);
 $("detalhe").addEventListener("click", e => {   // tocar fora do menu fecha
-  if (!$("dMenuAnexo").classList.contains("hidden") && !e.target.closest("#dMenuAnexo, #dClipe")) menuAnexo(false);
+  if (!$("dMenuAnexo").classList.contains("hidden") && !e.target.closest("#dMenuAnexo, #dClipe, #dAnexoMais")) menuAnexo(false);
 });
-$("dArquivo").addEventListener("change", e => { const f = e.target.files && e.target.files[0]; e.target.value = ""; if (f) prepararImagem(f); });
-$("dAnexoTirar").addEventListener("click", () => { tirarAnexo(); ajustarCaixa(); });
-$("dAnexoMarcar").addEventListener("click", () => anexo && marcar({src: "data:image/jpeg;base64," + anexo.b64, nome: "foto.jpg", anexo: true}));
-$("dAnexoImg").addEventListener("click", () => anexo && marcar({src: "data:image/jpeg;base64," + anexo.b64, nome: "foto.jpg", anexo: true}));
+$("dArquivo").addEventListener("change", e => { const fs = [...(e.target.files || [])]; e.target.value = ""; if (fs.length) adicionarImagens(fs); });
+$("dAnexo").addEventListener("click", e => {
+  if (Date.now() - arrastou < 400) return;   // o soltar do arrasto não abre a imagem
+  const tirar = e.target.closest("[data-tirar]");
+  if (tirar) { anexos.splice(Number(tirar.dataset.tirar), 1); desenharAnexos(); ajustarCaixa(); return; }
+  const m = e.target.closest("[data-marcar-anexo]");
+  if (m) return marcarAnexo(Number(m.dataset.marcarAnexo));
+  if (e.target.closest("#dAnexoMais")) return tocarClipe();
+  const f = e.target.closest(".anexo-foto");
+  if (f) verAnexo(Number(f.dataset.anexo));
+});
+$("dAnexo").addEventListener("pointerdown", pegarAnexo);
+$("dAnexo").addEventListener("pointermove", arrastarAnexo);
+$("dAnexo").addEventListener("pointerup", soltarAnexo);
+$("dAnexo").addEventListener("pointercancel", soltarAnexo);
+$("dAnexo").addEventListener("touchmove", e => { if (arrasto && arrasto.ativo) e.preventDefault(); }, {passive: false});
 $("eEnviar").innerHTML = SETA;
 Marcar.iniciar();
 $("cmdEnviar").addEventListener("click", enviarComando);
-$("texto").addEventListener("input", () => { ajustarCaixa(); if (aberta) store.set("seaninho.rascunho." + aberta.id, $("texto").value); });
+$("texto").addEventListener("input", () => {
+  ajustarCaixa(); sumirAviso("micinfo-texto", true);
+  if (aberta) store.set("seaninho.rascunho." + aberta.id, $("texto").value);
+});
 if (window.visualViewport) {
   const seguir = () => { const c = $("dMsgs"), fim = pertoDoFim(c); ajustarAltura(); if (fim) c.scrollTop = c.scrollHeight; };
   visualViewport.addEventListener("resize", seguir);
   visualViewport.addEventListener("scroll", ajustarAltura);
 }
 $("cmd").value = store.get("seaninho.rascunho.cmd");
-$("cmd").addEventListener("input", () => store.set("seaninho.rascunho.cmd", $("cmd").value));
+$("cmd").addEventListener("input", () => { sumirAviso("micinfo-cmd", true); store.set("seaninho.rascunho.cmd", $("cmd").value); });
 $("parearBtn").addEventListener("click", parear);
 $("pedirDeNovo").addEventListener("click", () => { pedirCodigo(); $("parearMsg").textContent = "Pedi de novo: confira a janela do computador."; $("parearMsg").className = "status"; });
 $("codigo").addEventListener("input", () => { if ($("codigo").value.replace(/\D/g, "").length === 6) parear(); });

@@ -115,10 +115,18 @@ function estadoDoPedido(p, enquete) {
     case "enviar": case "enviando": return {sinal: "enviado", texto};
     case "entregue":
       if (String(p.resposta || "").startsWith(NAO_SABE)) return {sinal: "erro", texto, erro: p.resposta};
-      return {sinal: "entregue", texto, obs: perm ? String(p.resposta || "") : ""};   // "Apertei “Yes” no PC."
+      return {sinal: "entregue", texto,   // "Apertei “Yes” no PC." / "Respondida pelo plano B: …"
+              obs: perm || (resp && p.resposta && p.resposta !== "Respondida.") ? String(p.resposta || "") : ""};
     case "erro": return {sinal: "erro", texto, erro: p.erro || "Não foi."};
     default: return {sinal: null, texto};         // cancelado
   }
+}
+
+// Erro do PC em que nada foi escrito nem enviado ("Nada foi escrito", "não escrevi nada", "Nada foi enviado"), num
+// texto sem imagem nem áudio: o toque no erro manda o mesmo texto de novo.
+const NADA_SAIU = /nada foi (escrito|enviado)|não escrevi nada/i;
+function reenviavel(p) {
+  return p.estado === "erro" && (p.tipo || "claude") === "claude" && !p.mime && !p.audio && NADA_SAIU.test(String(p.erro || ""));
 }
 
 // Os pedidos meus desta sessão (claude e respostas de enquete), mais velhos primeiro.
@@ -165,7 +173,7 @@ function montar(s, pedidos, locais, agora) {
     }
     soltos.push({id: "p:" + p.id, de: "eu", texto: est.texto, t: criado, pedido: p.id, mime: p.mime || "",
                  sinal: est.sinal, erro: est.erro || "", nota: est.nota || "", obs: est.obs || "",
-                 resposta_a: resp ? resp.id : "", permissao_a: perm ? perm.id : ""});
+                 resposta_a: resp ? resp.id : "", permissao_a: perm ? perm.id : "", reenviar: reenviavel(p)});
   }
   for (const m of conversa) if (m.de === "eu" && !m.sinal) m.sinal = m.visto === "lido" ? "lido" : "entregue";
   // os soltos entram na ordem do tempo, depois das mensagens da conversa da mesma hora
@@ -245,27 +253,76 @@ function acaoResponder(s, enquete, escolhas) {
 // ---- Colar imagem ------------------------------------------------------------------------------------------------
 const ehImagem = tipo => /^image\//.test(String(tipo || ""));
 
-// A imagem de uma colagem na caixa (evento paste): o arquivo image/* que veio junto, ou null (aí o texto cola normal).
-function imagemDaColagem(dados) {
-  if (!dados) return null;
-  for (const f of Array.from(dados.files || [])) if (f && ehImagem(f.type)) return f;
-  for (const it of Array.from(dados.items || [])) {
-    if (it && it.kind === "file" && ehImagem(it.type)) { const f = it.getAsFile(); if (f) return f; }
-  }
-  return null;
-}
+const MAX_IMAGENS = 10;   // por mensagem (0.8.2), como no WhatsApp
 
-// A imagem do que o navigator.clipboard.read() devolveu ("Colar imagem" do 📎): o primeiro image/*, ou null.
-async function imagemDosItens(itens) {
+// As imagens de uma colagem na caixa (evento paste): os arquivos image/* que vieram (files e items repetem as mesmas;
+// o iOS às vezes só manda em items). Lista vazia: o texto cola normal.
+function imagensDaColagem(dados) {
+  if (!dados) return [];
+  const arquivos = Array.from(dados.files || []).filter(f => f && ehImagem(f.type));
+  if (arquivos.length) return arquivos;
+  return Array.from(dados.items || []).filter(it => it && it.kind === "file" && ehImagem(it.type))
+    .map(it => it.getAsFile()).filter(Boolean);
+}
+const imagemDaColagem = dados => imagensDaColagem(dados)[0] || null;
+
+// As imagens do que o navigator.clipboard.read() devolveu ("Colar imagem" do 📎): um image/* de cada item.
+async function imagensDosItens(itens) {
+  const out = [];
   for (const it of Array.from(itens || [])) {
     const tipo = Array.from(it.types || []).find(ehImagem);
-    if (tipo) return it.getType(tipo);
+    if (tipo) out.push(await it.getType(tipo));
   }
-  return null;
+  return out;
+}
+const imagemDosItens = async itens => (await imagensDosItens(itens))[0] || null;
+
+// Quantas imagens o pedido leva: "image/jpeg" é uma (no próprio pedido); "imagens/<grupo>/<n>" são n, cada uma num
+// pedido acao "anexo" à parte (0.8.2).
+function nImagens(mime) {
+  const m = /^imagens\/[^/]+\/(\d+)$/.exec(String(mime || ""));
+  return m ? Number(m[1]) : ehImagem(mime) ? 1 : 0;
+}
+
+// ---- Responder a uma mensagem (0.8.3, arrastar o balão para o lado como no WhatsApp) -------------------------
+// A citação vai na frente do texto, numa linha, do jeito que o Claude lê sem ambiguidade:
+//   ↩ Respondendo a (Claude, 08:14): "começo da mensagem" — o texto
+// (a entrega no VS Code é de uma linha só). O trecho não leva aspas duplas (viram simples), e o celular separa de novo
+// a citação para desenhar o balão.
+const CITA = /^↩ Respondendo a \(([^,()]+), (\d{1,2}:\d{2})\): "([^"]*)"\s*(?:—\s*)?/;
+const MAX_TRECHO = 200;
+function citacao(m) {   // m: {nome, hora, texto, foto?}
+  let trecho = String(m.texto || "").replace(/\s+/g, " ").trim();
+  if (m.foto) trecho = `foto ${m.foto}` + (trecho ? `: ${trecho}` : "");
+  trecho = trecho.replace(/"/g, "'") || "mensagem";
+  if (trecho.length > MAX_TRECHO) trecho = trecho.slice(0, MAX_TRECHO - 1).trimEnd() + "…";
+  return `↩ Respondendo a (${String(m.nome).replace(/[,()]/g, " ").trim()}, ${m.hora}): "${trecho}"`;
+}
+const comCitacao = (cita, texto) => cita ? `${cita} — ${texto}` : texto;
+function separarCitacao(texto) {
+  const t = String(texto || ""), m = CITA.exec(t);
+  return m ? {cita: {nome: m[1], hora: m[2], trecho: m[3]}, texto: t.slice(m[0].length)} : {cita: null, texto: t};
+}
+// A mensagem original de uma citação, entre as linhas do chat: a mesma hora e o mesmo começo (ou a mesma foto).
+function acharCitada(linhas, cita, horaDe) {
+  const trecho = cita.trecho.replace(/…$/, "");
+  const foto = /^foto (\S+)/.exec(trecho);
+  const alvo = normalizar(foto ? trecho.slice(foto[0].length).replace(/^: /, "") : trecho).toLowerCase().slice(0, 60);
+  return (linhas || []).find(l => l.tipo === "msg" && horaDe(l.t) === cita.hora && (
+    foto ? (l.fotos || []).some(f => f.nome === foto[1]) || (!alvo && (l.minis || l.mini || l.n_imagens))
+         : normalizar(separarCitacao(l.texto).texto).toLowerCase().replace(/"/g, "'").startsWith(alvo))) || null;
+}
+
+// A lista com o item i levado para a posição j (reordenar as prévias arrastando).
+function mover(lista, i, j) {
+  const out = [...lista], [x] = out.splice(i, 1);
+  out.splice(Math.max(0, Math.min(out.length, j)), 0, x);
+  return out;
 }
 
 const Chat = {SINAL, normalizar, versaoMin, montar, estadoDoPedido, pedidosDaSessao, respostaDeEnquete, textoResposta,
-  respostaDePermissao, traduzirBotao, botoesPermissao, textoPermissao,
+  respostaDePermissao, traduzirBotao, botoesPermissao, textoPermissao, reenviavel, MAX_IMAGENS, imagensDaColagem, imagensDosItens,
+  nImagens, mover, citacao, comCitacao, separarCitacao, acharCitada,
   rotuloDia, marcacao, escolhidas, completas, acaoResponder, conversaDe, imagemDaColagem, imagemDosItens, esc};
 if (typeof module !== "undefined" && module.exports) module.exports = Chat;
 else raiz.Chat = Chat;
