@@ -142,7 +142,7 @@ nav .n{display:inline-block;min-width:18px;margin-left:4px;padding:0 5px;border-
 .caixa{flex:1;min-width:0;display:flex;align-items:flex-end;background:rgba(255,255,255,.07);border:1px solid var(--stroke-2);border-radius:22px;padding:1px 6px 1px 2px}
 .caixa textarea{flex:1;width:auto;min-height:40px;max-height:140px;resize:none;border:0;background:none;padding:9px 4px;border-radius:0}
 .caixa textarea:focus{outline:none}
-.clipe{flex:none;width:40px;height:40px;display:grid;place-items:center;color:var(--muted)}
+.clipe{flex:none;width:44px;height:44px;display:grid;place-items:center;color:var(--muted)}
 .clipe svg,.enviar svg{width:22px;height:22px}
 .compor .mic,.enviar{flex:none;width:44px;height:44px}
 .enviar{border-radius:50%;background:var(--gold);color:var(--navy);display:grid;place-items:center}
@@ -150,9 +150,15 @@ nav .n{display:inline-block;min-width:18px;margin-left:4px;padding:0 5px;border-
   border:1px solid var(--stroke-2);box-shadow:0 8px 24px rgba(0,0,0,.55)}
 .menu-anexo button{display:flex;align-items:center;gap:12px;width:100%;padding:12px;border-radius:10px;font-size:15.5px;text-align:left}
 .menu-anexo button:active{background:rgba(255,255,255,.08)}
-.anexo{position:relative;display:inline-block;margin:6px 0 8px 8px}
-.anexo img{display:block;height:84px;max-width:60vw;object-fit:cover;border-radius:10px;border:1px solid var(--stroke-2)}
-.anexo button{position:absolute;top:-8px;right:-8px;width:26px;height:26px;border-radius:50%;background:rgba(0,0,0,.8);color:#fff;font-size:17px;line-height:1}
+.anexo{display:flex;align-items:flex-end;gap:14px;margin:12px 0 8px 8px}
+.anexo-foto{position:relative;flex:none}
+.anexo-foto img{display:block;height:116px;min-width:84px;max-width:52vw;object-fit:cover;border-radius:12px;border:1px solid var(--stroke-2)}
+.anexo-tirar{position:absolute;top:-14px;right:-14px;width:44px;height:44px;display:grid;place-items:center;isolation:isolate;
+  color:#fff;font-size:19px;line-height:1}
+.anexo-tirar::before{content:"";position:absolute;inset:9px;z-index:-1;border-radius:50%;background:rgba(0,0,0,.85);border:1px solid rgba(255,255,255,.35)}
+.anexo-marcar{display:flex;align-items:center;gap:7px;height:44px;padding:0 16px;border-radius:22px;background:var(--glass-2);
+  border:1px solid var(--stroke-2);color:var(--ink);font-weight:600;font-size:15px}
+.anexo-marcar svg{width:18px;height:18px}
 #dSugestoes{flex-wrap:nowrap;overflow-x:auto;margin:0 0 6px;padding:2px 2px 3px;scrollbar-width:none}
 #dSugestoes .sug{flex:none;white-space:nowrap;max-width:78vw;overflow:hidden;text-overflow:ellipsis;padding:7px 12px}
 .sug.liga{background:var(--glass-2);border-color:var(--stroke-2);color:var(--muted)}
@@ -199,10 +205,10 @@ textarea:focus{outline:2px solid rgba(226,184,74,.6);border-color:transparent}
 .v-palco{position:absolute;inset:0;overflow:hidden;touch-action:none}
 #visor button,#editor button,#editor label{touch-action:manipulation}
 #vImg{position:absolute;max-width:none;transform-origin:center center;will-change:transform;-webkit-user-drag:none;-webkit-touch-callout:none}
-.v-topo{position:absolute;left:0;right:0;top:0;display:flex;align-items:center;gap:4px;padding:calc(var(--top) + 6px) 8px 22px;
+.v-topo{position:absolute;left:0;right:0;top:0;display:flex;align-items:center;gap:8px;padding:calc(var(--top) + 6px) 8px 22px;
   background:linear-gradient(rgba(0,0,0,.7),transparent);transition:opacity .2s}
 .v-topo.some{opacity:0;pointer-events:none}
-.v-topo button,.e-topo button{flex:none;min-width:42px;height:42px;border-radius:21px;color:#fff;display:grid;place-items:center}
+.v-topo button,.e-topo button{flex:none;min-width:44px;height:44px;border-radius:22px;color:#fff;display:grid;place-items:center}
 .v-topo svg,.e-topo svg,.e-ferr svg{width:23px;height:23px}
 .v-nome{flex:1;min-width:0;color:#fff;font-size:15px;font-weight:600;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .v-nome small{display:block;color:rgba(255,255,255,.65);font-size:12.5px;font-weight:400}
@@ -210,7 +216,7 @@ textarea:focus{outline:2px solid rgba(226,184,74,.6);border-color:transparent}
 .v-marcar svg{width:19px;height:19px}
 #editor{position:fixed;left:0;right:0;top:0;z-index:8;height:var(--altura,100dvh);display:flex;flex-direction:column;background:#000;
   overscroll-behavior:none;-webkit-user-select:none;user-select:none}
-.e-topo{flex:none;display:flex;align-items:center;gap:2px;padding:calc(var(--top) + 6px) 6px 4px}
+.e-topo{flex:none;display:flex;align-items:center;gap:6px;padding:calc(var(--top) + 6px) 6px 4px}
 .e-topo .vao{flex:1}
 .e-topo button:disabled{opacity:.3}
 .e-palco{flex:1;min-height:0;position:relative;overflow:hidden;touch-action:none}
@@ -233,9 +239,9 @@ textarea:focus{outline:2px solid rgba(226,184,74,.6);border-color:transparent}
 #eEstilo{font-weight:800;font-size:19px;border:2px solid #fff}
 #eEstilo[data-estilo="caixa"]{background:#fff;color:#000}
 #eEstilo[data-estilo="meio"]{background:rgba(255,255,255,.35)}
-.e-cores{flex:none;display:flex;align-items:center;gap:10px;overflow-x:auto;padding:7px 12px 9px;scrollbar-width:none;touch-action:pan-x}
+.e-cores{flex:none;display:flex;align-items:center;gap:12px;overflow-x:auto;padding:8px 14px 10px;scrollbar-width:none;touch-action:pan-x}
 .e-cores::-webkit-scrollbar{display:none}
-.e-cor{flex:none;width:30px;height:30px;border-radius:50%;background:var(--c);border:2px solid rgba(255,255,255,.9)}
+.e-cor{flex:none;width:34px;height:34px;border-radius:50%;background:var(--c);border:2px solid rgba(255,255,255,.9)}
 .e-cor.on{box-shadow:0 0 0 2px #000,0 0 0 4px #fff;transform:scale(1.08)}
 .e-livre{position:relative;overflow:hidden;background:conic-gradient(#f33,#fc0,#3c5,#0cf,#36f,#c3f,#f33)}
 .e-livre.on{background:var(--c)}
@@ -248,10 +254,8 @@ textarea:focus{outline:2px solid rgba(226,184,74,.6);border-color:transparent}
 #eEnviar.enviando svg{opacity:0}
 #eEnviar.enviando::after{content:"";position:absolute;inset:12px;border:2.5px solid var(--navy);border-right-color:transparent;border-radius:50%;
   animation:r .8s linear infinite}
-.e-zoom{position:absolute;left:10px;top:8px;padding:5px 11px;border-radius:999px;background:rgba(0,0,0,.6);color:#fff;font-weight:700;font-size:14px}
+.e-zoom{position:absolute;left:10px;top:8px;min-width:44px;height:40px;padding:0 12px;border-radius:999px;background:rgba(0,0,0,.6);color:#fff;font-weight:700;font-size:14px}
 .e-erro{margin:0 4px 6px;padding:8px 12px;border-radius:12px;font-size:14px;color:#ffb3ad;background:rgba(255,90,79,.14);border:1px solid rgba(255,90,79,.4)}
-.anexo .marcar{position:absolute;left:6px;bottom:6px;width:34px;height:34px;border-radius:50%;background:rgba(0,0,0,.72);color:#fff;display:grid;place-items:center}
-.anexo .marcar svg{width:18px;height:18px}
 #imagem{position:fixed;inset:0;z-index:6;overflow:auto;background:#060f22;padding:calc(var(--top) + 8px) 16px calc(var(--bottom) + 24px)}
 #imagem img{display:block;width:100%;border-radius:12px;-webkit-touch-callout:default}
 .gear{flex:none;width:36px;height:36px;border-radius:50%;display:grid;place-items:center;background:var(--glass);color:var(--muted);font-size:18px}
@@ -389,8 +393,10 @@ details.card summary{cursor:pointer;font-weight:600;color:var(--muted)}
         <button role="menuitem" id="dColar">📋 Colar imagem</button>
       </div>
       <div class="sugestoes" id="dSugestoes"></div>
-      <div class="anexo hidden" id="dAnexo"><img id="dAnexoImg" alt="Imagem que vai junto"><button id="dAnexoTirar" aria-label="Tirar a imagem">×</button>
-        <button class="marcar" id="dAnexoMarcar" data-icone="lapis" aria-label="Marcar na imagem antes de mandar"></button></div>
+      <div class="anexo hidden" id="dAnexo">
+        <div class="anexo-foto"><img id="dAnexoImg" alt="Imagem que vai junto"><button class="anexo-tirar" id="dAnexoTirar" aria-label="Tirar a imagem">✕</button></div>
+        <button class="anexo-marcar" id="dAnexoMarcar" data-icone="lapis" aria-label="Marcar na imagem antes de mandar">Marcar</button>
+      </div>
       <div class="compor">
         <div class="caixa">
           <button class="clipe hidden" id="dClipe" aria-label="Anexar foto ou print" aria-haspopup="menu" aria-expanded="false"></button>
@@ -1229,7 +1235,7 @@ function desenharPermissao(perm, s) {
       data-escolha="${b.escolha}"${b.original ? ` title="No PC: ${esc(b.original)}"` : ""}>${esc(b.rotulo)}</button>`;
     h += botoes.filter(b => b.escolha !== "nao").map(botao).join("");
     h += `<input class="enq-outra perm-recado" data-perm-recado="${esc(perm.id)}" value="${esc(permRecados[perm.id] || "")}"
-      placeholder="${perm.plano ? "O que mudar no plano (vai com o “Não”)" : "Recado para o Claude (vai com o “Não”)"}" enterkeyhint="done">`;
+      placeholder="${perm.plano ? "O que mudar no plano (opcional)" : "Recado para o Claude (opcional)"}" enterkeyhint="done">`;
     h += botoes.filter(b => b.escolha === "nao").map(botao).join("");
   } else if (enviando) h += `<div class="enq-status"><span class="spin"></span>Respondendo na aba do PC…</div>`;
   else if (!s.respondivel) h += `<div class="enq-status">Esta só se responde no PC (a sessão não está no VS Code).</div>`;
