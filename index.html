@@ -59,11 +59,95 @@ nav{position:fixed;left:0;right:0;bottom:0;display:flex;gap:4px;padding:8px 8px 
 nav button{flex:1;padding:8px 0;border-radius:12px;color:var(--muted);font-size:13px;font-weight:600}
 nav button.on{color:var(--navy);background:var(--gold)}
 nav .n{display:inline-block;min-width:18px;margin-left:4px;padding:0 5px;border-radius:999px;background:var(--coral);color:#fff;font-size:11px}
-#detalhe{position:fixed;inset:0;z-index:5;overflow:auto;background:linear-gradient(170deg,#0E224A,#08142E 60%);
-  padding:calc(var(--top) + 8px) 16px calc(var(--bottom) + 24px)}
 .back{display:flex;align-items:center;gap:6px;color:var(--gold);font-weight:600;padding:6px 0 12px}
-.reply{white-space:pre-wrap;word-wrap:break-word;font-size:15px;line-height:1.5;padding:12px;border-radius:14px;background:var(--glass);
-  border:1px solid var(--stroke);max-height:46vh;overflow:auto}
+/* ---- Chat de uma sessão (0.8): balões, sinais (🕓 ✓ ✓✓ ✓✓ azul ⚠), enquete e a caixa embaixo ---- */
+#detalhe{position:fixed;left:0;right:0;top:0;z-index:5;height:var(--altura,100dvh);display:flex;flex-direction:column;
+  background:#0A1630 radial-gradient(rgba(255,255,255,.035) 1px,transparent 1.3px) 0 0/18px 18px}
+.chat-topo{flex:none;display:flex;align-items:center;gap:6px;padding:calc(var(--top) + 6px) 12px 8px 2px;
+  background:rgba(11,30,63,.97);border-bottom:1px solid var(--stroke)}
+.chat-topo .voltar{flex:none;width:40px;height:40px;font-size:34px;line-height:1;color:var(--gold);display:grid;place-items:center;padding-bottom:4px}
+.chat-quem{flex:1;min-width:0}
+.chat-quem .sub{font-size:12.5px;color:var(--faint);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.chat-quem .sub.ativo{color:var(--green)}
+.msgs-caixa{flex:1;position:relative;min-height:0}
+.msgs{position:absolute;inset:0;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;padding:6px 10px 12px}
+.msgs .empty{padding:60px 10px}
+.dia,.aviso{display:flex;justify-content:center;margin:10px 0 6px}
+.dia span{font-size:12px;font-weight:600;color:var(--muted);background:rgba(11,30,63,.92);border:1px solid var(--stroke);padding:4px 10px;border-radius:8px}
+.aviso span{max-width:88%;font-size:12.5px;line-height:1.35;color:var(--muted);background:rgba(255,255,255,.055);padding:4px 11px;border-radius:999px;
+  text-align:center;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.aviso b{color:var(--ink);font-weight:600}
+.aviso.sessao span{color:#c3cfe9;background:rgba(127,211,255,.09);border-radius:10px;-webkit-line-clamp:3}
+.linha-msg{display:flex;flex-direction:column;margin-top:8px}
+.linha-msg.seguida{margin-top:2px}
+.bolha{position:relative;max-width:85%;min-width:72px;padding:6px 9px 5px 10px;border-radius:12px;font-size:15.5px;line-height:1.38;overflow-wrap:anywhere}
+.ele .bolha{background:#17294D;border:1px solid rgba(255,255,255,.07);border-top-left-radius:4px;margin-right:auto}
+.eu .bolha{background:rgba(226,184,74,.2);border:1px solid rgba(226,184,74,.32);border-top-right-radius:4px;margin-left:auto}
+.seguida .bolha{border-top-left-radius:12px;border-top-right-radius:12px}
+.bolha .txt{white-space:pre-wrap}
+.bolha .txt.longo{max-height:17em;overflow:hidden;-webkit-mask-image:linear-gradient(#000 70%,transparent);mask-image:linear-gradient(#000 70%,transparent)}
+.bolha .mais{display:block;color:var(--gold);font-size:14px;font-weight:600;padding:4px 0 0}
+.bolha pre{white-space:pre-wrap;background:rgba(0,0,0,.3);padding:8px;border-radius:8px;font-size:12.5px;margin:6px 0;font-family:ui-monospace,Menlo,monospace}
+.bolha code{background:rgba(0,0,0,.28);padding:1px 4px;border-radius:4px;font-size:13.5px;font-family:ui-monospace,Menlo,monospace}
+.bolha a{color:#7FD3FF}
+.hora{float:right;margin:7px -2px -3px 12px;font-size:11px;color:var(--faint);white-space:nowrap;line-height:1.2}
+.eu .hora{color:rgba(244,246,251,.6)}
+.sinal{font-style:normal;margin-left:4px;font-size:12.5px;letter-spacing:-.32em;color:rgba(244,246,251,.6)}
+.sinal.lido{color:#53BDEB}
+.sinal.erro{color:#FF6B60;letter-spacing:0}
+.sinal.mandando{letter-spacing:0;font-size:11px}
+.erro-linha{margin:3px 2px 0 auto;max-width:85%;font-size:12.5px;color:#ffb3ad;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:right}
+.erro-linha.aberta{white-space:normal}
+.nota{font-size:12.5px;color:var(--muted);margin-top:3px}
+.nota .spin{width:11px;height:11px;margin-right:6px}
+.fotos{margin:-2px -5px 6px -6px}
+.fotos img{display:block;width:100%;max-height:280px;object-fit:cover;border-radius:9px}
+.chip-foto{display:inline-block;font-size:13px;color:var(--muted);background:rgba(0,0,0,.22);padding:2px 9px;border-radius:999px;margin:1px 0 4px}
+.descer{position:absolute;right:12px;bottom:12px;width:42px;height:42px;border-radius:50%;background:#17294D;border:1px solid var(--stroke-2);
+  color:var(--ink);font-size:20px;box-shadow:0 3px 10px rgba(0,0,0,.45)}
+.descer b{position:absolute;top:-6px;right:-4px;min-width:20px;padding:1px 5px;border-radius:999px;background:var(--gold);color:var(--navy);font-size:11.5px}
+.enq{min-width:78%}
+.enq-topo{font-size:12.5px;font-weight:650;color:var(--gold);margin:2px 0 4px}
+.enq-q{font-weight:650;margin:8px 0 1px}
+.enq-dica{font-size:12px;color:var(--faint);margin-bottom:4px}
+.opc{display:flex;align-items:flex-start;gap:10px;width:100%;text-align:left;padding:9px 10px;margin:5px 0;border-radius:10px;
+  background:rgba(255,255,255,.05);border:1px solid var(--stroke)}
+.opc .bol{flex:none;width:20px;height:20px;border-radius:50%;border:2px solid var(--muted);margin-top:1px;display:grid;place-items:center;font-size:12px;font-weight:700}
+.opc.multi .bol{border-radius:5px}
+.opc.marcada{border-color:rgba(226,184,74,.65);background:rgba(226,184,74,.13)}
+.opc.marcada .bol{background:var(--gold);border-color:var(--gold);color:var(--navy)}
+.opc .rot{flex:1;min-width:0;font-size:14.5px;line-height:1.35}
+.opc small{display:block;color:var(--muted);font-size:12.5px;margin-top:2px}
+.opc.apagada{opacity:.42}
+.opc:disabled{cursor:default}
+.enq-outra{width:100%;margin:0 0 6px;padding:9px 10px;border-radius:10px;border:1px solid var(--stroke-2);background:rgba(0,0,0,.25);font-size:16px}
+.enq-outra:focus{outline:2px solid rgba(226,184,74,.6);border-color:transparent}
+.enq .btn{margin-top:8px;padding:11px}
+.enq-status{font-size:13px;color:var(--muted);margin-top:8px}
+.enq-status.err{color:#ffb3ad}
+.chat-baixo{flex:none;padding:6px 8px calc(var(--bottom) + 8px);background:rgba(8,20,46,.97);border-top:1px solid var(--stroke)}
+.chat-baixo .status{margin:4px 2px 2px}
+.chat-baixo .micinfo{padding:2px 8px 0}
+.compor{display:flex;align-items:flex-end;gap:6px}
+.caixa{flex:1;min-width:0;display:flex;align-items:flex-end;background:rgba(255,255,255,.07);border:1px solid var(--stroke-2);border-radius:22px;padding:1px 6px 1px 2px}
+.caixa textarea{flex:1;width:auto;min-height:40px;max-height:140px;resize:none;border:0;background:none;padding:9px 4px;border-radius:0}
+.caixa textarea:focus{outline:none}
+.clipe{flex:none;width:40px;height:40px;display:grid;place-items:center;color:var(--muted)}
+.clipe svg,.enviar svg{width:22px;height:22px}
+.compor .mic,.enviar{flex:none;width:44px;height:44px}
+.enviar{border-radius:50%;background:var(--gold);color:var(--navy);display:grid;place-items:center}
+.anexo{position:relative;display:inline-block;margin:6px 0 8px 8px}
+.anexo img{display:block;height:84px;max-width:60vw;object-fit:cover;border-radius:10px;border:1px solid var(--stroke-2)}
+.anexo button{position:absolute;top:-8px;right:-8px;width:26px;height:26px;border-radius:50%;background:rgba(0,0,0,.8);color:#fff;font-size:17px;line-height:1}
+#dSugestoes{flex-wrap:nowrap;overflow-x:auto;margin:0 0 6px;padding:2px 2px 3px;scrollbar-width:none}
+#dSugestoes .sug{flex:none;white-space:nowrap;max-width:78vw;overflow:hidden;text-overflow:ellipsis;padding:7px 12px}
+.sug.liga{background:var(--glass-2);border-color:var(--stroke-2);color:var(--muted)}
+.sug.liga.on{background:rgba(226,184,74,.9);border-color:var(--gold);color:var(--navy);font-weight:600}
+.rascunho{padding:10px;border-radius:14px;background:var(--glass);border:1px solid rgba(226,184,74,.4);margin:2px 0 4px}
+.rascunho .label{margin:0 2px 6px}
+.rascunho textarea{min-height:84px}
+.rascunho .btn{margin-top:8px;padding:11px}
+.prev{font-size:14px;color:var(--muted);margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .label{font-size:12px;font-weight:600;color:var(--faint);text-transform:uppercase;letter-spacing:.6px;margin:16px 2px 6px}
 textarea{width:100%;min-height:96px;resize:vertical;padding:12px;border-radius:14px;border:1px solid var(--stroke-2);background:rgba(0,0,0,.22);font-size:16px;line-height:1.45}
 textarea:focus{outline:2px solid rgba(226,184,74,.6);border-color:transparent}
@@ -215,27 +299,33 @@ details.card summary{cursor:pointer;font-weight:600;color:var(--muted)}
 </nav>
 
 <div id="detalhe" class="hidden">
-  <button class="back" id="voltar">‹ Sessões</button>
-  <div class="row"><div class="title" id="dTitulo"></div><span class="chip" id="dChip"></span></div>
-  <div class="meta" id="dMeta"></div>
-  <div class="q hidden" id="dPergunta"></div>
-  <div class="label">Última fala do Claude</div>
-  <div class="reply" id="dResposta"></div>
-  <div class="label hidden" id="dPedidoLabel">Seu último pedido no PC</div>
-  <div class="note hidden" id="dPedido"></div>
-  <div id="dPedidos"></div>
-  <div id="dCompor">
-    <div class="label">Responder ou pedir</div>
-    <div class="sugestoes hidden" id="dSugestoes"></div>
-    <textarea id="texto" placeholder="Fale no microfone ou escreva…"></textarea>
-    <div class="row acoes">
-      <button class="mic" data-alvo="texto" aria-label="Falar"></button>
-      <button class="btn" id="mandar">Preparar</button>
-    </div>
-    <div class="micinfo" id="micinfo-texto"></div>
-    <div class="toggle"><span>O Seaninho melhora o texto antes</span><button class="switch on" id="melhorar" aria-label="O Seaninho melhora o texto"></button></div>
+  <div class="chat-topo">
+    <button class="voltar" id="voltar" aria-label="Voltar às sessões">‹</button>
+    <div class="chat-quem"><div class="title" id="dTitulo"></div><div class="sub" id="dSub"></div></div>
+    <span class="chip" id="dChip"></span>
   </div>
-  <div class="status hidden" id="dBloqueio"></div>
+  <div class="msgs-caixa">
+    <div class="msgs" id="dMsgs" aria-live="polite"></div>
+    <button class="descer hidden" id="dDescer" aria-label="Ir para as mensagens mais novas">↓<b class="hidden" id="dNovas"></b></button>
+  </div>
+  <div class="chat-baixo">
+    <div id="dRascunho"></div>
+    <div class="status hidden" id="dBloqueio"></div>
+    <div id="dCompor">
+      <div class="sugestoes" id="dSugestoes"></div>
+      <div class="anexo hidden" id="dAnexo"><img id="dAnexoImg" alt="Imagem que vai junto"><button id="dAnexoTirar" aria-label="Tirar a imagem">×</button></div>
+      <div class="compor">
+        <div class="caixa">
+          <button class="clipe hidden" id="dClipe" aria-label="Anexar foto ou print"></button>
+          <textarea id="texto" rows="1" placeholder="Mensagem"></textarea>
+        </div>
+        <button class="mic" data-alvo="texto" aria-label="Falar"></button>
+        <button class="enviar hidden" id="mandar" aria-label="Enviar"></button>
+      </div>
+      <div class="micinfo" id="micinfo-texto"></div>
+    </div>
+  </div>
+  <input type="file" id="dArquivo" accept="image/*" hidden>
 </div>
 
 <div id="imagem" class="hidden">
@@ -245,6 +335,7 @@ details.card summary{cursor:pointer;font-weight:600;color:var(--muted)}
 </div>
 
 <script src="config.js"></script>
+<script src="chat.js"></script>
 <script>
 "use strict";
 const CFG = window.SEANINHO || {};
@@ -330,8 +421,18 @@ function desenharSessoes() {
     <button class="card ${s.estado === "perguntando" ? "ask" : ""}" data-pc="${esc(s.pc)}" data-id="${esc(s.id)}">
       <div class="row"><div class="title">${esc(s.titulo)}</div><span class="chip ${esc(s.estado)}">${ESTADO[s.estado] || esc(s.estado)}</span></div>
       <div class="meta">${esc(s.pasta)}${varios ? " · " + esc(s.pc) : ""} · ${ha(s.desde * 1000)}</div>
-      ${s.estado === "perguntando" && s.detalhe ? `<div class="q">${esc(s.detalhe)}</div>` : ""}
+      ${s.estado === "perguntando" && (s.enquete || s.detalhe) ? `<div class="q">${s.enquete ? "📊 " : ""}${esc(s.enquete ? s.enquete.perguntas[0].pergunta : s.detalhe)}</div>`
+        : previa(s) ? `<div class="prev">${esc(previa(s))}</div>` : ""}
     </button>`).join("");
+}
+
+// A última mensagem da conversa, numa linha (como a lista de conversas do WhatsApp).
+function previa(s) {
+  const c = Chat.conversaDe(s).filter(m => ["eu", "claude", "sessao"].includes(m.de));
+  const m = c[c.length - 1];
+  if (!m) return "";
+  const texto = m.texto || (m.enquete ? "📊 Enquete" : m.n_imagens ? "📷 Imagem" : "");
+  return (m.de === "eu" ? "Você: " : m.de === "sessao" ? `↪ ${m.nome || "outra sessão"}: ` : "") + texto.replace(/\s+/g, " ").slice(0, 160);
 }
 
 function desenharFeed() {
@@ -678,92 +779,330 @@ async function transcrever(blob, alvo) {
   } catch (e) { erroMic(alvo, "Não deu: " + (e.message || e)); }
 }
 
-// ---- Detalhe da sessão ---------------------------------------------------------------------------
+// ---- Chat de uma sessão (agente 0.8: a conversa, a enquete e a imagem) -------------------------------
+// A lógica (juntar a conversa com os pedidos, os sinais) está em chat.js; aqui, o desenho e os toques.
+const AGENTE_CHAT = "0.8.0";        // o agente que responde enquete e recebe imagem
+const CLIPE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5l-8.6 8.6a5.5 5.5 0 0 1-7.8-7.8l9.2-9.2a3.7 3.7 0 0 1 5.2 5.2l-9.2 9.2a1.8 1.8 0 0 1-2.6-2.6l8.5-8.5"/></svg>';
+const SETA = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M3.4 20.4l17.5-7.5a1 1 0 0 0 0-1.8L3.4 3.6a.9.9 0 0 0-1.3 1L4 11l9 1-9 1-1.9 6.4a.9.9 0 0 0 1.3 1z"/></svg>';
+const NOME_SINAL = {mandando: "mandando", enviado: "enviado", entregue: "entregue", lido: "a sessão respondeu", erro: "não foi"};
+let locais = [];                    // balões que ainda não chegaram ao banco (🕓) ou não conseguiram (⚠)
+let nLocal = 0;
+const escolhas = {};                // id da enquete -> [{opcoes, outraMarcada, outra}]: o que está marcado na tela
+const abertos = new Set();          // balões longos abertos ("Ler mais")
+const vistas = {};                  // id da sessão -> a última sessão vista (o chat continua depois que ela fecha)
+let anexo = null;                   // {b64, mime, mini}: a imagem que vai no próximo envio
+let assinaturaChat = "", ultimaMsg = "", novas = 0;
+const miniaturas = (() => { try { return JSON.parse(store.get("seaninho.miniaturas") || "{}"); } catch { return {}; } })();
+
+function guardarMiniatura(id, url) {   // as imagens mandadas daqui aparecem no balão (as 20 mais novas)
+  miniaturas[id] = url;
+  const ids = Object.keys(miniaturas);
+  for (const k of ids.slice(0, Math.max(0, ids.length - 20))) delete miniaturas[k];
+  store.set("seaninho.miniaturas", JSON.stringify(miniaturas));
+}
+
+const agenteNovo = pc => !!(pcs[pc] && Chat.versaoMin(pcs[pc].versao, AGENTE_CHAT));
+const dentro = el => !!(document.activeElement && el.contains(document.activeElement) && document.activeElement !== el);
+const escrevendoEm = el => dentro(el) && /^(INPUT|TEXTAREA)$/.test(document.activeElement.tagName);
+const horaDe = t => t ? new Date(t * 1000).toLocaleTimeString("pt-BR", {hour: "2-digit", minute: "2-digit"}) : "";
+
+function sessaoAberta() {
+  if (!aberta) return null;
+  const s = todasSessoes().find(x => x.id === aberta.id && x.pc === aberta.pc);
+  if (s) vistas[s.id] = s;
+  return s || null;
+}
+
 function abrir(pc, id) {
   aberta = {pc, id};
+  locais = []; assinaturaChat = ""; ultimaMsg = ""; novas = 0;
+  tirarAnexo();
   $("texto").value = store.get("seaninho.rascunho." + id);
   $("detalhe").classList.remove("hidden");
   document.body.style.overflow = "hidden";
-  desenharDetalhe();
+  ajustarAltura();
+  desenharDetalhe(true);
+  ajustarCaixa();
 }
 function fechar() {
   if (gravando && gravando.alvo === "texto") gravando.rec.stop();
-  aberta = null;
+  aberta = null; locais = [];
   $("detalhe").classList.add("hidden");
   document.body.style.overflow = "";
   if (location.hash) history.replaceState(null, "", location.pathname);
 }
 
-function desenharDetalhe() {
-  if (!aberta) return;
-  const s = todasSessoes().find(x => x.id === aberta.id && x.pc === aberta.pc);
-  const ped = pedidos.filter(p => (p.tipo || "claude") === "claude" && p.sessao === aberta.id && p.estado !== "cancelado");
-  if (!s) {
-    $("dTitulo").textContent = (ped[0] && ped[0].titulo) || "Sessão";
-    $("dChip").textContent = "Fechada"; $("dChip").className = "chip";
-    $("dMeta").textContent = "A sessão não está mais aberta no PC.";
-    ["dPergunta", "dPedidoLabel", "dPedido", "dCompor"].forEach(i => $(i).classList.add("hidden"));
-    $("dResposta").textContent = "";
-  } else {
-    $("dTitulo").textContent = s.titulo;
-    $("dChip").textContent = ESTADO[s.estado] || s.estado; $("dChip").className = "chip " + s.estado;
-    $("dMeta").textContent = `${s.pasta} · ${s.onde} · ${s.pc} · ${ha(s.desde * 1000)}`;
-    $("dPergunta").textContent = s.detalhe || "";
-    $("dPergunta").classList.toggle("hidden", !(s.estado === "perguntando" && s.detalhe));
-    $("dResposta").textContent = s.resposta || "(nada ainda)";
-    $("dPedido").textContent = s.pedido || "";
-    $("dPedidoLabel").classList.toggle("hidden", !s.pedido); $("dPedido").classList.toggle("hidden", !s.pedido);
-    const online_ = pcs[s.pc] && online(pcs[s.pc]);
-    const motivo = !online_ ? "O PC parece desligado (sem sinal há mais de 2 minutos)."
-      : !s.entregavel ? (s.onde !== "VS Code" ? `Por enquanto só entrego em sessões do VS Code (esta está no ${s.onde}).`
-                         : "A sessão está esperando uma permissão ou uma escolha de opções: isso ainda só se responde no PC.") : "";
-    const ocupado = ped.some(p => ["novo", "escrevendo", "pronto", "enviar", "enviando"].includes(p.estado));
-    $("dCompor").classList.toggle("hidden", !!motivo || ocupado);
-    const sug = Array.isArray(s.sugestoes) ? s.sugestoes : [];
-    if (sug.join("\u0001") !== sugestoesAtuais.join("\u0001")) {
-      sugestoesAtuais = sug;
-      $("dSugestoes").innerHTML = sug.map((t, i) => `<button class="sug" data-sug="${i}">${esc(t)}</button>`).join("");
-    }
-    $("dSugestoes").classList.toggle("hidden", !sug.length);
-    $("dBloqueio").textContent = motivo; $("dBloqueio").className = "status" + (motivo ? "" : " hidden");
-  }
-  $("dPedidos").innerHTML = ped.slice(0, 3).map(desenharPedido).join("");
-  $("melhorar").classList.toggle("on", melhorar);
-  $("mandar").textContent = melhorar ? "Preparar" : "Enviar ao Claude";
+// O celular no iPhone: com o teclado aberto, a tela visível encolhe; o chat acompanha (a caixa fica em cima dele).
+function ajustarAltura() {
+  const vv = window.visualViewport, el = $("detalhe");
+  el.style.setProperty("--altura", Math.round(vv ? vv.height : innerHeight) + "px");
+  el.style.top = (vv ? Math.max(0, vv.offsetTop) : 0) + "px";
 }
 
-function desenharPedido(p) {
-  const quando = hora(p.atualizado_em);
-  if (p.estado === "novo" || p.estado === "escrevendo")
-    return `<div class="status"><span class="spin"></span>O Seaninho está escrevendo o prompt…</div>`;
-  if (p.estado === "pronto")
-    return `<div class="label">Vai para o Claude assim (pode editar)</div>
-      ${p.erro ? `<p class="note">${esc(p.erro)}</p>` : ""}
-      <textarea id="prompt-${esc(p.id)}" data-id="${esc(p.id)}">${esc(edicoes[p.id] ?? p.prompt)}</textarea>
-      <button class="btn" data-acao="confirmar" data-id="${esc(p.id)}">Enviar ao Claude</button>
-      <button class="btn sec" data-acao="cancelar" data-id="${esc(p.id)}">Cancelar</button>`;
-  if (p.estado === "enviar" || p.estado === "enviando")
-    return `<div class="status"><span class="spin"></span>Entregando no PC…</div>`;
-  if (p.estado === "entregue")
-    return `<div class="status ok">✓ Entregue às ${quando}: “${esc(p.prompt.slice(0, 140))}${p.prompt.length > 140 ? "…" : ""}”</div>`;
-  if (p.estado === "erro")
-    return `<div class="status err">Não foi às ${quando}: ${esc(p.erro)}</div>`;
-  return "";
+function desenharDetalhe(paraOFim = false) {
+  if (!aberta) return;
+  const s = sessaoAberta();
+  const ped = Chat.pedidosDaSessao(pedidos, aberta.id);
+  locais = locais.filter(l => !(l.pedidoId && pedidos.some(p => p.id === l.pedidoId)));   // já veio do banco
+  const base = s || vistas[aberta.id] || {id: aberta.id, pc: aberta.pc, conversa: []};
+  $("dTitulo").textContent = base.titulo || (ped.find(p => p.titulo) || {}).titulo || "Sessão";
+  const varios = Object.keys(pcs).length > 1;
+  if (!s) {
+    $("dChip").textContent = "Fechada"; $("dChip").className = "chip";
+    $("dSub").textContent = "A sessão não está mais aberta no PC"; $("dSub").className = "sub";
+  } else {
+    $("dChip").textContent = ESTADO[s.estado] || s.estado; $("dChip").className = "chip " + s.estado;
+    $("dSub").textContent = s.estado === "trabalhando" ? "trabalhando…" : `${s.pasta} · ${s.onde}${varios ? " · " + s.pc : ""}`;
+    $("dSub").className = "sub" + (s.estado === "trabalhando" ? " ativo" : "");
+  }
+  const ligado = s && pcs[s.pc] && online(pcs[s.pc]);
+  const enquete = s && s.enquete && s.enquete.aberta !== false && s.respondivel && agenteNovo(s.pc) ? s.enquete : null;
+  let motivo = "";
+  if (!s) motivo = "A sessão não está mais aberta no PC.";
+  else if (!ligado) motivo = "O PC parece desligado (sem sinal há mais de 2 minutos).";
+  else if (enquete) motivo = "";
+  else if (!s.entregavel) motivo = s.onde !== "VS Code" ? `Por enquanto só entrego em sessões do VS Code (esta está no ${s.onde}).`
+    : s.enquete ? "A pergunta com opções desta sessão ainda só se responde no PC."
+    : "A sessão está esperando uma permissão: isso ainda só se responde no PC.";
+  const rascunho = ped.find(p => p.estado === "pronto" && (p.tipo || "claude") === "claude");
+  if (!escrevendoEm($("dRascunho"))) $("dRascunho").innerHTML = rascunho ? desenharRascunho(rascunho) : "";
+  $("dCompor").classList.toggle("hidden", !!motivo || !!rascunho || !!enquete);
+  const info = enquete ? "Responda a enquete acima. Se nenhuma opção servir, use “Outra resposta”." : motivo;
+  $("dBloqueio").textContent = info;
+  $("dBloqueio").className = "status" + (info ? "" : " hidden");
+  desenharSugestoes(s);
+  $("dClipe").classList.toggle("hidden", !(s && agenteNovo(s.pc)));
+  desenharMensagens(base, paraOFim);
+}
+
+function desenharSugestoes(s) {
+  const sug = s && Array.isArray(s.sugestoes) ? s.sugestoes : [];
+  if (sug.join("\u0001") !== sugestoesAtuais.join("\u0001") || !$("melhorar")) {
+    sugestoesAtuais = sug;
+    $("dSugestoes").innerHTML = `<button class="sug liga" id="melhorar" aria-label="O Seaninho melhora o texto antes de mandar">✨ Melhorar</button>`
+      + sug.map((t, i) => `<button class="sug" data-sug="${i}">${esc(t)}</button>`).join("");
+  }
+  $("melhorar").classList.toggle("on", melhorar);
+  $("melhorar").title = melhorar ? "O Seaninho melhora o texto e mostra antes de mandar" : "Vai exatamente como você escreveu";
+}
+
+function desenharRascunho(p) {
+  return `<div class="rascunho"><div class="label">✨ O Seaninho escreveu assim (pode editar)</div>
+    ${p.erro ? `<p class="note">${esc(p.erro)}</p>` : ""}
+    <textarea id="prompt-${esc(p.id)}" data-id="${esc(p.id)}">${esc(edicoes[p.id] ?? p.prompt)}</textarea>
+    ${String(p.mime || "").startsWith("image/") ? `<span class="chip-foto">📷 A imagem vai junto</span>` : ""}
+    <div class="dupla"><button class="btn" data-acao="confirmar" data-id="${esc(p.id)}">Enviar ao Claude</button>
+    <button class="btn sec" data-acao="cancelar" data-id="${esc(p.id)}">Cancelar</button></div></div>`;
+}
+
+// ---- As mensagens: refaz só quando muda, e a leitura fica onde estava ---------------------------------------
+const pertoDoFim = el => el.scrollHeight - el.scrollTop - el.clientHeight < 90;
+
+function desenharMensagens(s, paraOFim = false, forcar = false) {
+  const caixa = $("dMsgs");
+  if (escrevendoEm(caixa) && !forcar) return;   // escrevendo a "Outra resposta" da enquete: não refaz por baixo
+  const meus = locais.filter(l => l.sessao === s.id);
+  const linhas = Chat.montar(s, pedidos, meus, Date.now());
+  const html = linhas.map((l, i) => desenharLinha(l, linhas[i - 1], s)).join("")
+    || `<div class="empty">Nada na conversa ainda.</div>`;
+  if (html === assinaturaChat && !paraOFim) return;
+  const fim = paraOFim || !assinaturaChat || pertoDoFim(caixa);
+  let ancora = null;
+  if (!fim) {   // a primeira mensagem visível e onde ela estava
+    const el = [...caixa.querySelectorAll("[data-id]")].find(x => x.offsetTop + x.offsetHeight > caixa.scrollTop);
+    if (el) ancora = {id: el.dataset.id, d: el.offsetTop - caixa.scrollTop};
+  }
+  caixa.innerHTML = html;
+  assinaturaChat = html;
+  const msgs = linhas.filter(l => l.tipo === "msg");
+  const ultima = msgs.length ? msgs[msgs.length - 1].id : "";
+  if (fim) { caixa.scrollTop = caixa.scrollHeight; novas = 0; }
+  else {
+    const el = ancora && [...caixa.querySelectorAll("[data-id]")].find(x => x.dataset.id === ancora.id);
+    if (el) caixa.scrollTop = el.offsetTop - ancora.d;
+    if (ultima !== ultimaMsg) { const i = msgs.findIndex(l => l.id === ultimaMsg); novas += i < 0 ? 1 : msgs.length - 1 - i; }
+  }
+  ultimaMsg = ultima;
+  mostrarDescer();
+}
+
+function mostrarDescer() {
+  const longe = !pertoDoFim($("dMsgs"));
+  if (!longe) novas = 0;
+  $("dDescer").classList.toggle("hidden", !longe);
+  $("dNovas").textContent = novas; $("dNovas").classList.toggle("hidden", !novas);
+}
+
+function desenharLinha(l, ant, s) {
+  if (l.tipo === "dia") return `<div class="dia"><span>${esc(l.rotulo)}</span></div>`;
+  if (l.de === "aviso") {
+    const t = l.ferramentas ? `🔧 ${l.ferramentas.map(esc).join(" · ")}${l.n > 1 ? ` <b>${l.n}</b>` : ""}` : esc(l.texto);
+    return `<div class="aviso" data-id="${esc(l.id)}"><span>${t}</span></div>`;
+  }
+  if (l.de === "sessao")
+    return `<div class="aviso sessao" data-id="${esc(l.id)}"><span>↪ ${esc(l.nome || "outra sessão")}: ${esc(l.texto)}</span></div>`;
+  const eu = l.de === "eu";
+  const seguida = ant && ant.tipo === "msg" && ant.de === l.de && !(ant.enquete || l.enquete);
+  let corpo = l.enquete ? desenharEnquete(l.enquete, s) : "";
+  if (eu) {
+    const mini = l.mini || (l.pedido && miniaturas[l.pedido]);
+    if (mini) corpo += `<div class="fotos"><img src="${esc(mini)}" alt="Imagem mandada daqui"></div>`;
+    else if (l.n_imagens || String(l.mime || "").startsWith("image/")) corpo += `<span class="chip-foto">📷 Imagem</span>`;
+  }
+  if (l.texto) {
+    const longo = l.texto.length > 700 || l.texto.split("\n").length > 14;
+    const aberto = abertos.has(l.id);
+    corpo += `<div class="txt${longo && !aberto ? " longo" : ""}">${eu ? esc(l.texto) : Chat.marcacao(l.texto)}</div>`
+      + (longo ? `<button class="mais" data-mais="${esc(l.id)}">${aberto ? "Mostrar menos" : "Ler mais"}</button>` : "");
+  }
+  if (l.nota) corpo += `<div class="nota"><span class="spin"></span>${esc(l.nota)}</div>`;
+  const sinal = eu && l.sinal ? `<i class="sinal ${l.sinal}" title="${NOME_SINAL[l.sinal]}" aria-label="${NOME_SINAL[l.sinal]}">${Chat.SINAL[l.sinal]}</i>` : "";
+  const erro = eu && l.sinal === "erro"
+    ? `<div class="erro-linha" data-erro="${esc(l.id)}">⚠ ${esc(l.erro)}${l.reenviar ? " · toque para tentar de novo" : ""}</div>` : "";
+  return `<div class="linha-msg ${eu ? "eu" : "ele"}${seguida ? " seguida" : ""}" data-id="${esc(l.id)}">`
+    + `<div class="bolha${l.enquete ? " enq" : ""}">${corpo}<span class="hora">${horaDe(l.t)}${sinal}</span></div>${erro}</div>`;
+}
+
+// ---- Enquete (a pergunta com opções do Claude) ------------------------------------------------------------
+function respostaEmAndamento(s, id) {
+  if (locais.some(l => l.resposta_a === id && l.sinal === "mandando")) return true;
+  return pedidos.some(p => { const a = Chat.respostaDeEnquete(p, s.id); return a && a.id === id && ["novo", "escrevendo"].includes(p.estado); });
+}
+
+function desenharEnquete(enq, s) {
+  const pendente = enq.aberta !== false && !!s.enquete && s.enquete.id === enq.id && !!pcs[s.pc];
+  const enviando = pendente && respostaEmAndamento(s, enq.id);
+  const pode = pendente && s.respondivel && agenteNovo(s.pc) && online(pcs[s.pc]) && !enviando;
+  const marcadas = escolhas[enq.id] || (escolhas[enq.id] = enq.perguntas.map(() => ({opcoes: [], outraMarcada: false, outra: ""})));
+  const titulos = enq.perguntas.map(q => q.titulo).filter(Boolean).join(" · ");
+  let h = `<div class="enq-topo">📊 Enquete${titulos ? " · " + esc(titulos) : ""}</div>`;
+  enq.perguntas.forEach((q, i) => {
+    const resp = !pendente && enq.respostas && q.pergunta in enq.respostas ? Chat.escolhidas(q, enq.respostas[q.pergunta]) : null;
+    const e = marcadas[i];
+    const botao = (j, rotulo, desc, marcada) => `<button class="opc${q.multipla ? " multi" : ""}${marcada ? " marcada" : ""}${resp && !marcada ? " apagada" : ""}"
+      data-enq="${esc(enq.id)}" data-q="${i}" data-o="${j}"${pode ? "" : " disabled"}><span class="bol">${marcada ? "✓" : ""}</span>
+      <span class="rot">${esc(rotulo)}${desc ? `<small>${esc(desc)}</small>` : ""}</span></button>`;
+    h += `<div class="enq-q">${esc(q.pergunta)}</div><div class="enq-dica">${q.multipla ? "Escolha uma ou mais" : "Escolha uma"}</div>`;
+    q.opcoes.forEach((o, j) => { h += botao(j, o.rotulo, o.descricao, resp ? resp.marcadas.includes(o.rotulo) : e.opcoes.includes(o.rotulo)); });
+    if (pode || (resp && resp.outra)) h += botao("outra", "Outra resposta", resp ? resp.outra : "", resp ? !!resp.outra : e.outraMarcada);
+    if (pode && e.outraMarcada)
+      h += `<input class="enq-outra" data-enq="${esc(enq.id)}" data-q="${i}" value="${esc(e.outra)}" placeholder="Escreva a sua resposta" enterkeyhint="done">`;
+  });
+  const erro = pedidos.find(p => { const a = Chat.respostaDeEnquete(p, s.id); return a && a.id === enq.id; });   // o mais novo (o banco manda do mais novo para o mais velho)
+  if (pendente) {
+    if (pode) h += `<button class="btn" data-responder="${esc(enq.id)}"${Chat.completas(enq, marcadas) ? "" : " disabled"}>Responder</button>`;
+    else if (enviando) h += `<div class="enq-status"><span class="spin"></span>Respondendo na aba do PC…</div>`;
+    else if (!s.respondivel) h += `<div class="enq-status">Esta só se responde no PC (a sessão não está no VS Code).</div>`;
+    else if (!agenteNovo(s.pc)) h += `<div class="enq-status">Para responder daqui, o ${esc(s.pc)} precisa do Seaninho no celular ${AGENTE_CHAT}.</div>`;
+    else h += `<div class="enq-status">O PC parece desligado.</div>`;
+    if (!enviando && erro && erro.estado === "erro") h += `<div class="enq-status err">⚠ ${esc(erro.erro)}</div>`;
+  } else h += `<div class="enq-status">${enq.respostas ? "Respondida" : "Encerrada"}</div>`;
+  return h;
+}
+
+function tocarOpcao(b) {
+  const id = b.dataset.enq, i = Number(b.dataset.q), o = b.dataset.o;
+  const s = sessaoAberta();
+  if (!s || !s.enquete || s.enquete.id !== id) return;
+  const q = s.enquete.perguntas[i], e = escolhas[id][i];
+  if (o === "outra") {
+    if (q.multipla) e.outraMarcada = !e.outraMarcada;
+    else { e.opcoes = []; e.outraMarcada = true; }
+  } else {
+    const rotulo = q.opcoes[Number(o)].rotulo;
+    if (q.multipla) e.opcoes = e.opcoes.includes(rotulo) ? e.opcoes.filter(x => x !== rotulo) : [...e.opcoes, rotulo];
+    else { e.opcoes = [rotulo]; e.outraMarcada = false; }
+  }
+  desenharMensagens(s, false, true);
+  if (o === "outra" && e.outraMarcada) {
+    const campo = $("dMsgs").querySelector(`.enq-outra[data-enq="${CSS.escape(id)}"][data-q="${i}"]`);
+    if (campo) campo.focus();
+  }
+}
+
+async function responderEnquete(id) {
+  const s = sessaoAberta();
+  if (!s || !s.enquete || s.enquete.id !== id || respostaEmAndamento(s, id)) return;
+  const acao = Chat.acaoResponder(s, s.enquete, escolhas[id]);
+  const local = {id: "local" + (++nLocal), sessao: s.id, de: "eu", texto: Chat.textoResposta(acao, s.enquete),
+                 t: Math.floor(Date.now() / 1000), resposta_a: id};
+  await enviarLocal(local, {pc: s.pc, tipo: "acao", texto: JSON.stringify(acao)});
+}
+
+// ---- Mandar (com imagem, se tiver) --------------------------------------------------------------------
+async function mandar() {
+  const texto = $("texto").value.trim();
+  if ((!texto && !anexo) || !aberta) return;
+  const s = sessaoAberta();
+  const im = anexo, corpo = texto || "Segue a imagem.";
+  const local = {id: "local" + (++nLocal), sessao: aberta.id, de: "eu", texto: corpo, t: Math.floor(Date.now() / 1000),
+                 mini: im ? im.mini : "", mime: im ? im.mime : ""};
+  $("texto").value = ""; store.set("seaninho.rascunho." + aberta.id, "");
+  tirarAnexo(); ajustarCaixa();
+  await enviarLocal(local, {pc: aberta.pc, sessao: aberta.id, titulo: s ? s.titulo : "", texto: corpo, direto: !melhorar,
+                            ...(im ? {audio: im.b64, mime: im.mime} : {})});
+}
+
+// O balão aparece na hora com 🕓; quando o banco aceita, vira o pedido (✓); se não aceitar, ⚠ e tocar tenta de novo.
+async function enviarLocal(local, args) {
+  Object.assign(local, {sinal: "mandando", erro: "", reenviar: null});
+  if (!locais.includes(local)) locais.push(local);
+  desenharDetalhe(true);
+  try {
+    local.pedidoId = await rpc("cel_pedir", args);
+    if (local.mini && local.pedidoId) guardarMiniatura(local.pedidoId, local.mini);
+    await atualizar();
+  } catch (e) {
+    Object.assign(local, {sinal: "erro", erro: "Não saiu do celular: " + (e.message || e), reenviar: () => enviarLocal(local, args)});
+    desenharDetalhe();
+  }
+}
+
+// ---- Imagem: foto ou print, reduzida aqui (até ~1 MB) ------------------------------------------------------
+function carregarImagem(arquivo) {
+  return new Promise((ok, falha) => {
+    const url = URL.createObjectURL(arquivo), img = new Image();
+    img.onload = () => { URL.revokeObjectURL(url); ok(img); };
+    img.onerror = () => { URL.revokeObjectURL(url); falha(new Error("imagem")); };
+    img.src = url;
+  });
+}
+function reduzir(img, lado, qualidade) {
+  const k = Math.min(1, lado / Math.max(img.naturalWidth, img.naturalHeight));
+  const c = document.createElement("canvas");
+  c.width = Math.max(1, Math.round(img.naturalWidth * k)); c.height = Math.max(1, Math.round(img.naturalHeight * k));
+  c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
+  return c.toDataURL("image/jpeg", qualidade).split(",")[1] || "";
+}
+async function prepararImagem(arquivo) {
+  try {
+    const img = await carregarImagem(arquivo);
+    let b64 = "", lado = 1600, q = 0.82;
+    for (let i = 0; i < 4; i++) { b64 = reduzir(img, lado, q); if (b64.length < 1400000) break; lado = Math.round(lado * 0.8); q -= 0.1; }
+    if (!b64 || b64.length >= 1900000) throw new Error("grande");
+    anexo = {b64, mime: "image/jpeg", mini: "data:image/jpeg;base64," + reduzir(img, 480, 0.7)};
+    $("dAnexoImg").src = anexo.mini;
+    $("dAnexo").classList.remove("hidden");
+    infoMic("texto", "");
+    ajustarCaixa();
+  } catch { erroMic("texto", "Não consegui abrir essa imagem."); }
+}
+function tirarAnexo() {
+  anexo = null;
+  $("dAnexo").classList.add("hidden"); $("dAnexoImg").removeAttribute("src");
+}
+
+// A caixa cresce com o texto (até ~5 linhas); vazia mostra o microfone, com texto ou imagem, o enviar.
+function ajustarCaixa() {
+  const t = $("texto");
+  t.style.height = "auto";
+  t.style.height = Math.min(140, t.scrollHeight) + "px";
+  const tem = !!(t.value.trim() || anexo);
+  $("mandar").classList.toggle("hidden", !tem);
+  document.querySelector('#dCompor .mic').classList.toggle("hidden", tem && !gravando);
 }
 
 // ---- Ações ---------------------------------------------------------------------------------------
-async function mandar() {
-  const texto = $("texto").value.trim();
-  if (!texto || !aberta) return;
-  const s = todasSessoes().find(x => x.id === aberta.id && x.pc === aberta.pc);
-  $("mandar").disabled = true;
-  try {
-    await rpc("cel_pedir", {pc: aberta.pc, sessao: aberta.id, titulo: s ? s.titulo : "", texto, direto: !melhorar});
-    $("texto").value = ""; store.set("seaninho.rascunho." + aberta.id, "");
-    await atualizar();
-  } catch (e) { alerta(e); } finally { $("mandar").disabled = false; }
-}
-
 async function acaoPedido(acao, id) {
   try {
     if (acao === "confirmar") {
@@ -775,6 +1114,7 @@ async function acaoPedido(acao, id) {
     } else {
       await rpc("cel_cancelar", {id});
     }
+    $("dRascunho").innerHTML = "";
     await atualizar();
   } catch (e) { alerta(e); }
 }
@@ -803,11 +1143,10 @@ async function atualizar() {
   pcs = novos;
   pedidos = r.pedidos || [];
   const ativo = document.activeElement;
-  const editando = ativo && ativo.id && ativo.id.startsWith("prompt-");
   const digitando = ativo && ["tarefaTexto", "tarefaData", "tarefaHora"].includes(ativo.id);
   desenharPcs(); desenharSessoes(); desenharFeed(); desenharComandos();
   if (!digitando) desenharHoje(); else desenharMsgHoje();
-  if (!editando) desenharDetalhe();
+  desenharDetalhe();   // o chat cuida do que está sendo editado (a prévia e a "Outra resposta" não se refazem por baixo)
   if (aba === "Copias") await carregarCopias();
 }
 
@@ -921,21 +1260,62 @@ $("tabClaude").addEventListener("click", e => {
   const c = e.target.closest(".card"); if (c) abrir(c.dataset.pc, c.dataset.id);
 });
 $("dSugestoes").addEventListener("click", e => {
+  if (e.target.closest("#melhorar")) {
+    melhorar = !melhorar; store.set("seaninho.melhorar", melhorar ? "" : "nao");
+    return desenharSugestoes(sessaoAberta());
+  }
   const b = e.target.closest("[data-sug]");
   if (!b || !aberta) return;
   $("texto").value = sugestoesAtuais[Number(b.dataset.sug)] || "";
   $("texto").dispatchEvent(new Event("input"));
   $("texto").focus();
 });
-for (const lugar of ["dPedidos", "cmdLista"]) {
+for (const lugar of ["dRascunho", "cmdLista"]) {
   $(lugar).addEventListener("click", e => { const b = e.target.closest("[data-acao]"); if (b) acaoPedido(b.dataset.acao, b.dataset.id); });
 }
-$("dPedidos").addEventListener("input", e => { if (e.target.dataset.id) edicoes[e.target.dataset.id] = e.target.value; });
+$("dRascunho").addEventListener("input", e => { if (e.target.dataset.id) edicoes[e.target.dataset.id] = e.target.value; });
+$("dMsgs").addEventListener("click", e => {
+  const o = e.target.closest(".opc[data-enq]");
+  if (o && !o.disabled) return tocarOpcao(o);
+  const r = e.target.closest("[data-responder]");
+  if (r && !r.disabled) return responderEnquete(r.dataset.responder);
+  const m = e.target.closest("[data-mais]");
+  if (m) {
+    if (abertos.has(m.dataset.mais)) abertos.delete(m.dataset.mais); else abertos.add(m.dataset.mais);
+    return desenharMensagens(vistas[aberta.id] || {id: aberta.id, conversa: []}, false, true);
+  }
+  const er = e.target.closest("[data-erro]");
+  if (er) {
+    const l = locais.find(x => x.id === er.dataset.erro);
+    if (l && l.reenviar) return l.reenviar();
+    er.classList.toggle("aberta");   // o motivo inteiro
+  }
+});
+$("dMsgs").addEventListener("input", e => {
+  const c = e.target.closest(".enq-outra");
+  if (!c) return;
+  const marcadas = escolhas[c.dataset.enq];
+  marcadas[Number(c.dataset.q)].outra = c.value;
+  const s = sessaoAberta(), botao = $("dMsgs").querySelector(`[data-responder="${CSS.escape(c.dataset.enq)}"]`);
+  if (s && s.enquete && botao) botao.disabled = !Chat.completas(s.enquete, marcadas);
+});
+$("dMsgs").addEventListener("focusout", () => setTimeout(() => { if (aberta && !escrevendoEm($("dMsgs"))) desenharDetalhe(); }, 50));
+$("dMsgs").addEventListener("scroll", mostrarDescer, {passive: true});
+$("dDescer").addEventListener("click", () => { const c = $("dMsgs"); c.scrollTo({top: c.scrollHeight, behavior: "smooth"}); });
 $("voltar").addEventListener("click", fechar);
+$("mandar").innerHTML = SETA;
+$("dClipe").innerHTML = CLIPE;
 $("mandar").addEventListener("click", mandar);
+$("dClipe").addEventListener("click", () => $("dArquivo").click());
+$("dArquivo").addEventListener("change", e => { const f = e.target.files && e.target.files[0]; e.target.value = ""; if (f) prepararImagem(f); });
+$("dAnexoTirar").addEventListener("click", () => { tirarAnexo(); ajustarCaixa(); });
 $("cmdEnviar").addEventListener("click", enviarComando);
-$("melhorar").addEventListener("click", () => { melhorar = !melhorar; store.set("seaninho.melhorar", melhorar ? "" : "nao"); desenharDetalhe(); });
-$("texto").addEventListener("input", () => aberta && store.set("seaninho.rascunho." + aberta.id, $("texto").value));
+$("texto").addEventListener("input", () => { ajustarCaixa(); if (aberta) store.set("seaninho.rascunho." + aberta.id, $("texto").value); });
+if (window.visualViewport) {
+  const seguir = () => { const c = $("dMsgs"), fim = pertoDoFim(c); ajustarAltura(); if (fim) c.scrollTop = c.scrollHeight; };
+  visualViewport.addEventListener("resize", seguir);
+  visualViewport.addEventListener("scroll", ajustarAltura);
+}
 $("cmd").value = store.get("seaninho.rascunho.cmd");
 $("cmd").addEventListener("input", () => store.set("seaninho.rascunho.cmd", $("cmd").value));
 $("parearBtn").addEventListener("click", parear);

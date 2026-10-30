@@ -1,6 +1,6 @@
 // Seaninho no celular: guarda a casca da página (abre sem rede) e mostra as notificações.
-const CACHE = "seaninho-v5";
-const CASCA = ["./", "./index.html", "./config.js", "./manifest.webmanifest", "./icone-180.png", "./icone-192.png"];
+const CACHE = "seaninho-v6";
+const CASCA = ["./", "./index.html", "./config.js", "./chat.js", "./manifest.webmanifest", "./icone-180.png", "./icone-192.png"];
 
 self.addEventListener("install", e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(CASCA)));
