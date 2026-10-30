@@ -54,11 +54,14 @@ button.card:active{background:var(--glass-2)}
 .feed .s{font-size:14px;color:var(--muted)}
 .feed .w{font-size:12px;color:var(--faint);margin-top:2px}
 .feed .item.new .t::before{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--gold);margin-right:7px;vertical-align:2px}
-nav{position:fixed;left:0;right:0;bottom:0;display:flex;gap:4px;padding:8px 8px calc(var(--bottom) + 8px);
+nav{position:fixed;z-index:4;left:0;right:0;bottom:0;display:flex;gap:4px;padding:8px 8px calc(var(--bottom) + 8px);
     background:rgba(8,20,46,.92);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-top:1px solid var(--stroke)}
-nav button{flex:1;padding:8px 0;border-radius:12px;color:var(--muted);font-size:13px;font-weight:600}
-nav button.on{color:var(--navy);background:var(--gold)}
-nav .n{display:inline-block;min-width:18px;margin-left:4px;padding:0 5px;border-radius:999px;background:var(--coral);color:#fff;font-size:11px}
+nav button{flex:1;position:relative;display:flex;flex-direction:column;align-items:center;gap:2px;padding:3px 0 1px;
+  border-radius:10px;color:var(--faint);font-size:10.5px;font-weight:600;letter-spacing:.1px;min-width:0}
+nav button svg{width:25px;height:25px;flex:none}
+nav button.on{color:var(--gold)}
+nav .n{position:absolute;top:-1px;left:calc(50% + 7px);min-width:18px;padding:0 5px;border-radius:999px;background:var(--coral);
+  color:#fff;font-size:11px;line-height:18px;text-align:center}
 .back{display:flex;align-items:center;gap:6px;color:var(--gold);font-weight:600;padding:6px 0 12px}
 /* ---- Chat de uma sessão (0.8): balões, sinais (🕓 ✓ ✓✓ ✓✓ azul ⚠), enquete e a caixa embaixo ---- */
 #detalhe{position:fixed;left:0;right:0;top:0;z-index:5;height:var(--altura,100dvh);display:flex;flex-direction:column;
@@ -351,6 +354,198 @@ textarea:focus{outline:2px solid rgba(226,184,74,.6);border-color:transparent}
 details.card summary{cursor:pointer;font-weight:600;color:var(--muted)}
 .linha{display:flex;gap:10px;padding:7px 0;font-size:14px;border-bottom:1px solid var(--stroke)}
 .linha .h{flex:none;width:44px;color:var(--faint)}
+/* ---- 0.8.4: o painel (Início), a lista de sessões (busca, filtros, fixadas) e as contas compactas ---- */
+.painel-topo{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--faint);margin:-6px 2px 10px;min-height:28px}
+.painel-topo .err{color:#ffb3ad}
+.painel-topo button{margin-left:auto;width:32px;height:32px;border-radius:50%;background:var(--glass);color:var(--muted);font-size:17px}
+.bloco{display:block;width:100%;text-align:left;padding:14px;margin:0 0 12px;border-radius:18px;background:var(--glass);border:1px solid var(--stroke)}
+.bloco.destaque{border-color:rgba(226,184,74,.5);background:rgba(226,184,74,.08)}
+.bloco h3{display:flex;align-items:center;gap:6px;margin:0 0 10px;font-size:13px;font-weight:650;color:var(--muted);
+  text-transform:uppercase;letter-spacing:.5px}
+.bloco h3 .ir,.bloco h3 .n3{margin-left:auto;font-size:13.5px;text-transform:none;letter-spacing:0;color:var(--gold-2);font-weight:600}
+.bloco h3 .n3{color:var(--faint)}
+button.bloco-cab{display:block;width:100%;text-align:left}
+.ses-topo{display:flex;align-items:baseline;gap:8px;margin:-2px 0 10px}
+.grande{font-size:34px;font-weight:700;line-height:1}
+.contadores{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.contador{display:flex;flex-direction:column;align-items:flex-start;gap:2px;padding:10px 8px;border-radius:12px;background:rgba(0,0,0,.2);text-align:left}
+.contador b{font-size:22px;font-weight:700;line-height:1.1}
+.contador span{font-size:11.5px;color:var(--muted);line-height:1.2}
+.contador.esperando b{color:var(--gold)} .contador.trabalhando b{color:var(--green)}
+.contador:active,.resumo:active,.esp-item:active{background:var(--glass-2)}
+.esp-item{display:flex;align-items:center;gap:10px;width:100%;text-align:left;padding:10px 0;border-top:1px solid var(--stroke)}
+.esp-item:first-of-type{border-top:0;padding-top:2px}
+.esp-t{flex:1;min-width:0;display:flex;flex-direction:column}
+.esp-t b{font-weight:600;font-size:15px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.esp-t small{font-size:13.5px;color:var(--muted);overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.esp-ir{flex:none;font-size:13.5px;font-weight:650;color:var(--navy);background:var(--gold);padding:6px 11px;border-radius:999px}
+.pv-resumo{margin:-4px 0 8px;font-size:13.5px;color:var(--muted)}
+.pv-item{padding:10px 0;border-top:1px solid var(--stroke);font-size:14.5px}
+.pv-acoes{display:flex;gap:8px;margin-top:8px}
+.pv-acoes a,.pv-acoes button{font-size:13px;font-weight:650;padding:5px 11px;border-radius:999px;text-decoration:none}
+.pv-acoes button{background:var(--gold);color:var(--navy)}
+.pv-acoes button:disabled{background:var(--glass-2);color:var(--faint)}
+.pv-acoes a{background:var(--glass-2);color:var(--ink)}
+.pv-mais{width:100%;padding:10px;margin-top:4px;border-radius:12px;background:var(--glass-2);font-size:14px;font-weight:600;color:var(--muted)}
+.bloco .rodape{font-size:12.5px;color:var(--faint);margin-top:8px}
+.tiles{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.tile{padding:10px 12px;border-radius:12px;background:rgba(0,0,0,.2)}
+.tile b{display:block;font-size:22px;font-weight:700;line-height:1.15}
+.tile span{display:block;font-size:12.5px;color:var(--muted);line-height:1.3}
+.grafico .g-titulo{font-size:13px;color:var(--muted);margin:0 0 4px}
+.grafico svg{display:block;width:100%;height:auto;touch-action:manipulation}
+.grafico .det{font-size:13px;color:var(--ink);min-height:38px;margin-top:4px;line-height:1.4}
+.grafico details{margin-top:6px;font-size:13px;color:var(--muted)}
+.grafico table{width:100%;border-collapse:collapse;margin-top:6px;font-size:13px}
+.grafico th,.grafico td{padding:5px 4px;text-align:right;border-bottom:1px solid var(--stroke)}
+.grafico th:first-child,.grafico td:first-child{text-align:left}
+.grafico th{color:var(--faint);font-weight:600}
+.sp{padding:10px 0;border-top:1px solid var(--stroke)}
+.sp:first-of-type{border-top:0;padding-top:0}
+.sp-cab{display:flex;align-items:center;gap:8px;font-size:15px}
+.sp-cab b{font-weight:650}
+.sp-cab .dot{width:9px;height:9px;border-radius:50%;background:var(--faint)}
+.sp-cab .dot.on{background:var(--green)}
+.sp-det{font-size:13px;color:var(--muted);margin-top:3px;line-height:1.45}
+.alerta{color:var(--gold)} .alerta.critico{color:#ffb3ad}
+.versoes{display:grid;grid-template-columns:auto 1fr;gap:6px 12px;font-size:14px}
+.versoes span:nth-child(odd){color:var(--muted)}
+.versoes .atras{color:var(--gold);font-weight:600}
+.bloco .btn.atualizar-app{margin-top:10px;padding:10px;font-size:15px}
+.resumo{display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:11px 0;border-top:1px solid var(--stroke);font-size:14.5px}
+.resumo:first-of-type{border-top:0;padding-top:2px}
+.resumo .ico{flex:none;width:32px;height:32px;border-radius:10px;display:grid;place-items:center;background:var(--glass-2);font-size:16px}
+.resumo .rt{flex:1;min-width:0}
+.resumo .rt b{display:block;font-size:13px;color:var(--faint);font-weight:600}
+.resumo .rt span{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.resumo .seta{color:var(--faint)}
+.puxar{position:fixed;left:50%;top:calc(var(--top) + 8px);z-index:7;display:flex;align-items:center;gap:8px;padding:8px 14px;
+  border-radius:999px;background:#17305C;border:1px solid var(--stroke-2);font-size:13.5px;color:var(--ink);
+  transform:translate(-50%,-70px);opacity:0;transition:transform .2s,opacity .2s;pointer-events:none;box-shadow:0 6px 20px rgba(0,0,0,.35)}
+.puxar.on{opacity:1}
+.puxar .seta-p{display:inline-block;transition:transform .15s}
+.puxar.pronto .seta-p{transform:rotate(180deg)}
+.puxar .spin{margin:0}
+#appAviso{position:fixed;left:12px;right:12px;bottom:calc(var(--bottom) + 70px);z-index:5;margin:0;background:#13294f;box-shadow:0 6px 20px rgba(0,0,0,.35)}
+.busca{position:relative;margin:0 0 8px}
+.busca svg{position:absolute;left:11px;top:50%;width:17px;height:17px;transform:translateY(-50%);color:var(--faint);pointer-events:none}
+.busca input{width:100%;padding:10px 38px 10px 36px;border-radius:12px;border:0;background:rgba(255,255,255,.09);font-size:16px;
+  color:var(--ink);-webkit-appearance:none;appearance:none}
+.busca input::-webkit-search-cancel-button{display:none}
+.busca input:focus{outline:2px solid rgba(226,184,74,.55)}
+.busca button{position:absolute;right:6px;top:50%;transform:translateY(-50%);width:30px;height:30px;border-radius:50%;color:var(--muted)}
+.filtros{display:flex;gap:6px;overflow-x:auto;margin:0 -16px 10px;padding:2px 16px 2px;scrollbar-width:none}
+.filtros::-webkit-scrollbar,.fx-fila::-webkit-scrollbar{display:none}
+.fchip{flex:none;display:flex;align-items:center;gap:4px;padding:7px 12px;border-radius:999px;background:var(--glass-2);color:var(--muted);
+  font-size:13.5px;font-weight:600;white-space:nowrap}
+.fchip i{font-style:normal;opacity:.7;font-weight:500}
+.fchip.on{background:var(--gold);color:var(--navy)}
+.fchip.limpar{background:none;border:1px solid var(--stroke-2)}
+.fx-titulo{display:flex;align-items:center;font-size:12px;font-weight:600;color:var(--faint);margin:4px 2px 8px;text-transform:uppercase;letter-spacing:.5px}
+.fx-titulo small{margin-left:auto;text-transform:none;letter-spacing:0;font-weight:500}
+.fx-fila{display:flex;gap:8px;overflow-x:auto;margin:0 -16px 14px;padding:4px 16px 4px;scrollbar-width:none}
+.fx{flex:none;width:78px;display:flex;flex-direction:column;align-items:center;gap:5px;text-align:center;-webkit-user-select:none;user-select:none;
+  -webkit-touch-callout:none;transition:transform .15s}
+.fx-av{position:relative;width:56px;height:56px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(140deg,#2A4F8C,#173463);
+  border:1px solid var(--stroke-2);font-weight:700;font-size:18px;color:var(--ink)}
+.fx-av .pino{position:absolute;left:-3px;top:-3px;font-size:13px}
+.fx-ponto{position:absolute;right:1px;bottom:1px;width:14px;height:14px;border-radius:50%;border:2.5px solid #0E224A;background:var(--faint)}
+.fx-ponto.esperando{background:var(--gold)} .fx-ponto.trabalhando{background:var(--green)} .fx-ponto.ociosa{background:#7FB2FF}
+.fx-nome{font-size:12px;line-height:1.25;max-width:78px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;color:var(--ink)}
+.fx.fechada{opacity:.45}
+.fx.arrastando{transform:scale(1.1);z-index:2;transition:none}
+.sl{position:relative;margin:0 0 10px;border-radius:16px;overflow:hidden}
+.sl .card{margin:0;position:relative;z-index:1;touch-action:pan-y;transition:transform .2s;background:#11264c}
+.sl .card.arrastando{transition:none}
+.sl-acao{position:absolute;inset:0;display:flex;align-items:center;justify-content:flex-end;padding:0 20px;background:#3D6FD6;color:#fff;
+  font-weight:650;font-size:14.5px;border-radius:16px}
+.sl.pronto .sl-acao{background:var(--gold);color:var(--navy)}
+.card .pino{font-size:13px}
+.vazio-filtro{text-align:center;padding:30px 10px;color:var(--muted)}
+.vazio-filtro .btn{max-width:220px;margin:14px auto 0;padding:10px}
+.cc{border-radius:14px;background:var(--glass);border:1px solid var(--stroke);margin-bottom:8px;overflow:hidden}
+.bloco .cc{background:rgba(0,0,0,.18)}
+.cc-linha{display:flex;align-items:center;gap:10px;width:100%;padding:10px 12px 4px;text-align:left;font-size:14px}
+.cc-quem{flex:1;min-width:0;display:flex;flex-direction:column;line-height:1.25}
+.cc-quem b{font-weight:650;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cc-quem small{font-size:12px;color:var(--faint);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mb{flex:none;width:62px;display:flex;flex-direction:column;gap:3px}
+.mb span{display:flex;justify-content:space-between;font-size:11px;color:var(--faint);line-height:1}
+.mb span em{font-style:normal;font-weight:700;color:var(--ink)}
+.mb i{display:block;height:5px;border-radius:999px;background:var(--glass-2);overflow:hidden}
+.mb i b{display:block;height:100%;border-radius:999px;background:#3D8FEB}
+.mb.alto i b{background:var(--gold)} .mb.alto span em{color:var(--gold)}
+.mb.critico i b{background:var(--coral)} .mb.critico span em{color:#ffb3ad}
+.cc-seta{flex:none;color:var(--faint);font-size:13px;transition:transform .2s}
+.cc.aberta .cc-seta{transform:rotate(180deg)}
+.cc-volta{padding:2px 12px 9px;font-size:11.5px;color:var(--faint)}
+.cc .conta{margin:0;border:0;border-top:1px solid var(--stroke);border-radius:0;background:none}
+.cc .conta .topo,.cc .conta>.meta{display:none}
+.folha-fundo{position:fixed;inset:0;z-index:8;background:rgba(0,0,0,.5);display:flex;align-items:flex-end}
+.folha{width:100%;max-height:72vh;overflow:auto;background:#10264F;border-radius:18px 18px 0 0;padding:8px 16px calc(var(--bottom) + 14px)}
+.folha .pega{width:38px;height:5px;border-radius:999px;background:var(--stroke-2);margin:2px auto 10px}
+.folha h4{margin:0 0 6px;font-size:15px;color:var(--muted);font-weight:600}
+.folha .op{display:flex;justify-content:space-between;width:100%;padding:13px 4px;border-bottom:1px solid var(--stroke);font-size:16px;text-align:left}
+.folha .op i{font-style:normal;color:var(--faint)}
+.folha .op.on{color:var(--gold)}
+/* ---- 0.8.4: o post do AI Rats pelo celular ---- */
+.ar-bloco .ar-linha{display:flex;gap:12px;align-items:flex-start}
+.ar-bloco .ar-mini{flex:none;width:84px;height:64px;border-radius:10px;object-fit:cover;background:rgba(0,0,0,.3)}
+.ar-bloco .ar-txt{flex:1;min-width:0;font-size:14px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical}
+.ar-bloco .mini{margin-top:12px}
+.ar-estado{display:flex;align-items:center;gap:8px;font-size:14.5px}
+.ar-estado a{margin-left:auto;font-size:13.5px;font-weight:650;color:var(--navy);background:var(--gold);padding:6px 12px;border-radius:999px;text-decoration:none}
+#aiRats{position:fixed;inset:0;z-index:7;display:flex;flex-direction:column;background:#0B1A38}
+.ar-topo{flex:none;display:flex;align-items:center;gap:8px;padding:calc(var(--top) + 8px) 12px 10px;border-bottom:1px solid var(--stroke)}
+.ar-topo b{flex:1;font-size:17px}
+.ar-topo button{width:40px;height:40px;border-radius:50%;font-size:20px;color:var(--muted);background:var(--glass)}
+.ar-corpo{flex:1;overflow:auto;padding:14px 16px 10px}
+.slack{background:#1A1D21;border-radius:14px;padding:12px 14px;color:#D1D2D3;font:15px/1.46 -apple-system,"Segoe UI",system-ui,sans-serif}
+.slack .s-cab{display:flex;align-items:center;gap:8px;margin-bottom:4px}
+.slack .s-av{width:36px;height:36px;border-radius:8px;background:#4A154B;display:grid;place-items:center;font-size:20px}
+.slack .s-nome{font-weight:800;color:#fff}
+.slack .s-app{font-size:10px;font-weight:700;color:#ABABAD;background:rgba(255,255,255,.12);padding:1px 4px;border-radius:3px}
+.slack .s-hora{font-size:12px;color:#ABABAD}
+.slack .s-texto{white-space:pre-wrap;word-wrap:break-word;margin-left:44px}
+.slack .s-marca{color:#1D9BD1;background:rgba(29,155,209,.12);border-radius:3px;padding:0 2px}
+.slack .s-img{display:block;margin:8px 0 0 44px;max-width:calc(100% - 44px);border-radius:8px;border:1px solid rgba(255,255,255,.1)}
+.slack .s-nota{margin:4px 0 0 44px;font-size:12px;color:#ABABAD}
+.ar-marcados{display:flex;flex-wrap:wrap;gap:6px;margin:12px 0 4px;font-size:13px;color:var(--muted)}
+.ar-marcados span{padding:3px 9px;border-radius:999px;background:rgba(29,155,209,.15);color:#7CC4E8}
+.ar-aviso{margin:12px 0 0;padding:10px 12px;border-radius:12px;background:rgba(226,184,74,.12);border:1px solid rgba(226,184,74,.4);color:var(--gold-2);font-size:14px}
+.ar-corpo label{display:block;margin:16px 2px 6px;font-size:13px;color:var(--muted);font-weight:600}
+.ar-corpo textarea{width:100%;min-height:150px;resize:vertical;padding:12px;border-radius:12px;border:1px solid var(--stroke-2);
+  background:rgba(0,0,0,.25);font-size:16px;line-height:1.45;color:var(--ink)}
+.ar-conta{text-align:right;font-size:12px;color:var(--faint);margin-top:4px}
+.ar-conta.passou{color:#ffb3ad;font-weight:700}
+.ar-baixo{flex:none;display:flex;flex-direction:column;gap:8px;padding:10px 16px calc(var(--bottom) + 12px);border-top:1px solid var(--stroke);background:#0B1A38}
+.ar-baixo .row{gap:8px}
+.ar-baixo .btn{margin:0}
+.chat-topo .mais{flex:none;width:38px;height:38px;border-radius:50%;font-size:20px;color:var(--muted);display:grid;place-items:center}
+/* ---- 0.8.5: PDF no chat, faixa do visor, recorte nítido ---- */
+.doc{display:block;width:260px;max-width:100%;text-align:left;border-radius:12px;overflow:hidden;background:rgba(0,0,0,.25);
+  border:1px solid var(--stroke-2);margin:2px 0 4px}
+.doc + .doc{margin-top:8px}
+.doc .doc-capa{display:block;width:100%;aspect-ratio:var(--asp,1.41);object-fit:cover;object-position:top;background:#fff}
+.doc .doc-sem{display:grid;place-items:center;height:90px;font-size:38px;background:rgba(255,255,255,.06)}
+.doc .doc-info{display:flex;align-items:center;gap:10px;padding:9px 11px}
+.doc .doc-ico{flex:none;width:34px;height:40px;border-radius:5px;background:#E5484D;color:#fff;font-size:10px;font-weight:800;
+  display:grid;place-items:center;letter-spacing:.3px}
+.doc .doc-t{flex:1;min-width:0;display:flex;flex-direction:column}
+.doc .doc-t b{font-size:14px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.doc .doc-t small{font-size:12px;color:var(--muted)}
+.linha-msg.eu .doc{margin-left:auto}
+.v-faixa{position:absolute;left:0;right:0;bottom:0;z-index:3;display:flex;gap:6px;overflow-x:auto;padding:8px 12px calc(var(--bottom) + 10px);
+  background:linear-gradient(transparent,rgba(0,0,0,.75));scrollbar-width:none;transition:opacity .2s}
+.v-faixa::-webkit-scrollbar{display:none}
+.v-faixa button{flex:none;position:relative;width:54px;height:54px;border-radius:7px;overflow:hidden;border:2px solid rgba(255,255,255,.25);background:#1b2a44}
+.v-faixa button.on{border-color:var(--gold);transform:scale(1.06)}
+.v-faixa img{width:100%;height:100%;object-fit:cover;object-position:top}
+.v-faixa span{position:absolute;right:2px;bottom:1px;font-size:10px;font-weight:700;color:#fff;text-shadow:0 1px 2px #000}
+.v-topo.some ~ .v-faixa{opacity:0;pointer-events:none}
+.v-recorte{position:absolute;z-index:1;pointer-events:none}
+.v-extra{display:flex;gap:6px}
+.v-extra-b{height:36px;padding:0 12px;border-radius:999px;background:rgba(255,255,255,.14);color:#fff;font-size:14px;font-weight:600;white-space:nowrap}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
@@ -379,7 +574,18 @@ details.card summary{cursor:pointer;font-weight:600;color:var(--muted)}
 </section>
 
 <main id="app" class="hidden">
-  <section id="tabClaude"></section>
+  <section id="tabInicio" aria-label="Início"></section>
+  <section id="tabClaude" class="hidden" aria-label="Sessões">
+    <div id="contasLista"></div>
+    <div class="busca">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      <input id="busca" type="search" placeholder="Buscar por título, pasta, PC ou fala" enterkeyhint="search" autocomplete="off" aria-label="Buscar sessões">
+      <button id="buscaLimpar" class="hidden" aria-label="Limpar a busca">✕</button>
+    </div>
+    <div class="filtros" id="filtros" role="toolbar" aria-label="Filtros"></div>
+    <div id="fixadas"></div>
+    <div id="sessoesLista"></div>
+  </section>
   <section id="tabHoje" class="hidden">
     <div id="hojeMsg" class="status hidden"></div>
     <h2>Saúde</h2>
@@ -423,18 +629,29 @@ details.card summary{cursor:pointer;font-weight:600;color:var(--muted)}
 </main>
 
 <nav id="nav" class="hidden">
-  <button data-tab="Claude" class="on">Claude<span class="n hidden" id="nAsk"></span></button>
-  <button data-tab="Hoje">Hoje</button>
-  <button data-tab="Pedir">Pedir</button>
-  <button data-tab="Copias">Cópias</button>
-  <button data-tab="Feed">Novidades</button>
+  <button data-tab="Inicio" class="on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"><path d="M4 10.5 12 4l8 6.5V20a1 1 0 0 1-1 1h-4.5v-6h-5v6H5a1 1 0 0 1-1-1z"/></svg><span>Início</span><span class="n hidden" id="nInicio"></span></button>
+  <button data-tab="Claude"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"><path d="M4 5.5A1.5 1.5 0 0 1 5.5 4h13A1.5 1.5 0 0 1 20 5.5v9a1.5 1.5 0 0 1-1.5 1.5H10l-4.5 4V16h0A1.5 1.5 0 0 1 4 14.5z"/><path d="M8 9h8M8 12h5" stroke-linecap="round"/></svg><span>Sessões</span><span class="n hidden" id="nAsk"></span></button>
+  <button data-tab="Hoje"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 9.5h16M8.5 3v4M15.5 3v4" stroke-linecap="round"/><path d="m9 14.5 2 2 4-4" stroke-linecap="round"/></svg><span>Hoje</span></button>
+  <button data-tab="Pedir"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"><path d="M12 3.5 13.8 9l5.7 1.8-5.7 1.8L12 18.2l-1.8-5.6-5.7-1.8L10.2 9z"/><path d="M18.5 16.5l.7 2 2 .7-2 .7-.7 2-.7-2-2-.7 2-.7z"/></svg><span>Pedir</span></button>
+  <button data-tab="Copias"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5.5A1.5 1.5 0 0 0 14.5 4h-9A1.5 1.5 0 0 0 4 5.5v9A1.5 1.5 0 0 0 5.5 16H8"/></svg><span>Cópias</span></button>
+  <button data-tab="Feed"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"><path d="M6 10a6 6 0 0 1 12 0c0 5 2 6.5 2 6.5H4S6 15 6 10z"/><path d="M10 19.5a2 2 0 0 0 4 0" stroke-linecap="round"/></svg><span>Novidades</span></button>
 </nav>
+<div class="puxar" id="puxar" aria-live="polite"></div>
+<div class="status hidden" id="appAviso" role="status"></div>
+<div class="menu-balao hidden" id="menuSessao" role="menu"></div>
+<div id="aiRats" class="hidden" role="dialog" aria-modal="true" aria-label="Post do AI Rats">
+  <div class="ar-topo"><b>📣 Post do AI Rats</b><button id="arFechar" aria-label="Fechar (o post continua esperando)">✕</button></div>
+  <div class="ar-corpo" id="arCorpo"></div>
+  <div class="ar-baixo" id="arBaixo"></div>
+</div>
+<div class="folha-fundo hidden" id="folhaFundo"><div class="folha" id="folha" role="dialog" aria-modal="true"></div></div>
 
 <div id="detalhe" class="hidden">
   <div class="chat-topo">
     <button class="voltar" id="voltar" aria-label="Voltar às sessões">‹</button>
     <div class="chat-quem"><div class="title" id="dTitulo"></div><div class="sub" id="dSub"></div></div>
     <span class="chip" id="dChip"></span>
+    <button class="mais" id="dMais" aria-label="Mais ações da sessão" aria-haspopup="menu">⋯</button>
   </div>
   <div class="msgs-caixa">
     <div class="msgs" id="dMsgs" aria-live="polite"></div>
@@ -448,6 +665,7 @@ details.card summary{cursor:pointer;font-weight:600;color:var(--muted)}
       <div class="menu-anexo hidden" id="dMenuAnexo" role="menu">
         <button role="menuitem" id="dEscolher">🖼️ Foto ou print</button>
         <button role="menuitem" id="dColar">📋 Colar imagem</button>
+        <button role="menuitem" id="dPdfEscolher">📄 PDF (Arquivos)</button>
       </div>
       <div class="sugestoes" id="dSugestoes"></div>
       <div class="anexo hidden" id="dAnexo" aria-label="Imagens que vão junto"></div>
@@ -464,6 +682,7 @@ details.card summary{cursor:pointer;font-weight:600;color:var(--muted)}
     </div>
   </div>
   <input type="file" id="dArquivo" accept="image/*" multiple hidden>
+  <input type="file" id="dPdf" accept="application/pdf,.pdf" hidden>
 </div>
 
 <div class="menu-balao hidden" id="dMenuBalao" role="menu">
@@ -472,13 +691,15 @@ details.card summary{cursor:pointer;font-weight:600;color:var(--muted)}
 </div>
 
 <div id="visor" class="hidden" role="dialog" aria-label="Imagem em tela cheia">
-  <div class="v-palco" id="vPalco"><img id="vImg" alt="" draggable="false"></div>
+  <div class="v-palco" id="vPalco"><img id="vImg" alt="" draggable="false"><img id="vRecorte" class="v-recorte hidden" alt="" draggable="false"></div>
   <div class="v-topo" id="vTopo">
     <button id="vFechar" data-icone="fechar" aria-label="Fechar"></button>
     <div class="v-nome" id="vNome"></div>
     <button id="vSalvar" data-icone="compartilhar" aria-label="Salvar ou compartilhar"></button>
+    <span class="v-extra" id="vExtra"></span>
     <button class="v-marcar hidden" id="vMarcar" data-icone="lapis">Marcar</button>
   </div>
+  <div class="v-faixa hidden" id="vFaixa" role="toolbar" aria-label="Páginas"></div>
   <button class="v-alta hidden" id="vAlta" aria-live="polite"></button>
 </div>
 
@@ -531,6 +752,7 @@ details.card summary{cursor:pointer;font-weight:600;color:var(--muted)}
 
 <script src="config.js"></script>
 <script src="chat.js"></script>
+<script src="lista.js"></script>
 <script src="marcar.js"></script>
 <script>
 "use strict";
@@ -551,7 +773,25 @@ let melhorar = store.get("seaninho.melhorar") !== "nao";
 const edicoes = {};      // id do pedido -> o texto como a pessoa editou (a tela se refaz a cada 4 s)
 let sugestoesAtuais = []; // as respostas prontas da sessão aberta (o PC pede à IA quando o Claude pergunta ou termina)
 let timer = null, timerSala = null;
-let aba = "Claude";
+let aba = "Inicio";
+const VERSAO_APP = "0.8.5";     // esta página
+const AGENTE_ATUAL = "0.8.5";   // o agente que acompanha esta página (os PCs atrás dele aparecem no painel)
+const NOVIDADES_APP = [
+  ["0.8.5", "PDF no chat: páginas em tela cheia, zoom nítido nas pranchas, marcar várias páginas e mandar; PDF do celular para a sessão; galeria das fotos."],
+  ["0.8.4", "Início com o painel do dia; Sessões com busca, filtros e fixadas no topo; contas do Claude compactas."],
+  ["0.8.3", "Fotos do Claude nítidas, várias imagens por mensagem, responder arrastando o balão e tentar de novo."],
+  ["0.8.1", "Permissão e plano pelo celular, colar imagem, tela cheia com marcação e Google Tarefas."],
+];
+const lerJson = (k, padrao) => { try { const v = JSON.parse(store.get(k) || "null"); return v ?? padrao; } catch { return padrao; } };
+let fixadas = lerJson("seaninho.fixadas", []);      // a cópia do banco (cel_estado 'prefs'), para abrir já com elas
+let fixadasMudouEm = 0, fixadasSalvando = 0;
+let filtros = lerJson("seaninho.filtros", {});      // o filtro fica lembrado neste aparelho
+let busca = "";
+let rede = {ok: null, em: 0, erro: ""};            // a última volta do cel_estado (o painel mostra a hora e o erro)
+let appNovo = false;                               // o service worker trocou: há versão nova da página
+let diaEscolhido = -1;                             // o dia tocado no gráfico do painel (-1: hoje)
+let paraVoceTodos = false;
+let tabelaAberta = false, mudouAberto = false;
 let copias = {};         // pc -> [cópias], baixadas só quando o copias_em do PC muda e a aba está aberta
 const copiasEm = {};     // pc -> copias_em que já temos
 let listaCopias = [];    // o que está desenhado (o toque acha a cópia pelo índice)
@@ -606,21 +846,215 @@ function desenharPcs() {
     || `<p class="note">Nenhum PC publicou ainda.</p>`;
 }
 
+// Só troca o que mudou: a fileira das fixadas e a dos filtros não voltam ao começo, e o "Ver em tabela" fica aberto.
+function por(el, html) { if (el && el._html !== html) { el._html = html; el.innerHTML = html; } }
+const nomeCurtoPc = pc => String(pc || "").length > 11 && pc.includes("-") ? pc.split("-")[0] : String(pc || "");
+const ESTADO_ROT = Object.fromEntries(Lista.ESTADOS);
+const iniciais = t => (String(t || "?").replace(/[^\p{L}\p{N} ]/gu, " ").trim().split(/\s+/).slice(0, 2).map(x => x[0]).join("") || "?").toUpperCase();
+
 function desenharSessoes() {
-  const ss = todasSessoes();
+  const ss = todasSessoes(), agora = Date.now();
+  const c = Lista.contar(ss, agora);
+  for (const id of ["nAsk", "nInicio"]) { $(id).textContent = c.esperando; $(id).classList.toggle("hidden", !c.esperando); }
+  por($("contasLista"), contasCompactas());
+  if (gestoSessao || arrastoFixada) return;   // não refaz o que está embaixo do dedo
+  desenharFiltros(c);
+  const filtrando = !Lista.semFiltro(filtros) || !!busca.trim();
+  desenharFixadas(ss, filtrando, agora);
+  let lista = Lista.filtrar(ss, filtros, busca, previa, agora);
+  if (!filtrando) lista = lista.filter(s => !Lista.fixada(fixadas, s));
   const varios = Object.keys(pcs).length > 1;
-  const nAsk = ss.filter(s => s.estado === "perguntando").length;
-  $("nAsk").textContent = nAsk; $("nAsk").classList.toggle("hidden", !nAsk);
-  const conta = contasHtml();
-  if (!ss.length) { $("tabClaude").innerHTML = conta + `<div class="empty">Nenhuma sessão do Claude aberta nos PCs.</div>`; return; }
-  $("tabClaude").innerHTML = conta + ss.map(s => `
-    <button class="card ${s.estado === "perguntando" ? "ask" : ""}" data-pc="${esc(s.pc)}" data-id="${esc(s.id)}">
-      <div class="row"><div class="title">${esc(s.titulo)}</div><span class="chip ${esc(s.estado)}">${ESTADO[s.estado] || esc(s.estado)}</span></div>
+  let html;
+  if (!ss.length) html = `<div class="empty">Nenhuma sessão do Claude aberta nos PCs.</div>`;
+  else if (!lista.length && filtrando) html = `<div class="vazio-filtro">${busca.trim() ? `Nada encontrado para “${esc(busca.trim())}”` : "Nenhuma sessão com esse filtro"}${!Lista.semFiltro(filtros) && busca.trim() ? " com esse filtro" : ""}.
+      <button class="btn sec" data-limpar-tudo>Limpar ${busca.trim() && !Lista.semFiltro(filtros) ? "busca e filtros" : busca.trim() ? "a busca" : "os filtros"}</button></div>`;
+  else if (!lista.length) html = `<p class="note">Todas as sessões abertas estão fixadas acima.</p>`;
+  else html = lista.map(s => cartaoSessao(s, varios)).join("");
+  por($("sessoesLista"), html);
+}
+
+function cartaoSessao(s, varios) {
+  const fixa = Lista.fixada(fixadas, s);
+  return `<div class="sl" data-pc="${esc(s.pc)}" data-id="${esc(s.id)}"><div class="sl-acao">${fixa ? "Desafixar" : "📌 Fixar"}</div>
+    <button class="card sessao ${s.estado === "perguntando" ? "ask" : ""}" data-pc="${esc(s.pc)}" data-id="${esc(s.id)}">
+      <div class="row"><div class="title">${fixa ? `<span class="pino" aria-label="Fixada">📌</span> ` : ""}${esc(s.titulo)}</div><span class="chip ${esc(s.estado)}">${ESTADO[s.estado] || esc(s.estado)}</span></div>
       <div class="meta">${esc(s.pasta)}${varios ? " · " + esc(s.pc) : ""} · ${ha(s.desde * 1000)}</div>
       ${s.permissao && !s.enquete ? `<div class="q">${esc(previa(s))}</div>`
         : s.estado === "perguntando" && (s.enquete || s.detalhe) ? `<div class="q">${s.enquete ? "📊 " : ""}${esc(s.enquete ? s.enquete.perguntas[0].pergunta : s.detalhe)}</div>`
         : previa(s) ? `<div class="prev">${esc(previa(s))}</div>` : ""}
-    </button>`).join("");
+    </button></div>`;
+}
+
+function desenharFiltros(c) {
+  const chip = (dim, val, rot, n) => `<button class="fchip ${filtros[dim] === val ? "on" : ""}" data-f="${dim}" data-v="${esc(val)}" aria-pressed="${filtros[dim] === val}">${esc(rot)}${n != null ? ` <i>${n}</i>` : ""}</button>`;
+  let h = Lista.semFiltro(filtros) ? "" : `<button class="fchip limpar" data-limpar>✕ Limpar</button>`;
+  for (const [k, rot] of Lista.ESTADOS) if (c[k] || filtros.estado === k) h += chip("estado", k, rot, c[k]);
+  const lista = Object.keys(pcs).sort();
+  if (lista.length > 1 || filtros.pc) for (const pc of lista) h += chip("pc", pc, nomeCurtoPc(pc), c.porPc[pc] || 0);
+  for (const g of Lista.GRUPOS) if (c.porGrupo[g] || filtros.grupo === g) h += chip("grupo", g, g === "Outras" ? "Outras pastas" : g, c.porGrupo[g] || 0);
+  h += `<button class="fchip ${filtros.pasta ? "on" : ""}" data-pastas aria-haspopup="dialog">📁 ${filtros.pasta ? esc(filtros.pasta) : "Projeto"} ▾</button>`;
+  por($("filtros"), h);
+}
+
+function mudarFiltro(dim, val) {
+  filtros = {...filtros, [dim]: filtros[dim] === val ? "" : val};
+  for (const k of Object.keys(filtros)) if (!filtros[k]) delete filtros[k];
+  store.set("seaninho.filtros", Lista.semFiltro(filtros) ? "" : JSON.stringify(filtros));
+  desenharSessoes();
+}
+
+function escolherPasta() {
+  const c = Lista.contar(todasSessoes(), Date.now());
+  const pastas = Object.entries(c.porPasta).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
+  abrirFolha("Projeto (pasta)", [["", "Todos os projetos", c.total], ...pastas.map(([p, n]) => [p, p, n])], filtros.pasta || "",
+             v => mudarFiltro("pasta", v || filtros.pasta || ""));
+}
+
+// ---- Folha de baixo (escolher um projeto) ------------------------------------------------------------
+let folhaEscolher = null;
+function abrirFolha(titulo, opcoes, atual, escolher) {
+  folhaEscolher = escolher;
+  $("folha").innerHTML = `<div class="pega"></div><h4>${esc(titulo)}</h4>` + opcoes.map(([v, rot, n]) =>
+    `<button class="op ${v === atual ? "on" : ""}" data-op="${esc(v)}">${esc(rot)}<i>${n}${v === atual ? " ✓" : ""}</i></button>`).join("");
+  $("folhaFundo").classList.remove("hidden");
+}
+function fecharFolha() { $("folhaFundo").classList.add("hidden"); folhaEscolher = null; }
+
+// ---- Fixadas: a fileira do topo (como os favoritos), gravada no banco para valer em todo aparelho ----------
+function desenharFixadas(ss, filtrando, agora) {
+  const itens = Lista.fixadasNaTela(fixadas, ss);
+  if (filtrando || !itens.length) return por($("fixadas"), "");
+  por($("fixadas"), `<div class="fx-titulo">📌 Fixadas<small>toque e segure para mover ou desafixar</small></div><div class="fx-fila" id="fxFila">`
+    + itens.map(({f, s}, i) => {
+      const est = s ? Lista.estadoDe(s, agora) : "";
+      return `<button class="fx ${s ? "" : "fechada"}" data-fx="${i}" data-pc="${esc(f.pc)}" data-id="${esc(f.id)}"
+          aria-label="${esc((s ? s.titulo : f.titulo) + (s ? ", " + ESTADO_ROT[est] : ", fechada no PC"))}">
+        <span class="fx-av">${esc(iniciais(s ? s.titulo : f.titulo))}<span class="pino">📌</span>${s ? `<i class="fx-ponto ${est}"></i>` : ""}</span>
+        <span class="fx-nome">${esc(s ? s.titulo : f.titulo)}</span></button>`;
+    }).join("") + `</div>`);
+}
+
+async function salvarFixadas(nova, msg = "", antes = null) {
+  fixadas = nova; fixadasMudouEm = Date.now(); fixadasSalvando++;
+  store.set("seaninho.fixadas", JSON.stringify(nova));
+  desenharSessoes(); desenharInicio();
+  try {
+    await rpc("cel_preferencia", {nome: "fixadas", valor: nova});
+    if (msg) avisar("appAviso", msg, antes ? {ok: true, acao: () => salvarFixadas(antes), rotulo: "Desfazer", passa: true} : {ok: true});
+  } catch (e) {
+    const semV6 = /cel_preferencia|function|404/i.test(String(e.message || "")) || e.status === 404;
+    avisar("appAviso", semV6 ? "O banco ainda não tem a v6: a fixada ficou só neste aparelho por enquanto."
+      : "Não salvei a fixada no banco: " + motivoRede(e), {erro: true, acao: () => salvarFixadas(fixadas, msg), rotulo: "Tentar de novo"});
+  } finally { fixadasSalvando--; }
+}
+function alternarFixada(pc, id) {
+  const s = todasSessoes().find(x => x.id === id && x.pc === pc) || fixadas.find(f => f.id === id && f.pc === pc);
+  if (!s) return;
+  const antes = fixadas, era = Lista.fixada(antes, {pc, id});
+  if (navigator.vibrate) navigator.vibrate(10);
+  salvarFixadas(Lista.alternarFixada(antes, {...s, pc, id}), era ? "Desafixada." : "📌 Fixada no topo.", antes);
+}
+
+// ---- Menu do toque longo (sessão e fixada) -------------------------------------------------------------
+let menuAcoes = [];
+function abrirMenu(itens, ancora) {
+  menuAcoes = itens.map(x => x[1]);
+  const m = $("menuSessao");
+  m.innerHTML = itens.map(([rot], i) => `<button role="menuitem" data-m="${i}">${esc(rot)}</button>`).join("");
+  m.classList.remove("hidden");
+  const r = ancora.getBoundingClientRect(), h = m.offsetHeight, w = m.offsetWidth;
+  m.style.top = Math.max(8, Math.min(innerHeight - h - 8, r.bottom + 6 + h < innerHeight - 70 ? r.bottom + 6 : r.top - h - 6)) + "px";
+  m.style.left = Math.max(8, Math.min(innerWidth - w - 8, r.left + r.width / 2 - w / 2)) + "px";
+  if (navigator.vibrate) navigator.vibrate(8);
+}
+function fecharMenu() { $("menuSessao").classList.add("hidden"); menuAcoes = []; }
+function menuDaSessao(pc, id, ancora) {
+  const fixa = Lista.fixada(fixadas, {pc, id});
+  abrirMenu([[fixa ? "Desafixar" : "📌 Fixar no topo", () => alternarFixada(pc, id)], ["💬 Abrir a conversa", () => abrir(pc, id)],
+             ...itensDeAcoes(pc, id)], ancora);
+}
+function menuDaFixada(i, ancora) {
+  const f = fixadas[i];
+  if (!f) return;
+  const viva = todasSessoes().some(s => s.id === f.id && s.pc === f.pc);
+  abrirMenu([...(viva ? [["💬 Abrir a conversa", () => abrir(f.pc, f.id)]] : []),
+             ...(i > 0 ? [["◀ Mover para a esquerda", () => salvarFixadas(Lista.moverFixada(fixadas, i, i - 1))]] : []),
+             ...(i < fixadas.length - 1 ? [["Mover para a direita ▶", () => salvarFixadas(Lista.moverFixada(fixadas, i, i + 1))]] : []),
+             ["Desafixar", () => alternarFixada(f.pc, f.id)]], ancora);
+}
+
+// ---- Gestos: arrastar o cartão para a esquerda fixa (ou desafixa); toque longo abre o menu ----------------
+const PONTO_FIXAR = 72;
+let gestoSessao = null, arrastoFixada = null, gestoFim = 0;
+function pegarSessao(e) {
+  const card = e.target.closest(".sl .card");
+  if (!card || (e.button || 0) > 0) return;
+  const g = gestoSessao = {card, sl: card.parentElement, id: e.pointerId, x0: e.clientX, y0: e.clientY, modo: "", passou: false};
+  g.longo = setTimeout(() => { if (gestoSessao === g && !g.modo) { g.modo = "longo"; menuDaSessao(card.dataset.pc, card.dataset.id, card); } }, 500);
+}
+function moverSessao(e) {
+  const g = gestoSessao;
+  if (!g || e.pointerId !== g.id) return;
+  const dx = e.clientX - g.x0, dy = e.clientY - g.y0;
+  if (!g.modo) {
+    if (Math.abs(dy) > 10 && Math.abs(dy) >= Math.abs(dx)) { clearTimeout(g.longo); gestoSessao = null; return; }   // rolagem
+    if (dx > 10) { clearTimeout(g.longo); gestoSessao = null; return; }
+    if (dx >= -12 || -dx < Math.abs(dy) * 1.5) return;
+    clearTimeout(g.longo); g.modo = "arrastar"; g.card.classList.add("arrastando");
+    try { g.card.setPointerCapture(g.id); } catch {}
+  }
+  if (g.modo !== "arrastar") return;
+  const x = -dx <= PONTO_FIXAR ? Math.min(0, dx) : -PONTO_FIXAR + (dx + PONTO_FIXAR) * 0.35;
+  g.card.style.transform = `translateX(${Math.max(x, -130)}px)`;
+  const passou = -dx >= PONTO_FIXAR;
+  if (passou && !g.passou && navigator.vibrate) navigator.vibrate(12);
+  g.passou = passou;
+  g.sl.classList.toggle("pronto", passou);
+}
+function soltarSessao(e) {
+  const g = gestoSessao;
+  if (!g || e.pointerId !== g.id) return;
+  clearTimeout(g.longo); gestoSessao = null;
+  if (g.modo) gestoFim = Date.now();   // o soltar não é um toque (não abre a conversa)
+  if (g.modo !== "arrastar") return;
+  g.card.classList.remove("arrastando"); g.card.style.transform = ""; g.sl.classList.remove("pronto");
+  if (g.passou && e.type === "pointerup") alternarFixada(g.card.dataset.pc, g.card.dataset.id);
+  else desenharSessoes();
+}
+
+// Fixadas: toque abre; segurar abre o menu; segurar e arrastar para o lado muda a ordem.
+function pegarFixada(e) {
+  const el = e.target.closest(".fx");
+  if (!el || (e.button || 0) > 0) return;
+  const a = arrastoFixada = {el, i: Number(el.dataset.fx), id: e.pointerId, x0: e.clientX, y0: e.clientY, modo: ""};
+  a.timer = setTimeout(() => {
+    if (arrastoFixada !== a || a.modo) return;
+    a.modo = "segurar"; el.classList.add("arrastando");
+    try { el.setPointerCapture(a.id); } catch {}
+    menuDaFixada(a.i, el);
+  }, 450);
+}
+function moverFixada(e) {
+  const a = arrastoFixada;
+  if (!a || e.pointerId !== a.id) return;
+  const dx = e.clientX - a.x0;
+  if (!a.modo) { if (Math.hypot(dx, e.clientY - a.y0) > 8) { clearTimeout(a.timer); arrastoFixada = null; } return; }   // rolou a fileira
+  if (a.modo === "segurar" && Math.abs(dx) > 10) { a.modo = "arrastar"; fecharMenu(); }
+  if (a.modo === "arrastar") a.el.style.transform = `translateX(${dx}px) scale(1.1)`;
+}
+function soltarFixada(e) {
+  const a = arrastoFixada;
+  if (!a || e.pointerId !== a.id) return;
+  clearTimeout(a.timer); arrastoFixada = null;
+  if (!a.modo) return;
+  gestoFim = Date.now();
+  a.el.classList.remove("arrastando"); a.el.style.transform = "";
+  if (a.modo === "arrastar" && e.type === "pointerup") {
+    const outros = [...$("fixadas").querySelectorAll(".fx")].filter(x => x !== a.el);
+    const j = outros.filter(x => { const r = x.getBoundingClientRect(); return r.left + r.width / 2 < e.clientX; }).length;
+    if (j !== a.i) return salvarFixadas(Lista.moverFixada(fixadas, a.i, j));
+  }
+  desenharSessoes();
 }
 
 // A última mensagem da conversa, numa linha (como a lista de conversas do WhatsApp).
@@ -633,6 +1067,364 @@ function previa(s) {
   const texto = (sem.cita ? "↩ " : "") + (sem.texto || (m.enquete ? "📊 Enquete" : m.n_imagens || (m.fotos || []).length ? "📷 Imagem" : ""));
   return (m.de === "eu" ? "Você: " : m.de === "sessao" ? `↪ ${m.nome || "outra sessão"}: ` : "") + texto.replace(/\s+/g, " ").slice(0, 160);
 }
+
+// ---- Início: o painel do dia (blocos resumidos; cada um leva à aba ou à tela completa) -------------------
+const PAINEL_BLOCOS = ["airats", "esperando", "sessoes", "paravoce", "contas", "metricas", "saude", "versoes", "resumos"];
+const painelDe = p => (p && p.hoje && p.hoje.painel) || null;
+function motivoRede(e) {
+  const m = String((e && e.message) || e || "");
+  return /failed to fetch|network|load failed/i.test(m) ? "sem internet ou o banco não respondeu" : m.slice(0, 140);
+}
+function desenharInicio() {
+  const el = $("tabInicio");
+  if (aba !== "Inicio" || !el) return;
+  if (!el.querySelector(".painel-topo")) el.innerHTML = `<div class="painel-topo" id="pTopo"></div>`
+    + PAINEL_BLOCOS.map(b => `<div id="p-${b}"></div>`).join("");
+  const agora = Date.now(), ss = todasSessoes(), c = Lista.contar(ss, agora);
+  const lista = Object.values(pcs).sort((a, b) => a.pc.localeCompare(b.pc));
+  const paineis = lista.map(painelDe);
+  por($("pTopo"), rede.ok === false
+    ? `<span class="err">⚠ Sem conexão${rede.em ? " desde " + hm(new Date(rede.em).toISOString()) : ""}: ${esc(rede.erro)}. Tentando de novo…</span><button data-atualizar aria-label="Atualizar agora">↻</button>`
+    : rede.em ? `<span>Atualizado às ${hm(new Date(rede.em).toISOString())}</span><button data-atualizar aria-label="Atualizar agora">↻</button>`
+    : `<span><span class="spin"></span>Carregando o painel…</span>`);
+  if (!lista.length) {
+    PAINEL_BLOCOS.forEach(b => por($("p-" + b), ""));
+    return por($("p-sessoes"), rede.ok === null ? "" : `<div class="empty">Nenhum PC publicou ainda. Ligue o Seaninho no celular num PC.</div>`);
+  }
+  por($("p-airats"), blocoAiRats());
+  por($("p-esperando"), blocoEsperando(ss, agora));
+  por($("p-sessoes"), blocoSessoes(c, lista));
+  por($("p-paravoce"), blocoParaVoce(lista));
+  por($("p-contas"), contasCompactas() ? `<section class="bloco"><h3>⏳ Contas do Claude</h3>${contasCompactas()}</section>` : "");
+  por($("p-metricas"), blocoMetricas(lista, paineis));
+  por($("p-saude"), blocoSaude(lista, paineis, agora));
+  por($("p-versoes"), blocoVersoes(lista, paineis));
+  por($("p-resumos"), blocoResumos(agora));
+}
+
+function oQueEspera(s) {
+  if (s.permissao && !s.enquete) return (s.permissao.plano ? "📋 Plano para aprovar: " : "🔐 Pede permissão: ") + s.permissao.titulo;
+  if (s.enquete) return "📊 " + s.enquete.perguntas[0].pergunta;
+  return s.detalhe || previa(s) || "Esperando você";
+}
+function blocoEsperando(ss, agora) {
+  const esp = ss.filter(s => Lista.estadoDe(s, agora) === "esperando");
+  if (!esp.length) return "";
+  const varios = Object.keys(pcs).length > 1;
+  return `<section class="bloco destaque"><h3>🔔 Esperando você <button class="ir" data-ir="Claude" data-filtro="esperando">${esp.length > 3 ? `Ver todas (${esp.length})` : "Ver na lista"} ›</button></h3>`
+    + esp.slice(0, 3).map(s => `<button class="esp-item" data-abrir-pc="${esc(s.pc)}" data-abrir="${esc(s.id)}">
+        <span class="esp-t"><b>${esc(s.titulo)}${varios ? ` <span class="meta">· ${esc(nomeCurtoPc(s.pc))}</span>` : ""}</b><small>${esc(oQueEspera(s))}</small></span>
+        <span class="esp-ir">Responder</span></button>`).join("") + `</section>`;
+}
+function blocoSessoes(c, lista) {
+  const porPc = lista.length > 1 ? lista.map(p => `${esc(nomeCurtoPc(p.pc))} ${c.porPc[p.pc] || 0}`).join(" · ") : "";
+  return `<section class="bloco"><button class="bloco-cab" data-ir="Claude"><h3>💬 Sessões <span class="ir">Abrir ›</span></h3></button>
+    <div class="ses-topo"><span class="grande">${c.total}</span><span class="meta">${c.total === 1 ? "aberta" : "abertas"}${porPc ? " · " + porPc : ""}</span></div>
+    <div class="contadores">${Lista.ESTADOS.map(([k, rot]) => `<button class="contador ${k}" data-ir="Claude" data-filtro="${k}" aria-label="${rot}: ${c[k]}"><b>${c[k]}</b><span>${rot}</span></button>`).join("")}</div></section>`;
+}
+function orquestraDe(lista) {
+  for (const p of lista) { const o = (painelDe(p) || {}).orquestra; if (o) return {...o, pc: p.pc}; }
+  return null;
+}
+const linkSeguro = u => /^https:\/\//.test(String(u || "")) ? String(u) : "";
+function blocoParaVoce(lista) {
+  const o = orquestraDe(lista);
+  if (!o) return "";
+  const itens = o.para_voce || [], mostrar = paraVoceTodos ? itens : itens.slice(0, 3);
+  const pode = !!(o.sessao && pcs[o.pc] && online(pcs[o.pc]));
+  return `<section class="bloco"><h3>🎼 Para você <span class="n3">${itens.length ? itens.length + (itens.length === 1 ? " item" : " itens") : ""}</span></h3>
+    ${o.resumo ? `<p class="pv-resumo">${esc(o.resumo)}</p>` : ""}
+    ${mostrar.map((it, i) => `<div class="pv-item">${esc(it.texto)}<div class="pv-acoes">
+        <button data-pv="${i}" ${pode ? "" : "disabled"} aria-label="Responder ao maestro sobre: ${esc(it.texto)}">${pode ? "↩ Responder" : "Maestro fechado"}</button>
+        ${linkSeguro(it.link) ? `<a href="${esc(linkSeguro(it.link))}" target="_blank" rel="noopener">Abrir o link</a>` : ""}</div></div>`).join("")
+      || `<p class="note">Nada esperando decisão sua agora.</p>`}
+    ${itens.length > mostrar.length ? `<button class="pv-mais" data-pv-todos>Ver todos (${itens.length})</button>` : ""}
+    <div class="rodape">Em andamento ${o.em_andamento || 0} · Esperando ${o.esperando || 0} · ${o.delegacoes_hoje || 0} ${o.delegacoes_hoje === 1 ? "delegação" : "delegações"} hoje</div></section>`;
+}
+function responderParaVoce(i) {
+  const o = orquestraDe(Object.values(pcs)), it = o && (o.para_voce || [])[i];
+  if (!it || !o.sessao) return;
+  abrir(o.pc, o.sessao);
+  citando = {id: "pv:" + i, nome: "Para você", texto: it.texto, mini: "",
+             cita: Chat.citacao({nome: "Para você", hora: horaDe(o.atualizado), texto: it.texto})};
+  desenharCitando();
+  $("texto").focus();
+}
+
+const DIA_SEMANA = ["dom", "seg", "ter", "qua", "qui", "sex", "sáb"];
+const diaDe = iso => new Date(iso + "T12:00:00");
+const diaCurto = (iso, ultimo) => ultimo ? "hoje" : DIA_SEMANA[diaDe(iso).getDay()];
+const diaLongo = (iso, ultimo) => ultimo ? "Hoje" : `${DIA_SEMANA[diaDe(iso).getDay()]} ${iso.slice(8, 10)}/${iso.slice(5, 7)}`;
+const plural = (n, um, varios) => `${n} ${n === 1 ? um : varios}`;
+function blocoMetricas(lista, paineis) {
+  const serie = Lista.serieDosDias(paineis);
+  const hojeIso = diaIso(new Date());
+  if (!serie.length) return "";
+  const hoje = serie.find(d => d.dia === hojeIso) || {eu: 0, claude: 0, sessoes: 0, abertos: 0, mergeados: 0};
+  const novas = paineis.reduce((n, p) => n + ((p && p.metricas && p.metricas.abertas_hoje) || 0), 0);
+  const prs = (paineis.find(p => p && p.prs) || {}).prs;
+  const o = orquestraDe(lista);
+  return `<section class="bloco"><h3>📈 Hoje no Claude</h3>
+    <div class="tiles">
+      <div class="tile"><b>${hoje.eu}</b><span>mensagens suas · ${hoje.claude} respostas</span></div>
+      <div class="tile"><b>${hoje.sessoes}</b><span>sessões com conversa · ${plural(novas, "nova", "novas")}</span></div>
+      ${prs ? `<div class="tile"><b>${hoje.mergeados}</b><span>PRs mergeados hoje · ${hoje.abertos} abertos · ${prs.abertos_agora} em aberto</span></div>` : ""}
+      ${o ? `<div class="tile"><b>${o.delegacoes_hoje || 0}</b><span>delegações da orquestra hoje</span></div>` : ""}
+    </div>${graficoDias(serie, hojeIso)}</section>`;
+}
+
+// As suas mensagens por dia (7 dias): colunas finas, rótulo só em hoje e no maior dia, toque mostra o dia inteiro.
+function graficoDias(serie, hojeIso) {
+  const W = 340, H = 150, base = 118, topo = 22, n = serie.length, faixa = W / n, larg = Math.min(24, faixa * 0.5);
+  const max = Math.max(1, ...serie.map(d => d.eu));
+  const passo = max <= 5 ? 1 : max <= 20 ? 5 : max <= 50 ? 10 : max <= 200 ? 50 : 100;
+  const teto = Math.ceil(max / passo) * passo;
+  const y = v => base - (base - topo) * v / teto;
+  const ultimo = serie.length - 1, iMax = serie.findIndex(d => d.eu === max);
+  const sel = diaEscolhido >= 0 && diaEscolhido <= ultimo ? diaEscolhido : ultimo;
+  const coluna = (d, i) => {
+    const x0 = faixa * i + (faixa - larg) / 2, x1 = x0 + larg, yt = y(d.eu), r = Math.min(4, (base - yt) / 2);
+    const forma = d.eu ? `<path d="M${x0} ${base}V${yt + r}Q${x0} ${yt} ${x0 + r} ${yt}H${x1 - r}Q${x1} ${yt} ${x1} ${yt + r}V${base}Z" fill="#3D8FEB"/>` : "";
+    const rotulo = d.eu && (i === ultimo || i === iMax) ? `<text x="${x0 + larg / 2}" y="${yt - 6}" text-anchor="middle" font-size="12" font-weight="700" fill="#F4F6FB">${d.eu}</text>` : "";
+    return `${i === sel ? `<rect x="${faixa * i + 2}" y="${topo - 16}" width="${faixa - 4}" height="${base - topo + 16}" rx="8" fill="rgba(255,255,255,.07)"/>` : ""}
+      ${forma}${rotulo}<text x="${faixa * i + faixa / 2}" y="${base + 20}" text-anchor="middle" font-size="12" fill="${i === sel ? "#F4F6FB" : "#9AA8C4"}" font-weight="${i === ultimo ? 700 : 500}">${diaCurto(d.dia, d.dia === hojeIso)}</text>
+      <rect x="${faixa * i}" y="0" width="${faixa}" height="${H}" fill="transparent" data-dia="${i}" style="cursor:pointer"><title>${esc(diaLongo(d.dia, d.dia === hojeIso))}: ${d.eu} mensagens suas</title></rect>`;
+  };
+  const d = serie[sel];
+  const det = `<b>${esc(diaLongo(d.dia, d.dia === hojeIso))}:</b> ${plural(d.eu, "mensagem sua", "mensagens suas")} · ${plural(d.claude, "resposta", "respostas")} do Claude · ${plural(d.sessoes, "sessão", "sessões")}`
+    + (serie.some(x => x.abertos || x.mergeados) ? ` · PRs: ${d.abertos} ${d.abertos === 1 ? "aberto" : "abertos"}, ${d.mergeados} ${d.mergeados === 1 ? "mergeado" : "mergeados"}` : "");
+  return `<div class="grafico"><p class="g-titulo">Suas mensagens por dia (7 dias)</p>
+    <svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Suas mensagens nos últimos 7 dias: ${serie.map(x => diaLongo(x.dia, x.dia === hojeIso) + " " + x.eu).join(", ")}">
+      <line x1="0" x2="${W}" y1="${y(teto)}" y2="${y(teto)}" stroke="rgba(255,255,255,.08)" stroke-dasharray="3 4"/>
+      <text x="0" y="${y(teto) - 4}" font-size="10.5" fill="#6B7A99">${teto}</text>
+      <line x1="0" x2="${W}" y1="${base}" y2="${base}" stroke="rgba(255,255,255,.16)"/>
+      ${serie.map(coluna).join("")}</svg>
+    <div class="det" aria-live="polite">${det}</div>
+    <details data-tabela ${tabelaAberta ? "open" : ""}><summary>Ver em tabela</summary><table>
+      <tr><th>Dia</th><th>Suas</th><th>Claude</th><th>Sessões</th>${serie.some(x => x.abertos || x.mergeados) ? "<th>PRs abertos</th><th>Mergeados</th>" : ""}</tr>
+      ${serie.map(x => `<tr><td>${esc(diaLongo(x.dia, x.dia === hojeIso))}</td><td>${x.eu}</td><td>${x.claude}</td><td>${x.sessoes}</td>${serie.some(z => z.abertos || z.mergeados) ? `<td>${x.abertos}</td><td>${x.mergeados}</td>` : ""}</tr>`).join("")}
+    </table></details></div>`;
+}
+
+const gb = mb => mb >= 1024 ? (mb / 1024).toFixed(1).replace(".", ",") + " GB" : mb + " MB";
+const horas = h => h >= 48 ? Math.round(h / 24) + " dias" : Math.round(h) + " h";
+function blocoSaude(lista, paineis, agora) {
+  const falhas = Lista.falhasRecentes(pedidos, agora, 24);
+  const linhas = lista.map((p, i) => {
+    const pa = paineis[i] || {}, m = pa.maquina || {}, atras = Lista.compararVersao(p.versao, AGENTE_ATUAL) < 0;
+    const det = [`agente ${esc(p.versao || "?")}${atras ? ` <span class="alerta">(a atual é ${AGENTE_ATUAL})</span>` : ""}`,
+      m.ram_livre_mb != null ? `<span class="${m.ram_livre_mb < 1024 ? "alerta critico" : m.ram_livre_mb < 2048 ? "alerta" : ""}">${gb(m.ram_livre_mb)} de RAM livre</span>` : "",
+      m.ligado_h != null ? `ligado há ${horas(m.ligado_h)}` : "",
+      m.disco_livre_gb != null && m.disco_livre_gb < 15 ? `<span class="alerta">disco C: com ${String(m.disco_livre_gb).replace(".", ",")} GB livres</span>` : "",
+      falhas[p.pc] ? `<span class="alerta critico">${plural(falhas[p.pc], "falha", "falhas")} de entrega em 24 h</span>` : "nenhuma falha de entrega em 24 h"]
+      .filter(Boolean).join(" · ");
+    return `<div class="sp"><div class="sp-cab"><i class="dot ${online(p) ? "on" : ""}"></i><b>${esc(p.pc)}</b><span class="meta">${online(p) ? "ligado" : "desligado"} · visto ${ha(new Date(p.visto_em).getTime())}</span></div>
+      <div class="sp-det">${det}</div></div>`;
+  }).join("");
+  const perto = lista.filter(p => p.hoje && p.hoje.conta && p.hoje.conta.email).flatMap(p => [["sessão de 5 h", p.hoje.conta.sessao], ["semana", p.hoje.conta.semana]]
+    .filter(([, l]) => l && l.pct >= 80).map(([rot, l]) => `<div class="sp-det"><span class="alerta ${l.pct >= 95 ? "critico" : ""}">⚠ ${esc(Lista.contaCurta(p.hoje.conta.email))} (${esc(nomeCurtoPc(p.pc))}): ${rot} em ${l.pct}%</span></div>`)).join("");
+  const o = orquestraDe(lista);
+  const parado = o && o.atualizado && agora / 1000 - o.atualizado > 45 * 60;
+  const maestro = o ? `<div class="sp"><div class="sp-cab"><b>🎼 Maestro</b><span class="meta">no ${esc(nomeCurtoPc(o.pc))}</span></div>
+      <div class="sp-det">vigia ${o.vigia === true ? "ligada" : o.vigia === false ? `<span class="alerta critico">desligada</span>` : "sem leitura"} · última volta ${o.atualizado ? ha(o.atualizado * 1000) : "?"}${parado ? ` <span class="alerta">(o loop pode ter parado)</span>` : ""}</div></div>` : "";
+  return `<section class="bloco"><h3>🩺 Saúde</h3>${linhas}${perto}${maestro}</section>`;
+}
+
+function blocoVersoes(lista, paineis) {
+  const pros = lista.map((p, i) => [p, (paineis[i] || {}).pro || ""]);
+  const difPro = new Set(pros.map(([, v]) => v).filter(Boolean)).size > 1;
+  return `<section class="bloco"><h3>⬆️ Atualizações</h3><div class="versoes">
+      <span>App (esta página)</span><span>${VERSAO_APP}${appNovo ? ` <span class="atras">· versão nova pronta</span>` : " · em dia"}</span>
+      ${lista.map(p => { const atras = Lista.compararVersao(p.versao, AGENTE_ATUAL) < 0;
+        return `<span>Agente · ${esc(nomeCurtoPc(p.pc))}</span><span class="${atras ? "atras" : ""}">${esc(p.versao || "?")}${atras ? ` → atualizar para ${AGENTE_ATUAL}` : ""}</span>`; }).join("")}
+      ${pros.map(([p, v]) => `<span>Seaninho Pro · ${esc(nomeCurtoPc(p.pc))}</span><span class="${difPro ? "atras" : ""}">${esc(v || "sem leitura")}</span>`).join("")}
+    </div>
+    ${appNovo ? `<button class="btn atualizar-app" data-recarregar-app>Atualizar o app agora</button>` : ""}
+    <details data-mudou ${mudouAberto ? "open" : ""} style="margin-top:10px;font-size:13.5px;color:var(--muted)"><summary>O que mudou no app</summary>
+      ${NOVIDADES_APP.map(([v, t]) => `<p style="margin:8px 0 0"><b style="color:var(--ink)">${v}</b> · ${esc(t)}</p>`).join("")}</details></section>`;
+}
+
+function blocoResumos(agora) {
+  const p = pcHoje(), h = p ? p.hoje : null, hojeIso = diaIso(new Date());
+  const r = Lista.resumoHoje(h, agora, hojeIso), sa = (h && h.saude) || {};
+  const ev = r.evento ? `${r.agora ? "Agora" : hm(r.evento.inicio)}: ${r.evento.titulo}` : "Nada mais na agenda hoje";
+  const hoje = `${ev} · ${plural(r.tarefas, "tarefa", "tarefas")}${r.atrasadas ? ` (${r.atrasadas} ${r.atrasadas === 1 ? "atrasada" : "atrasadas"})` : ""}${sa.meta_ml ? ` · 💧 ${sa.agua_ml || 0}/${sa.meta_ml} ml` : ""}`;
+  const cmd = pedidos.filter(x => x.tipo === "comando")[0];
+  const ESTADO_CMD = {novo: "pensando", escrevendo: "pensando", pronto: "esperando o seu OK", enviar: "fazendo", enviando: "fazendo",
+                      entregue: "feito", erro: "não deu", cancelado: "cancelado"};
+  const pedir = cmd ? `“${cmd.texto}” · ${ESTADO_CMD[cmd.estado] || cmd.estado}` : "Peça algo ao Seaninho (Slack, agenda, lembrete…)";
+  const copiasEm = Object.values(pcs).map(x => x.copias_em).filter(Boolean).sort().pop();
+  const novidades = [];
+  for (const x of Object.values(pcs)) for (const a of x.atualizacoes || []) novidades.push(a);
+  novidades.sort((a, b) => String(b.quando).localeCompare(String(a.quando)));
+  const naoLidas = novidades.filter(a => !a.lido).length;
+  const linha = (tab, ico, rot, txt) => `<button class="resumo" data-ir="${tab}"><span class="ico">${ico}</span><span class="rt"><b>${rot}</b><span>${esc(txt)}</span></span><span class="seta">›</span></button>`;
+  return `<section class="bloco"><h3>📋 As outras abas</h3>
+    ${linha("Hoje", "📅", "Hoje", p ? hoje : "O PC ainda não mandou o dia")}
+    ${linha("Pedir", "✨", "Pedir", pedir)}
+    ${linha("Copias", "📎", "Cópias", copiasEm ? `Última mudança ${ha(new Date(copiasEm).getTime())}` : "Sem cópias ainda")}
+    ${linha("Feed", "🔔", "Novidades", novidades.length ? `${naoLidas ? plural(naoLidas, "nova", "novas") + " · " : ""}${novidades[0].titulo}` : "Nenhuma novidade ainda")}</section>`;
+}
+
+// ---- AI Rats: a prévia do post (o ai_rats.py do PC a abre; quem decide primeiro, a janela do PC ou aqui, vale) ----
+// Quem posta é o ai_rats.py, pelo fluxo do Slack; daqui vai só o Postar (com o texto como ficou) ou o Cancelar.
+let arPedido = {};      // id da prévia -> id do pedido que mandou a decisão
+let arTexto = {};       // id da prévia -> o texto como a pessoa editou aqui
+let arNitida = {};      // foto -> data URL da versão nítida (cel_foto)
+let arAberto = "";      // a prévia aberta na folha
+function aiRatsAtual() {
+  let melhor = null;
+  for (const p of Object.values(pcs)) {
+    const a = p.hoje && p.hoje.ai_rats;
+    if (a && a.id && (!melhor || (a.atualizado || 0) > (melhor.atualizado || 0))) melhor = {...a, pc: p.pc};
+  }
+  return melhor;
+}
+function estadoDoPedidoAiRats(a) {
+  const pid = arPedido[a.id], ped = pid && pedidos.find(x => x.id === pid);
+  if (!pid) return null;
+  if (String(pid).startsWith("erro:")) return {erro: pid.slice(5)};
+  if (!ped || ["novo", "escrevendo", "enviar", "enviando"].includes(ped.estado)) return {mandando: true};
+  if (ped.estado === "erro") return {erro: ped.erro || "Não foi."};
+  return {ok: ped.resposta || ""};
+}
+function blocoAiRats() {
+  const a = aiRatsAtual();
+  if (!a) return "";
+  const ped = estadoDoPedidoAiRats(a);
+  if (a.estado === "esperando") {
+    return `<section class="bloco destaque ar-bloco"><h3>📣 AI Rats: post para conferir</h3>
+      <div class="ar-linha">${a.mini ? `<img class="ar-mini" src="${esc(a.mini)}" alt="">` : ""}<div class="ar-txt">${textoSlack(arTexto[a.id] ?? a.texto)}</div></div>
+      ${a.aviso ? `<div class="ar-aviso">⚠ ${esc(a.aviso)}</div>` : ""}
+      ${ped && ped.mandando ? `<div class="status"><span class="spin"></span>Mandando ao PC…</div>`
+        : ped && ped.erro ? `<div class="status err">Não deu: ${esc(ped.erro)}</div>` : ""}
+      <div class="mini"><button class="btn" data-ar-abrir>Conferir e postar</button><button class="btn sec" data-ar-cancelar>Cancelar</button></div></section>`;
+  }
+  const quem = a.de === "celular" ? "pelo celular" : "no PC";
+  const linha = a.estado === "confirmado" ? `<span class="spin"></span>Postando no #ai-rats (confirmado ${quem})… leva 1 a 3 min.`
+    : a.estado === "publicado" ? `✓ Publicado no #ai-rats${a.link ? `<a href="${esc(a.link)}" target="_blank" rel="noopener">Abrir no Slack</a>` : ""}`
+    : a.estado === "cancelado" ? `Post do AI Rats cancelado ${quem}. Nada foi postado.`
+    : `<span class="err">⚠ O post não saiu: ${esc(a.msg || "erro no PC")}</span>`;
+  return `<section class="bloco ar-bloco"><h3>📣 AI Rats</h3><div class="ar-estado">${linha}</div>
+    ${a.estado === "erro" && a.msg ? `<p class="note">Antes de postar de novo, confira o canal: o post pode ter saído.</p>` : ""}</section>`;
+}
+
+// Como vai sair no Slack: o fluxo posta "@pessoa :mouse: Compartilhou: <texto>" com a imagem.
+function textoSlack(t) {
+  return esc(t).replace(/\*([^*\n]+)\*/g, "<b>$1</b>").replace(/(^|[^\w@])(@[\p{L}][\p{L}\w.-]*(?: [\p{Lu}][\p{L}\w-]*)?)/gu,
+    (_, a, m) => `${a}<span class="s-marca">${m}</span>`);
+}
+function abrirAiRats() {
+  const a = aiRatsAtual();
+  if (!a || a.estado !== "esperando") return;
+  arAberto = a.id;
+  if (arTexto[a.id] == null) arTexto[a.id] = a.texto;
+  $("aiRats").classList.remove("hidden");
+  document.body.style.overflow = "hidden";
+  desenharAiRats(true);
+  if (a.foto && !arNitida[a.foto]) {
+    rpc("cel_foto", {id: a.foto, tamanho: "media"}).then(f => {
+      if (f && f.dados) { arNitida[a.foto] = `data:${f.mime || "image/jpeg"};base64,${f.dados}`; desenharAiRats(); }
+    }).catch(() => {});
+  }
+}
+function fecharAiRats() { arAberto = ""; $("aiRats").classList.add("hidden"); document.body.style.overflow = ""; }
+function desenharAiRats(inteiro = false) {
+  const a = aiRatsAtual();
+  if (!arAberto) return;
+  if (!a || a.id !== arAberto || a.estado !== "esperando") {
+    fecharAiRats();
+    if (a && a.id === arAberto) avisar("appAviso", a.estado === "confirmado" ? "Confirmado: o post está saindo pelo PC." : "A prévia do AI Rats fechou no PC.", {});
+    return;
+  }
+  const texto = arTexto[a.id] ?? a.texto, img = arNitida[a.foto] || a.mini;
+  const previa = `<div class="slack" aria-label="Como vai sair no Slack"><div class="s-cab"><span class="s-av">🐭</span><span class="s-nome">Post AI Rats</span>
+      <span class="s-app">APP</span><span class="s-hora">agora</span></div>
+    <div class="s-texto"><span class="s-marca">@${esc(a.autor || "você")}</span> 🐭 Compartilhou:\n${textoSlack(texto)}</div>
+    ${img ? `<img class="s-img" src="${esc(img)}" alt="A imagem do post">` : ""}
+    ${a.gif ? `<div class="s-nota">GIF: no Slack ele anima. Aqui aparece o primeiro quadro.</div>` : ""}</div>`;
+  const marcados = a.marcados && a.marcados.length ? `<div class="ar-marcados">Marca: ${a.marcados.map(m => `<span>${esc(m)}</span>`).join("")}</div>` : "";
+  if (inteiro || !$("arTexto")) {
+    $("arCorpo").innerHTML = `<div id="arPrevia">${previa}</div><div id="arMarcados">${marcados}</div>
+      ${a.aviso ? `<div class="ar-aviso">⚠ ${esc(a.aviso)}</div>` : ""}
+      <label for="arTexto">Texto do post (dá para ajustar aqui)</label>
+      <textarea id="arTexto" maxlength="${a.max + 500}">${esc(texto)}</textarea><div class="ar-conta" id="arConta"></div>`;
+  } else {
+    por($("arPrevia"), previa);
+  }
+  const n = [...texto].length, passou = n > a.max;
+  $("arConta").textContent = `${n} de ${a.max} letras` + (passou ? " · passou do limite do formulário" : "");
+  $("arConta").classList.toggle("passou", passou);
+  const ped = estadoDoPedidoAiRats(a);
+  por($("arBaixo"), (ped && ped.mandando ? `<div class="status"><span class="spin"></span>Mandando ao PC…</div>`
+      : ped && ped.erro ? `<div class="status err">Não deu: ${esc(ped.erro)}</div>` : "")
+    + `<button class="btn" data-ar-postar ${passou || !texto.trim() || (ped && ped.mandando) ? "disabled" : ""}>Postar no #ai-rats</button>
+       <div class="row"><button class="btn sec" data-ar-cancelar ${ped && ped.mandando ? "disabled" : ""}>Cancelar o post</button></div>
+       <p class="note" style="margin:0;text-align:center">Quem posta é o PC, pelo fluxo do Slack, com a sua conta.</p>`);
+}
+async function decidirAiRats(decisao) {
+  const a = aiRatsAtual();
+  if (!a || a.estado !== "esperando") return;
+  if (decisao === "cancelar" && !confirm("Cancelar o post do AI Rats? Nada será postado.")) return;
+  const texto = String(arTexto[a.id] ?? a.texto).trim();
+  try {
+    arPedido[a.id] = await rpc("cel_pedir", {pc: a.pc, tipo: "acao", texto: JSON.stringify({acao: "ai_rats", id: a.id, decisao, texto})});
+  } catch (e) { arPedido[a.id] = "erro:" + motivoRede(e); }
+  desenharAiRats(); desenharInicio();
+  atualizar();
+}
+
+// ---- Botões extras das sessões (os do acoes-sessoes.json, como no Monitor Claude: "Postar no AI Rats"…) ----
+function acoesDe(pc) { return ((pcs[pc] && pcs[pc].hoje && pcs[pc].hoje.acoes) || []).filter(a => a.rotulo && a.texto); }
+function pedirAcao(pc, id, acao) {
+  const s = todasSessoes().find(x => x.id === id && x.pc === pc);
+  if (!s) return;
+  if (!confirm(`Pedir à sessão “${s.titulo}”: ${acao.rotulo}?${acao.dica ? "\n\n" + acao.dica : ""}`)) return;
+  const texto = acao.texto.replaceAll("{sessao}", s.id).replaceAll("{titulo}", s.titulo || "");
+  if (!aberta || aberta.id !== id) abrir(pc, id);
+  const local = {id: "local" + (++nLocal), sessao: id, de: "eu", texto, t: Math.floor(Date.now() / 1000), mini: "", grande: "", mime: ""};
+  enviarLocal(local, {pc, sessao: id, titulo: s.titulo || "", texto, direto: true});
+}
+function itensDeAcoes(pc, id) {
+  return acoesDe(pc).map(a => [(/ai rats/i.test(a.rotulo) ? "📣 " : "⚡ ") + a.rotulo, () => pedirAcao(pc, id, a)]);
+}
+
+// ---- Puxar para atualizar (Início e Sessões) -------------------------------------------------------------
+const PUXAR_PX = 70;
+let puxando = null, atualizandoAgora = false;
+function mostrarPuxar(dy, texto = "") {
+  const el = $("puxar");
+  if (texto) { el.innerHTML = texto; el.classList.add("on"); el.classList.remove("pronto"); el.style.transform = "translate(-50%,0)"; return; }
+  if (dy <= 8) { el.classList.remove("on", "pronto"); el.style.transform = ""; return; }
+  const pronto = dy >= PUXAR_PX;
+  el.innerHTML = `<span class="seta-p">↓</span>${pronto ? "Solte para atualizar" : "Puxe para atualizar"}`;
+  el.classList.add("on"); el.classList.toggle("pronto", pronto);
+  el.style.transform = `translate(-50%,${Math.min(dy * 0.45, 40) - 40}px)`;
+}
+async function atualizarAgora() {
+  if (atualizandoAgora) return;
+  atualizandoAgora = true;
+  mostrarPuxar(0, `<span class="spin"></span>Atualizando…`);
+  const ok = await atualizar();
+  mostrarPuxar(0, ok ? `✓ Atualizado às ${hm(new Date().toISOString())}` : `⚠ Não deu para atualizar: ${esc(rede.erro || "tente de novo")}`);
+  setTimeout(() => { atualizandoAgora = false; mostrarPuxar(0); }, ok ? 1200 : 3000);
+}
+const podePuxar = e => ["Inicio", "Claude"].includes(aba) && $("detalhe").classList.contains("hidden") && $("folhaFundo").classList.contains("hidden")
+  && window.scrollY <= 0 && !e.target.closest(".fx-fila, .filtros, input, textarea, .sl .card.arrastando");
+document.addEventListener("touchstart", e => {
+  puxando = e.touches.length === 1 && podePuxar(e) ? {y0: e.touches[0].clientY, dy: 0} : null;
+}, {passive: true});
+document.addEventListener("touchmove", e => {
+  if (!puxando || atualizandoAgora) return;
+  puxando.dy = window.scrollY <= 0 ? e.touches[0].clientY - puxando.y0 : 0;
+  mostrarPuxar(puxando.dy);
+}, {passive: true});
+document.addEventListener("touchend", () => {
+  if (!puxando) return;
+  const dy = puxando.dy; puxando = null;
+  if (atualizandoAgora) return;
+  if (dy >= PUXAR_PX) atualizarAgora(); else mostrarPuxar(0);
+});
 
 function desenharFeed() {
   const itens = [];
@@ -686,10 +1478,28 @@ function falta(iso) {
   return h ? `em ${h} h ${String(m).padStart(2, "0")} min` : `em ${m} min`;
 }
 
-function contasHtml() {
+// Uma linha por conta (PC, conta curta, as barrinhas da sessão de 5 h e da semana e quando reiniciam); o toque abre o
+// cartão inteiro com o "Trocar conta". Aberto ou fechado fica lembrado por PC neste aparelho.
+function contasCompactas() {
   const lista = Object.values(pcs).filter(p => p.hoje && p.hoje.conta && p.hoje.conta.email)
     .sort((a, b) => a.pc.localeCompare(b.pc));
-  return lista.map(p => contaCartao(p, lista.length > 1)).join("");
+  return lista.map(p => contaCompacta(p, lista.length > 1)).join("");
+}
+function contaCompacta(p, varios) {
+  const c = p.hoje.conta, aberta = store.get("seaninho.conta." + p.pc) === "aberta";
+  const mini = (rot, l) => !l ? "" : `<span class="mb ${Lista.nivel(l.pct)}" role="img" aria-label="${rot}: ${l.pct}% usados">
+      <span>${rot}<em>${l.pct}%</em></span><i><b style="width:${Math.max(3, Math.min(100, l.pct))}%"></b></i></span>`;
+  const quando = (rot, l) => l && l.volta ? `${rot} ${reinicia(l.volta)}` : "";
+  const troca = trocas[p.pc] && !String(trocas[p.pc]).startsWith("erro:") && (pedidos.find(x => x.id === trocas[p.pc]) || {estado: "novo"});
+  const trocando = troca && ["novo", "escrevendo"].includes(troca.estado);
+  const volta = [quando("5 h", c.sessao), quando("semana", c.semana)].filter(Boolean).join(" · ");
+  return `<div class="cc ${aberta ? "aberta" : ""}">
+    <button class="cc-linha" data-conta="${esc(p.pc)}" aria-expanded="${aberta}">
+      <span class="cc-quem"><b>${esc(nomeCurtoPc(p.pc))} · ${esc(Lista.contaCurta(c.email))}</b>
+        <small>${trocando ? `<span class="spin"></span>Trocando a conta…` : `${esc(c.plano || "Conta do Claude")}${online(p) ? "" : " · PC desligado"}`}</small></span>
+      ${mini("5 h", c.sessao)}${mini("sem", c.semana)}<span class="cc-seta" aria-hidden="true">▾</span></button>
+    ${volta && !aberta ? `<div class="cc-volta">Reinicia: ${esc(volta)}</div>` : ""}
+    ${aberta ? contaCartao(p, varios) : ""}</div>`;
 }
 
 function contaCartao(p, varios) {
@@ -725,7 +1535,7 @@ async function trocarConta(pc, botao) {
   try {
     trocas[pc] = await rpc("cel_pedir", {pc, tipo: "acao", texto: JSON.stringify({acao: "trocar_conta"})});
     await atualizar();
-  } catch (e) { trocas[pc] = "erro:" + (e.message || e); desenharSessoes(); }
+  } catch (e) { trocas[pc] = "erro:" + (e.message || e); desenharSessoes(); desenharInicio(); }
 }
 
 function desenharHoje() {
@@ -939,16 +1749,17 @@ const AVISO_MS = window.__avisoMs || 4500;
 const lugaresDeAviso = new Set();
 const naArea = new IntersectionObserver(es => { for (const e of es) { e.target._naArea = e.isIntersecting; contarAviso(e.target); } });
 const lugar = el => typeof el === "string" ? $(el) : el;
-const naFrente = el => document.visibilityState === "visible" && document.hasFocus() && !!el._naArea && el.offsetParent !== null;
+// (getClientRects e não offsetParent: o aviso de baixo das abas é position:fixed, e aí o offsetParent é sempre null)
+const naFrente = el => document.visibilityState === "visible" && document.hasFocus() && !!el._naArea && el.getClientRects().length > 0;
 const daTela = a => !a.sessao || (aberta && aberta.id === a.sessao);   // aviso do chat: só no chat daquela sessão
 
-function avisar(el, msg, {erro = false, ok = false, acao = null, rotulo = "Tentar de novo", fica = false, sessao = null} = {}) {
+function avisar(el, msg, {erro = false, ok = false, acao = null, rotulo = "Tentar de novo", fica = false, sessao = null, passa = false} = {}) {
   el = lugar(el);
   if (!el) return;
   if (!lugaresDeAviso.has(el)) { lugaresDeAviso.add(el); naArea.observe(el); el._fila = []; }
   if (!msg) { el._fila = []; return mostrarAviso(el, null); }   // limpar o lugar
   if ([el._atual, ...el._fila].some(a => a && a.msg === msg && a.sessao === sessao)) return;   // o mesmo já está lá
-  el._fila.push({msg, erro, ok, acao, rotulo, fica: !!(acao || fica), sessao, resta: AVISO_MS});
+  el._fila.push({msg, erro, ok, acao, rotulo, fica: !passa && !!(acao || fica), sessao, resta: AVISO_MS});   // passa: o "Desfazer" some sozinho
   if (!el._atual && !el._andamento) proximoAviso(el);
 }
 function proximoAviso(el) {
@@ -1098,6 +1909,7 @@ const vistas = {};                  // id da sessão -> a última sessão vista 
 let anexos = [];                    // [{id, b64, mime, mini}]: as imagens que vão no próximo envio (até 10)
 let nAnexo = 0, arrastou = 0;
 const AGENTE_IMAGENS = "0.8.2";     // o que recebe várias imagens numa mensagem (uma por pedido "anexo")
+const AGENTE_PDF = "0.8.5";         // o PDF no chat (páginas, recorte, mandar PDF)
 let assinaturaChat = "", ultimaMsg = "", novas = 0;
 const fotosNaTela = new Map();      // a foto tocada no chat -> o que o visor mostra (a grande, se tiver)
 const linhasNaTela = new Map();     // id da mensagem -> a linha desenhada (para responder a ela e achar a citada)
@@ -1244,7 +2056,7 @@ function desenharMensagens(s, paraOFim = false, forcar = false) {
   const viva = sessaoAberta();
   if (viva && viva.id === s.id && viva.permissao && !viva.enquete)   // o pedido de permissão que espera: no fim
     linhas.push({tipo: "msg", id: "perm:" + viva.permissao.id, de: "claude", texto: "", t: viva.permissao.t || 0, permissao: viva.permissao});
-  fotosNaTela.clear(); linhasNaTela.clear();
+  fotosNaTela.clear(); linhasNaTela.clear(); docsNaTela.clear();
   const html = linhas.map((l, i) => desenharLinha(l, linhas[i - 1], s)).join("")
     || `<div class="empty">Nada na conversa ainda.</div>`;
   if (grandesFaltam.size) buscarGrandes();
@@ -1364,7 +2176,8 @@ function desenharLinha(l, ant, s) {
   const eu = l.de === "eu";
   const citada = eu ? Chat.separarCitacao(l.texto) : {cita: null, texto: l.texto || ""};
   const fotos = !eu && Array.isArray(l.fotos) ? l.fotos : [];
-  if (!eu && !l.texto && !l.enquete && !fotos.length) return "";   // balão só de foto sem a foto (agente antigo)
+  const docs = Array.isArray(l.docs) ? l.docs : [];
+  if (!eu && !l.texto && !l.enquete && !fotos.length && !docs.length) return "";   // balão só de foto sem a foto (agente antigo)
   const seguida = ant && ant.tipo === "msg" && ant.de === l.de && !(ant.enquete || l.enquete);
   let corpo = l.enquete ? desenharEnquete(l.enquete, s) : "";
   if (eu) {
@@ -1396,6 +2209,8 @@ function desenharLinha(l, ant, s) {
     corpo += fotos.filter(f => !f.src).map(f =>
       `<span class="chip-foto" title="Está no PC; só as mais novas vêm em foto">📷 ${esc(f.nome)}</span> `).join("");
   }
+  if (docs.length) corpo += docs.map(d => cartaoDoc(d, s ? s.pc : "")).join("");
+  else if (eu && (l.pdfNome || l.mime === "application/pdf")) corpo += `<span class="chip-foto">📄 ${esc(l.pdfNome || "PDF")}</span>`;
   if (citada.cita) corpo = `<button class="cita-balao" data-cita-hora="${esc(citada.cita.hora)}" data-cita-trecho="${esc(citada.cita.trecho)}">`
     + `<b>${esc(citada.cita.nome === "minha mensagem" ? "Você" : citada.cita.nome)}</b><span>${esc(citada.cita.trecho)}</span></button>` + corpo;
   const texto = citada.texto;
@@ -1541,8 +2356,9 @@ function responderA(id) {
   const eu = l.de === "eu", texto = eu ? Chat.separarCitacao(l.texto).texto : (l.texto || "");
   const fotos = !eu ? (l.fotos || []) : [], minis = eu ? [].concat(l.minis || l.mini || (l.pedido && miniaturas[l.pedido]) || []) : [];
   const resumo = texto || (l.enquete ? "Enquete: " + l.enquete.perguntas[0].pergunta : l.permissao ? l.permissao.titulo : "");
-  const foto = fotos[0] ? fotos[0].nome : minis.length ? "enviada" : "";
-  citando = {id, nome: eu ? "Você" : "Claude", texto: resumo || (foto ? "📷 Foto" : ""),
+  const doc = (l.docs || [])[0];
+  const foto = fotos[0] ? fotos[0].nome : doc ? doc.nome : minis.length ? "enviada" : "";
+  citando = {id, nome: eu ? "Você" : "Claude", texto: resumo || (doc && !fotos[0] ? "📄 " + doc.nome : foto ? "📷 Foto" : ""),
              mini: (fotos.find(f => f.src) || {}).src || minis[0] || "",
              cita: Chat.citacao({nome: nomeDe(l), hora: horaDe(l.t), texto: resumo, foto})};
   desenharCitando();
@@ -1692,7 +2508,173 @@ const podeMandar = () => !!aberta && !$("dCompor").classList.contains("hidden") 
 function abrirFoto(el) {   // as fotos do chat em sequência, a partir da tocada
   const ids = [...fotosNaTela.keys()], i = ids.indexOf(el.dataset.ver);
   if (i < 0) return;
-  Marcar.ver({lista: [...fotosNaTela.values()].map(f => ({...f})), indice: i, aoMarcar: podeMandar() ? marcar : null});
+  Marcar.ver({lista: [...fotosNaTela.values()].map(f => ({...f})), indice: i, faixa: true, aoMarcar: podeMandar() ? marcar : null});
+}
+
+// ---- PDF no chat (0.8.5): o cartão do documento, o visor com as páginas e as correções ----------------------
+// As páginas vêm da tabela fotos sob demanda: o agente desenha (a da tela primeiro) e o celular pega cada uma pelo id.
+// No zoom, o pedaço que está na tela vem nítido (recorte), para ler as cotas de uma prancha A1.
+const mb = n => n >= 1048576 ? (n / 1048576).toFixed(1).replace(".", ",") + " MB" : Math.max(1, Math.round(n / 1024)) + " KB";
+const docsNaTela = new Map();      // id do documento -> {doc, pc}
+function cartaoDoc(d, pc) {
+  docsNaTela.set(d.id, {doc: d, pc});
+  const asp = d.w && d.h ? (d.w / d.h).toFixed(3) : "1.41";
+  return `<button class="doc" data-doc="${esc(d.id)}" aria-label="Abrir ${esc(d.nome)}, ${d.paginas} páginas">
+    ${d.capa ? `<img class="doc-capa" src="${esc(d.capa)}" alt="" style="--asp:${asp}">` : `<span class="doc-sem">📄</span>`}
+    <span class="doc-info"><span class="doc-ico">PDF</span><span class="doc-t"><b>${esc(d.nome)}</b>
+      <small>${d.paginas} ${d.paginas === 1 ? "página" : "páginas"} · ${mb(d.tamanho || 0)}</small></span></span></button>`;
+}
+const hex4 = n => n.toString(16).padStart(4, "0");
+const idPagina = (doc, n) => doc + hex4(n) + "a";
+function fnv(t) { let h = 0x811c9dc5; for (const c of t) { h ^= c.codePointAt(0); h = Math.imul(h, 0x01000193) >>> 0; } return h.toString(16).padStart(8, "0"); }
+const pdfPaginasPedidas = {}, paginasPdf = new Map(), recortesPdf = new Map();
+const dorme = ms => new Promise(r => setTimeout(r, ms));
+async function esperarFoto(id, ms = 60000) {
+  const fim = Date.now() + ms;
+  while (Date.now() < fim) {
+    try {
+      const f = await rpc("cel_foto", {id, tamanho: "media"});
+      if (f && f.dados) return `data:${f.mime || "image/jpeg"};base64,${f.dados}`;
+    } catch {}
+    await dorme(900);
+  }
+  throw new Error("não chegou");
+}
+// Espera o pedido sair do PC (entregue ou erro), lendo o cel_estado de 2 em 2 s.
+async function esperarPedido(pid, ms = 90000) {
+  const fim = Date.now() + ms;
+  while (Date.now() < fim) {
+    const p = pedidos.find(x => x.id === pid);
+    if (p && p.estado === "entregue") return p;
+    if (p && p.estado === "erro") throw new Error(p.erro || "não deu");
+    await dorme(2000); await atualizar();
+  }
+  throw new Error("o PC não respondeu");
+}
+const acaoPdf = (pc, dados) => rpc("cel_pedir", {pc, tipo: "acao", texto: JSON.stringify(dados)});
+function folhaVazia(w, h, n) {
+  const W = 1800, H = Math.round(1800 * (h || 1) / (w || 1.41));
+  return "data:image/svg+xml," + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}"><rect width="100%" height="100%" fill="#1b2a44"/><text x="50%" y="50%" fill="#9AA8C4" font-size="${Math.round(H / 14)}" text-anchor="middle" font-family="sans-serif">Página ${n}</text></svg>`);
+}
+function paginasDoPdf(pc, doc) {
+  if (!pdfPaginasPedidas[doc.id]) pdfPaginasPedidas[doc.id] = acaoPdf(pc, {acao: "pdf_paginas", doc: doc.id, primeira: 0})
+    .catch(e => { delete pdfPaginasPedidas[doc.id]; throw e; });
+  return pdfPaginasPedidas[doc.id];
+}
+function abrirPdf(id) {
+  const x = docsNaTela.get(id);
+  if (!x) return;
+  const {doc, pc} = x, p = pcs[pc];
+  if (!p || Lista.compararVersao(p.versao, AGENTE_PDF) < 0)
+    return alert(`Para ver o PDF aqui, o ${pc || "PC"} precisa do Seaninho no celular ${AGENTE_PDF}.`);
+  paginasDoPdf(pc, doc).catch(() => {});
+  const lista = Array.from({length: doc.paginas}, (_, n) => {
+    const id = idPagina(doc.id, n), pronta = paginasPdf.get(id);
+    return {src: pronta || (n === 0 && doc.capa ? doc.capa : folhaVazia(doc.w, doc.h, n + 1)), alta: !!pronta,
+            nome: doc.nome, sub: "PDF", rotuloFaixa: "Página", pagina: n + 1,
+            arquivo: doc.nome.replace(/\.pdf$/i, "") + `-p${n + 1}.jpg`,
+            rotuloAlta: "Carregando a página…", erroAlta: "A página não veio · tocar para tentar de novo",
+            carregarAlta: async () => {
+              await paginasDoPdf(pc, doc);
+              const url = await esperarFoto(id);
+              paginasPdf.set(id, url);
+              return url;
+            },
+            recorte: (r, px) => recortePdf(pc, doc, n, r, px)};
+  });
+  Marcar.ver({lista, indice: 0, faixa: true, extra: [{rotulo: "⬇ PDF", acao: () => baixarPdf(pc, doc)}],
+              aoMarcar: podeMandar() ? f => marcarPagina(doc, f) : null});
+}
+async function recortePdf(pc, doc, n, r, px) {
+  const q = v => Math.round(v * 10000) / 10000, rr = {x0: q(r.x0), y0: q(r.y0), x1: q(r.x1), y1: q(r.y1)};
+  const chave = fnv(`${n}|${rr.x0}|${rr.y0}|${rr.x1}|${rr.y1}|${px}`), id = doc.id + hex4(n) + "c" + chave;
+  if (recortesPdf.has(id)) return recortesPdf.get(id);
+  await acaoPdf(pc, {acao: "pdf_recorte", doc: doc.id, pagina: n, ...rr, px, chave});
+  const url = await esperarFoto(id, 40000);
+  recortesPdf.set(id, url);
+  if (recortesPdf.size > 60) recortesPdf.delete(recortesPdf.keys().next().value);
+  return url;
+}
+async function baixarPdf(pc, doc) {
+  if ((doc.tamanho || 0) > 25 * 1048576)
+    return Marcar.avisoVisor(`O PDF tem ${mb(doc.tamanho)}: grande demais para baixar pelo app (até 25 MB). Abra no PC ou no Drive.`, 6000);
+  try {
+    Marcar.avisoVisor("Pedindo o PDF ao PC…", 0, true);
+    await esperarPedido(await acaoPdf(pc, {acao: "pdf_original", doc: doc.id}));
+    const n = Math.max(1, Math.ceil((doc.tamanho || 1) / 2900000)), partes = [];
+    for (let i = 0; i < n; i++) {
+      Marcar.avisoVisor(`Baixando o PDF (${i + 1} de ${n})…`, 0, true);
+      const url = await esperarFoto(doc.id + "fffd" + i.toString(16).padStart(2, "0"), 30000);
+      partes.push(Uint8Array.from(atob(url.split(",")[1]), c => c.charCodeAt(0)));
+    }
+    const arquivo = new File(partes, doc.nome, {type: "application/pdf"});
+    Marcar.avisoVisor("PDF pronto.", 2500);
+    if (navigator.canShare && navigator.canShare({files: [arquivo]})) {
+      try { await navigator.share({files: [arquivo], title: doc.nome}); return; } catch (e) { if (e && e.name === "AbortError") return; }
+    }
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(arquivo); a.download = doc.nome; a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 60000);
+  } catch (e) { Marcar.avisoVisor("Não deu para baixar: " + (e.message || e), 6000); }
+}
+
+// Marcar páginas: cada página marcada entra nas imagens da mensagem (até 10) e a caixa ganha o resumo das correções.
+// O visor fica aberto: dá para ir à próxima página e marcar de novo; mandar é no chat, de uma vez.
+const correcoes = new Map();   // nome do PDF -> Map(página -> comentário)
+let resumoCorrecoes = "";
+function marcarPagina(doc, f) {
+  const sessao = aberta && aberta.id;
+  Marcar.editar({src: f.src, nome: `${doc.nome} · página ${f.pagina}`, legenda: "",
+    aoConcluir: async (tela, legenda) => {
+      if (!aberta || aberta.id !== sessao) throw new Error("a conversa mudou.");
+      if (anexos.length >= Chat.MAX_IMAGENS) throw new Error(`cabem ${Chat.MAX_IMAGENS} imagens por mensagem.`);
+      anexos.push({...imagemDe(tela), id: "a" + (++nAnexo), pdf: doc.nome, pagina: f.pagina});
+      if (!correcoes.has(doc.nome)) correcoes.set(doc.nome, new Map());
+      correcoes.get(doc.nome).set(f.pagina, String(legenda || "").trim());
+      escreverCorrecoes();
+      desenharAnexos(); ajustarCaixa();
+      Marcar.avisoVisor(`Página ${f.pagina} marcada: vai na mensagem (${anexos.length} ${anexos.length === 1 ? "imagem" : "imagens"}).`, 3500);
+    }});
+}
+function escreverCorrecoes() {
+  const blocos = [...correcoes].map(([nome, pags]) => {
+    const ns = [...pags.keys()].sort((a, b) => a - b);
+    return `Correções no ${nome}: ${ns.length === 1 ? "página" : "páginas"} ${ns.join(", ")}`
+      + ns.filter(n => pags.get(n)).map(n => `\np. ${n}: ${pags.get(n)}`).join("");
+  }).join("\n");
+  const atual = $("texto").value;
+  $("texto").value = resumoCorrecoes && atual.includes(resumoCorrecoes) ? atual.replace(resumoCorrecoes, blocos)
+    : (atual.trim() ? blocos + "\n" + atual : blocos);
+  resumoCorrecoes = blocos;
+  if (aberta) store.set("seaninho.rascunho." + aberta.id, $("texto").value);
+}
+
+// ---- O PDF do celular para a sessão (pelo app Arquivos) ----------------------------------------------------
+async function mandarPdf(arquivo) {
+  const s = sessaoAberta();
+  if (!arquivo || !s) return;
+  if (Lista.compararVersao((pcs[s.pc] || {}).versao, AGENTE_PDF) < 0)
+    return erroMic("texto", `Para mandar PDF, o ${s.pc} precisa do Seaninho no celular ${AGENTE_PDF}.`);
+  if (arquivo.size > 20 * 1048576) return erroMic("texto", `O PDF tem ${mb(arquivo.size)}: o limite é 20 MB.`);
+  const b64 = await new Promise((ok, falha) => {
+    const r = new FileReader();
+    r.onload = () => ok(String(r.result).split(",")[1] || "");
+    r.onerror = () => falha(r.error);
+    r.readAsDataURL(arquivo);
+  }).catch(() => "");
+  if (!b64) return erroMic("texto", "Não consegui ler o PDF.");
+  const corpo = $("texto").value.trim() || `Segue o PDF ${arquivo.name}.`;
+  $("texto").value = ""; store.set("seaninho.rascunho." + s.id, ""); ajustarCaixa();
+  const local = {id: "local" + (++nLocal), sessao: s.id, de: "eu", texto: corpo, t: Math.floor(Date.now() / 1000),
+                 mini: "", grande: "", mime: "application/pdf", pdfNome: `${arquivo.name} · ${mb(arquivo.size)}`};
+  enviarLocal(local, {pc: s.pc, sessao: s.id, titulo: s.titulo || "", texto: corpo, direto: !melhorar, audio: b64, mime: "application/pdf"});
+}
+
+// A galeria da conversa: todas as fotos do chat em tela cheia, com a fileira embaixo.
+function abrirGaleria() {
+  const fotos = [...fotosNaTela.values()];
+  if (!fotos.length) return alert("Ainda não tem foto nesta conversa.");
+  Marcar.ver({lista: fotos.map(f => ({...f})), indice: fotos.length - 1, faixa: true, aoMarcar: podeMandar() ? marcar : null});
 }
 
 // O editor manda para a sessão aberta, pelo mesmo caminho do 📎; a legenda é a caixa do chat (vai e volta com ela).
@@ -1937,10 +2919,21 @@ function conhecidos() {
 }
 
 async function atualizar() {
-  if (!chave) return;
+  if (!chave) return false;
+  const pedidoEm = Date.now();
   let r;
   try { r = await rpc("cel_estado", {conhecidos: conhecidos()}); }
-  catch (e) { if (e.status && /chave/i.test(e.message)) { sair(); } return; }
+  catch (e) {
+    if (e.status && /chave/i.test(e.message)) { sair(); return false; }
+    rede = {...rede, ok: false, erro: motivoRede(e)};
+    desenharInicio();
+    return false;
+  }
+  rede = {ok: true, em: Date.now(), erro: ""};
+  if (r.prefs && Array.isArray(r.prefs.fixadas) && !fixadasSalvando && pedidoEm > fixadasMudouEm) {
+    fixadas = r.prefs.fixadas;   // a do banco vale (outro aparelho pode ter mudado)
+    store.set("seaninho.fixadas", JSON.stringify(fixadas));
+  }
   vapid = r.vapid || "";
   const novos = {};
   for (const p of r.pcs || []) novos[p.pc] = p.igual && pcs[p.pc]
@@ -1949,10 +2942,11 @@ async function atualizar() {
   pedidos = r.pedidos || [];
   const ativo = document.activeElement;
   const digitando = ativo && ["tarefaTexto", "tarefaData", "tarefaHora"].includes(ativo.id);
-  desenharPcs(); desenharSessoes(); desenharFeed(); desenharComandos();
+  desenharPcs(); desenharSessoes(); desenharInicio(); desenharFeed(); desenharComandos(); desenharAiRats();
   if (!digitando) desenharHoje(); else desenharMsgHoje();
   desenharDetalhe();   // o chat cuida do que está sendo editado (a prévia e a "Outra resposta" não se refazem por baixo)
   if (aba === "Copias") await carregarCopias();
+  return true;
 }
 
 function ciclo() {
@@ -2040,12 +3034,110 @@ function mostrarAba(nome) {
   aba = nome;
   document.querySelectorAll("nav button").forEach(x => x.classList.toggle("on", x.dataset.tab === nome));
   $("gear").classList.toggle("on", nome === "Ajustes");
-  ["Claude", "Hoje", "Pedir", "Copias", "Feed", "Ajustes"].forEach(t => $("tab" + t).classList.toggle("hidden", t !== nome));
+  ["Inicio", "Claude", "Hoje", "Pedir", "Copias", "Feed", "Ajustes"].forEach(t => $("tab" + t).classList.toggle("hidden", t !== nome));
   window.scrollTo(0, 0);
+  fecharMenu();
   if (nome === "Copias") carregarCopias();
+  if (nome === "Inicio") desenharInicio();
 }
 document.querySelectorAll("nav button").forEach(b => b.addEventListener("click", () => mostrarAba(b.dataset.tab)));
-$("gear").addEventListener("click", () => mostrarAba(aba === "Ajustes" ? "Claude" : "Ajustes"));
+$("gear").addEventListener("click", () => mostrarAba(aba === "Ajustes" ? "Inicio" : "Ajustes"));
+// Início: cada bloco leva à aba (com o filtro certo), à conversa ou ao detalhe
+$("tabInicio").addEventListener("click", e => {
+  if (e.target.closest("a")) return;
+  const at = e.target.closest("[data-atualizar]");
+  if (at) return atualizarAgora();
+  const t = e.target.closest("[data-trocar]");
+  if (t) return trocarConta(t.dataset.trocar, t);
+  const cc = e.target.closest("[data-conta]");
+  if (cc) return alternarConta(cc.dataset.conta);
+  const pv = e.target.closest("[data-pv]");
+  if (pv) return pv.disabled ? null : responderParaVoce(Number(pv.dataset.pv));
+  if (e.target.closest("[data-pv-todos]")) { paraVoceTodos = true; return desenharInicio(); }
+  if (e.target.closest("[data-recarregar-app]")) return location.reload();
+  if (e.target.closest("[data-ar-abrir]")) return abrirAiRats();
+  if (e.target.closest("[data-ar-cancelar]")) return decidirAiRats("cancelar");
+  const dia = e.target.closest("[data-dia]");
+  if (dia) { diaEscolhido = Number(dia.dataset.dia); return desenharInicio(); }
+  const ab = e.target.closest("[data-abrir]");
+  if (ab) return abrir(ab.dataset.abrirPc, ab.dataset.abrir);
+  const ir = e.target.closest("[data-ir]");
+  if (ir) {
+    if (ir.dataset.filtro) { filtros = {estado: ir.dataset.filtro}; busca = ""; $("busca").value = ""; store.set("seaninho.filtros", JSON.stringify(filtros)); }
+    mostrarAba(ir.dataset.ir);
+    desenharSessoes();
+  }
+});
+$("aiRats").addEventListener("click", e => {
+  if (e.target.closest("#arFechar")) return fecharAiRats();
+  if (e.target.closest("[data-ar-postar]")) return decidirAiRats("postar");
+  if (e.target.closest("[data-ar-cancelar]")) return decidirAiRats("cancelar");
+});
+$("aiRats").addEventListener("input", e => {
+  if (e.target.id !== "arTexto") return;
+  const a = aiRatsAtual();
+  if (a) { arTexto[a.id] = e.target.value; desenharAiRats(); }
+});
+$("dMais").addEventListener("click", () => {
+  if (!aberta) return;
+  const {pc, id} = aberta, viva = todasSessoes().some(s => s.id === id && s.pc === pc);
+  const itens = [[Lista.fixada(fixadas, {pc, id}) ? "Desafixar" : "📌 Fixar no topo", () => alternarFixada(pc, id)],
+                 ...(fotosNaTela.size ? [[`🖼️ Galeria (${fotosNaTela.size} ${fotosNaTela.size === 1 ? "foto" : "fotos"})`, abrirGaleria]] : []),
+                 ...(viva ? itensDeAcoes(pc, id) : [])];
+  abrirMenu(itens, $("dMais"));
+});
+$("tabInicio").addEventListener("toggle", e => {
+  if (e.target.matches("[data-tabela]")) tabelaAberta = e.target.open;
+  if (e.target.matches("[data-mudou]")) mudouAberto = e.target.open;
+}, true);
+function alternarConta(pc) {
+  const k = "seaninho.conta." + pc;
+  store.set(k, store.get(k) === "aberta" ? "" : "aberta");
+  desenharSessoes(); desenharInicio();
+}
+// Sessões: busca, filtros, fixadas e o arrasto do cartão
+$("busca").addEventListener("input", () => {
+  busca = $("busca").value;
+  $("buscaLimpar").classList.toggle("hidden", !busca);
+  desenharSessoes();
+});
+$("busca").addEventListener("keydown", e => { if (e.key === "Enter") $("busca").blur(); });
+$("buscaLimpar").addEventListener("click", () => { $("busca").value = ""; busca = ""; $("buscaLimpar").classList.add("hidden"); desenharSessoes(); $("busca").focus(); });
+$("filtros").addEventListener("click", e => {
+  if (e.target.closest("[data-limpar]")) { filtros = {}; store.set("seaninho.filtros", ""); return desenharSessoes(); }
+  if (e.target.closest("[data-pastas]")) return escolherPasta();
+  const f = e.target.closest("[data-f]");
+  if (f) mudarFiltro(f.dataset.f, f.dataset.v);
+});
+$("folhaFundo").addEventListener("click", e => {
+  const op = e.target.closest("[data-op]");
+  if (op && folhaEscolher) { const f = folhaEscolher; fecharFolha(); return f(op.dataset.op); }
+  if (e.target === $("folhaFundo")) fecharFolha();
+});
+$("menuSessao").addEventListener("click", e => {
+  const b = e.target.closest("[data-m]");
+  const acao = b && menuAcoes[Number(b.dataset.m)];
+  fecharMenu();
+  if (acao) acao();
+});
+document.addEventListener("pointerdown", e => { if (!e.target.closest("#menuSessao") && !arrastoFixada) fecharMenu(); }, true);
+$("sessoesLista").addEventListener("pointerdown", pegarSessao);
+$("sessoesLista").addEventListener("pointermove", moverSessao);
+$("sessoesLista").addEventListener("pointerup", soltarSessao);
+$("sessoesLista").addEventListener("pointercancel", soltarSessao);
+$("sessoesLista").addEventListener("contextmenu", e => { if (e.target.closest(".sl")) e.preventDefault(); });
+$("fixadas").addEventListener("pointerdown", pegarFixada);
+$("fixadas").addEventListener("pointermove", moverFixada);
+$("fixadas").addEventListener("pointerup", soltarFixada);
+$("fixadas").addEventListener("pointercancel", soltarFixada);
+$("fixadas").addEventListener("contextmenu", e => e.preventDefault());
+$("fixadas").addEventListener("touchmove", e => { if (arrastoFixada && arrastoFixada.modo) e.preventDefault(); }, {passive: false});
+$("fixadas").addEventListener("click", e => {
+  const fx = e.target.closest(".fx");
+  if (!fx || Date.now() - gestoFim < 400) return;
+  if (todasSessoes().some(s => s.id === fx.dataset.id && s.pc === fx.dataset.pc)) abrir(fx.dataset.pc, fx.dataset.id);
+  else avisar("appAviso", "Essa sessão está fechada no PC. Toque e segure para desafixar.", {});
+});
 $("tabHoje").addEventListener("click", e => {
   const b = e.target.closest("[data-acao-hoje]");
   if (b) return acaoHoje({acao: b.dataset.acaoHoje, ml: Number(b.dataset.ml) || undefined}, b);
@@ -2062,7 +3154,14 @@ $("imgVoltar").addEventListener("click", () => { $("imagem").classList.add("hidd
 $("tabClaude").addEventListener("click", e => {
   const t = e.target.closest("[data-trocar]");
   if (t) return trocarConta(t.dataset.trocar, t);
-  const c = e.target.closest(".card"); if (c) abrir(c.dataset.pc, c.dataset.id);
+  const cc = e.target.closest("[data-conta]");
+  if (cc) return alternarConta(cc.dataset.conta);
+  if (e.target.closest("[data-limpar-tudo]")) {
+    filtros = {}; store.set("seaninho.filtros", ""); busca = ""; $("busca").value = ""; $("buscaLimpar").classList.add("hidden");
+    return desenharSessoes();
+  }
+  if (Date.now() - gestoFim < 400) return;   // o fim do arrasto ou do toque longo não abre a conversa
+  const c = e.target.closest(".sl .card"); if (c) abrir(c.dataset.pc, c.dataset.id);
 });
 $("dSugestoes").addEventListener("click", e => {
   if (e.target.closest("#melhorar")) {
@@ -2112,6 +3211,8 @@ $("dMsgs").addEventListener("click", e => {
   }
   const rec = e.target.closest("[data-recarregar]");
   if (rec) { nitidasErro.delete(rec.dataset.recarregar); return desenharDetalhe(); }   // de novo: entra na fila
+  const doc = e.target.closest("[data-doc]");
+  if (doc) return abrirPdf(doc.dataset.doc);
   const foto = e.target.closest("img[data-ver]");
   if (foto) return abrirFoto(foto);
   const er = e.target.closest("[data-erro]");
@@ -2143,6 +3244,8 @@ $("mandar").addEventListener("click", mandar);
 $("dClipe").addEventListener("click", tocarClipe);
 $("dEscolher").addEventListener("click", () => { menuAnexo(false); $("dArquivo").click(); });
 $("dColar").addEventListener("click", colarDoMenu);
+$("dPdfEscolher").addEventListener("click", () => { menuAnexo(false); $("dPdf").click(); });
+$("dPdf").addEventListener("change", e => { const f = (e.target.files || [])[0]; e.target.value = ""; if (f) mandarPdf(f); });
 $("texto").addEventListener("paste", colarNaCaixa);
 $("detalhe").addEventListener("click", e => {   // tocar fora do menu fecha
   if (!$("dMenuAnexo").classList.contains("hidden") && !e.target.closest("#dMenuAnexo, #dClipe, #dAnexoMais")) menuAnexo(false);
@@ -2184,13 +3287,22 @@ $("pushBtn").addEventListener("click", ativarPush);
 $("desparear").addEventListener("click", () => { if (confirm("Desconectar este celular?")) sair(); });
 document.addEventListener("visibilitychange", () => { ciclo(); if (!chave) pedirCodigo(); });
 
-if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => {});
+if ("serviceWorker" in navigator) {
+  const tinha = !!navigator.serviceWorker.controller;   // na 1ª instalação também troca: aí não é versão nova
+  navigator.serviceWorker.addEventListener("controllerchange", () => { if (tinha) { appNovo = true; desenharInicio(); } });
+  navigator.serviceWorker.register("sw.js").then(reg => {
+    document.addEventListener("visibilitychange", () => {
+      if (reg && document.visibilityState === "visible") try { reg.update().catch(() => {}); } catch {}
+    });
+  }).catch(() => {});
+}
 if (!CFG.url || !CFG.publica) {
   document.body.insertAdjacentHTML("beforeend", `<div class="empty">Falta o config.js (endereço do Supabase).</div>`);
 } else if (chave) {
   entrar();
   const h = new URLSearchParams(location.hash.slice(1));   // vindo de uma notificação
   if (h.get("sessao")) atualizar().then(() => abrir(h.get("pc") || "", h.get("sessao")));
+  else if (h.get("airats")) { history.replaceState(null, "", location.pathname); atualizar().then(abrirAiRats); }
 } else {
   mostrarParear();
 }

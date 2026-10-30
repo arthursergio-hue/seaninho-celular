@@ -309,7 +309,7 @@ function acharCitada(linhas, cita, horaDe) {
   const foto = /^foto (\S+)/.exec(trecho);
   const alvo = normalizar(foto ? trecho.slice(foto[0].length).replace(/^: /, "") : trecho).toLowerCase().slice(0, 60);
   return (linhas || []).find(l => l.tipo === "msg" && horaDe(l.t) === cita.hora && (
-    foto ? (l.fotos || []).some(f => f.nome === foto[1]) || (!alvo && (l.minis || l.mini || l.n_imagens))
+    foto ? (l.fotos || []).some(f => f.nome === foto[1]) || (l.docs || []).some(d => d.nome === foto[1]) || (!alvo && (l.minis || l.mini || l.n_imagens))
          : normalizar(separarCitacao(l.texto).texto).toLowerCase().replace(/"/g, "'").startsWith(alvo))) || null;
 }
 

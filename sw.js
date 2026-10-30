@@ -1,6 +1,6 @@
 // Seaninho no celular: guarda a casca da página (abre sem rede) e mostra as notificações.
-const CACHE = "seaninho-v10";
-const CASCA = ["./", "./index.html", "./config.js", "./chat.js", "./marcar.js", "./manifest.webmanifest", "./icone-180.png", "./icone-192.png"];
+const CACHE = "seaninho-v12";
+const CASCA = ["./", "./index.html", "./config.js", "./chat.js", "./lista.js", "./marcar.js", "./manifest.webmanifest", "./icone-180.png", "./icone-192.png"];
 
 self.addEventListener("install", e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(CASCA)));
@@ -33,7 +33,8 @@ self.addEventListener("push", e => {
 self.addEventListener("notificationclick", e => {
   e.notification.close();
   const d = e.notification.data || {};
-  const url = `./#sessao=${encodeURIComponent(d.sessao || "")}&pc=${encodeURIComponent(d.pc || "")}`;
+  const url = d.tipo === "ai_rats" ? "./#airats=1"   // a prévia do post do AI Rats
+    : `./#sessao=${encodeURIComponent(d.sessao || "")}&pc=${encodeURIComponent(d.pc || "")}`;
   e.waitUntil(self.clients.matchAll({type: "window", includeUncontrolled: true}).then(abertas => {
     for (const c of abertas) {
       if ("navigate" in c) c.navigate(url);

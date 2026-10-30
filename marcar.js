@@ -262,14 +262,81 @@ const Grandes = {
 // ---- Visor: a imagem em tela cheia (pinça, arrastar, toque duplo, deslizar para o lado ou para fechar) -------------
 const V = {e: {s: 1, x: 0, y: 0}, dedos: new Map(), w: 0, h: 0, W: 0, H: 0, opts: null, toque: null, unico: 0};
 
-// opts: {lista: [{src, nome, sub, chave?}], indice, aoMarcar(foto)?} (ou uma foto só: {src, nome, ...}).
+// opts: {lista: [{src, nome, sub, chave?, carregarAlta?, recorte?}], indice, aoMarcar(foto)?, faixa?, extra?}
+// (ou uma foto só: {src, nome, ...}). faixa: as miniaturas embaixo (PDF, galeria); extra: [{rotulo, acao(foto)}] em cima;
+// recorte(r, px): o pedaço r ({x0, y0, x1, y1}, de 0 a 1) nítido, com px de largura (PDF no zoom).
 function ver(opts) {
   const lista = opts.lista || [opts];
   V.opts = {...opts, lista, indice: clamp(opts.indice || 0, 0, lista.length - 1)};
   $("vTopo").classList.remove("some");
   $("visor").style.background = "";
   $("visor").classList.remove("hidden");
+  $("vExtra").innerHTML = "";
+  for (const [i, x] of (opts.extra || []).entries()) {
+    const b = document.createElement("button");
+    b.className = "v-extra-b"; b.dataset.extra = i; b.textContent = x.rotulo;
+    $("vExtra").append(b);
+  }
+  $("vFaixa").innerHTML = ""; $("vFaixa")._lista = null;
   mostrarFoto();
+}
+// A fileira de miniaturas (PDF, galeria): a de agora em destaque e à vista.
+function desenharFaixa() {
+  const el = $("vFaixa"), o = V.opts;
+  const mostrar = !!(o && o.faixa && o.lista.length > 1);
+  el.classList.toggle("hidden", !mostrar);
+  if (!mostrar) return;
+  if (el._lista !== o.lista) {
+    el._lista = o.lista; el.innerHTML = "";
+    o.lista.forEach((f, i) => {
+      const b = document.createElement("button"), im = document.createElement("img"), n = document.createElement("span");
+      b.dataset.faixa = i; b.setAttribute("aria-label", `${f.rotuloFaixa || "Imagem"} ${i + 1}`);
+      im.alt = ""; im.loading = "lazy"; im.draggable = false; n.textContent = i + 1;
+      b.append(im, n); el.append(b);
+    });
+  }
+  [...el.children].forEach((b, i) => {
+    const f = o.lista[i], src = f.mini || f.src;
+    if (b.firstChild.getAttribute("src") !== src) b.firstChild.src = src;
+    b.classList.toggle("on", i === o.indice);
+  });
+  const atual = el.children[o.indice];
+  if (atual && atual.scrollIntoView) atual.scrollIntoView({block: "nearest", inline: "center"});
+}
+
+// ---- Recorte nítido no zoom: o pedaço que está na tela, na resolução da tela, por cima da imagem (PDF A1) -------
+let recorteTimer = 0, recorteSeq = 0;
+function semRecorte() {
+  clearTimeout(recorteTimer); recorteSeq++;
+  const r = $("vRecorte");
+  r.classList.add("hidden"); r.removeAttribute("src");
+}
+function pedirRecorte() {
+  semRecorte();
+  const f = fotoAtual();
+  if (!f || !f.recorte || V.e.s < 1.5 || !V.w) return;
+  const seq = recorteSeq;
+  recorteTimer = setTimeout(() => {
+    const s = V.e.s, w = V.w * s, h = V.h * s, left = V.W / 2 + V.e.x - w / 2, top = V.H / 2 + V.e.y - h / 2;
+    const vx0 = Math.max(0, left), vy0 = Math.max(0, top), vx1 = Math.min(V.W, left + w), vy1 = Math.min(V.H, top + h);
+    if (vx1 - vx0 < 30 || vy1 - vy0 < 30) return;
+    const r = {x0: (vx0 - left) / w, y0: (vy0 - top) / h, x1: (vx1 - left) / w, y1: (vy1 - top) / h};
+    const px = Math.round(Math.min(2600, (vx1 - vx0) * Math.min(3, window.devicePixelRatio || 2)));
+    const aviso = $("vAlta");
+    aviso.innerHTML = `<i class="spin"></i>Deixando nítido…`; aviso.classList.remove("hidden"); aviso.onclick = null;
+    f.recorte(r, px).then(url => {
+      if (seq !== recorteSeq || fotoAtual() !== f) return;
+      aviso.classList.add("hidden");
+      if (!url) return;
+      const el = $("vRecorte");
+      Object.assign(el.style, {left: vx0 + "px", top: vy0 + "px", width: (vx1 - vx0) + "px", height: (vy1 - vy0) + "px"});
+      el.src = url; el.classList.remove("hidden");
+    }).catch(() => {
+      if (seq !== recorteSeq || fotoAtual() !== f) return;
+      aviso.textContent = "Não ficou nítido · tocar para tentar de novo";
+      aviso.onclick = pedirRecorte;
+    });
+  }, 450);
 }
 const fotoAtual = () => V.opts && V.opts.lista[V.opts.indice];
 function mostrarFoto() {
@@ -284,6 +351,8 @@ function mostrarFoto() {
   $("vMarcar").classList.toggle("hidden", !V.opts.aoMarcar);
   V.e = {s: 1, x: 0, y: 0};
   aplicar(false);
+  semRecorte();
+  desenharFaixa();
   if (f.chave && !f.grande) Grandes.ler(f.chave).then(url => {   // a minha foto: a grande, guardada no celular
     if (!url) return;
     Object.assign(f, {src: url, grande: true});
@@ -295,17 +364,19 @@ function mostrarFoto() {
 function baixarAlta(f) {
   const aviso = $("vAlta");
   if (!f.carregarAlta || f.alta) { aviso.classList.add("hidden"); return; }
-  aviso.innerHTML = `<i class="spin"></i>Baixando em alta…`;
+  aviso.innerHTML = `<i class="spin"></i>${f.rotuloAlta || "Baixando em alta…"}`;
   aviso.classList.remove("hidden");
   aviso.onclick = null;
   f.carregarAlta().then(url => {
     Object.assign(f, {src: url, alta: true});
+    desenharFaixa();
     if (fotoAtual() !== f) return;
     $("vImg").src = url;
     aviso.classList.add("hidden");
+    if (V.e.s > 1.02) pedirRecorte();
   }).catch(() => {
     if (fotoAtual() !== f) return;
-    aviso.textContent = "Não veio em alta · tocar para tentar de novo";
+    aviso.textContent = f.erroAlta || "Não veio em alta · tocar para tentar de novo";
     aviso.onclick = () => baixarAlta(f);
   });
 }
@@ -317,6 +388,7 @@ function passar(passo) {
   return true;
 }
 function fecharVisor() {
+  semRecorte();
   $("visor").classList.add("hidden");
   $("vAlta").classList.add("hidden");
   $("vImg").removeAttribute("src");
@@ -346,6 +418,7 @@ function dedosVisor() {
 }
 function visorDown(e) {
   try { e.currentTarget.setPointerCapture(e.pointerId); } catch {}
+  semRecorte();
   V.dedos.set(e.pointerId, pontoVisor(e));
   if (V.dedos.size === 2) { V.pinca = {...dedosVisor(), e0: {...V.e}}; V.toque = null; }
   else if (V.dedos.size === 1) V.toque = {p0: pontoVisor(e), e0: {...V.e}, t0: Date.now(), moveu: false, modo: ""};
@@ -385,7 +458,7 @@ function visorUp(e) {
   if (V.dedos.size) return;
   const t = V.toque, pinca = V.pinca;
   V.toque = V.pinca = null;
-  if (pinca || (t && t.modo === "arrastar")) { V.e = limitar(V.e, V.w, V.h, V.W, V.H); return aplicar(true); }
+  if (pinca || (t && t.modo === "arrastar")) { V.e = limitar(V.e, V.w, V.h, V.W, V.H); aplicar(true); return pedirRecorte(); }
   if (!t) return;
   const [x, y] = pontoVisor(e), dx = x - t.p0[0], dy = y - t.p0[1], ms = Math.max(1, Date.now() - t.t0);
   if (t.modo === "fechar") {
@@ -402,7 +475,8 @@ function visorUp(e) {
   if (V.ultimo && agora - V.ultimo.t < 300 && Math.hypot(p[0] - V.ultimo.p[0], p[1] - V.ultimo.p[1]) < 30) {
     clearTimeout(V.unico); V.ultimo = null;
     V.e = V.e.s > 1.05 ? {s: 1, x: 0, y: 0} : limitar(zoomEm(V.e, 2.5, p[0], p[1]), V.w, V.h, V.W, V.H);
-    return aplicar(true);
+    aplicar(true);
+    return pedirRecorte();
   }
   V.ultimo = {t: agora, p};
   clearTimeout(V.unico);
@@ -916,6 +990,16 @@ function iniciar() {
   $("vFechar").addEventListener("click", fecharVisor);
   $("vSalvar").addEventListener("click", () => { const f = fotoAtual(); if (f) salvar(f.src, f.arquivo || f.nome); });
   $("vMarcar").addEventListener("click", () => { const f = fotoAtual(); if (f && V.opts.aoMarcar) V.opts.aoMarcar(f); });
+  $("vFaixa").addEventListener("click", ev => {
+    const b = ev.target.closest("[data-faixa]");
+    if (!b || !V.opts) return;
+    V.opts.indice = Number(b.dataset.faixa);
+    mostrarFoto();
+  });
+  $("vExtra").addEventListener("click", ev => {
+    const b = ev.target.closest("[data-extra]"), x = b && V.opts && (V.opts.extra || [])[Number(b.dataset.extra)];
+    if (x) x.acao(fotoAtual());
+  });
   $("eZoom").addEventListener("click", () => { E.vista = {s: 1, x: 0, y: 0}; aplicarVista(true); });
   // editor
   const c = tela();
@@ -957,7 +1041,7 @@ function iniciar() {
   $("eEscrever").addEventListener("pointerdown", ev => { if (ev.target === $("eEscrever")) { ev.preventDefault(); fimDeEscrever(); } });
   const seguir = () => {
     if (!$("editor").classList.contains("hidden")) { alturaEditor(); encaixarEditor(); desenhar(); }
-    if (!$("visor").classList.contains("hidden")) encaixarVisor();
+    if (!$("visor").classList.contains("hidden")) { encaixarVisor(); semRecorte(); }
   };
   addEventListener("resize", seguir);
   // a pinça do Safari (gesture*) amplia a página por cima do visor e do editor: lá, os dois dedos são nossos
@@ -966,6 +1050,15 @@ function iniciar() {
   if (window.visualViewport) visualViewport.addEventListener("resize", seguir);
 }
 
-raiz.Marcar = {...Conta, ver, fecharVisor, editar, sairEditor, iniciar, salvar, Grandes, blobDe, icone: svg,
+// Um aviso curto no visor (em cima da imagem), por `ms`.
+function avisoVisor(texto, ms = 3500, spin = false) {
+  const a = $("vAlta");
+  a.innerHTML = spin ? `<i class="spin"></i>` : ""; a.append(texto); a.onclick = null; a.classList.remove("hidden");
+  clearTimeout(a._sumir);
+  if (ms) a._sumir = setTimeout(() => a.classList.add("hidden"), ms);
+}
+
+raiz.Marcar = {...Conta, ver, fecharVisor, editar, sairEditor, iniciar, salvar, Grandes, blobDe, icone: svg, avisoVisor,
+               atualFoto: () => fotoAtual(), aberturaVisor: () => !$("visor").classList.contains("hidden"),
                aberto: () => !$("editor").classList.contains("hidden"), estado: () => E, visor: () => V};
 })(typeof window !== "undefined" ? window : globalThis);
