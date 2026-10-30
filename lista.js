@@ -8,10 +8,11 @@ const ESTADOS = [["esperando", "Esperando você"], ["trabalhando", "Trabalhando"
 const GRUPOS = ["SZI", "Seaninho", "Pessoais", "Outras"];
 const MAX_FIXADAS = 30;
 
-// O estado de uma sessão na lista e no painel: "esperando" (pergunta, enquete ou permissão), "trabalhando",
-// "ociosa" (parou há menos de 1 h) ou "parada".
+// O estado de uma sessão na lista e no painel: "esperando" (pergunta, enquete, permissão ou um item do "Para você"
+// do maestro que veio dela, ainda sem resposta: paraVoce, que a página marca), "trabalhando", "ociosa" (parou há
+// menos de 1 h) ou "parada".
 function estadoDe(s, agoraMs) {
-  if (s.estado === "perguntando" || s.permissao || s.enquete) return "esperando";
+  if (s.estado === "perguntando" || s.permissao || s.enquete || s.paraVoce) return "esperando";
   if (s.estado === "trabalhando") return "trabalhando";
   return agoraMs / 1000 - (s.desde || 0) > PARADA_S ? "parada" : "ociosa";
 }

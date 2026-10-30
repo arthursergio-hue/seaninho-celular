@@ -289,7 +289,7 @@ function nImagens(mime) {
 //   ↩ Respondendo a (Claude, 08:14): "começo da mensagem" — o texto
 // (a entrega no VS Code é de uma linha só). O trecho não leva aspas duplas (viram simples), e o celular separa de novo
 // a citação para desenhar o balão.
-const CITA = /^↩ Respondendo a \(([^,()]+), (\d{1,2}:\d{2})\): "([^"]*)"\s*(?:—\s*)?/;
+const CITA = /^↩\uFE0F? Respondendo a \(([^,()]+), (\d{1,2}:\d{2})\): "([^"]*)"\s*(?:—\s*)?/;   // o ↩ pode vir com o seletor de emoji (U+FE0F)
 const MAX_TRECHO = 200;
 function citacao(m) {   // m: {nome, hora, texto, foto?}
   let trecho = String(m.texto || "").replace(/\s+/g, " ").trim();

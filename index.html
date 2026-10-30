@@ -381,7 +381,18 @@ button.bloco-cab{display:block;width:100%;text-align:left}
 .esp-ir{flex:none;font-size:13.5px;font-weight:650;color:var(--navy);background:var(--gold);padding:6px 11px;border-radius:999px}
 .pv-resumo{margin:-4px 0 8px;font-size:13.5px;color:var(--muted)}
 .pv-item{padding:10px 0;border-top:1px solid var(--stroke);font-size:14.5px}
-.pv-acoes{display:flex;gap:8px;margin-top:8px}
+.pv-acoes{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.pv-de{font-size:12.5px;font-weight:600;color:var(--muted);margin-bottom:3px}
+.pv-de .alerta{font-weight:500}
+.pv-feito{margin-top:6px;font-size:12.5px;color:var(--green)}
+.pv-feito .alerta{color:var(--gold)}
+.pv-feito a{color:var(--gold-2);font-weight:650;text-decoration:underline}
+.pv-acoes .pv-ok,.pv-acoes .pv-sec{background:var(--glass-2);color:var(--ink)}
+.pv-msg{margin:8px 0 2px;padding:8px 11px;border-left:3px solid var(--gold);border-radius:8px;background:var(--glass-2);font-size:13.5px;white-space:pre-wrap;overflow-wrap:anywhere}
+.pv-rot{display:block;margin-top:10px;font-size:12px;font-weight:650;color:var(--muted)}
+.pv-rasc{display:block;width:100%;margin-top:4px;min-height:84px;padding:9px 11px;border:1px solid var(--stroke);border-radius:12px;background:var(--glass-2);color:var(--ink);font:inherit;font-size:16px;line-height:1.35;resize:vertical}
+.pv-rasc:disabled{opacity:.6}
+.pv-nota{display:block;width:100%;margin:0 0 10px;padding:10px 12px;border-radius:12px;background:var(--glass-2);text-align:left;font-size:13.5px;color:var(--ink)}
 .pv-acoes a,.pv-acoes button{font-size:13px;font-weight:650;padding:5px 11px;border-radius:999px;text-decoration:none}
 .pv-acoes button{background:var(--gold);color:var(--navy)}
 .pv-acoes button:disabled{background:var(--glass-2);color:var(--faint)}
@@ -774,9 +785,10 @@ const edicoes = {};      // id do pedido -> o texto como a pessoa editou (a tela
 let sugestoesAtuais = []; // as respostas prontas da sessão aberta (o PC pede à IA quando o Claude pergunta ou termina)
 let timer = null, timerSala = null;
 let aba = "Inicio";
-const VERSAO_APP = "0.8.5";     // esta página
-const AGENTE_ATUAL = "0.8.5";   // o agente que acompanha esta página (os PCs atrás dele aparecem no painel)
+const VERSAO_APP = "0.8.6";     // esta página
+const AGENTE_ATUAL = "0.8.6";   // o agente que acompanha esta página (os PCs atrás dele aparecem no painel)
 const NOVIDADES_APP = [
+  ["0.8.6", "Para você: o Responder vai para a sessão que perguntou (em qualquer PC) e o maestro fica sabendo; responder o Slack com o rascunho pronto; ✓ Resolvido; o contador Esperando você conta esses itens."],
   ["0.8.5", "PDF no chat: páginas em tela cheia, zoom nítido nas pranchas, marcar várias páginas e mandar; PDF do celular para a sessão; galeria das fotos."],
   ["0.8.4", "Início com o painel do dia; Sessões com busca, filtros e fixadas no topo; contas do Claude compactas."],
   ["0.8.3", "Fotos do Claude nítidas, várias imagens por mensagem, responder arrastando o balão e tentar de novo."],
@@ -791,6 +803,18 @@ let rede = {ok: null, em: 0, erro: ""};            // a última volta do cel_est
 let appNovo = false;                               // o service worker trocou: há versão nova da página
 let diaEscolhido = -1;                             // o dia tocado no gráfico do painel (-1: hoje)
 let paraVoceTodos = false;
+// "Para você" (0.8.6): o item que veio de uma sessão responde direto a ela, e o maestro fica sabendo quando a resposta
+// entra (acao nota_maestro no PC dele: uma linha na caixa da orquestra). O ✓ Resolvido esconde o item aqui até o
+// maestro tirar da lista (ou 12 h) e só avisa depois do tempo do "Desfazer".
+const AGENTE_NOTA = "0.8.6";
+const PV_GUARDA_MS = 12 * 3600e3, PV_DESFAZER_MS = window.__pvDesfazerMs || 6000;
+let pvResolvidos = lerJson("seaninho.pvResolvidos", {});    // chave do item -> quando
+let pvRespondidos = lerJson("seaninho.pvRespondidos", {});  // chave do item -> {t, nome, pedido, nota, maestro}
+let notasMaestro = lerJson("seaninho.notasMaestro", []);    // avisos ao maestro esperando a vez
+// O item que veio do Slack (DM ou menção): o rascunho editado fica no aparelho; o "Enviar no Slack" (com confirmação)
+// vira a acao slack_responder no PC do maestro, que posta pela conta do Slack do Seaninho e conta ao maestro.
+let pvSlack = lerJson("seaninho.pvSlack", {});              // chave -> {t, ref, pedido, ok, link, erroLocal}
+let pvRascunhos = lerJson("seaninho.pvRascunhos", {});      // chave -> {v, t}
 let tabelaAberta = false, mudouAberto = false;
 let copias = {};         // pc -> [cópias], baixadas só quando o copias_em do PC muda e a aba está aberta
 const copiasEm = {};     // pc -> copias_em que já temos
@@ -833,6 +857,7 @@ const ICONE = {saude:"💧", reuniao:"📅", agenda:"📅", lembrete:"⏰", tare
 function todasSessoes() {
   const out = [];
   for (const p of Object.values(pcs)) for (const s of p.sessoes || []) out.push({...s, pc: p.pc});
+  marcarParaVoce(out);
   const ordem = {perguntando: 0, trabalhando: 1, ociosa: 2};
   return out.sort((a, b) => (ordem[a.estado] - ordem[b.estado]) || (b.desde - a.desde));
 }
@@ -854,7 +879,7 @@ const iniciais = t => (String(t || "?").replace(/[^\p{L}\p{N} ]/gu, " ").trim().
 
 function desenharSessoes() {
   const ss = todasSessoes(), agora = Date.now();
-  const c = Lista.contar(ss, agora);
+  const c = contarSessoes(ss, agora);
   for (const id of ["nAsk", "nInicio"]) { $(id).textContent = c.esperando; $(id).classList.toggle("hidden", !c.esperando); }
   por($("contasLista"), contasCompactas());
   if (gestoSessao || arrastoFixada) return;   // não refaz o que está embaixo do dedo
@@ -870,17 +895,20 @@ function desenharSessoes() {
       <button class="btn sec" data-limpar-tudo>Limpar ${busca.trim() && !Lista.semFiltro(filtros) ? "busca e filtros" : busca.trim() ? "a busca" : "os filtros"}</button></div>`;
   else if (!lista.length) html = `<p class="note">Todas as sessões abertas estão fixadas acima.</p>`;
   else html = lista.map(s => cartaoSessao(s, varios)).join("");
+  if (c.slack && (filtros.estado === "esperando" || !filtrando))
+    html = `<button class="pv-nota" data-ir-pv>💬 ${c.slack === 1 ? "1 mensagem do Slack espera" : c.slack + " mensagens do Slack esperam"} você: no Para você, no Início ›</button>` + html;
   por($("sessoesLista"), html);
 }
 
 function cartaoSessao(s, varios) {
   const fixa = Lista.fixada(fixadas, s);
   return `<div class="sl" data-pc="${esc(s.pc)}" data-id="${esc(s.id)}"><div class="sl-acao">${fixa ? "Desafixar" : "📌 Fixar"}</div>
-    <button class="card sessao ${s.estado === "perguntando" ? "ask" : ""}" data-pc="${esc(s.pc)}" data-id="${esc(s.id)}">
+    <button class="card sessao ${s.estado === "perguntando" || s.paraVoce ? "ask" : ""}" data-pc="${esc(s.pc)}" data-id="${esc(s.id)}">
       <div class="row"><div class="title">${fixa ? `<span class="pino" aria-label="Fixada">📌</span> ` : ""}${esc(s.titulo)}</div><span class="chip ${esc(s.estado)}">${ESTADO[s.estado] || esc(s.estado)}</span></div>
       <div class="meta">${esc(s.pasta)}${varios ? " · " + esc(s.pc) : ""} · ${ha(s.desde * 1000)}</div>
       ${s.permissao && !s.enquete ? `<div class="q">${esc(previa(s))}</div>`
         : s.estado === "perguntando" && (s.enquete || s.detalhe) ? `<div class="q">${s.enquete ? "📊 " : ""}${esc(s.enquete ? s.enquete.perguntas[0].pergunta : s.detalhe)}</div>`
+        : s.paraVoce ? `<div class="q">🎼 Para você: ${esc(s.paraVoce)}</div>`
         : previa(s) ? `<div class="prev">${esc(previa(s))}</div>` : ""}
     </button></div>`;
 }
@@ -1080,7 +1108,7 @@ function desenharInicio() {
   if (aba !== "Inicio" || !el) return;
   if (!el.querySelector(".painel-topo")) el.innerHTML = `<div class="painel-topo" id="pTopo"></div>`
     + PAINEL_BLOCOS.map(b => `<div id="p-${b}"></div>`).join("");
-  const agora = Date.now(), ss = todasSessoes(), c = Lista.contar(ss, agora);
+  const agora = Date.now(), ss = todasSessoes(), c = contarSessoes(ss, agora);
   const lista = Object.values(pcs).sort((a, b) => a.pc.localeCompare(b.pc));
   const paineis = lista.map(painelDe);
   por($("pTopo"), rede.ok === false
@@ -1094,7 +1122,8 @@ function desenharInicio() {
   por($("p-airats"), blocoAiRats());
   por($("p-esperando"), blocoEsperando(ss, agora));
   por($("p-sessoes"), blocoSessoes(c, lista));
-  por($("p-paravoce"), blocoParaVoce(lista));
+  const escrevendo = document.activeElement && document.activeElement.matches && document.activeElement.matches("#p-paravoce textarea");
+  if (!escrevendo) por($("p-paravoce"), blocoParaVoce(lista));
   por($("p-contas"), contasCompactas() ? `<section class="bloco"><h3>⏳ Contas do Claude</h3>${contasCompactas()}</section>` : "");
   por($("p-metricas"), blocoMetricas(lista, paineis));
   por($("p-saude"), blocoSaude(lista, paineis, agora));
@@ -1105,16 +1134,22 @@ function desenharInicio() {
 function oQueEspera(s) {
   if (s.permissao && !s.enquete) return (s.permissao.plano ? "📋 Plano para aprovar: " : "🔐 Pede permissão: ") + s.permissao.titulo;
   if (s.enquete) return "📊 " + s.enquete.perguntas[0].pergunta;
+  if (s.paraVoce && s.estado !== "perguntando") return "🎼 Para você: " + s.paraVoce;
   return s.detalhe || previa(s) || "Esperando você";
 }
 function blocoEsperando(ss, agora) {
-  const esp = ss.filter(s => Lista.estadoDe(s, agora) === "esperando");
-  if (!esp.length) return "";
+  const esp = ss.filter(s => Lista.estadoDe(s, agora) === "esperando"), soltos = slackSoltos();
+  if (!esp.length && !soltos.length) return "";
   const varios = Object.keys(pcs).length > 1;
-  return `<section class="bloco destaque"><h3>🔔 Esperando você <button class="ir" data-ir="Claude" data-filtro="esperando">${esp.length > 3 ? `Ver todas (${esp.length})` : "Ver na lista"} ›</button></h3>`
-    + esp.slice(0, 3).map(s => `<button class="esp-item" data-abrir-pc="${esc(s.pc)}" data-abrir="${esc(s.id)}">
+  const linhas = esp.map(s => `<button class="esp-item" ${s.paraVoce && s.estado !== "perguntando" && !s.permissao && !s.enquete
+          ? `data-pv="${s.paraVoceI}"` : `data-abrir-pc="${esc(s.pc)}" data-abrir="${esc(s.id)}"`}>
         <span class="esp-t"><b>${esc(s.titulo)}${varios ? ` <span class="meta">· ${esc(nomeCurtoPc(s.pc))}</span>` : ""}</b><small>${esc(oQueEspera(s))}</small></span>
-        <span class="esp-ir">Responder</span></button>`).join("") + `</section>`;
+        <span class="esp-ir">Responder</span></button>`)
+    .concat(soltos.map(it => `<button class="esp-item" data-pv-ir="${it.i}">
+        <span class="esp-t"><b>💬 Slack${it.slack.de ? " · " + esc(it.slack.de) : ""}</b><small>${esc(it.texto)}</small></span>
+        <span class="esp-ir">Responder</span></button>`));
+  return `<section class="bloco destaque"><h3>🔔 Esperando você ${esp.length ? `<button class="ir" data-ir="Claude" data-filtro="esperando">${esp.length > 3 ? `Ver todas (${esp.length})` : "Ver na lista"} ›</button>` : ""}</h3>`
+    + linhas.slice(0, 4).join("") + `</section>`;
 }
 function blocoSessoes(c, lista) {
   const porPc = lista.length > 1 ? lista.map(p => `${esc(nomeCurtoPc(p.pc))} ${c.porPc[p.pc] || 0}`).join(" · ") : "";
@@ -1130,26 +1165,244 @@ const linkSeguro = u => /^https:\/\//.test(String(u || "")) ? String(u) : "";
 function blocoParaVoce(lista) {
   const o = orquestraDe(lista);
   if (!o) return "";
-  const itens = o.para_voce || [], mostrar = paraVoceTodos ? itens : itens.slice(0, 3);
-  const pode = !!(o.sessao && pcs[o.pc] && online(pcs[o.pc]));
+  const itens = itensParaVoce(o), mostrar = paraVoceTodos ? itens : itens.slice(0, 3);
+  const maestro = !!(o.sessao && pcs[o.pc] && online(pcs[o.pc]));
+  const notas = !!(pcs[o.pc] && Lista.compararVersao(pcs[o.pc].versao, AGENTE_NOTA) >= 0);   // o ✓ Resolvido avisa o maestro
+  const slack = !notas ? `Enviar no Slack (precisa do agente ${AGENTE_NOTA} no ${nomeCurtoPc(o.pc)})`
+    : !online(pcs[o.pc]) ? `${nomeCurtoPc(o.pc)} desligado` : "";   // "" = pode enviar
   return `<section class="bloco"><h3>🎼 Para você <span class="n3">${itens.length ? itens.length + (itens.length === 1 ? " item" : " itens") : ""}</span></h3>
     ${o.resumo ? `<p class="pv-resumo">${esc(o.resumo)}</p>` : ""}
-    ${mostrar.map((it, i) => `<div class="pv-item">${esc(it.texto)}<div class="pv-acoes">
-        <button data-pv="${i}" ${pode ? "" : "disabled"} aria-label="Responder ao maestro sobre: ${esc(it.texto)}">${pode ? "↩ Responder" : "Maestro fechado"}</button>
-        ${linkSeguro(it.link) ? `<a href="${esc(linkSeguro(it.link))}" target="_blank" rel="noopener">Abrir o link</a>` : ""}</div></div>`).join("")
-      || `<p class="note">Nada esperando decisão sua agora.</p>`}
+    ${mostrar.map(it => itemParaVoce(it, maestro, notas, slack)).join("") || `<p class="note">Nada esperando decisão sua agora.</p>`}
     ${itens.length > mostrar.length ? `<button class="pv-mais" data-pv-todos>Ver todos (${itens.length})</button>` : ""}
     <div class="rodape">Em andamento ${o.em_andamento || 0} · Esperando ${o.esperando || 0} · ${o.delegacoes_hoje || 0} ${o.delegacoes_hoje === 1 ? "delegação" : "delegações"} hoje</div></section>`;
 }
+const curtoTxt = (t, n) => (t = String(t || "")).length > n ? t.slice(0, n - 1).trimEnd() + "…" : t;
+function itemParaVoce(it, maestro, notas, slack) {
+  if (it.slack) return itemSlack(it, slack);
+  const a = pvAlvo(it), r = pvRespondidos[it.chave];
+  const botao = a && a.achou
+    ? `<button data-pv="${it.i}" ${a.ligado ? "" : "disabled"} aria-label="Responder à sessão ${esc(a.nome)} sobre: ${esc(it.texto)}">${a.ligado ? "↩ Responder a " + esc(curtoTxt(a.nome, 24)) : esc(nomeCurtoPc(a.pc)) + " desligado"}</button>`
+    : `<button data-pv="${it.i}" ${maestro ? "" : "disabled"} aria-label="Responder ao Maestro sobre: ${esc(it.texto)}">${maestro ? "↩ Responder ao Maestro" : "Maestro fechado"}</button>`;
+  const de = a ? `<div class="pv-de">💬 ${esc(a.nome)} · ${esc(nomeCurtoPc(a.pc))}${a.achou ? "" : ` · <span class="alerta">a sessão não está aberta: a resposta vai ao maestro</span>`}</div>` : "";
+  return `<div class="pv-item" data-pv-item="${it.i}">${de}<div class="pv-t">${esc(it.texto)}</div>${r ? `<div class="pv-feito">${estadoRespostaPv(r)}</div>` : ""}
+    <div class="pv-acoes">${botao}
+      ${notas ? `<button class="pv-ok" data-pv-ok="${it.i}" aria-label="Marcar como resolvido: ${esc(it.texto)}">✓ Resolvido</button>` : ""}
+      ${linkSeguro(it.link) ? `<a href="${esc(linkSeguro(it.link))}" target="_blank" rel="noopener">Abrir o link</a>` : ""}</div></div>`;
+}
+// O item do Slack: quem pediu e a mensagem, o rascunho para editar e os botões. Enviado, fica o link da mensagem.
+function itemSlack(it, bloqueio) {
+  const sl = it.slack, a = pvAlvo(it), st = estadoSlack(it.chave);
+  const rasc = pvRascunhos[it.chave] ? pvRascunhos[it.chave].v : (sl.rascunho || "");
+  const corpo = st.fase === "ok"
+    ? `<div class="pv-feito">✓ Enviado no Slack às ${hm(new Date(st.t).toISOString())}${st.link ? ` · <a href="${esc(st.link)}" target="_blank" rel="noopener">Ver a mensagem</a>` : ""}</div>`
+    : `<label class="pv-rot" for="rasc-${it.chave}">Sua resposta${sl.thread_ts ? " (na thread)" : ""}</label>
+       <textarea id="rasc-${it.chave}" class="pv-rasc" data-pv-rasc="${it.chave}" rows="3" placeholder="Escreva a resposta" ${st.fase === "enviando" ? "disabled" : ""}>${esc(rasc)}</textarea>
+       ${st.fase === "enviando" ? `<div class="pv-feito"><span class="spin"></span>Enviando no Slack…</div>`
+         : st.fase === "erro" ? `<div class="pv-feito"><span class="alerta">⚠ Não saiu: ${esc(st.erro)}</span></div>` : ""}`;
+  const botoes = st.fase === "ok" ? "" : `<button data-pv-slack="${it.i}" ${bloqueio || st.fase === "enviando" ? "disabled" : ""}>${esc(bloqueio || (st.fase === "erro" ? "Tentar de novo" : "Enviar no Slack"))}</button>
+      <button class="pv-ok" data-pv-ja="${it.i}" aria-label="Já respondi no Slack: ${esc(it.texto)}">Já respondi</button>`;
+  return `<div class="pv-item pv-slack" data-pv-item="${it.i}"><div class="pv-de">💬 Slack${sl.de ? " · " + esc(sl.de) : ""}</div>
+    <div class="pv-t">${esc(it.texto)}</div>${sl.texto ? `<div class="pv-msg">${esc(sl.texto)}</div>` : ""}${corpo}
+    <div class="pv-acoes">${botoes}
+      ${a && a.achou ? `<button class="pv-sec" data-pv="${it.i}" ${a.ligado ? "" : "disabled"} aria-label="Responder à sessão ${esc(a.nome)} sobre: ${esc(it.texto)}">↩ Responder a ${esc(curtoTxt(a.nome, 22))}</button>` : ""}
+      ${linkSeguro(it.link) ? `<a href="${esc(linkSeguro(it.link))}" target="_blank" rel="noopener">Abrir no Slack</a>` : ""}</div></div>`;
+}
+// Onde está o envio: "" (não mandou), "enviando", "ok" (com o link) ou "erro" (o motivo).
+function estadoSlack(chave) {
+  const e = pvSlack[chave];
+  if (!e) return {fase: ""};
+  if (e.ok) return {fase: "ok", link: e.link || "", t: e.t};
+  if (e.erroLocal) return {fase: "erro", erro: e.erroLocal};
+  const p = e.pedido && pedidos.find(x => x.id === e.pedido);
+  if (p && p.estado === "entregue") {
+    Object.assign(e, {ok: true, link: (String(p.resposta || "").match(/https:\/\/[^\s]+/) || [""])[0]});
+    salvarPv();
+    return {fase: "ok", link: e.link, t: e.t};
+  }
+  if (p && ["erro", "cancelado"].includes(p.estado)) return {fase: "erro", erro: p.erro || "o PC não conseguiu"};
+  if (!p && Date.now() - e.t > 10 * 60e3) return {fase: "erro", erro: "o PC não respondeu. Confira no Slack antes de mandar de novo."};
+  return {fase: "enviando"};
+}
+async function enviarSlack(i) {
+  const o = orquestraDe(Object.values(pcs)), it = o && (o.para_voce || [])[i];
+  if (!it || !it.slack) return;
+  const chave = chavePv(it), sl = it.slack, campo = document.querySelector(`[data-pv-rasc="${chave}"]`);
+  const texto = String(campo ? campo.value : (pvRascunhos[chave] ? pvRascunhos[chave].v : sl.rascunho) || "").trim();
+  if (!texto) return avisar("appAviso", "Escreva a resposta antes de enviar.", {erro: true});
+  if (texto.length > 4000) return avisar("appAviso", `A resposta tem ${texto.length} caracteres; o limite é 4000.`, {erro: true});
+  if (!confirm(`Enviar no Slack como você${sl.de ? `, para ${sl.de}` : ""}${sl.thread_ts ? " (na thread)" : ""}?\n\n${texto.length > 400 ? texto.slice(0, 399) + "…" : texto}`)) return;
+  const e = pvSlack[chave] = {t: Date.now(), ref: novoId(), pedido: "", texto};
+  salvarPv(); desenharInicio(); desenharSessoes();
+  try {
+    e.pedido = await rpc("cel_pedir", {pc: o.pc, tipo: "acao", texto: JSON.stringify({acao: "slack_responder", ref: e.ref, canal: sl.canal,
+      thread_ts: sl.thread_ts || "", texto, item: it.texto, de: sl.de || "", link: linkSeguro(it.link)})});
+    salvarPv();
+    await atualizar();
+  } catch (err) {
+    e.erroLocal = "não saiu do celular (" + motivoRede(err) + ")";
+    salvarPv(); desenharInicio(); desenharSessoes();
+  }
+}
+// Os itens do Slack que esperam você e não têm sessão (os com sessão contam pela sessão).
+function slackSoltos() {
+  const o = orquestraDe(Object.values(pcs));
+  if (!o) return [];
+  return itensParaVoce(o).filter(it => it.slack && !respondidoPv(it.chave) && !(pvAlvo(it) || {}).achou);
+}
+// As contas da lista com o que espera você no Slack.
+function contarSessoes(ss, agora) {
+  const c = Lista.contar(ss, agora), n = slackSoltos().length;
+  c.esperando += n;
+  c.slack = n;
+  return c;
+}
+function irParaItem(i) {
+  mostrarAba("Inicio");
+  paraVoceTodos = true;
+  desenharInicio();
+  const el = document.querySelector(`#p-paravoce [data-pv-item="${i}"]`);
+  if (!el) return;
+  el.scrollIntoView({block: "center", behavior: "smooth"});
+  const t = el.querySelector("textarea");
+  if (t && !t.disabled) setTimeout(() => t.focus(), 350);
+}
+
+function estadoRespostaPv(r) {
+  const p = pedidos.find(x => x.id === r.pedido), h = hm(new Date(r.t).toISOString());
+  if (p && ["erro", "cancelado"].includes(p.estado)) return `<span class="alerta">⚠ A resposta a ${esc(r.nome)} não entrou: abra a conversa para tentar de novo.</span>`;
+  if (!r.nota && (!p || p.estado !== "entregue")) return `✓ Resposta a caminho de ${esc(r.nome)} (${h})`;
+  const nota = r.nota === "antigo" ? ` · o maestro não foi avisado (o agente do ${esc(nomeCurtoPc(r.maestro))} precisa da ${AGENTE_NOTA})`
+    : r.nota ? " · maestro avisado" : " · avisando o maestro…";
+  return `✓✓ Você respondeu a ${esc(r.nome)} às ${h}${nota}`;
+}
+
+const chavePv = it => fnv(String((it && it.texto) || ""));
+function salvarPv() {
+  const agora = Date.now(), vivo = t => agora - t < PV_GUARDA_MS;
+  pvResolvidos = Object.fromEntries(Object.entries(pvResolvidos).filter(([, t]) => vivo(t)));
+  pvRespondidos = Object.fromEntries(Object.entries(pvRespondidos).filter(([, r]) => r && vivo(r.t)));
+  pvSlack = Object.fromEntries(Object.entries(pvSlack).filter(([, r]) => r && vivo(r.t)));
+  pvRascunhos = Object.fromEntries(Object.entries(pvRascunhos).filter(([, r]) => r && vivo(r.t)));
+  store.set("seaninho.pvSlack", JSON.stringify(pvSlack));
+  store.set("seaninho.pvRascunhos", JSON.stringify(pvRascunhos));
+  store.set("seaninho.pvResolvidos", JSON.stringify(pvResolvidos));
+  store.set("seaninho.pvRespondidos", JSON.stringify(pvRespondidos));
+  store.set("seaninho.notasMaestro", JSON.stringify(notasMaestro));
+}
+// Os itens que aparecem (o resolvido aqui some até o maestro tirar), com o índice no quadro e a chave.
+function itensParaVoce(o) {
+  const agora = Date.now();
+  return ((o && o.para_voce) || []).map((it, i) => ({...it, i, chave: chavePv(it)}))
+    .filter(it => !(agora - (pvResolvidos[it.chave] || 0) < PV_GUARDA_MS));
+}
+// A sessão de um item que veio de uma (responder_para): a que o agente do maestro achou ou, pelo começo do id, uma das
+// que o celular tem do PC dela.
+function pvAlvo(it) {
+  const rp = it && it.responder_para;
+  if (!rp || !rp.pc || !rp.sessao) return null;
+  const p = pcs[rp.pc] || Object.values(pcs).find(x => x.pc.toLowerCase() === String(rp.pc).toLowerCase());
+  const pre = String(rp.sessao).toLowerCase(), ss = (p && p.sessoes) || [];
+  const s = ss.find(x => String(x.id).toLowerCase() === pre) || ss.find(x => String(x.id).toLowerCase().startsWith(pre));
+  return {pc: p ? p.pc : String(rp.pc), sessao: s ? s.id : "", achou: !!s, ligado: !!(p && online(p)),
+          nome: rp.nome || (s && s.titulo) || "sessão " + pre.slice(0, 8)};
+}
+// Já respondeu (e a resposta não deu erro)? Aí a sessão não está mais esperando você por causa desse item.
+function respondidoPv(chave) {
+  if (pvSlack[chave] && ["ok", "enviando"].includes(estadoSlack(chave).fase)) return true;
+  const r = pvRespondidos[chave];
+  if (!r) return false;
+  const p = pedidos.find(x => x.id === r.pedido);
+  return !(p && ["erro", "cancelado"].includes(p.estado));
+}
+function marcarParaVoce(ss) {
+  const o = orquestraDe(Object.values(pcs));
+  if (!o) return;
+  for (const it of itensParaVoce(o)) {
+    if (respondidoPv(it.chave)) continue;
+    const a = pvAlvo(it), s = a && a.achou && ss.find(x => x.pc === a.pc && x.id === a.sessao);
+    if (s && !s.paraVoce) Object.assign(s, {paraVoce: it.texto, paraVoceI: it.i});
+  }
+}
+
 function responderParaVoce(i) {
   const o = orquestraDe(Object.values(pcs)), it = o && (o.para_voce || [])[i];
-  if (!it || !o.sessao) return;
-  abrir(o.pc, o.sessao);
-  citando = {id: "pv:" + i, nome: "Para você", texto: it.texto, mini: "",
-             cita: Chat.citacao({nome: "Para você", hora: horaDe(o.atualizado), texto: it.texto})};
+  if (!it) return;
+  const a = pvAlvo(it);
+  if (a && a.achou) {   // a sessão que perguntou, no PC dela; a resposta leva o item citado
+    abrir(a.pc, a.sessao);
+    citando = {id: "pv:" + i, nome: "Para você (maestro)", texto: it.texto, mini: "",
+               cita: Chat.citacao({nome: "Maestro · Para você", hora: horaDe(o.atualizado), texto: it.texto}),
+               pv: {chave: chavePv(it), item: it.texto, pc: a.pc, sessao: a.sessao, nome: a.nome, maestro: o.pc}};
+  } else {
+    if (!o.sessao) return;
+    abrir(o.pc, o.sessao);
+    citando = {id: "pv:" + i, nome: "Para você", texto: it.texto, mini: "",
+               cita: Chat.citacao({nome: "Para você", hora: horaDe(o.atualizado), texto: it.texto})};
+  }
   desenharCitando();
   $("texto").focus();
 }
+// A resposta saiu do celular (o pedido existe): o item mostra o andamento e o maestro fica sabendo quando ela entrar.
+function registrarResposta(pv, pedido, texto) {
+  pvRespondidos[pv.chave] = {t: Date.now(), nome: pv.nome, pedido, nota: "", maestro: pv.maestro};
+  notasMaestro.push({tipo: "respondido", ref: pedido, pedido, chave: pv.chave, item: pv.item, nome: pv.nome, pc_sessao: pv.pc,
+                     sessao: pv.sessao, maestro: pv.maestro, resposta: Chat.separarCitacao(texto).texto.slice(0, 600), t: Date.now()});
+  salvarPv();
+}
+function resolverParaVoce(i, tipo = "resolvido") {
+  const o = orquestraDe(Object.values(pcs)), it = o && (o.para_voce || [])[i];
+  if (!it) return;
+  const agora = Date.now(), nota = {tipo, ref: novoId(), chave: chavePv(it), item: it.texto, maestro: o.pc,
+                                    de: (it.slack && it.slack.de) || "", t: agora, depois: agora + PV_DESFAZER_MS};
+  pvResolvidos[nota.chave] = agora;
+  notasMaestro.push(nota);
+  salvarPv(); desenharInicio(); desenharSessoes();
+  avisar("appAviso", tipo === "slack_ja" ? "Marcado como respondido no Slack: o maestro tira da lista." : "Marcado como resolvido: o maestro tira da lista.",
+         {ok: true, rotulo: "Desfazer", passa: true, acao: () => desfazerResolvido(nota)});
+  setTimeout(() => processarNotas().then(m => m && desenharInicio()), PV_DESFAZER_MS + 300);
+}
+function desfazerResolvido(nota) {
+  const ainda = notasMaestro.includes(nota);
+  delete pvResolvidos[nota.chave];
+  notasMaestro = notasMaestro.filter(n => n !== nota);
+  salvarPv(); desenharInicio(); desenharSessoes();
+  if (!ainda) avisar("appAviso", "O maestro já tinha sido avisado de que está resolvido; o item volta aqui.", {});
+}
+// Manda ao PC do maestro os avisos que já podem ir: o "respondido" quando a resposta entrou na sessão, o "resolvido"
+// depois do tempo do "Desfazer". Falhou (sem internet): tenta de novo em 30 s. Devolve se mudou algo.
+let notasRodando = false;
+async function processarNotas() {
+  if (notasRodando || !notasMaestro.length || !chave) return false;
+  notasRodando = true;
+  let mudou = false;
+  try {
+    for (const n of [...notasMaestro]) {
+      const agora = Date.now(), fora = () => { notasMaestro = notasMaestro.filter(x => x !== n); mudou = true; };
+      if (agora - n.t > 24 * 3600e3) { fora(); continue; }
+      if ((n.depois && agora < n.depois) || (n.tenta && agora < n.tenta)) continue;
+      if (n.pedido) {
+        const p = pedidos.find(x => x.id === n.pedido);
+        if (!p || p.estado !== "entregue") continue;   // a resposta ainda não entrou na sessão (ou deu erro)
+      }
+      const m = pcs[n.maestro], r = pvRespondidos[n.chave], desta = r && n.pedido && r.pedido === n.pedido;
+      if (!m) continue;
+      if (Lista.compararVersao(m.versao, AGENTE_NOTA) < 0) { if (desta) r.nota = "antigo"; fora(); continue; }
+      try {
+        const pid = await rpc("cel_pedir", {pc: n.maestro, tipo: "acao", texto: JSON.stringify({acao: "nota_maestro", tipo: n.tipo,
+          ref: n.ref, item: n.item, nome: n.nome || "", sessao: n.sessao || "", pc_sessao: n.pc_sessao || "", resposta: n.resposta || "",
+          de: n.de || ""})});
+        if (desta) r.nota = String(pid || "ok");
+        fora();
+      } catch { n.tenta = Date.now() + 30000; }
+    }
+  } finally {
+    notasRodando = false;
+    salvarPv();
+  }
+  return mudou;
+}
+const novoId = () => (crypto.randomUUID ? crypto.randomUUID() : [...crypto.getRandomValues(new Uint8Array(16))]
+  .map(b => b.toString(16).padStart(2, "0")).join("")).toLowerCase();
 
 const DIA_SEMANA = ["dom", "seg", "ter", "qua", "qui", "sex", "sáb"];
 const diaDe = iso => new Date(iso + "T12:00:00");
@@ -2438,24 +2691,24 @@ async function mandar() {
   const texto = $("texto").value.trim();
   if ((!texto && !anexos.length) || !aberta) return;
   sumirAviso("micinfo-texto");
-  const ims = anexos, cita = citando ? citando.cita : "";
+  const ims = anexos, cita = citando ? citando.cita : "", pv = (citando && citando.pv) || null;
   $("texto").value = ""; store.set("seaninho.rascunho." + aberta.id, "");
   limparAnexos(); naoCitar(); ajustarCaixa();
   const corpo = Chat.comCitacao(cita, texto || (ims.length > 1 ? "Seguem as imagens." : "Segue a imagem."));
-  if (ims.length > 1) return enviarVarias(corpo, ims);
-  await enviarMensagem(corpo, ims[0] || null);
+  if (ims.length > 1) return enviarVarias(corpo, ims, pv);
+  await enviarMensagem(corpo, ims[0] || null, pv);
 }
 
 // Várias imagens (agente 0.8.2): cada uma sobe num pedido "anexo" {grupo, ordem, total}, uma por vez, com o andamento
 // no balão; a que falhar avisa qual e o toque continua dali, sem subir de novo as que já foram. Com todas no banco,
 // vai a mensagem (mime "imagens/<grupo>/<n>"): o agente espera as n guardadas e entrega um [imagem: …] por imagem.
-function enviarVarias(corpo, ims) {
+function enviarVarias(corpo, ims, pv = null) {
   const s = sessaoAberta(), n = ims.length;
   const grupo = (crypto.randomUUID ? crypto.randomUUID() : [...crypto.getRandomValues(new Uint8Array(16))]
     .map(b => b.toString(16).padStart(2, "0")).join("")).toLowerCase();
   const local = {id: "local" + (++nLocal), sessao: aberta.id, de: "eu", texto: corpo, t: Math.floor(Date.now() / 1000),
                  minis: ims.map(im => im.mini), grandes: ims.map(im => "data:image/jpeg;base64," + im.b64),
-                 mime: `imagens/${grupo}/${n}`, grupo, subidas: ims.map(() => "")};
+                 mime: `imagens/${grupo}/${n}`, grupo, subidas: ims.map(() => ""), pv};
   const args = {pc: aberta.pc, sessao: aberta.id, titulo: s ? s.titulo : "", texto: corpo, direto: !melhorar, mime: local.mime};
   return subirVarias(local, ims, args);
 }
@@ -2482,10 +2735,10 @@ async function subirVarias(local, ims, args) {
   await enviarLocal(local, args);   // a mensagem: ✓ quando o banco aceita, ✓✓ quando entra na sessão
 }
 
-function enviarMensagem(corpo, im) {
+function enviarMensagem(corpo, im, pv = null) {
   const s = sessaoAberta();
   const local = {id: "local" + (++nLocal), sessao: aberta.id, de: "eu", texto: corpo, t: Math.floor(Date.now() / 1000),
-                 mini: im ? im.mini : "", grande: im ? "data:image/jpeg;base64," + im.b64 : "", mime: im ? im.mime : ""};
+                 mini: im ? im.mini : "", grande: im ? "data:image/jpeg;base64," + im.b64 : "", mime: im ? im.mime : "", pv};
   return enviarLocal(local, {pc: aberta.pc, sessao: aberta.id, titulo: s ? s.titulo : "", texto: corpo, direto: !melhorar,
                              ...(im ? {audio: im.b64, mime: im.mime} : {})});
 }
@@ -2496,8 +2749,11 @@ function reenviarPedido(l) {
   if (!aberta || !podeMandar()) return;
   const s = sessaoAberta();
   reenviados.add(l.pedido);
+  const n = notasMaestro.find(x => x.pedido && x.pedido === l.pedido);   // a resposta a um item do Para você: o aviso vai junto
+  if (n) notasMaestro = notasMaestro.filter(x => x !== n);
   const local = {id: "local" + (++nLocal), sessao: aberta.id, de: "eu", texto: l.texto, t: Math.floor(Date.now() / 1000),
-                 mini: "", grande: "", mime: ""};
+                 mini: "", grande: "", mime: "",
+                 pv: n ? {chave: n.chave, item: n.item, pc: n.pc_sessao, sessao: n.sessao, nome: n.nome, maestro: n.maestro} : null};
   return enviarLocal(local, {pc: aberta.pc, sessao: aberta.id, titulo: s ? s.titulo : "", texto: l.texto, direto: true});
 }
 
@@ -2705,6 +2961,7 @@ async function enviarLocal(local, args) {
   desenharDetalhe(true);
   try {
     local.pedidoId = await rpc("cel_pedir", args);
+    if (local.pedidoId && local.pv) registrarResposta(local.pv, local.pedidoId, local.texto);
     if (local.pedidoId && (local.minis || local.mini)) guardarMiniatura(local.pedidoId, local.minis || local.mini);
     if (local.pedidoId && local.grande) {
       Marcar.Grandes.guardar(local.pedidoId, local.grande);
@@ -2946,6 +3203,7 @@ async function atualizar() {
   if (!digitando) desenharHoje(); else desenharMsgHoje();
   desenharDetalhe();   // o chat cuida do que está sendo editado (a prévia e a "Outra resposta" não se refazem por baixo)
   if (aba === "Copias") await carregarCopias();
+  processarNotas().then(m => { if (m) { desenharInicio(); desenharSessoes(); } });
   return true;
 }
 
@@ -3051,6 +3309,14 @@ $("tabInicio").addEventListener("click", e => {
   if (t) return trocarConta(t.dataset.trocar, t);
   const cc = e.target.closest("[data-conta]");
   if (cc) return alternarConta(cc.dataset.conta);
+  const ok = e.target.closest("[data-pv-ok]");
+  if (ok) return resolverParaVoce(Number(ok.dataset.pvOk));
+  const ja = e.target.closest("[data-pv-ja]");
+  if (ja) return resolverParaVoce(Number(ja.dataset.pvJa), "slack_ja");
+  const sk = e.target.closest("[data-pv-slack]");
+  if (sk) return sk.disabled ? null : enviarSlack(Number(sk.dataset.pvSlack));
+  const vai = e.target.closest("[data-pv-ir]");
+  if (vai) return irParaItem(Number(vai.dataset.pvIr));
   const pv = e.target.closest("[data-pv]");
   if (pv) return pv.disabled ? null : responderParaVoce(Number(pv.dataset.pv));
   if (e.target.closest("[data-pv-todos]")) { paraVoceTodos = true; return desenharInicio(); }
@@ -3151,7 +3417,18 @@ $("tarefaAdd").addEventListener("click", novaTarefa);
 $("tarefaTexto").addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); novaTarefa(); } });
 $("tabCopias").addEventListener("click", e => { const c = e.target.closest(".copia"); if (c) tocarCopia(c); });
 $("imgVoltar").addEventListener("click", () => { $("imagem").classList.add("hidden"); $("imgGrande").removeAttribute("src"); });
+// O rascunho da resposta do Slack fica no aparelho enquanto é escrito.
+$("tabInicio").addEventListener("input", e => {
+  const t = e.target.closest("[data-pv-rasc]");
+  if (!t) return;
+  pvRascunhos[t.dataset.pvRasc] = {v: t.value, t: Date.now()};
+  store.set("seaninho.pvRascunhos", JSON.stringify(pvRascunhos));
+});
 $("tabClaude").addEventListener("click", e => {
+  if (e.target.closest("[data-ir-pv]")) {
+    mostrarAba("Inicio");
+    return $("p-paravoce").scrollIntoView({block: "start", behavior: "smooth"});
+  }
   const t = e.target.closest("[data-trocar]");
   if (t) return trocarConta(t.dataset.trocar, t);
   const cc = e.target.closest("[data-conta]");
