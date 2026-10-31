@@ -79,7 +79,7 @@ function banda(valores, dias, regua, bandas = BANDAS, pontos = {}) {
 // Quanto por dia, até o fim da semana (sexta 17h), para bater o que falta: o dia de hoje conta.
 function ritmo(falta, fimIso, agoraMs) {
   const fim = Date.parse(fimIso);
-  if (!falta || !isFinite(fim)) return 0;
+  if (!falta || !isFinite(fim) || fim <= agoraMs) return 0;   // a semana já fechou: não há mais "por dia"
   const dias = Math.max(1, Math.ceil((fim - agoraMs) / 86400000));
   return Math.ceil(falta / dias);
 }
@@ -97,10 +97,18 @@ function porDia(lista) {
 
 // As semanas anteriores (o que cada agente guardou), somando os PCs, das mais novas para as mais velhas. "fechada": todos
 // os PCs têm a medida da semana inteira (o agente 0.8.8 mede de novo até sexta 17h); senão, "medido_em" é a mais velha.
+// Um PC que desligou antes da virada (0.8.9) ainda tem a semana velha em "valores": ela entra como a última medida dele,
+// para a semana que fechou somar os dois PCs (antes saía "só o SEAZONE192" até o WIN ligar de novo).
 function semanas(lista, regua, bandas = BANDAS, pontos = {}) {
   const por = {};
   for (const u of lista || []) for (const s of (u && u.semanas) || []) if (s && s.semana && s.valores)
     (por[s.semana] = por[s.semana] || []).push({...s, pc: u.pc});
+  const nova = (lista || []).map(u => u && u.valores && u.semana).filter(Boolean).sort().pop();
+  for (const u of lista || []) {
+    if (!u || !u.valores || !u.semana || u.semana >= nova || (por[u.semana] || []).some(s => s.pc === u.pc)) continue;
+    (por[u.semana] = por[u.semana] || []).push({semana: u.semana, valores: u.valores, skills: u.skills, dias_tarefas: u.dias_tarefas,
+      fechada: false, pc: u.pc, medido_em: u.gerado ? new Date(u.gerado * 1000).toISOString() : ""});
+  }
   return Object.entries(por).sort((a, b) => b[0].localeCompare(a[0])).map(([semana, itens]) => {
     const t = somar(itens);
     return {semana, valores: t.valores, ...banda(t.valores, t.dias, regua, bandas, pontos), pcs: itens.length,

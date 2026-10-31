@@ -121,7 +121,11 @@ function estadoDoPedido(p, enquete) {
     case "entregue":
       if (String(p.resposta || "").startsWith(NAO_SABE)) return {sinal: "erro", texto, erro: p.resposta};
       return {sinal: "entregue", texto,   // "Apertei “Yes” no PC." / "Respondida pelo plano B: …"
-              obs: perm || (resp && p.resposta && p.resposta !== "Respondida.") ? String(p.resposta || "") : ""};
+              obs: perm || (resp && p.resposta && p.resposta !== "Respondida.") ? String(p.resposta || "")
+                // 0.8.9: digitada com a sessão trabalhando (entra quando ela terminar o passo), ou pela caixa da orquestra
+                : /^Na fila/.test(p.resposta || "") ? "Na fila da sessão: entra quando ela terminar o passo atual."
+                : /caixa da orquestra/.test(p.resposta || "") ? "Foi pela caixa da orquestra: chega ao maestro como aviso, não como mensagem sua."
+                : ""};
     case "erro": return {sinal: "erro", texto, erro: p.erro || "Não foi."};
     default: return {sinal: null, texto};         // cancelado
   }
@@ -212,7 +216,15 @@ const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&": "&amp;", "<": "
 // O texto do Claude (markdown) em HTML seguro: markdown.js (0.8.8: títulos, listas, citação, código com Copiar e
 // tabelas de verdade). O balão põe a classe "md" (as quebras de linha vêm de lá, não do pre-wrap).
 const Md = typeof module !== "undefined" && module.exports ? require("./markdown.js") : raiz.Markdown;
-const marcacao = texto => Md.html(texto);
+const memoMd = new Map();   // 0.8.9: o texto -> o HTML (os ~150 últimos); o chat se refaz a cada atualização
+function marcacao(texto) {
+  const k = String(texto ?? "");
+  if (memoMd.has(k)) return memoMd.get(k);
+  const h = Md.html(k);
+  memoMd.set(k, h);
+  if (memoMd.size > 150) memoMd.delete(memoMd.keys().next().value);
+  return h;
+}
 
 // A enquete respondida: quais opções foram escolhidas e o que foi escrito à mão ("Outra").
 function escolhidas(pergunta, resposta) {

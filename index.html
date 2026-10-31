@@ -79,10 +79,10 @@ nav .n{position:absolute;top:-1px;left:calc(50% + 7px);min-width:18px;padding:0 
 .msgs .empty{padding:60px 10px}
 .dia,.aviso{display:flex;justify-content:center;margin:10px 0 6px}
 .dia span{font-size:12px;font-weight:600;color:var(--muted);background:rgba(11,30,63,.92);border:1px solid var(--stroke);padding:4px 10px;border-radius:8px}
-.aviso span{max-width:88%;font-size:12.5px;line-height:1.35;color:var(--muted);background:rgba(255,255,255,.055);padding:4px 11px;border-radius:999px;
+.msgs .aviso span{max-width:88%;font-size:12.5px;line-height:1.35;color:var(--muted);background:rgba(255,255,255,.055);padding:4px 11px;border-radius:999px;
   text-align:center;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
-.aviso b{color:var(--ink);font-weight:600}
-.aviso.sessao span{color:#c3cfe9;background:rgba(127,211,255,.09);border-radius:10px;-webkit-line-clamp:3}
+.msgs .aviso b{color:var(--ink);font-weight:600}
+.msgs .aviso.sessao span{color:#c3cfe9;background:rgba(127,211,255,.09);border-radius:10px;-webkit-line-clamp:3}
 .linha-msg{display:flex;flex-direction:column;margin-top:8px}
 .linha-msg.seguida{margin-top:2px}
 .bolha{position:relative;max-width:85%;min-width:72px;padding:6px 9px 5px 10px;border-radius:12px;font-size:15.5px;line-height:1.38;overflow-wrap:anywhere}
@@ -274,6 +274,7 @@ body.md-ver-cartoes .md-tab .md-seg [data-tab-modo="tabela"],body.md-ver-tabela 
 .nota .spin{width:11px;height:11px;margin-right:6px}
 .fotos{margin:-2px -5px 6px -6px}
 .fotos img{display:block;width:100%;max-height:280px;object-fit:cover;border-radius:9px;cursor:zoom-in}
+.fotos:not(.grade) img{max-height:min(420px,60vh);object-fit:contain;background:rgba(0,0,0,.22)}
 .fotos.grade{display:grid;grid-template-columns:1fr 1fr;gap:3px}
 .fotos.grade img{width:100%;height:140px;max-height:none}
 .fotos.grade.tres .foto-celula:first-child{grid-column:1 / -1}
@@ -702,6 +703,14 @@ button.bloco-cab{display:block;width:100%;text-align:left}
   border:1px solid var(--stroke-2);font-weight:700;font-size:18px;color:var(--ink)}
 .fx-av .pino{position:absolute;left:-3px;top:-3px;font-size:13px}
 .fx-ponto{position:absolute;right:1px;bottom:1px;width:14px;height:14px;border-radius:50%;border:2.5px solid #0E224A;background:var(--faint)}
+.fx-ponto.desligado{background:#4A5570}
+.chip.desligado{background:rgba(255,255,255,.08);color:var(--faint)}
+.card.sessao.off>*{opacity:.6}
+.ses-off{display:block;width:100%;margin-top:8px;padding:9px 10px;border-radius:12px;background:rgba(0,0,0,.18);color:var(--muted);font-size:12.5px;text-align:left}
+.sp.off .sp-cab b,.cc.off .cc-quem b{color:var(--muted)}
+.cc.off .mb{opacity:.45}
+.uso-erro.off{border-color:rgba(255,255,255,.14);background:rgba(255,255,255,.05);color:var(--muted)}
+.uso-erro.off b{color:var(--ink)}
 .fx-ponto.esperando{background:var(--gold)} .fx-ponto.trabalhando{background:var(--green)} .fx-ponto.ociosa{background:#7FB2FF}
 .fx-nome{font-size:12px;line-height:1.25;max-width:78px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;color:var(--ink)}
 .fx.fechada{opacity:.45}
@@ -799,6 +808,43 @@ button.bloco-cab{display:block;width:100%;text-align:left}
 .v-extra{display:flex;gap:6px}
 .v-extra-b{height:36px;padding:0 12px;border-radius:999px;background:rgba(255,255,255,.14);color:#fff;font-size:14px;font-weight:600;white-space:nowrap}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+/* 0.8.9: deitado, o notch e os cantos arredondados ficam dos lados: nada encosta neles */
+:root{--esq:env(safe-area-inset-left,0px);--dir:env(safe-area-inset-right,0px)}
+body{padding-left:max(16px,var(--esq));padding-right:max(16px,var(--dir))}
+#detalhe,#editor,#aiRats,#usoIa,#tabelaCheia{padding-left:var(--esq);padding-right:var(--dir)}
+nav{padding-left:max(8px,var(--esq));padding-right:max(8px,var(--dir))}
+.v-topo{padding-left:max(8px,var(--esq));padding-right:max(8px,var(--dir))}
+#appAviso{left:max(12px,var(--esq));right:max(12px,var(--dir))}
+html{touch-action:manipulation}   /* sem o zoom do toque duplo; a pinça continua */
+/* alvos de toque (o "Tentar de novo" aparece justo quando a rede falha) */
+.acoes-msg button{min-height:36px;padding:7px 13px;font-size:13px}
+button.erro-linha{display:block;background:none;border:0;padding:4px 2px;font:inherit;font-size:12.5px;cursor:pointer}
+.sub.off{color:var(--gold-2)}
+.fonte{margin:0 0 8px;font-size:13px;color:var(--muted)} .fonte.err{color:var(--gold-2)}
+.prev.falhou{color:#ffb3ad}
+.mudo{font-size:.85em;opacity:.85}
+.ram-cheia{display:block;width:100%;margin-top:8px;padding:10px 12px;border-radius:12px;background:rgba(255,90,79,.12);border:1px solid rgba(255,90,79,.4);color:#FFC2BD;font-size:13.5px;font-weight:600;text-align:left}
+.sil-card{margin-top:12px}
+.sil-horas{display:flex;align-items:center;gap:8px;margin-top:10px;color:var(--muted);font-size:15px}
+.sil-horas select{font-size:16px;padding:6px 10px;border-radius:10px;background:var(--glass-2);color:var(--ink);border:1px solid var(--stroke)}
+.chave{position:relative;display:inline-block;width:50px;height:30px;flex:none}
+.chave input{opacity:0;width:0;height:0}
+.chave span{position:absolute;inset:0;border-radius:999px;background:rgba(255,255,255,.18);transition:background .2s}
+.chave span::after{content:"";position:absolute;left:3px;top:3px;width:24px;height:24px;border-radius:50%;background:#fff;transition:transform .2s}
+.chave input:checked+span{background:var(--green)}
+.chave input:checked+span::after{transform:translateX(20px)}
+.d-conta{font-size:12px;color:var(--muted);text-align:right;padding:2px 14px 0} .d-conta.passou{color:#ffb3ad;font-weight:600}
+/* 0.8.9: alvos de toque de pelo menos ~36 px (o passeio pelas telas achou de 22 a 30 px) */
+h3 .ir{padding:7px 8px;margin:-7px -8px}
+.pv-acoes button,.pv-acoes a{min-height:36px;display:inline-flex;align-items:center}
+button.mais{padding:8px 6px 6px;margin-left:-6px}
+.painel-topo button{min-width:40px;min-height:36px}
+.enq-x{min-width:40px;min-height:40px}
+.bloq-acao{min-height:34px}
+.md-seg button{min-height:34px}
+details>summary{padding:6px 0}
+.grafico svg{display:block;max-width:460px;margin-left:auto;margin-right:auto}   /* deitado, o gráfico não cresce sem fim */
+.rede-off{margin:0 0 10px;padding:9px 12px;border-radius:12px;background:rgba(255,196,77,.1);border:1px solid rgba(255,196,77,.3);color:var(--gold-2);font-size:13.5px}
 </style>
 </head>
 <body>
@@ -872,7 +918,15 @@ button.bloco-cab{display:block;width:100%;text-align:left}
     <h2>Notificações</h2>
     <p class="note" id="pushNota">Avisa quando uma sessão do Claude pergunta ou termina e você não está no PC.</p>
     <button class="btn" id="pushBtn">Ativar notificações</button>
+    <button class="btn sec hidden" id="pushTeste">Mandar um teste</button>
     <div id="pushMsg" class="status hidden"></div>
+    <div class="card sil-card">
+      <div class="row"><div class="title">🌙 Horário de silêncio</div>
+        <label class="chave"><input type="checkbox" id="silLigado" aria-label="Horário de silêncio ligado"><span></span></label></div>
+      <div class="meta">Nesse horário só chegam perguntas e pedidos de permissão. Cada sessão também pode ser silenciada no toque longo.</div>
+      <div class="sil-horas">Das <select id="silDe" aria-label="Começa às"></select> às <select id="silAte" aria-label="Termina às"></select></div>
+      <div id="silMsg" class="status hidden"></div>
+    </div>
     <h2>PCs</h2>
     <div id="pcsLista"></div>
     <h2>Este celular</h2>
@@ -934,6 +988,7 @@ button.bloco-cab{display:block;width:100%;text-align:left}
         <button class="mic" data-alvo="texto" aria-label="Falar"></button>
         <button class="enviar hidden" id="mandar" aria-label="Enviar"></button>
       </div>
+      <div class="d-conta hidden" id="dConta" aria-live="polite"></div>
       <div class="micinfo" id="micinfo-texto"></div>
     </div>
   </div>
@@ -1045,7 +1100,8 @@ const $ = id => document.getElementById(id);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const store = {
   get(k){ try { return localStorage.getItem(k) || ""; } catch { return ""; } },
-  set(k, v){ try { v ? localStorage.setItem(k, v) : localStorage.removeItem(k); } catch {} },
+  set(k, v){ try { v ? localStorage.setItem(k, v) : localStorage.removeItem(k); }
+    catch { try { localStorage.removeItem("seaninho.ultimo"); if (v) localStorage.setItem(k, v); } catch {} } },
 };
 const MIC = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>';
 let chave = store.get("seaninho.chave");
@@ -1058,9 +1114,10 @@ const edicoes = {};      // id do pedido -> o texto como a pessoa editou (a tela
 let sugestoesAtuais = []; // as respostas prontas da sessão aberta (o PC pede à IA quando o Claude pergunta ou termina)
 let timer = null, timerSala = null;
 let aba = "Inicio";
-const VERSAO_APP = "0.8.8";     // esta página
-const AGENTE_ATUAL = "0.8.8";   // o agente que acompanha esta página (os PCs atrás dele aparecem no painel)
+const VERSAO_APP = "0.8.9";     // esta página
+const AGENTE_ATUAL = "0.8.9";   // o agente que acompanha esta página (os PCs atrás dele aparecem no painel)
 const NOVIDADES_APP = [
+  ["0.8.9", "A mensagem sem internet nunca se perde: fica no balão com 🕓 e sai sozinha quando a rede volta; o app abre sem rede com o último estado; o PC desligado não parece erro (as sessões dele saem do Esperando você, a caixa de escrever fica); fechar a aba de uma sessão parada no PC e reabrir a fixada pelo celular; avisos sem o ruído do maestro e o Slack novo do Para você avisa; silenciar uma sessão (8 h, até amanhã, sempre, com o 🔕) e o horário de silêncio no Ajustes (padrão 22h às 7h: só perguntas e permissões); com a RAM do PC acima de 90%, Fechar as N paradas; o Ajustes diz se as notificações estão ligadas, com teste; a aba Hoje mostra quando o Google não respondeu; o PC tenta de novo quando perde o cursor da caixa."],
   ["0.8.8", "Tabelas do Claude de verdade: cartões no celular em pé, tabela com cabeçalho e 1ª coluna fixos, tela cheia com pinça, deitada e tema claro, Copiar para o Sheets; % em barra, status em etiqueta, hora em destaque. Títulos, listas, citação e código com Copiar. A mensagem longa nunca é cortada (agente 0.8.8). Uso de IA: na virada da semana (sexta 17h), a que fechou ao lado da nova, com a faixa final e o que bateu; o erro de uma medida aparece à parte."],
   ["0.8.7", "Uso de IA da semana (a régua da Seazone, os dois PCs somados) no Início e numa tela com gráficos; o fundo de galáxia do Monitor geral em todas as telas."],
   ["0.8.6", "Para você: o Responder vai para a sessão que perguntou (em qualquer PC) e o maestro fica sabendo; responder o Slack com o rascunho pronto; ✓ Resolvido; o contador Esperando você conta esses itens."],
@@ -1090,25 +1147,37 @@ let notasMaestro = lerJson("seaninho.notasMaestro", []);    // avisos ao maestro
 // vira a acao slack_responder no PC do maestro, que posta pela conta do Slack do Seaninho e conta ao maestro.
 let pvSlack = lerJson("seaninho.pvSlack", {});              // chave -> {t, ref, pedido, ok, link, erroLocal}
 let pvRascunhos = lerJson("seaninho.pvRascunhos", {});      // chave -> {v, t}
-let tabelaAberta = false, mudouAberto = false;
+let tabelaAberta = false, mudouAberto = false, usoTabelaAberta = false;
 let copias = {};         // pc -> [cópias], baixadas só quando o copias_em do PC muda e a aba está aberta
 const copiasEm = {};     // pc -> copias_em que já temos
 let listaCopias = [];    // o que está desenhado (o toque acha a cópia pelo índice)
 let ultimaAcao = "";     // o último toque da aba Hoje (água, pausa, tarefa…): o resultado aparece no topo
 const concluindo = new Map();   // tarefa marcada aqui -> pedido que a conclui (até o PC riscar ou dar erro)
 
-async function rpc(nome, args = {}, comChave = true) {
+// 0.8.9: com tempo-limite (15 s; 60 s com imagem ou áudio). Sem ele, uma rede que trava deixava o "Atualizando…" e o 🕓
+// girando para sempre. Erro de rede (sem resposta ou tempo esgotado) vem com e.rede: a mensagem vai para a fila.
+async function rpc(nome, args = {}, comChave = true, ms = 0) {
   const headers = {"apikey": CFG.publica, "Content-Type": "application/json"};
   if ((CFG.publica || "").startsWith("ey")) headers.Authorization = "Bearer " + CFG.publica;
   const body = comChave ? {chave, ...args} : args;
-  const r = await fetch(`${CFG.url}/rest/v1/rpc/${nome}`, {method: "POST", headers, body: JSON.stringify(body)});
-  if (!r.ok) {
-    let msg = r.statusText;
-    try { msg = (await r.json()).message || msg; } catch {}
-    const e = new Error(msg); e.status = r.status; throw e;
-  }
-  const t = await r.text();
-  return t ? JSON.parse(t) : null;
+  const ctl = typeof AbortController === "function" ? new AbortController() : null;
+  const limite = setTimeout(() => ctl && ctl.abort(), ms || (args && args.audio ? 60000 : 15000));
+  try {
+    let r;
+    try { r = await fetch(`${CFG.url}/rest/v1/rpc/${nome}`, {method: "POST", headers, body: JSON.stringify(body), ...(ctl ? {signal: ctl.signal} : {})}); }
+    catch (e) {
+      const x = new Error(e && e.name === "AbortError" ? "o banco demorou demais para responder" : String((e && e.message) || e));
+      x.rede = true; throw x;
+    }
+    if (!r.ok) {
+      let msg = r.statusText;
+      try { msg = (await r.json()).message || msg; } catch {}
+      const e = new Error(msg || `o banco respondeu ${r.status}`); e.status = r.status; throw e;
+    }
+    let t;
+    try { t = await r.text(); } catch (e) { const x = new Error("a resposta do banco não chegou inteira"); x.rede = true; throw x; }
+    return t ? JSON.parse(t) : null;
+  } finally { clearTimeout(limite); }
 }
 
 // ---- Tempo e PCs -------------------------------------------------------------------------------
@@ -1117,10 +1186,18 @@ function ha(ms) {
   if (s < 60) return "agora";
   if (s < 3600) return `há ${Math.floor(s / 60)} min`;
   if (s < 86400) return `há ${Math.floor(s / 3600)} h`;
-  return `há ${Math.floor(s / 86400)} d`;
+  // mais de um dia: o dia e a hora, como o "visto por último" do WhatsApp ("ontem às 18h", "qui às 18h", "22/10")
+  const d = new Date(ms);
+  return s < 6 * 86400 ? quandoFoi(d.toISOString()) : `em ${String(d.getDate()).padStart(2, "0")}/${String(d.getMonth() + 1).padStart(2, "0")}`;
 }
 const hora = iso => new Date(iso).toLocaleTimeString("pt-BR", {hour: "2-digit", minute: "2-digit"});
-const online = p => Date.now() - new Date(p.visto_em).getTime() < 150000;
+// O PC está ligado se deu sinal há menos de 150 s. O "agora" é o da última volta boa quando o celular está sem rede
+// (0.8.9): sem internet no celular, o PC não passa a parecer desligado (nem some a caixa de escrever).
+const agoraRede = () => rede.ok === false && rede.em ? rede.em : Date.now();
+const online = p => agoraRede() - new Date(p.visto_em).getTime() < 150000;
+// Sem sinal há mais de 10 min (0.8.9): as sessões dele saem do "Esperando você" e dos contadores. 10 min, e não os
+// 150 s do online, para não piscar quando o agente reinicia.
+const desligadoHa = p => agoraRede() - new Date(p.visto_em).getTime() >= 600000;
 // Comandos e microfone vão para o PC ligado que deu sinal por último.
 const pcAtivo = () => Object.values(pcs).filter(online).sort((a, b) => b.visto_em.localeCompare(a.visto_em))[0];
 
@@ -1131,19 +1208,22 @@ const ICONE = {saude:"💧", reuniao:"📅", agenda:"📅", lembrete:"⏰", tare
 
 function todasSessoes() {
   const out = [];
-  for (const p of Object.values(pcs)) for (const s of p.sessoes || []) out.push({...s, pc: p.pc});
+  for (const p of Object.values(pcs)) {
+    const off = desligadoHa(p);
+    for (const s of p.sessoes || []) out.push({...s, pc: p.pc, ...(off ? {desligado: p.visto_em} : {})});
+  }
   marcarParaVoce(out);
   const ordem = {perguntando: 0, trabalhando: 1, ociosa: 2};
-  return out.sort((a, b) => (ordem[a.estado] - ordem[b.estado]) || (b.desde - a.desde));
+  return out.sort((a, b) => (!!a.desligado - !!b.desligado) || (ordem[a.estado] - ordem[b.estado]) || (b.desde - a.desde));
 }
 
 function desenharPcs() {
   const lista = Object.values(pcs).sort((a, b) => a.pc.localeCompare(b.pc));
-  $("pcs").innerHTML = lista.map(p => `<span class="pc ${online(p) ? "on" : ""}"><i></i>${esc(p.pc)}</span>`).join("");
-  $("pcsLista").innerHTML = lista.map(p => `<div class="card"><div class="row"><div class="title">${esc(p.pc)}</div>
+  por($("pcs"), lista.map(p => `<span class="pc ${online(p) ? "on" : ""}"><i></i>${esc(p.pc)}</span>`).join(""));
+  por($("pcsLista"), lista.map(p => `<div class="card"><div class="row"><div class="title">${esc(p.pc)}</div>
     <span class="chip">${online(p) ? "ligado" : "desligado"}</span></div>
     <div class="meta">Visto ${ha(new Date(p.visto_em).getTime())} · versão ${esc(p.versao)}</div></div>`).join("")
-    || `<p class="note">Nenhum PC publicou ainda.</p>`;
+    || `<p class="note">Nenhum PC publicou ainda.</p>`);
 }
 
 // Só troca o que mudou: a fileira das fixadas e a dos filtros não voltam ao começo, e o "Ver em tabela" fica aberto.
@@ -1170,21 +1250,34 @@ function desenharSessoes() {
       <button class="btn sec" data-limpar-tudo>Limpar ${busca.trim() && !Lista.semFiltro(filtros) ? "busca e filtros" : busca.trim() ? "a busca" : "os filtros"}</button></div>`;
   else if (!lista.length) html = `<p class="note">Todas as sessões abertas estão fixadas acima.</p>`;
   else html = lista.map(s => cartaoSessao(s, varios)).join("");
+  if (rede.ok === false) html = `<div class="rede-off" role="status">⚠ Sem internet${rede.em ? " · a lista é das " + hm(new Date(rede.em).toISOString()) : ""}. Tentando de novo…</div>` + html;
   if (c.slack && (filtros.estado === "esperando" || !filtrando))
     html = `<button class="pv-nota" data-ir-pv>💬 ${c.slack === 1 ? "1 mensagem do Slack espera" : c.slack + " mensagens do Slack esperam"} você: no Para você, no Início ›</button>` + html;
   por($("sessoesLista"), html);
 }
 
+// A mensagem minha desta sessão que deu erro e ainda está no chat (nem reenviada nem apagada), das últimas 24 h; e a
+// que espera na fila do aparelho por falta de rede.
+function falhaDaSessao(s) {
+  // só se for a última coisa da conversa (como o WhatsApp: uma mensagem mais nova depois dela passa a ser a prévia)
+  const dia = Date.now() - 86400e3, ult = Math.max(0, ...Chat.conversaDe(s).map(m => m.t || 0)) * 1000;
+  const p = pedidos.filter(x => (x.tipo || "claude") === "claude" && x.sessao === s.id && x.pc === s.pc && x.estado === "erro"
+    && !ocultos[x.id] && !reenviados.has(x.id) && Date.parse(x.atualizado_em || x.criado_em) > dia
+    && Date.parse(x.criado_em) >= ult - 5000)
+    .sort((a, b) => String(b.criado_em).localeCompare(String(a.criado_em)))[0];
+  return p ? {texto: p.texto || p.prompt} : locais.find(l => l.sessao === s.id && l.sinal === "erro") || null;
+}
 function cartaoSessao(s, varios) {
   const fixa = Lista.fixada(fixadas, s);
   return `<div class="sl" data-pc="${esc(s.pc)}" data-id="${esc(s.id)}"><div class="sl-acao">${fixa ? "Desafixar" : "📌 Fixar"}</div>
-    <button class="card sessao ${s.estado === "perguntando" || s.paraVoce ? "ask" : ""}" data-pc="${esc(s.pc)}" data-id="${esc(s.id)}">
-      <div class="row"><div class="title">${fixa ? `<span class="pino" aria-label="Fixada">📌</span> ` : ""}${esc(s.titulo)}</div><span class="chip ${esc(s.estado)}">${ESTADO[s.estado] || esc(s.estado)}</span></div>
-      <div class="meta">${esc(s.pasta)}${varios ? " · " + esc(s.pc) : ""} · ${ha(s.desde * 1000)}</div>
+    <button class="card sessao ${s.desligado ? "off" : s.estado === "perguntando" || s.paraVoce ? "ask" : ""}" data-pc="${esc(s.pc)}" data-id="${esc(s.id)}">
+      <div class="row"><div class="title">${fixa ? `<span class="pino" aria-label="Fixada">📌</span> ` : ""}${mudo(s)}${esc(s.titulo)}</div>${s.desligado
+        ? `<span class="chip desligado">PC desligado</span>` : `<span class="chip ${esc(s.estado)}">${ESTADO[s.estado] || esc(s.estado)}</span>`}</div>
+      <div class="meta">${esc(s.pasta)}${varios ? " · " + esc(s.pc) : ""} · ${s.desligado ? `${esc(nomeCurtoPc(s.pc))} desligado desde ${esc(quandoFoi(s.desligado))}` : ha(s.desde * 1000)}</div>
       ${s.permissao && !s.enquete ? `<div class="q">${esc(previa(s))}</div>`
         : s.estado === "perguntando" && (s.enquete || s.detalhe) ? `<div class="q">${s.enquete ? "📊 " : ""}${esc(s.enquete ? s.enquete.perguntas[0].pergunta : s.detalhe)}</div>`
         : s.paraVoce ? `<div class="q">🎼 Para você: ${esc(s.paraVoce)}</div>`
-        : previa(s) ? `<div class="prev">${esc(previa(s))}</div>` : ""}
+        : previa(s) ? `<div class="prev${falhaDaSessao(s) ? " falhou" : ""}">${esc(previa(s))}</div>` : ""}
     </button></div>`;
 }
 
@@ -1226,6 +1319,9 @@ function fecharFolha() { $("folhaFundo").classList.add("hidden"); folhaEscolher 
 // ---- Fixadas: a fileira do topo (como os favoritos), gravada no banco para valer em todo aparelho ----------
 function desenharFixadas(ss, filtrando, agora) {
   const itens = Lista.fixadasNaTela(fixadas, ss);
+  let completou = false;   // a fixada de antes da 0.8.9, com a sessão aberta, ganha a pasta (para o Reabrir no PC)
+  for (const {f, s} of itens) if (s && s.cwd && !f.cwd) { f.cwd = String(s.cwd).slice(0, 260); completou = true; }
+  if (completou && !fixadasSalvando && rede.ok === true) setTimeout(() => salvarFixadas(fixadas), 0);   // só com rede (sem aviso falso)
   if (filtrando || !itens.length) return por($("fixadas"), "");
   por($("fixadas"), `<div class="fx-titulo">📌 Fixadas<small>toque e segure para mover ou desafixar</small></div><div class="fx-fila" id="fxFila">`
     + itens.map(({f, s}, i) => {
@@ -1233,7 +1329,7 @@ function desenharFixadas(ss, filtrando, agora) {
       return `<button class="fx ${s ? "" : "fechada"}" data-fx="${i}" data-pc="${esc(f.pc)}" data-id="${esc(f.id)}"
           aria-label="${esc((s ? s.titulo : f.titulo) + (s ? ", " + ESTADO_ROT[est] : ", fechada no PC"))}">
         <span class="fx-av">${esc(iniciais(s ? s.titulo : f.titulo))}<span class="pino">📌</span>${s ? `<i class="fx-ponto ${est}"></i>` : ""}</span>
-        <span class="fx-nome">${esc(s ? s.titulo : f.titulo)}</span></button>`;
+        <span class="fx-nome">${s && silencioDe(s.pc, s.id) ? "🔕 " : ""}${esc(s ? s.titulo : f.titulo)}</span></button>`;
     }).join("") + `</div>`);
 }
 
@@ -1274,13 +1370,172 @@ function fecharMenu() { $("menuSessao").classList.add("hidden"); menuAcoes = [];
 function menuDaSessao(pc, id, ancora) {
   const fixa = Lista.fixada(fixadas, {pc, id});
   abrirMenu([[fixa ? "Desafixar" : "📌 Fixar no topo", () => alternarFixada(pc, id)], ["💬 Abrir a conversa", () => abrir(pc, id)],
-             ...itensDeAcoes(pc, id)], ancora);
+             ...itensDeAcoes(pc, id), ...itemSilenciar(pc, id), ...itemFechar(pc, id)], ancora);
+}
+// ---- 0.8.9: silêncio (pedido do Arthur pelo maestro): por sessão (8 h, até amanhã, sempre) e o horário ----------
+// O PC de cada sessão guarda (avisos-silencio.json) e cala os avisos; publica o que está calado (hoje.silencio), e o
+// celular mostra o 🔕. O horário vale para todos os PCs: o celular manda para cada um e reenvia ao PC que aparecer
+// com outro (o WIN, quando ligar).
+const AGENTE_SILENCIO = "0.8.9";
+const HORARIO_PADRAO = {ligado: true, de: 22, ate: 7};
+function silencioDe(pc, id) {
+  const sl = ((pcs[pc] || {}).hoje || {}).silencio, ate = sl && sl.sessoes ? sl.sessoes[id] : undefined;
+  if (ate === undefined || ate === null) return null;
+  return ate === 0 ? {sempre: true} : ate * 1000 > Date.now() ? {ate: ate * 1000} : null;
+}
+const mudo = s => silencioDe(s.pc, s.id) ? `<span class="mudo" aria-label="Avisos silenciados">🔕</span> ` : "";
+function itemSilenciar(pc, id) {
+  const p = pcs[pc];
+  if (!p || !online(p) || Lista.compararVersao(p.versao, AGENTE_SILENCIO) < 0) return [];
+  return silencioDe(pc, id) ? [["🔔 Tirar o silêncio", () => silenciar(pc, id, -1)]] : [["🔕 Silenciar avisos…", () => escolherSilencio(pc, id)]];
+}
+// "Até amanhã às 8h"; de madrugada (antes das 8h), até as 8h desta manhã
+function ateAs8() {
+  const d = new Date(), cedo = d.getHours() < 8;
+  if (!cedo) d.setDate(d.getDate() + 1);
+  d.setHours(8, 0, 0, 0);
+  return {d, rotulo: cedo ? "Até as 8h" : "Até amanhã às 8h"};
+}
+function escolherSilencio(pc, id) {
+  abrirFolha("Silenciar os avisos desta sessão", [["8h", "Por 8 horas", ""], ["amanha", ateAs8().rotulo, ""], ["sempre", "Sempre", ""]], "",
+             v => silenciar(pc, id, v));
+}
+function silenciar(pc, id, v) {
+  const amanha = ateAs8().d;
+  const ate = v === -1 ? -1 : v === "sempre" ? 0 : v === "amanha" ? Math.floor(amanha / 1000) : Math.floor(Date.now() / 1000) + 8 * 3600;
+  pedirNoPc(pc, {acao: "silenciar", sessao: id, ate}, ate === -1
+    ? {indo: "Ligando os avisos de novo…", ok: "Os avisos desta sessão voltaram.", erro: "Não tirou o silêncio"}
+    : {indo: "Silenciando…", ok: ate === 0 ? "🔕 Silenciada para sempre." : `🔕 Silenciada até ${quandoFoi(new Date(ate * 1000).toISOString())}.`, erro: "Não silenciou"});
+}
+const horarioDoCelular = () => ({...HORARIO_PADRAO, ...lerJson("seaninho.silencio", {})});
+function desenharHorario() {
+  const h = horarioDoCelular();
+  $("silLigado").checked = !!h.ligado; $("silDe").value = String(h.de); $("silAte").value = String(h.ate);
+  $("silDe").disabled = $("silAte").disabled = !h.ligado;
+}
+const horarioIgual = (a, b) => !!a && !!b && !!a.ligado === !!b.ligado && Number(a.de) === Number(b.de) && Number(a.ate) === Number(b.ate);
+const horarioEnviado = {};   // pc -> quando o celular mandou (não manda de novo a cada volta)
+function mudarHorario() {
+  const h = {ligado: $("silLigado").checked, de: Number($("silDe").value), ate: Number($("silAte").value), mudou_em: Math.floor(Date.now() / 1000)};
+  store.set("seaninho.silencio", JSON.stringify(h));
+  desenharHorario();
+  for (const k of Object.keys(horarioEnviado)) delete horarioEnviado[k];
+  const n = sincronizarHorario(true);
+  avisar("silMsg", n ? `Salvo: ${h.ligado ? `silêncio das ${h.de}h às ${h.ate}h` : "sem horário de silêncio"} (${n === 1 ? "1 PC" : n + " PCs"}).`
+    : "Salvo neste celular: vai para os PCs quando eles ligarem (precisam do agente 0.8.9).", {ok: true});
+}
+// Manda o horário do celular a cada PC ligado (agente 0.8.9) que publica outro. Devolve quantos receberam. Vale a
+// mudança mais nova (mudou_em): se um PC tem um horário mudado depois (por outro aparelho), este celular passa a usar
+// esse, em vez de reenviar o seu para sempre.
+function sincronizarHorario(agora = false) {
+  const meu = horarioDoCelular();
+  for (const p of Object.values(pcs)) {
+    const doPc = ((p.hoje || {}).silencio || {}).horario;
+    if (doPc && Number(doPc.mudou_em || 0) > Number(meu.mudou_em || 0) && !horarioIgual(doPc, meu)) {
+      store.set("seaninho.silencio", JSON.stringify({ligado: !!doPc.ligado, de: Number(doPc.de), ate: Number(doPc.ate), mudou_em: Number(doPc.mudou_em)}));
+      if (aba === "Ajustes") desenharHorario();
+      return sincronizarHorario(agora);
+    }
+  }
+  if (!store.get("seaninho.silencio")) return 0;   // nunca mexido: vale o padrão de cada PC
+  const h = horarioDoCelular();
+  let n = 0;
+  for (const p of Object.values(pcs)) {
+    if (!online(p) || Lista.compararVersao(p.versao, AGENTE_SILENCIO) < 0) continue;
+    const doPc = ((p.hoje || {}).silencio || {}).horario;
+    if (!agora && (horarioIgual(doPc, h) || Date.now() - (horarioEnviado[p.pc] || 0) < 120000)) continue;
+    horarioEnviado[p.pc] = Date.now(); n++;
+    rpc("cel_pedir", {pc: p.pc, tipo: "acao", texto: JSON.stringify({acao: "silencio_horario", ...h})}).catch(() => { delete horarioEnviado[p.pc]; });
+  }
+  return n;
+}
+
+// ---- 0.8.9: "Fechar as N paradas" com a RAM do PC acima de 90% (pedido do Arthur pelo maestro) ------------------
+// As ociosas há mais de 2 min (as pessoais também: quem toca é o Arthur), nunca a do maestro; a lista aparece para
+// ele confirmar; cada uma vai pelo mesmo fechar_sessao do agente (que confere de novo na tela).
+function ramDe(p) {
+  const m = (painelDe(p) || {}).maquina || {};
+  return m.ram_total_mb && m.ram_livre_mb != null ? Math.round(100 * (1 - m.ram_livre_mb / m.ram_total_mb)) : null;
+}
+function paradasParaFechar(pc) {
+  const o = orquestraDe(Object.values(pcs)), agora = Date.now();
+  return todasSessoes().filter(s => s.pc === pc && !s.desligado && s.estado === "ociosa" && !s.permissao && !s.enquete
+    && agora - (s.desde || 0) * 1000 > 120000 && String(s.titulo || "").trim().toUpperCase() !== "MAESTRO" && !(o && o.sessao === s.id));
+}
+function botaoRamCheia(p) {
+  const uso = ramDe(p), n = uso != null && uso > 90 && online(p) && Lista.compararVersao(p.versao, AGENTE_FECHAR) >= 0 ? paradasParaFechar(p.pc).length : 0;
+  return n ? `<button class="ram-cheia" data-fechar-paradas="${esc(p.pc)}">⚠ ${esc(nomeCurtoPc(p.pc))} com ${uso}% da RAM · Fechar ${n === 1 ? "a parada" : `as ${n} paradas`} ›</button>` : "";
+}
+async function fecharParadas(pc) {
+  const p = pcs[pc], lista = paradasParaFechar(pc);
+  if (!p || !lista.length) return avisar("appAviso", "Nenhuma sessão parada para fechar agora.", {});
+  if (!confirm(`Fechar ${lista.length === 1 ? "a aba parada" : `as ${lista.length} abas paradas`} no ${nomeCurtoPc(pc)} (RAM em ${ramDe(p)}%)?\n\n`
+      + lista.map(s => `• ${s.titulo} (parada ${ha(s.desde * 1000)})`).join("\n")
+      + "\n\nLibera memória. As conversas continuam no histórico e podem ser reabertas.")) return;
+  const grupo = {total: lista.length, feitos: 0, ok: 0, erros: []};
+  avisar("appAviso", `Fechando ${lista.length === 1 ? "1 aba" : lista.length + " abas"} no PC…`, {});
+  for (const s of lista) {
+    try { acoesVigiadas.set(await rpc("cel_pedir", {pc, tipo: "acao", texto: JSON.stringify({acao: "fechar_sessao", sessao: s.id})}), {grupo, titulo: s.titulo}); }
+    catch (e) { grupo.feitos++; grupo.erros.push(`${s.titulo}: não saiu do celular (${motivoRede(e)})`); }
+  }
+  if (grupo.feitos >= grupo.total) avisoDoGrupo(grupo);   // nenhuma saiu do celular
+  atualizar();
+}
+function avisoDoGrupo(g) {
+  avisar("appAviso", `${g.ok ? "✓ " : ""}Fechei ${g.ok} de ${g.total}.${g.erros.length ? " Não fechou: " + g.erros.join("; ") : ""}`,
+         g.erros.length ? {erro: true, fica: true} : {ok: true});
+}
+
+// ---- 0.8.9: fechar a aba no PC (libera memória; a conversa fica no histórico) e reabrir a fixada fechada ------------
+// O agente 0.8.6 já fazia (a ronda da orquestra usa), com as travas dele: ociosa há mais de 2 min, caixa vazia, ninguém
+// usando o PC, nunca a do maestro. O resultado aparece no aviso quando o PC responder.
+const AGENTE_FECHAR = "0.8.6";
+const acoesVigiadas = new Map();   // pedido -> {ok, erro}: o que avisar quando o PC responder
+function itemFechar(pc, id) {
+  const s = todasSessoes().find(x => x.id === id && x.pc === pc), p = pcs[pc];
+  const pode = s && !s.desligado && p && online(p) && Lista.compararVersao(p.versao, AGENTE_FECHAR) >= 0
+    && !["trabalhando", "perguntando"].includes(s.estado) && !s.permissao && !s.enquete && String(s.titulo || "").trim().toUpperCase() !== "MAESTRO";
+  return pode ? [["✕ Fechar a aba no PC", () => fecharAbaNoPc(pc, id, s.titulo)]] : [];
+}
+async function pedirNoPc(pc, obj, vigia) {
+  const p = pcs[pc];
+  if (!p || !online(p)) return avisar("appAviso", `O ${nomeCurtoPc(pc)} está desligado: tente quando ele ligar.`, {erro: true});
+  try {
+    acoesVigiadas.set(await rpc("cel_pedir", {pc, tipo: "acao", texto: JSON.stringify(obj)}), vigia);
+    avisar("appAviso", vigia.indo, {});
+    atualizar();
+  } catch (e) { avisar("appAviso", "Não saiu do celular: " + motivoRede(e), {erro: true, acao: () => pedirNoPc(pc, obj, vigia)}); }
+}
+function fecharAbaNoPc(pc, id, titulo) {
+  if (!confirm(`Fechar a aba “${titulo || "sessão"}” no ${nomeCurtoPc(pc)}?\n\nLibera memória do PC. A conversa continua no histórico do Claude e pode ser reaberta.`)) return;
+  pedirNoPc(pc, {acao: "fechar_sessao", sessao: id}, {indo: "Fechando a aba no PC…", ok: "Aba fechada no PC.", erro: "Não fechou"});
+}
+function reabrirNoPc(f) {
+  pedirNoPc(f.pc, {acao: "abrir_sessao", sessao: f.id, cwd: f.cwd || ""}, {indo: "Reabrindo no PC…", ok: `“${f.titulo}” reaberta no PC.`, erro: "Não reabriu"});
+}
+function vigiarAcoes() {
+  for (const [id, v] of acoesVigiadas) {
+    const p = pedidos.find(x => x.id === id);
+    if (!p || !["entregue", "erro"].includes(p.estado)) continue;
+    acoesVigiadas.delete(id);
+    if (v.grupo) {   // o "Fechar as N paradas": um aviso só, no fim
+      const g = v.grupo;
+      g.feitos++;
+      if (p.estado === "entregue") g.ok++; else g.erros.push(`${v.titulo}: ${p.erro || "o PC não conseguiu"}`);
+      if (g.feitos >= g.total) avisoDoGrupo(g);
+      continue;
+    }
+    if (p.estado === "entregue") avisar("appAviso", "✓ " + v.ok, {ok: true});
+    else avisar("appAviso", `${v.erro}: ${p.erro || "o PC não conseguiu"}`, {erro: true, fica: true});
+  }
 }
 function menuDaFixada(i, ancora) {
   const f = fixadas[i];
   if (!f) return;
   const viva = todasSessoes().some(s => s.id === f.id && s.pc === f.pc);
-  abrirMenu([...(viva ? [["💬 Abrir a conversa", () => abrir(f.pc, f.id)]] : []),
+  const reabre = !viva && !!f.cwd && pcs[f.pc] && online(pcs[f.pc]) && Lista.compararVersao(pcs[f.pc].versao, AGENTE_FECHAR) >= 0;
+  abrirMenu([...(viva ? [["💬 Abrir a conversa", () => abrir(f.pc, f.id)], ...itemSilenciar(f.pc, f.id), ...itemFechar(f.pc, f.id)]
+                      : reabre ? [["↻ Reabrir no PC", () => reabrirNoPc(f)]] : []),
              ...(i > 0 ? [["◀ Mover para a esquerda", () => salvarFixadas(Lista.moverFixada(fixadas, i, i - 1))]] : []),
              ...(i < fixadas.length - 1 ? [["Mover para a direita ▶", () => salvarFixadas(Lista.moverFixada(fixadas, i, i + 1))]] : []),
              ["Desafixar", () => alternarFixada(f.pc, f.id)]], ancora);
@@ -1362,6 +1617,8 @@ function soltarFixada(e) {
 
 // A última mensagem da conversa, numa linha (como a lista de conversas do WhatsApp).
 function previa(s) {
+  const falhou = falhaDaSessao(s);   // 0.8.9: a mensagem que não entrou aparece na lista (o ! vermelho do WhatsApp)
+  if (falhou) return ("⚠ Não entregue: " + (falhou.texto || "")).replace(/\s+/g, " ").slice(0, 160);
   if (s.permissao && !s.enquete) return ((s.permissao.plano ? "📋 Plano para aprovar: " : "🔐 Pede permissão: ") + s.permissao.titulo).slice(0, 160);
   const c = Chat.conversaDe(s).filter(m => ["eu", "claude", "sessao"].includes(m.de));
   const m = c[c.length - 1];
@@ -1376,8 +1633,11 @@ const PAINEL_BLOCOS = ["airats", "esperando", "sessoes", "paravoce", "usoia", "c
 const painelDe = p => (p && p.hoje && p.hoje.painel) || null;
 function motivoRede(e) {
   const m = String((e && e.message) || e || "");
-  return /failed to fetch|network|load failed/i.test(m) ? "sem internet ou o banco não respondeu" : m.slice(0, 140);
+  if (/demorou demais/.test(m)) return "a rede está lenta: o banco demorou demais para responder";
+  return ehRede(e) ? "sem internet ou o banco não respondeu" : m.slice(0, 140) || "erro desconhecido";
 }
+// "Load failed" é o erro de rede do Safari do iPhone; "Failed to fetch", o do Chrome.
+const ehRede = e => !!(e && (e.rede || /failed to fetch|network|load failed|demorou demais/i.test(String(e.message || e))));
 function desenharInicio() {
   const el = $("tabInicio");
   if (aba !== "Inicio" || !el) return;
@@ -1392,7 +1652,8 @@ function desenharInicio() {
     : `<span><span class="spin"></span>Carregando o painel…</span>`);
   if (!lista.length) {
     PAINEL_BLOCOS.forEach(b => por($("p-" + b), ""));
-    return por($("p-sessoes"), rede.ok === null ? "" : `<div class="empty">Nenhum PC publicou ainda. Ligue o Seaninho no celular num PC.</div>`);
+    return por($("p-sessoes"), rede.ok === null ? "" : rede.ok === false ? `<div class="empty">Sem internet: o painel aparece quando a rede voltar.</div>`
+      : `<div class="empty">Nenhum PC publicou ainda. Ligue o Seaninho no celular num PC.</div>`);
   }
   por($("p-airats"), blocoAiRats());
   por($("p-esperando"), blocoEsperando(ss, agora));
@@ -1418,20 +1679,24 @@ function blocoEsperando(ss, agora) {
   if (!esp.length && !soltos.length) return "";
   const varios = Object.keys(pcs).length > 1;
   const linhas = esp.map(s => `<button class="esp-item" ${s.paraVoce && s.estado !== "perguntando" && !s.permissao && !s.enquete
-          ? `data-pv="${s.paraVoceI}"` : `data-abrir-pc="${esc(s.pc)}" data-abrir="${esc(s.id)}"`}>
+          ? `data-pv="${esc(s.paraVoceK)}"` : `data-abrir-pc="${esc(s.pc)}" data-abrir="${esc(s.id)}"`}>
         <span class="esp-t"><b>${esc(s.titulo)}${varios ? ` <span class="meta">· ${esc(nomeCurtoPc(s.pc))}</span>` : ""}</b><small>${esc(oQueEspera(s))}</small></span>
         <span class="esp-ir">Responder</span></button>`)
-    .concat(soltos.map(it => `<button class="esp-item" data-pv-ir="${it.i}">
+    .concat(soltos.map(it => `<button class="esp-item" data-pv-ir="${esc(it.chave)}">
         <span class="esp-t"><b>💬 Slack${it.slack.de ? " · " + esc(it.slack.de) : ""}</b><small>${esc(it.texto)}</small></span>
         <span class="esp-ir">Responder</span></button>`));
-  return `<section class="bloco destaque"><h3>🔔 Esperando você ${esp.length ? `<button class="ir" data-ir="Claude" data-filtro="esperando">${esp.length > 3 ? `Ver todas (${esp.length})` : "Ver na lista"} ›</button>` : ""}</h3>`
+  const mais = linhas.length > 4 ? `Ver todas (${linhas.length})` : "Ver na lista";
+  return `<section class="bloco destaque"><h3>🔔 Esperando você ${esp.length || linhas.length > 4 ? `<button class="ir" data-ir="Claude" data-filtro="esperando">${mais} ›</button>` : ""}</h3>`
     + linhas.slice(0, 4).join("") + `</section>`;
 }
 function blocoSessoes(c, lista) {
   const porPc = lista.length > 1 ? lista.map(p => `${esc(nomeCurtoPc(p.pc))} ${c.porPc[p.pc] || 0}`).join(" · ") : "";
   return `<section class="bloco"><button class="bloco-cab" data-ir="Claude"><h3>💬 Sessões <span class="ir">Abrir ›</span></h3></button>
     <div class="ses-topo"><span class="grande">${c.total}</span><span class="meta">${c.total === 1 ? "aberta" : "abertas"}${porPc ? " · " + porPc : ""}</span></div>
-    <div class="contadores">${Lista.ESTADOS.map(([k, rot]) => `<button class="contador ${k}" data-ir="Claude" data-filtro="${k}" aria-label="${rot}: ${c[k]}"><b>${c[k]}</b><span>${rot}</span></button>`).join("")}</div></section>`;
+    <div class="contadores">${Lista.ESTADOS.filter(([k]) => k !== "desligado").map(([k, rot]) => `<button class="contador ${k}" data-ir="Claude" data-filtro="${k}" aria-label="${rot}: ${c[k]}"><b>${c[k]}</b><span>${rot}</span></button>`).join("")}</div>
+    ${lista.map(botaoRamCheia).join("")}
+    ${c.desligado ? `<button class="ses-off" data-ir="Claude" data-filtro="desligado">⏻ ${plural(c.desligado, "sessão", "sessões")} de PC desligado (${
+      esc(lista.filter(desligadoHa).map(p => nomeCurtoPc(p.pc) + " visto " + ha(new Date(p.visto_em).getTime())).join(", "))}) ›</button>` : ""}</section>`;
 }
 function orquestraDe(lista) {
   for (const p of lista) { const o = (painelDe(p) || {}).orquestra; if (o) return {...o, pc: p.pc}; }
@@ -1457,12 +1722,12 @@ function itemParaVoce(it, maestro, notas, slack) {
   if (it.slack) return itemSlack(it, slack);
   const a = pvAlvo(it), r = pvRespondidos[it.chave];
   const botao = a && a.achou
-    ? `<button data-pv="${it.i}" ${a.ligado ? "" : "disabled"} aria-label="Responder à sessão ${esc(a.nome)} sobre: ${esc(it.texto)}">${a.ligado ? "↩ Responder a " + esc(curtoTxt(a.nome, 24)) : esc(nomeCurtoPc(a.pc)) + " desligado"}</button>`
-    : `<button data-pv="${it.i}" ${maestro ? "" : "disabled"} aria-label="Responder ao Maestro sobre: ${esc(it.texto)}">${maestro ? "↩ Responder ao Maestro" : "Maestro fechado"}</button>`;
+    ? `<button data-pv="${esc(it.chave)}" ${a.ligado ? "" : "disabled"} aria-label="Responder à sessão ${esc(a.nome)} sobre: ${esc(it.texto)}">${a.ligado ? "↩ Responder a " + esc(curtoTxt(a.nome, 24)) : esc(nomeCurtoPc(a.pc)) + " desligado"}</button>`
+    : `<button data-pv="${esc(it.chave)}" ${maestro ? "" : "disabled"} aria-label="Responder ao Maestro sobre: ${esc(it.texto)}">${maestro ? "↩ Responder ao Maestro" : "Maestro fechado"}</button>`;
   const de = a ? `<div class="pv-de">💬 ${esc(a.nome)} · ${esc(nomeCurtoPc(a.pc))}${a.achou ? "" : ` · <span class="alerta">a sessão não está aberta: a resposta vai ao maestro</span>`}</div>` : "";
-  return `<div class="pv-item" data-pv-item="${it.i}">${de}<div class="pv-t">${esc(it.texto)}</div>${r ? `<div class="pv-feito">${estadoRespostaPv(r)}</div>` : ""}
+  return `<div class="pv-item" data-pv-item="${esc(it.chave)}">${de}<div class="pv-t">${esc(it.texto)}</div>${r ? `<div class="pv-feito">${estadoRespostaPv(r)}</div>` : ""}
     <div class="pv-acoes">${botao}
-      ${notas ? `<button class="pv-ok" data-pv-ok="${it.i}" aria-label="Marcar como resolvido: ${esc(it.texto)}">✓ Resolvido</button>` : ""}
+      ${notas ? `<button class="pv-ok" data-pv-ok="${esc(it.chave)}" aria-label="Marcar como resolvido: ${esc(it.texto)}">✓ Resolvido</button>` : ""}
       ${linkSeguro(it.link) ? `<a href="${esc(linkSeguro(it.link))}" target="_blank" rel="noopener">Abrir o link</a>` : ""}</div></div>`;
 }
 // O item do Slack: quem pediu e a mensagem, o rascunho para editar e os botões. Enviado, fica o link da mensagem.
@@ -1471,16 +1736,16 @@ function itemSlack(it, bloqueio) {
   const rasc = pvRascunhos[it.chave] ? pvRascunhos[it.chave].v : (sl.rascunho || "");
   const corpo = st.fase === "ok"
     ? `<div class="pv-feito">✓ Enviado no Slack às ${hm(new Date(st.t).toISOString())}${st.link ? ` · <a href="${esc(st.link)}" target="_blank" rel="noopener">Ver a mensagem</a>` : ""}</div>`
-    : `<label class="pv-rot" for="rasc-${it.chave}">Sua resposta${sl.thread_ts ? " (na thread)" : ""}</label>
-       <textarea id="rasc-${it.chave}" class="pv-rasc" data-pv-rasc="${it.chave}" rows="3" placeholder="Escreva a resposta" ${st.fase === "enviando" ? "disabled" : ""}>${esc(rasc)}</textarea>
+    : `<label class="pv-rot" for="rasc-${esc(it.chave)}">Sua resposta${sl.thread_ts ? " (na thread)" : ""}</label>
+       <textarea id="rasc-${esc(it.chave)}" class="pv-rasc" data-pv-rasc="${esc(it.chave)}" rows="3" placeholder="Escreva a resposta" ${st.fase === "enviando" ? "disabled" : ""}>${esc(rasc)}</textarea>
        ${st.fase === "enviando" ? `<div class="pv-feito"><span class="spin"></span>Enviando no Slack…</div>`
          : st.fase === "erro" ? `<div class="pv-feito"><span class="alerta">⚠ Não saiu: ${esc(st.erro)}</span></div>` : ""}`;
-  const botoes = st.fase === "ok" ? "" : `<button data-pv-slack="${it.i}" ${bloqueio || st.fase === "enviando" ? "disabled" : ""}>${esc(bloqueio || (st.fase === "erro" ? "Tentar de novo" : "Enviar no Slack"))}</button>
-      <button class="pv-ok" data-pv-ja="${it.i}" aria-label="Já respondi no Slack: ${esc(it.texto)}">Já respondi</button>`;
-  return `<div class="pv-item pv-slack" data-pv-item="${it.i}"><div class="pv-de">💬 Slack${sl.de ? " · " + esc(sl.de) : ""}</div>
+  const botoes = st.fase === "ok" ? "" : `<button data-pv-slack="${esc(it.chave)}" ${bloqueio || st.fase === "enviando" ? "disabled" : ""}>${esc(bloqueio || (st.fase === "erro" ? "Tentar de novo" : "Enviar no Slack"))}</button>
+      <button class="pv-ok" data-pv-ja="${esc(it.chave)}" aria-label="Já respondi no Slack: ${esc(it.texto)}">Já respondi</button>`;
+  return `<div class="pv-item pv-slack" data-pv-item="${esc(it.chave)}"><div class="pv-de">💬 Slack${sl.de ? " · " + esc(sl.de) : ""}</div>
     <div class="pv-t">${esc(it.texto)}</div>${sl.texto ? `<div class="pv-msg">${esc(sl.texto)}</div>` : ""}${corpo}
     <div class="pv-acoes">${botoes}
-      ${a && a.achou ? `<button class="pv-sec" data-pv="${it.i}" ${a.ligado ? "" : "disabled"} aria-label="Responder à sessão ${esc(a.nome)} sobre: ${esc(it.texto)}">↩ Responder a ${esc(curtoTxt(a.nome, 22))}</button>` : ""}
+      ${a && a.achou ? `<button class="pv-sec" data-pv="${esc(it.chave)}" ${a.ligado ? "" : "disabled"} aria-label="Responder à sessão ${esc(a.nome)} sobre: ${esc(it.texto)}">↩ Responder a ${esc(curtoTxt(a.nome, 22))}</button>` : ""}
       ${linkSeguro(it.link) ? `<a href="${esc(linkSeguro(it.link))}" target="_blank" rel="noopener">Abrir no Slack</a>` : ""}</div></div>`;
 }
 // Onde está o envio: "" (não mandou), "enviando", "ok" (com o link) ou "erro" (o motivo).
@@ -1488,6 +1753,10 @@ function estadoSlack(chave) {
   const e = pvSlack[chave];
   if (!e) return {fase: ""};
   if (e.ok) return {fase: "ok", link: e.link || "", t: e.t};
+  if (e.erroLocal && !e.pedido && e.ref) {   // o pedido chegou ao banco mesmo com o erro no celular (tempo esgotado)
+    const p = pedidos.find(x => x.tipo === "acao" && String(x.texto || "").includes(e.ref));
+    if (p) { e.pedido = p.id; delete e.erroLocal; salvarPv(); }
+  }
   if (e.erroLocal) return {fase: "erro", erro: e.erroLocal};
   const p = e.pedido && pedidos.find(x => x.id === e.pedido);
   if (p && p.estado === "entregue") {
@@ -1506,8 +1775,12 @@ async function enviarSlack(i) {
   const texto = String(campo ? campo.value : (pvRascunhos[chave] ? pvRascunhos[chave].v : sl.rascunho) || "").trim();
   if (!texto) return avisar("appAviso", "Escreva a resposta antes de enviar.", {erro: true});
   if (texto.length > 4000) return avisar("appAviso", `A resposta tem ${texto.length} caracteres; o limite é 4000.`, {erro: true});
-  if (!confirm(`Enviar no Slack como você${sl.de ? `, para ${sl.de}` : ""}${sl.thread_ts ? " (na thread)" : ""}?\n\n${texto.length > 400 ? texto.slice(0, 399) + "…" : texto}`)) return;
-  const e = pvSlack[chave] = {t: Date.now(), ref: novoId(), pedido: "", texto};
+  // 0.8.9: depois de um erro, a nova tentativa leva o MESMO ref: se a anterior chegou ao PC e postou, o agente não posta
+  // de novo (antes, cada toque levava um ref novo e a resposta podia sair duas vezes)
+  const antes = pvSlack[chave], st0 = estadoSlack(chave), repete = !!(antes && st0.fase === "erro");
+  const incerto = repete && /confir|não respondeu|demorou/i.test(st0.erro || "");
+  if (!confirm(`${incerto ? `⚠ A tentativa anterior pode ter saído (${st0.erro}). Confira no Slack antes.\n\n` : ""}Enviar no Slack como você${sl.de ? `, para ${sl.de}` : ""}${sl.thread_ts ? " (na thread)" : ""}?\n\n${texto.length > 400 ? texto.slice(0, 399) + "…" : texto}`)) return;
+  const e = pvSlack[chave] = {t: Date.now(), ref: repete && antes.ref ? antes.ref : novoId(), pedido: "", texto};
   salvarPv(); desenharInicio(); desenharSessoes();
   try {
     e.pedido = await rpc("cel_pedir", {pc: o.pc, tipo: "acao", texto: JSON.stringify({acao: "slack_responder", ref: e.ref, canal: sl.canal,
@@ -1532,11 +1805,11 @@ function contarSessoes(ss, agora) {
   c.slack = n;
   return c;
 }
-function irParaItem(i) {
+function irParaItem(chave) {
   mostrarAba("Inicio");
   paraVoceTodos = true;
   desenharInicio();
-  const el = document.querySelector(`#p-paravoce [data-pv-item="${i}"]`);
+  const el = [...document.querySelectorAll("#p-paravoce [data-pv-item]")].find(x => x.dataset.pvItem === chave);
   if (!el) return;
   el.scrollIntoView({block: "center", behavior: "smooth"});
   const t = el.querySelector("textarea");
@@ -1552,7 +1825,28 @@ function estadoRespostaPv(r) {
   return `✓✓ Você respondeu a ${esc(r.nome)} às ${h}${nota}`;
 }
 
-const chavePv = it => fnv(String((it && it.texto) || ""));
+// A chave de um item (0.8.9): o id do quadro, se o maestro mandar; no Slack, o canal e a thread (ou a mensagem); senão,
+// o texto. Antes era sempre o texto, e o maestro reescreve o texto a cada ronda ("às 14h44"): o ✓ Resolvido, o
+// rascunho e o "✓ Enviado" se perdiam, e o Enviar no Slack voltava (podia sair duas vezes).
+function chavePv(it) {
+  if (!it) return "";
+  if (it.id) return "id:" + String(it.id).slice(0, 60);
+  if (it.slack && it.slack.canal) return fnv("slack:" + it.slack.canal + ":" + (it.slack.thread_ts || "") + ":" + (it.slack.texto || it.link || it.texto || ""));
+  return fnv(String(it.texto || ""));
+}
+// O que estava guardado pela chave velha (o texto) passa para a nova, uma vez.
+function migrarPv(it, nova) {
+  const velha = fnv(String((it && it.texto) || ""));
+  if (velha === nova) return;
+  for (const m of [pvResolvidos, pvRespondidos, pvSlack, pvRascunhos]) if (m[velha] && !m[nova]) m[nova] = m[velha];
+}
+// O índice do item no quadro de agora, pela chave (-1: saiu da lista).
+function pvIndice(chave) {
+  const o = orquestraDe(Object.values(pcs));
+  const i = ((o && o.para_voce) || []).findIndex(it => chavePv(it) === chave);
+  if (i < 0) avisar("appAviso", "Esse item saiu do Para você: o maestro atualizou a lista.", {});
+  return i;
+}
 function salvarPv() {
   const agora = Date.now(), vivo = t => agora - t < PV_GUARDA_MS;
   pvResolvidos = Object.fromEntries(Object.entries(pvResolvidos).filter(([, t]) => vivo(t)));
@@ -1568,7 +1862,7 @@ function salvarPv() {
 // Os itens que aparecem (o resolvido aqui some até o maestro tirar), com o índice no quadro e a chave.
 function itensParaVoce(o) {
   const agora = Date.now();
-  return ((o && o.para_voce) || []).map((it, i) => ({...it, i, chave: chavePv(it)}))
+  return ((o && o.para_voce) || []).map((it, i) => { const chave = chavePv(it); migrarPv(it, chave); return {...it, i, chave}; })
     .filter(it => !(agora - (pvResolvidos[it.chave] || 0) < PV_GUARDA_MS));
 }
 // A sessão de um item que veio de uma (responder_para): a que o agente do maestro achou ou, pelo começo do id, uma das
@@ -1596,7 +1890,7 @@ function marcarParaVoce(ss) {
   for (const it of itensParaVoce(o)) {
     if (respondidoPv(it.chave)) continue;
     const a = pvAlvo(it), s = a && a.achou && ss.find(x => x.pc === a.pc && x.id === a.sessao);
-    if (s && !s.paraVoce) Object.assign(s, {paraVoce: it.texto, paraVoceI: it.i});
+    if (s && !s.paraVoce) Object.assign(s, {paraVoce: it.texto, paraVoceI: it.i, paraVoceK: it.chave});
   }
 }
 
@@ -1681,7 +1975,7 @@ const novoId = () => (crypto.randomUUID ? crypto.randomUUID() : [...crypto.getRa
   .map(b => b.toString(16).padStart(2, "0")).join("")).toLowerCase();
 
 // ---- Uso de IA da semana (0.8.7): o painel "Seu uso de IA" do Monitor geral, com os PCs somados (usoia.js) ------
-const usosDosPcs = () => Object.values(pcs).map(p => ({...((painelDe(p) || {}).uso_ia || {}), pc: p.pc}))
+const usosDosPcs = () => Object.values(pcs).map(p => ({...((painelDe(p) || {}).uso_ia || {}), pc: p.pc, ligado: online(p), visto: p.visto_em}))
   .filter(u => u.valores || u.instalado !== undefined);
 const fmtUso = (v, k) => UsoIa.formatar(v, k);
 const quandoMedido = t => t ? ha(t * 1000) : "?";
@@ -1716,8 +2010,14 @@ function ladoALado(r, tag = "div") {
 }
 function errosUso(r, lista) {
   const es = r ? r.erros : UsoIa.erros(lista);
-  return es.map(e => `<div class="uso-erro" role="alert">⚠ <b>A medida do ${esc(nomeCurtoPc(e.pc))} falhou</b>${e.quando ? " " + ha(e.quando * 1000) : ""}: ${esc(e.erro)}.
-    ${e.semNumeros ? "Ainda sem os números dele." : `Os números dele são da medida de ${ha(e.medido * 1000)}; ele tenta de novo sozinho.`}</div>`).join("");
+  const lig = Object.fromEntries((lista || usosDosPcs()).map(u => [u.pc, u]));
+  return es.map(e => {
+    const u = lig[e.pc] || {}, off = u.ligado === false;   // PC desligado: não tenta sozinho; cinza, não vermelho
+    return `<div class="uso-erro ${off ? "off" : ""}" ${off ? "" : `role="alert"`}>⚠ <b>A medida do ${esc(nomeCurtoPc(e.pc))} falhou</b>${e.quando ? " " + ha(e.quando * 1000) : ""}: ${esc(e.erro)}.
+    ${e.semNumeros ? "Ainda sem os números dele." : `Os números dele são da medida de ${ha(e.medido * 1000)}`}${off
+      ? `${e.semNumeros ? "" : "."} O ${esc(nomeCurtoPc(e.pc))} está desligado desde ${esc(quandoFoi(u.visto))}: ele mede de novo quando ligar.`
+      : e.semNumeros ? "" : "; ele tenta de novo sozinho."}</div>`;
+  }).join("");
 }
 function blocoUsoIa() {
   const lista = usosDosPcs();
@@ -1727,6 +2027,13 @@ function blocoUsoIa() {
     if (!lista.some(u => u.instalado)) return "";
     return `<section class="bloco"><h3>📊 Uso de IA</h3>${errosUso(null, lista)}<p class="note">${lista.some(u => u.medindo) ? "Medindo a semana com o coletor da Seazone (1 a 3 min)…" : "Ainda sem a medida da semana."}</p></section>`;
   }
+  // a semana desta medida já fechou e nenhum PC ligado mede a nova (fim de semana com os PCs desligados): o resultado
+  // final, e não "faltam 6 critérios · +18 hoje" de uma semana que acabou
+  if (r.encerrada && !r.virada && !lista.some(u => u.ligado)) return `<section class="bloco"><button class="bloco-cab" data-uso><h3>📊 Uso de IA · semana ${esc(r.numero)} <span class="ir">Abrir ›</span></h3></button>
+    <button class="uf" data-uso aria-label="A semana ${esc(r.numero)} fechou em ${esc(r.banda)}">
+      <span class="fx"><b>${esc(r.banda)}</b><small>${pts(r.pontos)} pts</small></span>
+      <span class="uf-txt">A semana ${esc(r.numero)} fechou ${esc(quandoFoi(r.fim))}. A próxima aparece quando um PC ligar.</span></button>
+    ${errosUso(r, lista)}<div class="rodape">${esc(nomesPcs(r))} · medido ${quandoMedido(r.medido)}</div></section>`;
   if (r.virada) return `<section class="bloco"><button class="bloco-cab" data-uso><h3>📊 Uso de IA · semana ${esc(r.numero)} <span class="ir">Abrir ›</span></h3></button>
     ${ladoALado(r, "button")}
     <p class="uso-virada-nota">🗓 A semana ${esc(r.numero)} começou ${esc(quandoFoi(r.inicio))}: os números começam do zero. Não é erro.</p>
@@ -1770,7 +2077,7 @@ function graficoUso(r) {
     <div class="grafico"><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(rot)} por dia: ${dias.map(x => diaUso(x.dia) + " " + fmtUso(x[k] || 0, k)).join(", ")}">
       <line x1="0" x2="${W}" y1="${base}" y2="${base}" stroke="rgba(255,255,255,.16)"/>${barras}</svg>
       <div class="det" aria-live="polite"><b>${esc(diaUso(d.dia))}${d.dia === r.hoje ? " (hoje)" : ""}:</b> ${fmtUso(d.mensagens, "mensagens")} mensagens · ${fmtUso(d.sessoes_iniciadas, "sessoes_iniciadas")} sessões · ${fmtUso(d.tokens_saida, "tokens_saida")} tokens · ${fmtUso(d.workflows, "workflows")} workflows · ${fmtUso(d.linhas, "linhas")} linhas de código</div>
-      <details data-uso-tabela><summary>Ver em tabela</summary><table>
+      <details data-uso-tabela ${usoTabelaAberta ? "open" : ""}><summary>Ver em tabela</summary><table>
         <tr><th>Dia</th><th>Mensagens</th><th>Sessões</th><th>Tokens</th><th>Workflows</th><th>Código</th></tr>
         ${dias.map(x => `<tr><td>${esc(diaUso(x.dia))}</td><td>${fmtUso(x.mensagens, "mensagens")}</td><td>${fmtUso(x.sessoes_iniciadas, "sessoes_iniciadas")}</td><td>${fmtUso(x.tokens_saida, "tokens_saida")}</td><td>${fmtUso(x.workflows, "workflows")}</td><td>${fmtUso(x.linhas, "linhas")}</td></tr>`).join("")}
       </table></details></div>`;
@@ -1807,6 +2114,7 @@ function desenharUsoIa() {
   const lista = usosDosPcs(), r = UsoIa.montar(lista, Date.now());
   if (!r) return por($("usoCorpo"), `${errosUso(null, lista)}<div class="empty">${lista.some(u => u.medindo) ? "Medindo a semana com o coletor da Seazone…" : "Ainda sem a medida da semana."}</div>`);
   const sem = lista.filter(u => !r.pcs.includes(u.pc)).map(u => `${esc(nomeCurtoPc(u.pc))}: ${u.instalado === false ? "sem o coletor"
+    : u.ligado === false ? `desligado desde ${esc(quandoFoi(u.visto))}${u.semana && u.semana < r.semana ? ` (com a semana ${esc(numSemana(u.semana))})` : ""}: entra quando ligar`
     : u.semana && u.semana < r.semana ? `ainda com a semana ${esc(numSemana(u.semana))} (a ${esc(r.numero)} chega em poucos minutos)`
     : u.medindo ? "medindo…" : "sem medida desta semana"}`);
   const ordem = [...r.criterios.filter(c => !c.ok), ...r.criterios.filter(c => c.ok)];
@@ -1814,7 +2122,8 @@ function desenharUsoIa() {
   const pos = r.bandas.indexOf(r.banda);
   por($("usoCorpo"), `${r.erros.length ? `<section class="bloco">${errosUso(r)}</section>` : ""}${r.virada ? viradaUso(r) : ""}
     <section class="bloco"><h3>Semana ${esc(r.numero)} <span class="n3">${r.encerrada ? `fechou ${esc(quandoFoi(r.fim))}` : `${esc(fmtData(r.inicio))} a ${esc(fmtData(r.fim))}, 17h`}</span></h3>
-      ${r.encerrada ? `<p class="uso-virada-nota">🗓 Esta semana fechou ${esc(quandoFoi(r.fim))}. Medindo a semana nova (1 a 3 min)…</p>` : ""}
+      ${r.encerrada ? `<p class="uso-virada-nota">🗓 Esta semana fechou ${esc(quandoFoi(r.fim))}. ${lista.some(u => u.ligado)
+        ? "Medindo a semana nova (1 a 3 min)…" : "A semana nova aparece quando um PC ligar."}</p>` : ""}
       <div class="regua" role="img" aria-label="Faixa ${esc(r.banda)}${r.proxima ? ", próxima " + esc(r.proxima) : ""}">${r.bandas.map((b, i) =>
         `<span class="${i === pos ? "atual" : i < pos ? "feita" : b === r.proxima ? "prox" : ""}">${esc(b)}</span>`).join("")}</div>
       <p class="pv-resumo" style="margin:10px 0 0">${String(r.pontos).replace(".", ",")} pontos · ${r.proxima ? `faltam <b>${r.faltam}</b> de ${r.faltam + r.cumpridas.length} critérios para a <b>${esc(r.proxima)}</b>` : "faixa máxima da régua"}</p>
@@ -1837,8 +2146,10 @@ function blocoMetricas(lista, paineis) {
   const hojeIso = diaIso(new Date());
   if (!serie.length) return "";
   const hoje = serie.find(d => d.dia === hojeIso) || {eu: 0, claude: 0, sessoes: 0, abertos: 0, mergeados: 0};
-  const novas = paineis.reduce((n, p) => n + ((p && p.metricas && p.metricas.abertas_hoje) || 0), 0);
-  const prs = (paineis.find(p => p && p.prs) || {}).prs;
+  // as sessões novas de hoje: só dos PCs cujo último dia é hoje (o WIN desligado desde quinta tem o "hoje" de quinta)
+  const deHoje = p => p && p.metricas && ((p.metricas.dias || []).slice(-1)[0] || {}).dia === hojeIso;
+  const novas = paineis.filter(deHoje).reduce((n, p) => n + (p.metricas.abertas_hoje || 0), 0);
+  const prs = Lista.prsMaisNovos(paineis);
   const o = orquestraDe(lista);
   return `<section class="bloco"><h3>📈 Hoje no Claude</h3>
     <div class="tiles">
@@ -1888,6 +2199,8 @@ function blocoSaude(lista, paineis, agora) {
   const falhas = Lista.falhasRecentes(pedidos, agora, 24);
   const linhas = lista.map((p, i) => {
     const pa = paineis[i] || {}, m = pa.maquina || {}, atras = Lista.compararVersao(p.versao, AGENTE_ATUAL) < 0;
+    if (!online(p)) return `<div class="sp off"><div class="sp-cab"><i class="dot"></i><b>${esc(p.pc)}</b><span class="meta">desligado · visto ${ha(new Date(p.visto_em).getTime())}</span></div>
+      <div class="sp-det">agente ${esc(p.versao || "?")}${atras ? ` <span class="alerta">(a atual é ${AGENTE_ATUAL})</span>` : ""}${falhas[p.pc] ? ` · <span class="alerta critico">${plural(falhas[p.pc], "falha", "falhas")} de entrega em 24 h</span>` : ""}</div></div>`;
     const det = [`agente ${esc(p.versao || "?")}${atras ? ` <span class="alerta">(a atual é ${AGENTE_ATUAL})</span>` : ""}`,
       m.ram_livre_mb != null ? `<span class="${m.ram_livre_mb < 1024 ? "alerta critico" : m.ram_livre_mb < 2048 ? "alerta" : ""}">${gb(m.ram_livre_mb)} de RAM livre</span>` : "",
       m.ligado_h != null ? `ligado há ${horas(m.ligado_h)}` : "",
@@ -1895,10 +2208,11 @@ function blocoSaude(lista, paineis, agora) {
       falhas[p.pc] ? `<span class="alerta critico">${plural(falhas[p.pc], "falha", "falhas")} de entrega em 24 h</span>` : "nenhuma falha de entrega em 24 h"]
       .filter(Boolean).join(" · ");
     return `<div class="sp"><div class="sp-cab"><i class="dot ${online(p) ? "on" : ""}"></i><b>${esc(p.pc)}</b><span class="meta">${online(p) ? "ligado" : "desligado"} · visto ${ha(new Date(p.visto_em).getTime())}</span></div>
-      <div class="sp-det">${det}</div></div>`;
+      <div class="sp-det">${det}</div>${botaoRamCheia(p)}</div>`;
   }).join("");
-  const perto = lista.filter(p => p.hoje && p.hoje.conta && p.hoje.conta.email).flatMap(p => [["sessão de 5 h", p.hoje.conta.sessao], ["semana", p.hoje.conta.semana]]
-    .filter(([, l]) => l && l.pct >= 80).map(([rot, l]) => `<div class="sp-det"><span class="alerta ${l.pct >= 95 ? "critico" : ""}">⚠ ${esc(Lista.contaCurta(p.hoje.conta.email))} (${esc(nomeCurtoPc(p.pc))}): ${rot} em ${l.pct}%</span></div>`)).join("");
+  const vindo = l => !l.volta || new Date(l.volta).getTime() > agora;   // o limite já reiniciou: o % velho não vale
+  const perto = lista.filter(p => online(p) && p.hoje && p.hoje.conta && p.hoje.conta.email).flatMap(p => [["sessão de 5 h", p.hoje.conta.sessao], ["semana", p.hoje.conta.semana]]
+    .filter(([, l]) => l && l.pct >= 80 && vindo(l)).map(([rot, l]) => `<div class="sp-det"><span class="alerta ${l.pct >= 95 ? "critico" : ""}">⚠ ${esc(Lista.contaCurta(p.hoje.conta.email))} (${esc(nomeCurtoPc(p.pc))}): ${rot} em ${l.pct}%</span></div>`)).join("");
   const o = orquestraDe(lista);
   const parado = o && o.atualizado && agora / 1000 - o.atualizado > 45 * 60;
   const maestro = o ? `<div class="sp"><div class="sp-cab"><b>🎼 Maestro</b><span class="meta">no ${esc(nomeCurtoPc(o.pc))}</span></div>
@@ -1908,12 +2222,12 @@ function blocoSaude(lista, paineis, agora) {
 
 function blocoVersoes(lista, paineis) {
   const pros = lista.map((p, i) => [p, (paineis[i] || {}).pro || ""]);
-  const difPro = new Set(pros.map(([, v]) => v).filter(Boolean)).size > 1;
+  const maiorPro = pros.map(([, v]) => v).filter(Boolean).sort(Lista.compararVersao).pop() || "";
   return `<section class="bloco"><h3>⬆️ Atualizações</h3><div class="versoes">
       <span>App (esta página)</span><span>${VERSAO_APP}${appNovo ? ` <span class="atras">· versão nova pronta</span>` : " · em dia"}</span>
       ${lista.map(p => { const atras = Lista.compararVersao(p.versao, AGENTE_ATUAL) < 0;
         return `<span>Agente · ${esc(nomeCurtoPc(p.pc))}</span><span class="${atras ? "atras" : ""}">${esc(p.versao || "?")}${atras ? ` → atualizar para ${AGENTE_ATUAL}` : ""}</span>`; }).join("")}
-      ${pros.map(([p, v]) => `<span>Seaninho Pro · ${esc(nomeCurtoPc(p.pc))}</span><span class="${difPro ? "atras" : ""}">${esc(v || "sem leitura")}</span>`).join("")}
+      ${pros.map(([p, v]) => `<span>Seaninho Pro · ${esc(nomeCurtoPc(p.pc))}</span><span class="${v && Lista.compararVersao(v, maiorPro) < 0 ? "atras" : ""}">${esc(v || "sem leitura")}</span>`).join("")}
     </div>
     ${appNovo ? `<button class="btn atualizar-app" data-recarregar-app>Atualizar o app agora</button>` : ""}
     <details data-mudou ${mudouAberto ? "open" : ""} style="margin-top:10px;font-size:13.5px;color:var(--muted)"><summary>O que mudou no app</summary>
@@ -2058,7 +2372,7 @@ function pedirAcao(pc, id, acao) {
   if (!confirm(`Pedir à sessão “${s.titulo}”: ${acao.rotulo}?${acao.dica ? "\n\n" + acao.dica : ""}`)) return;
   const texto = acao.texto.replaceAll("{sessao}", s.id).replaceAll("{titulo}", s.titulo || "");
   if (!aberta || aberta.id !== id) abrir(pc, id);
-  const local = {id: "local" + (++nLocal), sessao: id, de: "eu", texto, t: Math.floor(Date.now() / 1000), mini: "", grande: "", mime: ""};
+  const local = {id: idLocal(), sessao: id, de: "eu", texto, t: Math.floor(Date.now() / 1000), mini: "", grande: "", mime: ""};
   enviarLocal(local, {pc, sessao: id, titulo: s.titulo || "", texto, direto: true});
 }
 function itensDeAcoes(pc, id) {
@@ -2106,7 +2420,7 @@ function desenharFeed() {
   const itens = [];
   for (const p of Object.values(pcs)) for (const a of p.atualizacoes || []) itens.push({...a, pc: p.pc});
   itens.sort((a, b) => String(b.quando).localeCompare(String(a.quando)));
-  if (!itens.length) { $("tabFeed").innerHTML = `<div class="empty">Nenhuma novidade ainda.</div>`; return; }
+  if (!itens.length) return por($("tabFeed"), `<div class="empty">Nenhuma novidade ainda.</div>`);
   const dia = q => { const d = new Date(q), h = new Date(); const y = new Date(); y.setDate(h.getDate() - 1);
     return d.toDateString() === h.toDateString() ? "Hoje" : d.toDateString() === y.toDateString() ? "Ontem"
       : d.toLocaleDateString("pt-BR", {weekday: "long", day: "numeric", month: "short"}); };
@@ -2120,7 +2434,7 @@ function desenharFeed() {
       ${a.sub ? `<div class="s">${esc(a.sub)}</div>` : ""}
       <div class="w">${hora(a.quando)}${varios ? " · " + esc(a.pc) : ""}</div></div></div>`;
   }
-  $("tabFeed").innerHTML = html;
+  por($("tabFeed"), html);
 }
 
 // ---- Hoje: saúde, agenda e tarefas do PC (o PC faz; o celular acompanha e manda) --------------------
@@ -2165,11 +2479,11 @@ function contaCompacta(p, varios) {
   const c = p.hoje.conta, aberta = store.get("seaninho.conta." + p.pc) === "aberta";
   const mini = (rot, l) => !l ? "" : `<span class="mb ${Lista.nivel(l.pct)}" role="img" aria-label="${rot}: ${l.pct}% usados">
       <span>${rot}<em>${l.pct}%</em></span><i><b style="width:${Math.max(3, Math.min(100, l.pct))}%"></b></i></span>`;
-  const quando = (rot, l) => l && l.volta ? `${rot} ${reinicia(l.volta)}` : "";
+  const quando = (rot, l) => l && l.volta ? `${rot} ${new Date(l.volta).getTime() <= Date.now() ? "já reiniciou" : reinicia(l.volta)}` : "";
   const troca = trocas[p.pc] && !String(trocas[p.pc]).startsWith("erro:") && (pedidos.find(x => x.id === trocas[p.pc]) || {estado: "novo"});
   const trocando = troca && ["novo", "escrevendo"].includes(troca.estado);
   const volta = [quando("5 h", c.sessao), quando("semana", c.semana)].filter(Boolean).join(" · ");
-  return `<div class="cc ${aberta ? "aberta" : ""}">
+  return `<div class="cc ${aberta ? "aberta" : ""} ${online(p) ? "" : "off"}">
     <button class="cc-linha" data-conta="${esc(p.pc)}" aria-expanded="${aberta}">
       <span class="cc-quem"><b>${esc(nomeCurtoPc(p.pc))} · ${esc(Lista.contaCurta(c.email))}</b>
         <small>${trocando ? `<span class="spin"></span>Trocando a conta…` : `${esc(c.plano || "Conta do Claude")}${online(p) ? "" : " · PC desligado"}`}</small></span>
@@ -2183,7 +2497,8 @@ function contaCartao(p, varios) {
   const lim = (nome, l) => !l ? "" : `<div class="lim">
       <div class="row"><span>${nome}</span><span class="pct ${nivel(l.pct)}">${l.pct}%</span></div>
       <div class="barra"><i class="${nivel(l.pct)}" style="width:${Math.max(2, Math.min(100, l.pct))}%"></i></div>
-      ${l.volta ? `<div class="volta">Reinicia ${reinicia(l.volta)}${falta(l.volta) ? " · " + falta(l.volta) : ""}</div>` : ""}</div>`;
+      ${l.volta ? `<div class="volta">${new Date(l.volta).getTime() <= Date.now() ? `Já reiniciou (${reinicia(l.volta)}): o % é da última leitura`
+        : `Reinicia ${reinicia(l.volta)}${falta(l.volta) ? " · " + falta(l.volta) : ""}`}</div>` : ""}</div>`;
   const troca = trocas[p.pc];
   const ped = troca && pedidos.find(x => x.id === troca);
   if (ped && ["entregue", "erro"].includes(ped.estado)
@@ -2218,11 +2533,16 @@ function desenharHoje() {
   const p = pcHoje();
   desenharMsgHoje();
   if (!p) {
-    $("hojeSaude").innerHTML = `<p class="note">O PC ainda não mandou o dia. Precisa do Seaninho no celular 0.4 no PC.</p>`;
-    $("hojeAgenda").innerHTML = $("hojeTarefas").innerHTML = "";
+    por($("hojeSaude"), `<p class="note">${rede.ok === false ? "Sem internet: o dia aparece quando a rede voltar." : "O PC ainda não mandou o dia. Precisa do Seaninho no celular 0.4 no PC."}</p>`);
+    por($("hojeAgenda"), ""); por($("hojeTarefas"), "");
     return;
   }
-  const h = p.hoje, s = h.saude || {}, prox = s.proximos || {};
+  const h = p.hoje, s = h.saude || {}, prox = s.proximos || {}, fontes = h.fontes || {};
+  // 0.8.9: de onde veio (o Google não respondeu, ou não está conectado no PC): antes, a lista velha sem aviso, ou
+  // "Nada na agenda" com a agenda desconectada
+  const origem = (f, nome) => !f ? "" : f.conectado === false ? `<p class="fonte err">${nome} não está conectado no ${esc(nomeCurtoPc(p.pc))}.</p>`
+    : f.erro && (!f.lido || f.falhou > f.lido) ? `<p class="fonte err">Não consegui ler ${nome === "O Google Tarefas" ? "o Google Tarefas" : "a agenda"} ${esc(quandoFoi(new Date(f.falhou * 1000).toISOString()))}${f.lido ? ` · mostrando a leitura ${esc(quandoFoi(new Date(f.lido * 1000).toISOString()))}` : ""}.</p>`
+    : "";
   const pct = s.meta_ml ? Math.min(100, Math.round(100 * (s.agua_ml || 0) / s.meta_ml)) : 0;
   const doses = [...new Set([150, s.dose || 200, 300])].sort((a, b) => a - b);
   const NOMES = {agua: "💧", pausa: "🚶", olhos: "👀", adiou: "⏸", pulou: "↷"};
@@ -2231,7 +2551,7 @@ function desenharHoje() {
       : e.tipo === "olhos" ? "Descansou os olhos" : e.tipo === "adiou" ? `Adiou ${e.min || 15} min` : "Pulou";
     return `<div class="linha"><span class="h">${esc(e.h)}</span><span>${NOMES[e.tipo] || "•"} ${esc(txt)}${e.pc ? ` <span class="meta">· no ${esc(e.pc)}</span>` : ""}</span></div>`;
   }).join("");
-  $("hojeSaude").innerHTML = `
+  por($("hojeSaude"), `
     <div class="card"><div class="row"><div class="title">💧 Água</div><span class="chip">${s.agua_ml || 0} / ${s.meta_ml || 0} ml</span></div>
       <div class="barra"><i style="width:${pct}%"></i></div>
       <div class="meta">${(s.agua_ml || 0) >= (s.meta_ml || 1) ? "Meta do dia batida!" : prox.water ? `Próximo lembrete às ${esc(prox.water)}` : ""}</div>
@@ -2242,7 +2562,7 @@ function desenharHoje() {
     <div class="card"><div class="row"><div class="title">👀 Olhos</div><span class="chip">${s.olhos || 0} hoje</span></div>
       <div class="meta">${prox.eyes ? `Próximo às ${esc(prox.eyes)}` : ""}</div>
       <button class="btn sec" data-acao-hoje="olhos">Descansei os olhos</button></div>
-    ${linhas ? `<details class="card"><summary>Linha do tempo de hoje</summary>${linhas}</details>` : ""}`;
+    ${linhas ? `<details class="card" data-linha-tempo ${linhaTempoAberta ? "open" : ""}><summary>Linha do tempo de hoje</summary>${linhas}</details>` : ""}`);
 
   const agora = new Date(), hojeIso = diaIso(agora);
   const amanha = new Date(agora); amanha.setDate(agora.getDate() + 1);
@@ -2257,7 +2577,8 @@ function desenharHoje() {
       return `<div class="ev ${passou ? "passou" : ""}"><span class="h">${hm(e.inicio)}–${hm(e.fim)}</span><span class="t">${esc(e.titulo)}</span>${link}</div>`;
     }).join("");
   }
-  $("hojeAgenda").innerHTML = agenda || `<p class="note">Nada na agenda hoje nem amanhã.</p>`;
+  const fa = origem(fontes.agenda, "O Google Agenda");
+  por($("hojeAgenda"), fa + (agenda || (fontes.agenda && fontes.agenda.conectado === false ? "" : `<p class="note">Nada na agenda hoje nem amanhã.</p>`)));
 
   const tarefas = h.tarefas || [];
   for (const [id, pid] of [...concluindo]) {   // o PC já riscou, ou não conseguiu: volta ao normal
@@ -2277,17 +2598,30 @@ function desenharHoje() {
       <button class="check" data-feita="${esc(t.id)}" aria-label="Concluir: ${esc(t.texto)}"></button>
       <div><div class="txt">${esc(t.texto)}</div>${quando || t.google ? `<div class="meta">${esc(quando)}${quando && t.google ? " · " : ""}${t.google ? "Google Tarefas" : ""}</div>` : ""}</div></div>`;
   }
-  $("hojeTarefas").innerHTML = lista || `<p class="note">Nada pendente. Tudo em dia!</p>`;
+  por($("hojeTarefas"), origem(fontes.tarefas, "O Google Tarefas") + (lista || `<p class="note">Nada pendente. Tudo em dia!</p>`));
 }
+let linhaTempoAberta = false;
 
 let ultimoToque = null;   // o toque da aba Hoje que está em andamento (para o "Tentar de novo")
+let tarefaNova = null;   // {pedido, texto}: a caixa da tarefa nova limpa quando o PC anotou (desenharMsgHoje)
 function desenharMsgHoje() {
+  const tn = tarefaNova && pedidos.find(x => x.id === tarefaNova.pedido);
+  if (tn && tn.estado === "entregue" && tn.id !== ultimaAcao) {
+    if ($("tarefaTexto").value.trim() === tarefaNova.texto) $("tarefaTexto").value = $("tarefaData").value = $("tarefaHora").value = "";
+    tarefaNova = null;
+  }
   const p = pedidos.find(x => x.id === ultimaAcao);
   const el = $("hojeMsg");
   if (!ultimaAcao) return;   // o que tinha para mostrar já está na fila de avisos
   if (!p || ["novo", "escrevendo"].includes(p.estado)) {
     andamento(el, "O PC está fazendo…", true);
-  } else if (p.estado === "entregue") { ultimaAcao = null; andamento(el, ""); avisar(el, "✓ " + (p.resposta || "Feito."), {ok: true}); }
+  } else if (p.estado === "entregue") {
+    if (tarefaNova && tarefaNova.pedido === p.id) {   // anotada no PC: aí, sim, a caixa limpa
+      if ($("tarefaTexto").value.trim() === tarefaNova.texto) $("tarefaTexto").value = $("tarefaData").value = $("tarefaHora").value = "";
+      tarefaNova = null;
+    }
+    ultimaAcao = null; andamento(el, ""); avisar(el, "✓ " + (p.resposta || "Feito."), {ok: true});
+  }
   else if (p.estado === "erro") {
     ultimaAcao = null; andamento(el, "");
     const toque = ultimoToque;
@@ -2299,30 +2633,44 @@ async function acaoHoje(obj, botao) {
   const p = pcHoje();
   const el = $("hojeMsg");
   ultimoToque = obj;
-  if (!p || !online(p)) return avisar(el, "O PC parece desligado agora: tente quando ele ligar.", {erro: true});
+  if (!p || !online(p)) return avisar(el, rede.ok === false ? "Sem internet agora: tente quando a rede voltar." : "O PC parece desligado agora: tente quando ele ligar.", {erro: true});
   if (botao) botao.disabled = true;
+  const inicio = agoraBanco();
   try {
-    ultimaAcao = await rpc("cel_pedir", {pc: p.pc, tipo: "acao", texto: JSON.stringify(obj)});
-    if (obj.acao === "tarefa_feita") concluindo.set(obj.id, ultimaAcao);
+    const id = ultimaAcao = await rpc("cel_pedir", {pc: p.pc, tipo: "acao", texto: JSON.stringify(obj)});
+    if (obj.acao === "tarefa_feita") concluindo.set(obj.id, id);
+    if (obj.acao === "tarefa_nova") tarefaNova = {pedido: id, texto: obj.texto};   // antes do atualizar: o PC pode ser rápido
     desenharMsgHoje();
     await atualizar();
-    return ultimaAcao;
-  } catch (e) { avisar(el, "Não deu: " + (e.message || e), {erro: true, acao: () => acaoHoje(obj)}); }
+    return id;
+  } catch (e) {
+    const jan = janela(inicio, agoraBanco());
+    const conferir = async () => {   // caiu por rede: se o banco gravou (a água, a tarefa), não pede de novo
+      if (ehRede(e)) {
+        if (!await atualizar()) return avisar(el, "Sem conexão para conferir se o PC já recebeu: tente quando a rede voltar.", {erro: true, acao: conferir});
+        const ja = pedidos.find(x => x.tipo === "acao" && x.pc === p.pc && x.texto === JSON.stringify(obj)
+          && Date.parse(x.criado_em) >= jan[0] && Date.parse(x.criado_em) <= jan[1]);
+        if (ja) { ultimaAcao = ja.id; if (obj.acao === "tarefa_nova") tarefaNova = {pedido: ja.id, texto: obj.texto}; return desenharMsgHoje(); }
+      }
+      return acaoHoje(obj);
+    };
+    avisar(el, "Não deu: " + motivoRede(e), {erro: true, acao: conferir});
+  }
   finally { if (botao) botao.disabled = false; }
 }
+
 
 async function novaTarefa() {
   const texto = $("tarefaTexto").value.trim();
   if (!texto) return $("tarefaTexto").focus();
   await acaoHoje({acao: "tarefa_nova", texto, data: $("tarefaData").value, hora: $("tarefaHora").value}, $("tarefaAdd"));
-  if (!$("hojeMsg").classList.contains("err")) { $("tarefaTexto").value = $("tarefaData").value = $("tarefaHora").value = ""; }
 }
 
 // ---- Pedir (comandos) ---------------------------------------------------------------------------
 function desenharComandos() {
   const lista = pedidos.filter(p => p.tipo === "comando");
-  $("cmdLista").innerHTML = lista.length ? "<h2>Pedidos de hoje</h2>" + lista.slice(0, 15).map(desenharComando).join("")
-    : `<p class="note">Os pedidos e as respostas aparecem aqui.</p>`;
+  por($("cmdLista"), lista.length ? "<h2>Pedidos de hoje</h2>" + lista.slice(0, 15).map(desenharComando).join("")
+    : `<p class="note">Os pedidos e as respostas aparecem aqui.</p>`);
 }
 
 function desenharComando(p) {
@@ -2431,6 +2779,7 @@ const daTela = a => !a.sessao || (aberta && aberta.id === a.sessao);   // aviso 
 
 function avisar(el, msg, {erro = false, ok = false, acao = null, rotulo = "Tentar de novo", fica = false, sessao = null, passa = false} = {}) {
   el = lugar(el);
+  if (el && el.id === "appAviso" && aberta && !$("detalhe").classList.contains("hidden")) el = $("dAviso");
   if (!el) return;
   if (!lugaresDeAviso.has(el)) { lugaresDeAviso.add(el); naArea.observe(el); el._fila = []; }
   if (!msg) { el._fila = []; return mostrarAviso(el, null); }   // limpar o lugar
@@ -2533,22 +2882,28 @@ async function alternarMic(botao) {
     gravando = null;
     const blob = new Blob(partes, {type: rec.mimeType || tipo || "audio/mp4"});
     if (blob.size < 2000) return infoMic(alvo, "");
-    transcrever(blob, alvo);
+    transcrever(blob, alvo, sessao);
   };
+  const sessao = alvo === "texto" && aberta ? {...aberta} : null;   // 0.8.9: a conversa em que o ditado começou
   gravando = {rec, stream, alvo, inicio: Date.now()};
   gravando.timer = setInterval(() => {
     const s = Math.floor((Date.now() - gravando.inicio) / 1000);
-    infoMic(alvo, `● Gravando ${s}s · toque de novo para parar`);
+    infoMic(alvo, s >= 50 ? `● Gravando ${s}s · para sozinho em ${60 - s}s` : `● Gravando ${s}s · toque de novo para parar`);
     if (s >= 60) rec.stop();
   }, 250);
   botao.classList.add("rec");
   rec.start();
 }
 
-async function transcrever(blob, alvo) {
+let transcrevendo = 0;   // a recarga da versão nova espera a transcrição
+async function transcrever(blob, alvo, sessao = null) {
+  transcrevendo++;
+  try { await transcrever1(blob, alvo, sessao); } finally { transcrevendo--; }
+}
+async function transcrever1(blob, alvo, sessao) {
   infoMic(alvo, "Transcrevendo no PC…");
   const audio = await new Promise(res => { const fr = new FileReader(); fr.onload = () => res(String(fr.result).split(",")[1] || ""); fr.readAsDataURL(blob); });
-  const pc = pcAtivo(), denovo = {acao: () => transcrever(blob, alvo)};
+  const pc = pcAtivo(), denovo = {acao: () => transcrever(blob, alvo, sessao)};
   if (!pc) return erroMic(alvo, "O PC desligou no meio.", denovo);
   try {
     const id = await rpc("cel_pedir", {pc: pc.pc, tipo: "transcrever", audio, mime: blob.type});
@@ -2558,6 +2913,14 @@ async function transcrever(blob, alvo) {
       const r = await rpc("cel_estado", {conhecidos: conhecidos()});
       const p = (r.pedidos || []).find(x => x.id === id);
       if (p && p.estado === "entregue") {
+        if (sessao && !(aberta && aberta.id === sessao.id)) {   // saiu da conversa: o texto vai para o rascunho dela
+          const k = "seaninho.rascunho." + sessao.id, antes = String(store.get(k) || "").trim();
+          store.set(k, (antes ? antes + " " : "") + p.texto);
+          infoMic(alvo, "");
+          const s = todasSessoes().find(x => x.id === sessao.id);
+          return avisar("appAviso", `O que você ditou ficou no rascunho de “${s ? s.titulo : "a conversa"}”.`,
+                        {ok: true, acao: () => abrir(sessao.pc, sessao.id), rotulo: "Abrir", passa: true});
+        }
         const caixa = $(alvo);
         caixa.value = (caixa.value.trim() ? caixa.value.trim() + " " : "") + p.texto;
         caixa.dispatchEvent(new Event("input"));
@@ -2566,7 +2929,7 @@ async function transcrever(blob, alvo) {
       if (p && p.estado === "erro") return /não ouvi/i.test(p.erro || "") ? erroMic(alvo, p.erro) : erroMic(alvo, p.erro, denovo);
     }
     erroMic(alvo, "O PC não respondeu a tempo.", denovo);
-  } catch (e) { erroMic(alvo, "Não deu: " + (e.message || e), denovo); }
+  } catch (e) { erroMic(alvo, "Não deu: " + motivoRede(e), denovo); }
 }
 
 // ---- Chat de uma sessão (agente 0.8: a conversa, a enquete e a imagem) -------------------------------
@@ -2646,7 +3009,7 @@ function abrir(pc, id) {
   if (Marcar.aberto() && !Marcar.sairEditor(true)) return;   // marcando uma imagem: pergunta antes de trocar de conversa
   Marcar.fecharVisor();
   aberta = {pc, id};
-  locais = []; assinaturaChat = ""; ultimaMsg = ""; novas = 0;
+  assinaturaChat = ""; ultimaMsg = ""; novas = 0;   // 0.8.9: os balões que não saíram ficam (antes, sumiam ao sair do chat)
   limparAnexos(); menuAnexo(false); naoCitar(); fecharMenuBalao();
   avisosDaTela();
   $("texto").value = store.get("seaninho.rascunho." + id);
@@ -2659,7 +3022,7 @@ function abrir(pc, id) {
 function fechar() {
   setTimeout(avisosDaTela, 0);
   if (gravando && gravando.alvo === "texto") gravando.rec.stop();
-  aberta = null; locais = []; menuAnexo(false);
+  aberta = null; menuAnexo(false);
   $("detalhe").classList.add("hidden");
   document.body.style.overflow = "";
   if (location.hash) history.replaceState(null, "", location.pathname);
@@ -2676,9 +3039,11 @@ function desenharDetalhe(paraOFim = false) {
   if (!aberta) return;
   const s = sessaoAberta();
   const ped = Chat.pedidosDaSessao(pedidos, aberta.id);
+  const antes = locais.length;
   locais = locais.filter(l => !(l.pedidoId && pedidos.some(p => p.id === l.pedidoId)));   // já veio do banco
+  if (locais.length !== antes) guardarFila();
   const base = s || vistas[aberta.id] || {id: aberta.id, pc: aberta.pc, conversa: []};
-  $("dTitulo").textContent = base.titulo || (ped.find(p => p.titulo) || {}).titulo || "Sessão";
+  $("dTitulo").textContent = (silencioDe(aberta.pc, aberta.id) ? "🔕 " : "") + (base.titulo || (ped.find(p => p.titulo) || {}).titulo || "Sessão");
   const varios = Object.keys(pcs).length > 1;
   if (!s) {
     $("dChip").textContent = "Fechada"; $("dChip").className = "chip";
@@ -2688,13 +3053,18 @@ function desenharDetalhe(paraOFim = false) {
     $("dSub").textContent = s.estado === "trabalhando" ? "trabalhando…" : `${s.pasta} · ${s.onde}${varios ? " · " + s.pc : ""}`;
     $("dSub").className = "sub" + (s.estado === "trabalhando" ? " ativo" : "");
   }
+  if (rede.ok === false) {
+    $("dSub").textContent = `Sem internet${rede.em ? " · dados das " + hm(new Date(rede.em).toISOString()) : ""} · tentando de novo…`;
+    $("dSub").className = "sub off";
+  }
   const ligado = s && pcs[s.pc] && online(pcs[s.pc]);
   const enquete = s && s.enquete && s.enquete.aberta !== false && s.respondivel && agenteNovo(s.pc) ? s.enquete : null;
   const permissao = s && s.permissao && !s.enquete ? s.permissao : null;
   const respondePerm = !!(permissao && s.respondivel && agenteNovo(s.pc, AGENTE_PERMISSAO));
   let motivo = "";
+  envioBloqueado = "";
   if (!s) motivo = "A sessão não está mais aberta no PC.";
-  else if (!ligado) motivo = "O PC parece desligado (sem sinal há mais de 2 minutos).";
+  else if (!ligado) envioBloqueado = `O ${nomeCurtoPc(s.pc)} está desligado (visto ${ha(new Date(pcs[s.pc] ? pcs[s.pc].visto_em : 0).getTime())}). Pode escrever: a mensagem fica na caixa até ele ligar.`;
   else if (enquete || respondePerm) motivo = "";
   else if (!s.entregavel) motivo = s.onde !== "VS Code" ? `Por enquanto só entrego em sessões do VS Code (esta está no ${s.onde}).`
     : s.enquete ? "A pergunta com opções desta sessão ainda só se responde no PC."
@@ -2704,7 +3074,7 @@ function desenharDetalhe(paraOFim = false) {
   if (!escrevendoEm($("dRascunho"))) $("dRascunho").innerHTML = rascunho ? desenharRascunho(rascunho) : "";
   $("dCompor").classList.toggle("hidden", !!motivo || !!rascunho || !!enquete || respondePerm);
   const info = enquete ? "Responda a enquete acima. Se nenhuma opção servir, use “Outra resposta”."
-    : respondePerm ? (permissao.plano ? "Aprove ou não o plano acima." : "Responda o pedido de permissão acima.") : motivo;
+    : respondePerm ? (permissao.plano ? "Aprove ou não o plano acima." : "Responda o pedido de permissão acima.") : motivo || envioBloqueado;
   $("dBloqueio").textContent = info;
   if (enquete && s && pcs[s.pc] && online(pcs[s.pc]) && Lista.compararVersao(pcs[s.pc].versao, AGENTE_RECUSA) >= 0 && !respostaEmAndamento(s, s.enquete.id))
     $("dBloqueio").insertAdjacentHTML("beforeend", ` <button class="bloq-acao" data-recusar="${esc(s.enquete.id)}">✕ Não quero responder</button>`);
@@ -2741,6 +3111,8 @@ const pertoDoFim = el => el.scrollHeight - el.scrollTop - el.clientHeight < 90;
 function desenharMensagens(s, paraOFim = false, forcar = false) {
   const caixa = $("dMsgs");
   if (escrevendoEm(caixa) && !forcar) return;   // escrevendo a "Outra resposta" da enquete: não refaz por baixo
+  // 0.8.9: com o dedo num balão (arrastar para responder, toque longo) ou um menu aberto, espera a próxima volta
+  if (!forcar && !paraOFim && (gestoBalao || !$("dMenuBalao").classList.contains("hidden") || !$("tabMenu").classList.contains("hidden"))) return;
   const meus = locais.filter(l => l.sessao === s.id);
   const linhas = Chat.montar(s, pedidos.filter(p => !reenviados.has(p.id) && !ocultos[p.id]), meus, Date.now());
   const viva = sessaoAberta();
@@ -2758,15 +3130,32 @@ function desenharMensagens(s, paraOFim = false, forcar = false) {
     const el = [...caixa.querySelectorAll("[data-id]")].find(x => x.offsetTop + x.offsetHeight > caixa.scrollTop);
     if (el) ancora = {id: el.dataset.id, d: el.offsetTop - caixa.scrollTop};
   }
+  // a tabela larga e o bloco de código ficam na coluna em que estavam (0.8.9: voltavam ao começo a cada atualização)
+  const rolos = {};
+  for (const el of caixa.querySelectorAll(".md-rolo, .md-codigo pre, .md-tab.alta")) {
+    const linha = el.closest("[data-id]");
+    if (!linha || !(el.scrollLeft || el.scrollTop)) continue;
+    const i = [...linha.querySelectorAll(".md-rolo, .md-codigo pre, .md-tab.alta")].indexOf(el);
+    rolos[linha.dataset.id + "#" + i] = [el.scrollLeft, el.scrollTop];
+  }
   caixa.innerHTML = html;
   assinaturaChat = html;
+  for (const [k, [x, y]] of Object.entries(rolos)) {
+    const [id, i] = [k.slice(0, k.lastIndexOf("#")), Number(k.slice(k.lastIndexOf("#") + 1))];
+    const linha = [...caixa.querySelectorAll("[data-id]")].find(el => el.dataset.id === id);
+    const el = linha && linha.querySelectorAll(".md-rolo, .md-codigo pre, .md-tab.alta")[i];
+    if (el) { el.scrollLeft = x; el.scrollTop = y; }
+  }
   const msgs = linhas.filter(l => l.tipo === "msg");
   const ultima = msgs.length ? msgs[msgs.length - 1].id : "";
   if (fim) { caixa.scrollTop = caixa.scrollHeight; novas = 0; }
   else {
     const el = ancora && [...caixa.querySelectorAll("[data-id]")].find(x => x.dataset.id === ancora.id);
     if (el) caixa.scrollTop = el.offsetTop - ancora.d;
-    if (ultima !== ultimaMsg) { const i = msgs.findIndex(l => l.id === ultimaMsg); novas += i < 0 ? 1 : msgs.length - 1 - i; }
+    if (ultima !== ultimaMsg) {   // as falas novas (do Claude ou de outra sessão; as linhas de ferramenta não contam)
+      const i = msgs.findIndex(l => l.id === ultimaMsg), fala = l => l.de === "claude" || l.de === "sessao";
+      novas += i < 0 ? (fala(msgs[msgs.length - 1]) ? 1 : 0) : msgs.slice(i + 1).filter(fala).length;
+    }
   }
   ultimaMsg = ultima;
   mostrarDescer();
@@ -2838,16 +3227,26 @@ async function baixarNitida(f) {
   return "";
 }
 // A de tela cheia e do editor (até 2560 px).
-async function fotoAlta(f) {
+const altasPedidas = new Map();   // id -> a promessa (um pedido por foto, mesmo com vários toques)
+function fotoAlta(f) {
+  if (!altasPedidas.has(f.id)) altasPedidas.set(f.id, buscarAlta(f).finally(() => altasPedidas.delete(f.id)));
+  return altasPedidas.get(f.id);
+}
+async function buscarAlta(f) {
   const minha = f.ref && refs[f.ref] ? await Marcar.Grandes.ler(refs[f.ref]) : "";
   if (minha) return minha;
   const guardada = await Marcar.Grandes.ler(`foto:${f.id}:alta`);
   if (guardada) return guardada;
-  const r = await rpc("cel_foto", {id: f.id, tamanho: "alta"});
-  if (!r || !r.dados) throw new Error("ainda não chegou ao banco");
-  const url = `data:${r.mime || "image/jpeg"};base64,${r.dados}`;
-  Marcar.Grandes.guardar(`foto:${f.id}:alta`, url);
-  return url;
+  for (let i = 0; i < 8; i++) {   // 0.8.9: antes, uma vez só (e o editor caía na prévia de 120 px, borrada)
+    const r = await rpc("cel_foto", {id: f.id, tamanho: "alta"});
+    if (r && r.dados) {
+      const url = `data:${r.mime || "image/jpeg"};base64,${r.dados}`;
+      Marcar.Grandes.guardar(`foto:${f.id}:alta`, url);
+      return url;
+    }
+    await new Promise(ok => setTimeout(ok, 2000));
+  }
+  throw new Error("ainda não chegou ao banco");
 }
 
 function desenharLinha(l, ant, s) {
@@ -2914,7 +3313,8 @@ function desenharLinha(l, ant, s) {
   if (l.obs) corpo += `<div class="nota obs">${esc(l.obs)}</div>`;
   const sinal = eu && l.sinal ? `<i class="sinal ${l.sinal}" title="${NOME_SINAL[l.sinal]}" aria-label="${NOME_SINAL[l.sinal]}">${Chat.SINAL[l.sinal]}</i>` : "";
   const erro = eu && (l.sinal === "erro" || l.sinal === "esperando")
-    ? `<div class="erro-linha ${l.sinal}" data-erro="${esc(l.id)}">${l.sinal === "esperando" ? "⏳ " : "⚠ Não entregue: "}${esc(l.erro)}</div>${acoesDaMsg(l)}` : "";
+    ? `<button class="erro-linha ${l.sinal}" data-erro="${esc(l.id)}" aria-label="Ver o motivo inteiro">${l.sinal === "esperando" ? "⏳ " : "⚠ Não entregue: "}${esc(l.erro)}</button>${acoesDaMsg(l)}`
+    : eu && l.fila ? acoesDaMsg(l) : "";
   return `<div class="linha-msg ${eu ? "eu" : "ele"}${seguida ? " seguida" : ""}" data-id="${esc(l.id)}">${icone}`
     + `<div class="bolha${l.enquete ? " enq" : ""}${!eu && !l.texto && !l.enquete ? " so-foto" : ""}">${corpo}<span class="hora">${horaDe(l.t)}${sinal}</span></div>${erro}</div>`;
 }
@@ -2983,7 +3383,7 @@ async function recusarEnquete(id) {
   if (!s || !s.enquete || s.enquete.id !== id || respostaEmAndamento(s, id)) return;
   if (!confirm("Não responder a enquete?\n\nO Claude fica sabendo que você não quis responder (como o Esc no PC) e a caixa de mensagem volta.")) return;
   const acao = {acao: "recusar_enquete", sessao: s.id, id};
-  const local = {id: "local" + (++nLocal), sessao: s.id, de: "eu", texto: Chat.textoResposta(acao), t: Math.floor(Date.now() / 1000), resposta_a: id};
+  const local = {id: idLocal(), sessao: s.id, de: "eu", texto: Chat.textoResposta(acao), t: Math.floor(Date.now() / 1000), resposta_a: id};
   await enviarLocal(local, {pc: s.pc, tipo: "acao", texto: JSON.stringify(acao)});
 }
 
@@ -2991,7 +3391,7 @@ async function responderEnquete(id) {
   const s = sessaoAberta();
   if (!s || !s.enquete || s.enquete.id !== id || respostaEmAndamento(s, id)) return;
   const acao = Chat.acaoResponder(s, s.enquete, escolhas[id]);
-  const local = {id: "local" + (++nLocal), sessao: s.id, de: "eu", texto: Chat.textoResposta(acao, s.enquete),
+  const local = {id: idLocal(), sessao: s.id, de: "eu", texto: Chat.textoResposta(acao, s.enquete),
                  t: Math.floor(Date.now() / 1000), resposta_a: id};
   await enviarLocal(local, {pc: s.pc, tipo: "acao", texto: JSON.stringify(acao)});
 }
@@ -3038,7 +3438,7 @@ async function responderPermissao(id, escolha) {
       && !confirm(`${b ? b.rotulo : "Permitir sempre"}?\n\nO Claude não vai mais pedir antes de fazer isso${b && b.original ? "" : " (vale a regra que o PC sugerir)"}.`)) return;
   const texto = escolha === "nao" ? (permRecados[id] || "").trim() : "";
   const acao = {acao: "responder_permissao", sessao: s.id, id, escolha, texto, titulo: perm.titulo};
-  const local = {id: "local" + (++nLocal), sessao: s.id, de: "eu", texto: Chat.textoPermissao(acao), t: Math.floor(Date.now() / 1000),
+  const local = {id: idLocal(), sessao: s.id, de: "eu", texto: Chat.textoPermissao(acao), t: Math.floor(Date.now() / 1000),
                  permissao_a: id};
   delete permRecados[id];
   await enviarLocal(local, {pc: s.pc, tipo: "acao", texto: JSON.stringify(acao)});
@@ -3138,6 +3538,9 @@ function soltarBalao(e) {
 async function mandar() {
   const texto = $("texto").value.trim();
   if ((!texto && !anexos.length) || !aberta) return;
+  if (envioBloqueado) return avisar("dAviso", envioBloqueado, {erro: true, sessao: aberta.id});
+  const total = Chat.comCitacao(citando ? citando.cita : "", texto).length;   // o que vai ao PC: com a citação
+  if (total > 4000) return avisar("dAviso", `A mensagem tem ${total.toLocaleString("pt-BR")} letras${citando ? " com a citação" : ""}; o PC entrega até 4.000. Encurte ou divida em duas.`, {erro: true, sessao: aberta.id});
   sumirAviso("micinfo-texto");
   const ims = anexos, cita = citando ? citando.cita : "", pv = (citando && citando.pv) || null;
   $("texto").value = ""; store.set("seaninho.rascunho." + aberta.id, "");
@@ -3154,7 +3557,7 @@ function enviarVarias(corpo, ims, pv = null) {
   const s = sessaoAberta(), n = ims.length;
   const grupo = (crypto.randomUUID ? crypto.randomUUID() : [...crypto.getRandomValues(new Uint8Array(16))]
     .map(b => b.toString(16).padStart(2, "0")).join("")).toLowerCase();
-  const local = {id: "local" + (++nLocal), sessao: aberta.id, de: "eu", texto: corpo, t: Math.floor(Date.now() / 1000),
+  const local = {id: idLocal(), sessao: aberta.id, de: "eu", texto: corpo, t: Math.floor(Date.now() / 1000),
                  minis: ims.map(im => im.mini), grandes: ims.map(im => "data:image/jpeg;base64," + im.b64),
                  mime: `imagens/${grupo}/${n}`, grupo, subidas: ims.map(() => ""), pv};
   const args = {pc: aberta.pc, sessao: aberta.id, titulo: s ? s.titulo : "", texto: corpo, direto: !melhorar, mime: local.mime};
@@ -3163,7 +3566,13 @@ function enviarVarias(corpo, ims, pv = null) {
 
 async function subirVarias(local, ims, args) {
   const n = ims.length;
-  Object.assign(local, {sinal: "mandando", erro: "", reenviar: null});
+  if (!locais.includes(local) && locais.some(l => l.fila && l.sessao === local.sessao)) {   // atrás das que esperam a rede
+    Object.assign(local, {args, subidas: local.subidas || ims.map(() => "")});
+    marcarFila(local, () => subirVarias(local, ims, args), "Na fila: sai depois das que esperam a rede");
+    locais.push(local); desenharDetalhe(true);
+    return atualizar();
+  }
+  Object.assign(local, {sinal: "mandando", erro: "", reenviar: null, fila: false, args});
   if (!locais.includes(local)) locais.push(local);
   for (let i = 0; i < n; i++) {
     if (local.subidas[i]) continue;   // subiu na tentativa de antes
@@ -3173,8 +3582,11 @@ async function subirVarias(local, ims, args) {
       local.subidas[i] = await rpc("cel_pedir", {pc: args.pc, sessao: args.sessao, titulo: args.titulo, tipo: "acao",
         texto: JSON.stringify({acao: "anexo", grupo: local.grupo, ordem: i, total: n}), audio: ims[i].b64, mime: ims[i].mime});
     } catch (e) {
-      Object.assign(local, {sinal: "erro", nota: "",
-        erro: `Imagem ${i + 1} de ${n} não saiu (${/fetch|network/i.test(String(e.message)) ? "sem internet?" : e.message || e})`,
+      if (ehRede(e)) {   // sem rede: espera e continua da imagem que falhou
+        marcarFila(local, () => subirVarias(local, ims, args), `Sem internet: as imagens saem sozinhas quando a rede voltar (${i} de ${n} já foram)`);
+        return desenharDetalhe();
+      }
+      Object.assign(local, {sinal: "erro", nota: "", fila: false, erro: `Imagem ${i + 1} de ${n} não saiu (${motivoRede(e)})`,
         reenviar: () => subirVarias(local, ims, args)});
       return desenharDetalhe();
     }
@@ -3188,11 +3600,11 @@ function enviarMensagem(corpo, im, pv = null) {
   if (!im && reusoEditar && reusoEditar.mime) {   // a editada leva as imagens do envio que não saiu
     const r = reusoEditar;
     reusoEditar = null;
-    const local = {id: "local" + (++nLocal), sessao: aberta.id, de: "eu", texto: corpo, t: Math.floor(Date.now() / 1000),
+    const local = {id: idLocal(), sessao: aberta.id, de: "eu", texto: corpo, t: Math.floor(Date.now() / 1000),
                    mini: "", grande: r.grande || "", mime: r.mime, pv};
     return enviarLocal(local, {pc: aberta.pc, sessao: aberta.id, titulo: s ? s.titulo : "", texto: corpo, direto: !melhorar, ...r.args});
   }
-  const local = {id: "local" + (++nLocal), sessao: aberta.id, de: "eu", texto: corpo, t: Math.floor(Date.now() / 1000),
+  const local = {id: idLocal(), sessao: aberta.id, de: "eu", texto: corpo, t: Math.floor(Date.now() / 1000),
                  mini: im ? im.mini : "", grande: im ? "data:image/jpeg;base64," + im.b64 : "", mime: im ? im.mime : "", pv};
   return enviarLocal(local, {pc: aberta.pc, sessao: aberta.id, titulo: s ? s.titulo : "", texto: corpo, direto: !melhorar,
                              ...(im ? {audio: im.b64, mime: im.mime} : {})});
@@ -3201,13 +3613,20 @@ function enviarMensagem(corpo, im, pv = null) {
 // A mensagem que não saiu nunca se perde (0.8.7, a de 15h27): o balão fica com o texto e as imagens e com os botões.
 // Com erro: Tentar de novo, Editar, Copiar e Apagar. Esperando (o PC tenta de novo sozinho quando a causa some):
 // Tentar agora e, com um rascunho do Arthur na caixa do PC, Juntar e enviar e Mandar pelo maestro.
+// 0.8.9: o erro diz se a mensagem pode ter chegado (aí o "Mandar de novo" pergunta antes, para não chegar duas vezes) ou
+// se tentar de novo não adianta (texto grande demais, sessão fora do VS Code): aí não há o botão.
+const PODE_TER_SAIDO = /mandei, mas|confira (no pc )?antes de mandar de novo|ficou (escrito )?na caixa|pode ter (saído|chegado)/i;
+const NAO_ADIANTA = /grande demais|só entrego em sess|texto vazio/i;
 function acoesDaMsg(l) {
-  const minha = l.tipoPedido === "claude" || (!l.pedido && l.reenviar);
+  const minha = l.tipoPedido === "claude" || (!l.pedido && (l.reenviar || l.fila));
   if (!minha || l.resposta_a || l.permissao_a) return "";
   const b = (acao, rotulo, forte = false) => `<button class="${forte ? "forte" : ""}" data-acao-msg="${acao}" data-msg="${esc(l.id)}">${rotulo}</button>`;
   const o = orquestraDe(Object.values(pcs)), maestro = o && aberta && o.pc === aberta.pc;
-  const botoes = l.sinal === "esperando"
+  const botoes = l.fila ? [b("tentar", "↻ Tentar agora")]
+    : l.sinal === "esperando"
     ? [b("agora", "↻ Tentar agora"), ...(l.rascunho ? [b("juntar", "Juntar e enviar", true), ...(maestro ? [b("maestro", "Mandar pelo maestro")] : [])] : [])]
+    : NAO_ADIANTA.test(l.erro || "") ? []
+    : PODE_TER_SAIDO.test(l.erro || "") ? [b("tentar", "↻ Mandar de novo")]
     : [b("tentar", "↻ Tentar de novo", true)];
   return `<div class="acoes-msg">${botoes.join("")}${l.pedido ? b("editar", "✎ Editar") : ""}${b("copiar", "⧉ Copiar")}${b("apagar", "🗑 Apagar")}</div>`;
 }
@@ -3219,7 +3638,21 @@ async function acaoMsg(acao, l) {
     catch { avisar("dAviso", "Não deu para copiar aqui: segure o texto do balão para copiar.", {erro: true, sessao: aberta.id}); }
     return;
   }
-  if (acao === "tentar") return p ? reenviarPedido(l) : l.reenviar && l.reenviar();
+  if (acao === "tentar" && l.fila) {   // pela volta do atualizar: a drenagem confere se o banco já tem (não duplica)
+    const ok = await atualizar();
+    if (!ok) avisar("dAviso", "Ainda sem internet: ela sai sozinha quando a rede voltar.", {erro: true, sessao: aberta.id});
+    return;
+  }
+  if (acao === "tentar" && !p && (l.tentativas || []).length) {   // a que caiu por rede antes: o banco já tem?
+    if (!await atualizar())   // sem conseguir conferir, não manda (podia chegar duas vezes)
+      return avisar("dAviso", "Sem conexão para conferir se ela já chegou: tente quando a rede voltar.", {erro: true, sessao: aberta.id});
+    const ja = pedidoJaGravado(l);
+    if (ja) { Object.assign(l, {pedidoId: ja.id, fila: false, velha: false}); guardarFila(); return desenharDetalhe(); }
+  }
+  if (acao === "tentar") {
+    if (PODE_TER_SAIDO.test(l.erro || "") && !confirm(`Pode ser que esta mensagem já tenha chegado ao Claude. O PC avisou:\n\n“${l.erro}”\n\nMandar de novo mesmo assim? Ela pode chegar duas vezes.`)) return;
+    return p ? reenviarPedido(l) : l.reenviar && l.reenviar();
+  }
   if (["agora", "juntar", "maestro"].includes(acao)) {
     try {
       await rpc("cel_pedir", {pc: aberta.pc, tipo: "acao", texto: JSON.stringify({acao: "entrega_opcao", pedido: l.pedido, opcao: acao})});
@@ -3229,9 +3662,11 @@ async function acaoMsg(acao, l) {
     return;
   }
   if (acao === "apagar") {
-    if (!confirm("Apagar esta mensagem do chat?" + (p && p.estado === "enviar" ? "\n\nEla não vai mais para o PC." : ""))) return;
+    if (!confirm("Apagar esta mensagem do chat?" + (p && p.estado === "enviar" || l.fila ? "\n\nEla não vai mais para o PC." : ""))) return;
     if (p && ["novo", "pronto", "enviar"].includes(p.estado)) { try { await rpc("cel_cancelar", {id: p.id}); } catch {} }
-    if (p) ocultar(p.id); else locais = locais.filter(x => x !== l);
+    const ja = !p && l.fila ? pedidoJaGravado(l) : null;   // a da fila que chegou ao banco antes da rede cair
+    if (ja && ["novo", "pronto", "enviar"].includes(ja.estado)) { try { await rpc("cel_cancelar", {id: ja.id}); } catch {} }
+    if (p) ocultar(p.id); else { locais = locais.filter(x => x !== l); guardarFila(); }
     return desenharDetalhe();
   }
   if (acao === "editar") {
@@ -3261,21 +3696,24 @@ async function reusoDoPedido(p) {
 
 // Tentar de novo: o mesmo texto e as mesmas imagens, num balão novo; o velho sai da conversa (também depois de recarregar).
 async function reenviarPedido(l) {
-  if (!aberta || !podeMandar()) return;
+  if (!aberta) return;
+  if (!podeMandar()) return avisar("dAviso", ($("dBloqueio").textContent || "Agora não dá para mandar nesta conversa.") + " A mensagem continua aqui.",
+    {erro: true, sessao: aberta.id});
   const s = sessaoAberta(), p = pedidos.find(x => x.id === l.pedido) || {};
   reenviados.add(l.pedido);
   ocultar(l.pedido);
   const n = notasMaestro.find(x => x.pedido && x.pedido === l.pedido);   // a resposta a um item do Para você: o aviso vai junto
   if (n) notasMaestro = notasMaestro.filter(x => x !== n);
   const reuso = await reusoDoPedido(p);
-  const local = {id: "local" + (++nLocal), sessao: aberta.id, de: "eu", texto: l.texto, t: Math.floor(Date.now() / 1000),
+  const local = {id: idLocal(), sessao: aberta.id, de: "eu", texto: l.texto, t: Math.floor(Date.now() / 1000),
                  mini: "", grande: reuso.grande || "", mime: reuso.mime || "",
                  pv: n ? {chave: n.chave, item: n.item, pc: n.pc_sessao, sessao: n.sessao, nome: n.nome, maestro: n.maestro} : null};
   return enviarLocal(local, {pc: aberta.pc, sessao: aberta.id, titulo: s ? s.titulo : "", texto: l.texto, direto: true, ...reuso.args});
 }
 
 // Dá para mandar agora para a sessão aberta (a caixa de escrever e o 📎 estão na tela)?
-const podeMandar = () => !!aberta && !$("dCompor").classList.contains("hidden") && !$("dClipe").classList.contains("hidden");
+let envioBloqueado = "";   // 0.8.9: o PC desligado: a caixa fica, o enviar avisa
+const podeMandar = () => !!aberta && !envioBloqueado && !$("dCompor").classList.contains("hidden") && !$("dClipe").classList.contains("hidden");
 
 // ---- 0.8.8: as tabelas do Claude (markdown.js): cartões ou tabela, Copiar, tela cheia com pinça, deitada e tema claro ----
 // A escolha Cartões | Tabela vale para todas (fica no celular); sem escolha, o CSS decide: cartões no celular em pé
@@ -3480,7 +3918,9 @@ function abrirPdf(id) {
             rotuloAlta: "Carregando a página…", erroAlta: "A página não veio · tocar para tentar de novo",
             carregarAlta: async () => {
               await paginasDoPdf(pc, doc);
-              const url = await esperarFoto(id);
+              let url;
+              try { url = await esperarFoto(id); }
+              catch (e) { delete pdfPaginasPedidas[doc.id]; throw e; }   // o PC esqueceu (6 h, religou): o próximo toque pede de novo
               paginasPdf.set(id, url);
               return url;
             },
@@ -3526,8 +3966,12 @@ async function baixarPdf(pc, doc) {
 // O visor fica aberto: dá para ir à próxima página e marcar de novo; mandar é no chat, de uma vez.
 const correcoes = new Map();   // nome do PDF -> Map(página -> comentário)
 let resumoCorrecoes = "";
-function marcarPagina(doc, f) {
+async function marcarPagina(doc, f) {
   const sessao = aberta && aberta.id;
+  if (f.carregarAlta && !f.alta) {   // 0.8.9: marcar em cima do "Página N" vazio ou da capa pequena, não
+    try { f.src = await f.carregarAlta(); f.alta = true; }
+    catch { return Marcar.avisoVisor("A página ainda não chegou: espere ela aparecer e toque em Marcar de novo.", 4500); }
+  }
   Marcar.editar({src: f.src, nome: `${doc.nome} · página ${f.pagina}`, legenda: "",
     aoConcluir: async (tela, legenda) => {
       if (!aberta || aberta.id !== sessao) throw new Error("a conversa mudou.");
@@ -3541,6 +3985,12 @@ function marcarPagina(doc, f) {
     }});
 }
 function escreverCorrecoes() {
+  if (!correcoes.size) {   // nenhuma página marcada: o resumo sai da caixa
+    if (resumoCorrecoes) $("texto").value = $("texto").value.replace(resumoCorrecoes, "").trim();
+    resumoCorrecoes = "";
+    if (aberta) store.set("seaninho.rascunho." + aberta.id, $("texto").value);
+    return;
+  }
   const blocos = [...correcoes].map(([nome, pags]) => {
     const ns = [...pags.keys()].sort((a, b) => a - b);
     return `Correções no ${nome}: ${ns.length === 1 ? "página" : "páginas"} ${ns.join(", ")}`
@@ -3569,7 +4019,7 @@ async function mandarPdf(arquivo) {
   if (!b64) return erroMic("texto", "Não consegui ler o PDF.");
   const corpo = $("texto").value.trim() || `Segue o PDF ${arquivo.name}.`;
   $("texto").value = ""; store.set("seaninho.rascunho." + s.id, ""); ajustarCaixa();
-  const local = {id: "local" + (++nLocal), sessao: s.id, de: "eu", texto: corpo, t: Math.floor(Date.now() / 1000),
+  const local = {id: idLocal(), sessao: s.id, de: "eu", texto: corpo, t: Math.floor(Date.now() / 1000),
                  mini: "", grande: "", mime: "application/pdf", pdfNome: `${arquivo.name} · ${mb(arquivo.size)}`};
   enviarLocal(local, {pc: s.pc, sessao: s.id, titulo: s.titulo || "", texto: corpo, direto: !melhorar, audio: b64, mime: "application/pdf"});
 }
@@ -3584,7 +4034,10 @@ function abrirGaleria() {
 // O editor manda para a sessão aberta, pelo mesmo caminho do 📎; a legenda é a caixa do chat (vai e volta com ela).
 async function marcar(f) {
   const sessao = aberta && aberta.id;
-  if (f.carregarAlta && !f.alta) f.src = await f.carregarAlta().catch(() => f.src);   // as marcas em cima da alta
+  if (f.carregarAlta && !f.alta) f.src = await f.carregarAlta().catch(() => {   // as marcas em cima da alta
+    Marcar.avisoVisor("A imagem em alta ainda não chegou: a marcação vai na que está na tela.", 4000);
+    return f.src;
+  });
   Marcar.editar({src: f.src, nome: f.arquivo || f.nome, legenda: $("texto").value,
     aoSair: legenda => {
       if (!aberta || aberta.id !== sessao) return;
@@ -3604,11 +4057,21 @@ async function marcar(f) {
 
 // O balão aparece na hora com 🕓; quando o banco aceita, vira o pedido (✓); se não aceitar, ⚠ e tocar tenta de novo.
 async function enviarLocal(local, args) {
-  Object.assign(local, {sinal: "mandando", erro: "", reenviar: null});
+  // a mensagem nova espera as que estão na fila desta conversa (a ordem não muda): entra na fila atrás delas
+  if (!locais.includes(local) && locais.some(l => l.fila && l.sessao === local.sessao)) {
+    Object.assign(local, {args});
+    marcarFila(local, () => enviarLocal(local, args), "Na fila: sai depois das que esperam a rede");
+    locais.push(local); guardarFila(); desenharDetalhe(true);
+    return atualizar();
+  }
+  Object.assign(local, {sinal: "mandando", erro: "", reenviar: null, nota: "", fila: false, velha: false, args});
   if (!locais.includes(local)) locais.push(local);
   desenharDetalhe(true);
+  const inicio = agoraBanco();
   try {
     local.pedidoId = await rpc("cel_pedir", args);
+    tomar(local.pedidoId);
+    guardarFila();
     if (local.pedidoId && local.pv) registrarResposta(local.pv, local.pedidoId, local.texto);
     if (local.pedidoId && (local.minis || local.mini)) guardarMiniatura(local.pedidoId, local.minis || local.mini);
     if (local.pedidoId && local.grande) {
@@ -3621,7 +4084,11 @@ async function enviarLocal(local, args) {
     });
     await atualizar();
   } catch (e) {
-    Object.assign(local, {sinal: "erro", erro: "Não saiu do celular: " + (e.message || e), reenviar: () => enviarLocal(local, args)});
+    if (ehRede(e)) {   // a janela desta tentativa (na hora do banco, com folga): o pedido gravado nela é desta mensagem
+      local.tentativas = [...(local.tentativas || []), janela(inicio, agoraBanco())].slice(-20);
+      marcarFila(local, () => enviarLocal(local, args)); guardarFila(); return desenharDetalhe();
+    }
+    Object.assign(local, {sinal: "erro", erro: "Não saiu do celular: " + motivoRede(e), reenviar: () => enviarLocal(local, args)});
     desenharDetalhe();
   }
 }
@@ -3672,7 +4139,15 @@ async function adicionarImagens(arquivos) {
   if (aviso) erroMic("texto", aviso); else infoMic("texto", "");
 }
 const prepararImagem = arquivo => adicionarImagens([arquivo]);
-function limparAnexos() { anexos = []; desenharAnexos(); }
+function limparAnexos() { anexos = []; correcoes.clear(); resumoCorrecoes = ""; desenharAnexos(); }
+// Tirou uma página do PDF dos anexos: a lista de correções da caixa acompanha (0.8.9: antes, "páginas 2, 5, 9" sem a 2 e a 5).
+function refazerCorrecoes() {
+  for (const [nome, pags] of [...correcoes]) {
+    for (const n of [...pags.keys()]) if (!anexos.some(a => a.pdf === nome && a.pagina === n)) pags.delete(n);
+    if (!pags.size) correcoes.delete(nome);
+  }
+  if (resumoCorrecoes) escreverCorrecoes();
+}
 
 function desenharAnexos() {
   const caixa = $("dAnexo"), s = sessaoAberta(), n = anexos.length;
@@ -3794,11 +4269,15 @@ function ajustarCaixa() {
   t.style.height = Math.min(140, t.scrollHeight) + "px";
   const tem = !!(t.value.trim() || anexos.length);
   $("mandar").classList.toggle("hidden", !tem);
+  const n = t.value.trim().length, conta = $("dConta");   // 0.8.9: o PC entrega até 4.000 letras
+  conta.classList.toggle("hidden", n < 3500);
+  conta.classList.toggle("passou", n > 4000);
+  conta.textContent = n > 4000 ? `${n.toLocaleString("pt-BR")} / 4.000 letras: encurte para mandar` : `${n.toLocaleString("pt-BR")} / 4.000 letras`;
   document.querySelector('#dCompor .mic').classList.toggle("hidden", tem && !gravando);
 }
 
 // ---- Ações ---------------------------------------------------------------------------------------
-async function acaoPedido(acao, id) {
+async function acaoPedido(acao, id, onde = "dAviso") {
   try {
     if (acao === "confirmar") {
       const p = pedidos.find(x => x.id === id);
@@ -3811,10 +4290,10 @@ async function acaoPedido(acao, id) {
     }
     $("dRascunho").innerHTML = "";
     await atualizar();
-  } catch (e) { alerta(e); }
+  } catch (e) { onde === "dAviso" ? alerta(e) : avisar(onde, "Não deu: " + motivoRede(e), {erro: true}); }
 }
 
-function alerta(e) { avisar("dAviso", "Não deu: " + (e.message || e), {erro: true, ...chatAviso()}); }
+function alerta(e) { avisar("dAviso", "Não deu: " + motivoRede(e), {erro: true, ...chatAviso()}); }
 
 // ---- Laço ------------------------------------------------------------------------------------------
 function conhecidos() {
@@ -3823,18 +4302,30 @@ function conhecidos() {
   return c;
 }
 
+let seqPedido = 0, seqAplicado = 0;   // várias voltas correm juntas (laço, puxar, depois de mandar): vale a mais nova
 async function atualizar() {
   if (!chave) return false;
-  const pedidoEm = Date.now();
+  const pedidoEm = Date.now(), n = ++seqPedido;   // pedidoEm: também o começo da volta (o relógio do banco)
   let r;
   try { r = await rpc("cel_estado", {conhecidos: conhecidos()}); }
   catch (e) {
-    if (e.status && /chave/i.test(e.message)) { sair(); return false; }
+    if (e.status && /chave/i.test(e.message)) { sair("A chave deste celular não vale mais (desconectado no PC?). Conecte de novo."); return false; }
+    if (n < seqAplicado) return false;
+    const antes = rede.ok;
     rede = {...rede, ok: false, erro: motivoRede(e)};
     desenharInicio();
+    if (antes !== false) { desenharSessoes(); desenharDetalhe(); }   // o "Sem internet" aparece também na lista e no chat
     return false;
   }
+  if (n < seqAplicado) return false;   // uma resposta mais nova já foi desenhada (o balão recém-mandado não some)
+  seqAplicado = n;
+  const voltou = rede.ok === false;
   rede = {ok: true, em: Date.now(), erro: ""};
+  if (r.agora && !isNaN(Date.parse(r.agora))) {   // o "agora" do banco é de algum ponto da volta: o meio dela
+    const fim = Date.now();
+    ultimaVolta = Math.min(30000, fim - pedidoEm);
+    relogio = Date.parse(r.agora) - (pedidoEm + fim) / 2;
+  }
   if (r.prefs && Array.isArray(r.prefs.fixadas) && !fixadasSalvando && pedidoEm > fixadasMudouEm) {
     fixadas = r.prefs.fixadas;   // a do banco vale (outro aparelho pode ter mudado)
     store.set("seaninho.fixadas", JSON.stringify(fixadas));
@@ -3852,7 +4343,105 @@ async function atualizar() {
   desenharDetalhe();   // o chat cuida do que está sendo editado (a prévia e a "Outra resposta" não se refazem por baixo)
   if (aba === "Copias") await carregarCopias();
   processarNotas().then(m => { if (m) { desenharInicio(); desenharSessoes(); } });
+  locais = locais.filter(l => !(l.pedidoId && pedidos.some(p => p.id === l.pedidoId)));   // já vieram do banco
+  guardarUltimo();
+  drenarFila();
+  vigiarAcoes();
+  sincronizarHorario();
+  renovarPush();
+  if (voltou && aberta) avisar("dAviso", "Conectado de novo.", {ok: true, passa: true});
   return true;
+}
+
+// ---- 0.8.9: abrir sem rede (o último estado guardado no aparelho) ----------------------------------------
+// A cada 30 s, o que a tela mostra (as conversas cortadas nas 12 últimas falas, para caber); ao abrir, ele aparece já,
+// com "Atualizado às…", e a 1ª volta traz tudo de novo (mudou_em vazio).
+let ultimoGuardado = 0;
+function guardarUltimo() {
+  if (Date.now() - ultimoGuardado < 30000) return;
+  ultimoGuardado = Date.now();
+  try {
+    const leves = Object.values(pcs).map(p => ({...p, sessoes: (p.sessoes || []).map(x => ({...x,
+      conversa: Array.isArray(x.conversa) ? x.conversa.slice(-12) : x.conversa}))}));
+    localStorage.setItem("seaninho.ultimo", JSON.stringify({em: rede.em, pcs: leves, pedidos: pedidos.slice(0, 40)}));
+  } catch { try { localStorage.removeItem("seaninho.ultimo"); } catch {} }
+}
+function lerUltimo() {
+  const u = lerJson("seaninho.ultimo", null);
+  if (!u || !Array.isArray(u.pcs) || !u.pcs.length) return;
+  pcs = Object.fromEntries(u.pcs.map(x => [x.pc, {...x, mudou_em: ""}]));
+  pedidos = Array.isArray(u.pedidos) ? u.pedidos : [];
+  rede = {ok: null, em: Number(u.em) || 0, erro: ""};
+}
+
+// ---- 0.8.9: a fila do que não saiu por falta de rede (o 🕓 do WhatsApp) -------------------------------------
+// A mensagem fica no balão com "Sem internet: sai sozinha quando a rede voltar" e sai na primeira volta boa, na ordem.
+// As de texto ficam guardadas no aparelho (voltam mesmo se o iPhone fechar o app); as com imagem, até fechar o app.
+// Antes de mandar de novo, confere se o banco já tem o pedido (a resposta pode ter se perdido depois de gravar).
+const FILA_MAX_H = 12;
+const idLocal = () => `local${++nLocal}_${Date.now().toString(36)}`;
+function marcarFila(l, reenviar, nota = "Sem internet: sai sozinha quando a rede voltar") {
+  Object.assign(l, {sinal: "mandando", fila: true, erro: "", reenviar, nota});
+}
+function guardarFila() {
+  const fila = locais.filter(l => (l.fila || l.velha) && l.args && !l.args.audio && !l.grande && !(l.grandes || []).length && !l.grupo)
+    .map(l => ({id: l.id, sessao: l.sessao, de: "eu", texto: l.texto, t: l.t, args: l.args, pv: l.pv || null, velha: !!l.velha,
+                tentativas: l.tentativas || []}));
+  const valor = fila.length ? JSON.stringify(fila) : "";
+  try { valor ? localStorage.setItem("seaninho.fila", valor) : localStorage.removeItem("seaninho.fila"); }
+  catch {   // sem espaço: o instantâneo do painel sai (ele volta na próxima volta boa); a fila vale mais
+    try { localStorage.removeItem("seaninho.ultimo"); if (valor) localStorage.setItem("seaninho.fila", valor); } catch {}
+  }
+}
+function lerFila() {
+  for (const x of lerJson("seaninho.fila", [])) {
+    if (!x || !x.args || !x.sessao || locais.some(l => l.id === x.id)) continue;
+    const l = {...x, mini: "", grande: "", mime: x.args.mime || ""};
+    if (x.velha) Object.assign(l, {sinal: "erro", erro: "Não saiu do celular: ficou horas sem rede", reenviar: () => enviarLocal(l, x.args)});
+    else marcarFila(l, () => enviarLocal(l, x.args));
+    locais.push(l);
+  }
+}
+// O pedido desta mensagem da fila que o banco já tem (a resposta se perdeu depois de gravar: tempo esgotado): o do
+// mesmo texto e sessão, criado (na hora do banco) DURANTE uma das tentativas dela que caíram por rede, e que nenhuma
+// outra mensagem tomou. Sem tentativa que caiu por rede (só o erro antes de sair), não há o que procurar.
+// pedidos que já são de alguma mensagem deste aparelho (os 200 mais novos ficam guardados: depois de o iPhone fechar o
+// app, a fila que volta não toma o pedido de uma mensagem que já tinha saído)
+const tomados = new Set(lerJson("seaninho.tomados", []));
+function tomar(id) {
+  if (!id) return;
+  tomados.add(id);
+  store.set("seaninho.tomados", JSON.stringify([...tomados].slice(-200)));
+}
+let relogio = 0, ultimaVolta = 0;   // a hora do banco menos a do celular (pelo meio da ida e volta); a duração da volta
+const agoraBanco = () => Date.now() + relogio;
+// a janela de uma tentativa, com folga: 3 s e a duração da última volta (o relógio estimado erra no máximo isso)
+const janela = (ini, fim) => [ini - 3000 - ultimaVolta, fim + 3000 + ultimaVolta];
+function pedidoJaGravado(l) {
+  const texto = (l.args || {}).texto, janelas = l.tentativas || [];
+  if (!texto || !janelas.length) return null;
+  const p = pedidos.find(x => x.sessao === l.sessao && x.texto === texto && !tomados.has(x.id)
+    && janelas.some(([a, b]) => { const t = Date.parse(x.criado_em); return t >= a && t <= b; })) || null;
+  if (p) tomar(p.id);
+  return p;
+}
+let drenando = false;
+async function drenarFila() {
+  if (drenando || !locais.some(l => l.fila && l.reenviar)) return;
+  drenando = true;
+  try {
+    for (const l of locais.filter(x => x.fila && x.reenviar)) {
+      if (!locais.includes(l)) continue;   // apagada enquanto as de antes saíam
+      const ja = pedidoJaGravado(l);
+      if (ja) { Object.assign(l, {pedidoId: ja.id, fila: false}); continue; }
+      if (Date.now() / 1000 - l.t > FILA_MAX_H * 3600) {   // horas sem rede: não sai sozinha; o Arthur decide (Tentar de novo)
+        Object.assign(l, {fila: false, velha: true, sinal: "erro", nota: "", erro: `Não saiu do celular: sem rede desde ${quandoFoi(new Date(l.t * 1000).toISOString())}`});
+        continue;
+      }
+      await l.reenviar();
+      if (l.fila) break;   // ainda sem rede: espera a próxima volta boa
+    }
+  } finally { drenando = false; guardarFila(); desenharDetalhe(); }
 }
 
 // ---- O céu (0.8.7): o fundo de galáxia do Monitor geral do Seaninho Pro, atrás de todas as telas --------------
@@ -3943,11 +4532,13 @@ function entrar() {
   ["app", "nav", "gear"].forEach(i => $(i).classList.remove("hidden"));
   ciclo();
 }
-function sair() {
+function sair(motivo = "") {
   chave = ""; store.set("seaninho.chave", "");
+  for (const k of ["seaninho.ultimo", "seaninho.fila"]) store.set(k, "");
   fechar();
   $("gear").classList.add("hidden");
   mostrarParear();
+  if (motivo) { $("parearMsg").textContent = motivo; $("parearMsg").className = "status err"; }
 }
 
 // ---- Notificações ------------------------------------------------------------------------------------
@@ -3972,8 +4563,45 @@ async function ativarPush() {
     let sub = await reg.pushManager.getSubscription();
     if (!sub) sub = await reg.pushManager.subscribe({userVisibleOnly: true, applicationServerKey: chaveVapid(vapid)});
     await rpc("cel_assinar", {assinatura: sub.toJSON()});
+    store.set("seaninho.assinadoEm", diaIso(new Date()));
     ok("Notificações ativadas.");
-  } catch (e) { err("Não deu: " + (e.message || e)); }
+  } catch (e) { err("Não deu: " + motivoRede(e)); }
+  desenharPush();
+}
+// 0.8.9: o Ajustes diz se as notificações estão ligadas NESTE aparelho (antes, sempre "Ativar"), e a assinatura é
+// renovada sozinha ao abrir o app (o iPhone pode trocar ou perder a assinatura; o agente apaga a que falha).
+let pushRenovado = false;
+async function estadoPush() {
+  if (!("serviceWorker" in navigator) || !("PushManager" in window) || typeof Notification === "undefined") return "sem";
+  if (Notification.permission === "denied") return "negado";
+  if (Notification.permission !== "granted") return "falta";
+  try { const reg = await navigator.serviceWorker.getRegistration(); return reg && await reg.pushManager.getSubscription() ? "ok" : "falta"; }
+  catch { return "falta"; }
+}
+async function desenharPush() {
+  const e = await estadoPush();
+  $("pushBtn").textContent = e === "ok" ? "✓ Ativadas neste aparelho" : e === "negado" ? "Negadas: ative nos Ajustes do iPhone" : "Ativar notificações";
+  $("pushBtn").classList.toggle("sec", e === "ok");
+  $("pushTeste").classList.toggle("hidden", e !== "ok");
+}
+async function renovarPush() {
+  if (pushRenovado || !vapid || (await estadoPush()) === "sem" || Notification.permission !== "granted") return;
+  pushRenovado = true;
+  try {
+    const reg = await navigator.serviceWorker.ready;
+    let sub = await reg.pushManager.getSubscription(), nova = false;
+    if (!sub) { sub = await reg.pushManager.subscribe({userVisibleOnly: true, applicationServerKey: chaveVapid(vapid)}); nova = true; }
+    if (nova || store.get("seaninho.assinadoEm") !== diaIso(new Date())) {
+      await rpc("cel_assinar", {assinatura: sub.toJSON()});
+      store.set("seaninho.assinadoEm", diaIso(new Date()));
+    }
+  } catch { pushRenovado = false; }
+}
+async function testarPush() {
+  const p = pcAtivo(), msg = $("pushMsg");
+  if (!p) return avisar(msg, "Nenhum PC ligado agora para mandar o teste.", {erro: true});
+  if (Lista.compararVersao(p.versao, "0.8.9") < 0) return avisar(msg, `O teste precisa do Seaninho no celular 0.8.9 no ${nomeCurtoPc(p.pc)}.`, {erro: true});
+  pedirNoPc(p.pc, {acao: "aviso_teste"}, {indo: "Pedi ao PC: o aviso chega em segundos.", ok: "O PC mandou o aviso de teste.", erro: "O teste não saiu"});
 }
 
 // ---- Ligações ----------------------------------------------------------------------------------------
@@ -3987,6 +4615,7 @@ function mostrarAba(nome) {
   fecharMenu();
   if (nome === "Copias") carregarCopias();
   if (nome === "Inicio") desenharInicio();
+  if (nome === "Ajustes") { desenharPush(); desenharHorario(); }
 }
 document.querySelectorAll("nav button").forEach(b => b.addEventListener("click", () => mostrarAba(b.dataset.tab)));
 $("gear").addEventListener("click", () => mostrarAba(aba === "Ajustes" ? "Inicio" : "Ajustes"));
@@ -4000,16 +4629,20 @@ $("tabInicio").addEventListener("click", e => {
   const cc = e.target.closest("[data-conta]");
   if (cc) return alternarConta(cc.dataset.conta);
   if (e.target.closest("[data-uso]")) return abrirUsoIa();
+  const fp = e.target.closest("[data-fechar-paradas]");
+  if (fp) return fecharParadas(fp.dataset.fecharParadas);
+  // 0.8.9: pela chave do item. Pela posição, com a caixa em foco (a lista não se refaz) e o maestro mudando a lista, o
+  // "Enviar" mandava o rascunho de outro item, ou o "✓ Resolvido" resolvia outro
   const ok = e.target.closest("[data-pv-ok]");
-  if (ok) return resolverParaVoce(Number(ok.dataset.pvOk));
+  if (ok) return resolverParaVoce(pvIndice(ok.dataset.pvOk));
   const ja = e.target.closest("[data-pv-ja]");
-  if (ja) return resolverParaVoce(Number(ja.dataset.pvJa), "slack_ja");
+  if (ja) return resolverParaVoce(pvIndice(ja.dataset.pvJa), "slack_ja");
   const sk = e.target.closest("[data-pv-slack]");
-  if (sk) return sk.disabled ? null : enviarSlack(Number(sk.dataset.pvSlack));
+  if (sk) return sk.disabled ? null : enviarSlack(pvIndice(sk.dataset.pvSlack));
   const vai = e.target.closest("[data-pv-ir]");
-  if (vai) return irParaItem(Number(vai.dataset.pvIr));
+  if (vai) return irParaItem(vai.dataset.pvIr);
   const pv = e.target.closest("[data-pv]");
-  if (pv) return pv.disabled ? null : responderParaVoce(Number(pv.dataset.pv));
+  if (pv) return pv.disabled ? null : responderParaVoce(pvIndice(pv.dataset.pv));
   if (e.target.closest("[data-pv-todos]")) { paraVoceTodos = true; return desenharInicio(); }
   if (e.target.closest("[data-recarregar-app]")) return location.reload();
   if (e.target.closest("[data-ar-abrir]")) return abrirAiRats();
@@ -4047,9 +4680,13 @@ $("dMais").addEventListener("click", () => {
   const {pc, id} = aberta, viva = todasSessoes().some(s => s.id === id && s.pc === pc);
   const itens = [[Lista.fixada(fixadas, {pc, id}) ? "Desafixar" : "📌 Fixar no topo", () => alternarFixada(pc, id)],
                  ...(fotosNaTela.size ? [[`🖼️ Galeria (${fotosNaTela.size} ${fotosNaTela.size === 1 ? "foto" : "fotos"})`, abrirGaleria]] : []),
-                 ...(viva ? itensDeAcoes(pc, id) : [])];
+                 ...(viva ? [...itensDeAcoes(pc, id), ...itemSilenciar(pc, id), ...itemFechar(pc, id)] : [])];
   abrirMenu(itens, $("dMais"));
 });
+$("usoCorpo").addEventListener("toggle", e => {   // o "Ver em tabela" do Uso de IA fica aberto (a tela se refaz a cada minuto)
+  if (e.target.matches("[data-uso-tabela]")) usoTabelaAberta = e.target.open;
+}, true);
+$("hojeSaude").addEventListener("toggle", e => { if (e.target.matches("[data-linha-tempo]")) linhaTempoAberta = e.target.open; }, true);
 $("tabInicio").addEventListener("toggle", e => {
   if (e.target.matches("[data-tabela]")) tabelaAberta = e.target.open;
   if (e.target.matches("[data-mudou]")) mudouAberto = e.target.open;
@@ -4100,7 +4737,7 @@ $("fixadas").addEventListener("click", e => {
   const fx = e.target.closest(".fx");
   if (!fx || Date.now() - gestoFim < 400) return;
   if (todasSessoes().some(s => s.id === fx.dataset.id && s.pc === fx.dataset.pc)) abrir(fx.dataset.pc, fx.dataset.id);
-  else avisar("appAviso", "Essa sessão está fechada no PC. Toque e segure para desafixar.", {});
+  else menuDaFixada(Number(fx.dataset.fx), fx);   // 0.8.9: a fechada abre o menu (Reabrir no PC, Desafixar)
 });
 $("tabHoje").addEventListener("click", e => {
   const b = e.target.closest("[data-acao-hoje]");
@@ -4150,7 +4787,7 @@ $("dSugestoes").addEventListener("click", e => {
   $("texto").focus();
 });
 for (const lugar of ["dRascunho", "cmdLista"]) {
-  $(lugar).addEventListener("click", e => { const b = e.target.closest("[data-acao]"); if (b) acaoPedido(b.dataset.acao, b.dataset.id); });
+  $(lugar).addEventListener("click", e => { const b = e.target.closest("[data-acao]"); if (b) acaoPedido(b.dataset.acao, b.dataset.id, lugar === "cmdLista" ? "micinfo-cmd" : "dAviso"); });
 }
 $("dRascunho").addEventListener("input", e => { if (e.target.dataset.id) edicoes[e.target.dataset.id] = e.target.value; });
 $("dMsgs").addEventListener("pointerdown", pegarBalao);
@@ -4197,13 +4834,7 @@ $("dMsgs").addEventListener("click", e => {
   const am = e.target.closest("[data-acao-msg]");
   if (am) return acaoMsg(am.dataset.acaoMsg, locais.find(x => x.id === am.dataset.msg) || linhasNaTela.get(am.dataset.msg));
   const er = e.target.closest("[data-erro]");
-  if (er) {
-    const l = locais.find(x => x.id === er.dataset.erro);
-    if (l && l.reenviar) return l.reenviar();
-    const lp = linhasNaTela.get(er.dataset.erro);
-    if (lp && lp.reenviar === true && lp.pedido) return reenviarPedido(lp);
-    er.classList.toggle("aberta");   // o motivo inteiro
-  }
+  if (er) er.classList.toggle("aberta");   // o motivo inteiro (0.8.9: o toque não manda de novo; isso é do botão)
 });
 $("dMsgs").addEventListener("input", e => {
   const rc = e.target.closest("[data-perm-recado]");
@@ -4235,7 +4866,7 @@ $("dArquivo").addEventListener("change", e => { const fs = [...(e.target.files |
 $("dAnexo").addEventListener("click", e => {
   if (Date.now() - arrastou < 400) return;   // o soltar do arrasto não abre a imagem
   const tirar = e.target.closest("[data-tirar]");
-  if (tirar) { anexos.splice(Number(tirar.dataset.tirar), 1); desenharAnexos(); ajustarCaixa(); return; }
+  if (tirar) { anexos.splice(Number(tirar.dataset.tirar), 1); refazerCorrecoes(); desenharAnexos(); ajustarCaixa(); return; }
   const m = e.target.closest("[data-marcar-anexo]");
   if (m) return marcarAnexo(Number(m.dataset.marcarAnexo));
   if (e.target.closest("#dAnexoMais")) return tocarClipe();
@@ -4265,7 +4896,11 @@ $("parearBtn").addEventListener("click", parear);
 $("pedirDeNovo").addEventListener("click", () => { pedirCodigo(); $("parearMsg").textContent = "Pedi de novo: confira a janela do computador."; $("parearMsg").className = "status"; });
 $("codigo").addEventListener("input", () => { if ($("codigo").value.replace(/\D/g, "").length === 6) parear(); });
 $("pushBtn").addEventListener("click", ativarPush);
+$("pushTeste").addEventListener("click", testarPush);
+for (const id of ["silDe", "silAte"]) $(id).innerHTML = Array.from({length: 24}, (_, h) => `<option value="${h}">${h}h</option>`).join("");
+for (const id of ["silLigado", "silDe", "silAte"]) $(id).addEventListener("change", mudarHorario);
 $("desparear").addEventListener("click", () => { if (confirm("Desconectar este celular?")) sair(); });
+addEventListener("online", () => ciclo());   // a rede voltou: atualiza já (e a fila sai)
 document.addEventListener("visibilitychange", () => { ciclo(); if (!chave) pedirCodigo(); });
 
 if ("serviceWorker" in navigator) {
@@ -4276,14 +4911,45 @@ if ("serviceWorker" in navigator) {
       if (reg && document.visibilityState === "visible") try { reg.update().catch(() => {}); } catch {}
     });
   }).catch(() => {});
+  // o toque na notificação com o app já aberto (0.8.9): o service worker avisa a página, que abre a sessão
+  navigator.serviceWorker.addEventListener("message", e => { if (e.data && e.data.tipo === "abrir") abrirPeloAviso(e.data); });
 }
+// A versão nova da página entra sozinha quando o app vai para o fundo (0.8.9), se não houver nada a perder: sem o
+// editor de imagem aberto, sem imagem anexada e sem mensagem com imagem esperando a rede (as de texto ficam guardadas).
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState !== "hidden" || !appNovo || !chave) return;
+  if (Marcar.aberto() || anexos.length || gravando || transcrevendo || $("tarefaTexto").value.trim()
+      || !$("aiRats").classList.contains("hidden") || pvSlackEnviando()
+      || locais.some(l => !l.pedidoId && !(l.fila || l.velha) || l.grande || (l.grandes || []).length || l.grupo || (l.args && l.args.audio) || l.mime)) return;
+  location.reload();
+});
+const pvSlackEnviando = () => Object.keys(pvSlack).some(k => estadoSlack(k).fase === "enviando");
+function abrirPeloAviso(d) {
+  if (!chave) return;
+  if (d.airats) return atualizar().then(abrirAiRats);
+  if (d.pv) return atualizar().finally(() => {   // a mensagem nova do Slack no Para você
+    if (aberta) fechar();
+    mostrarAba("Inicio"); paraVoceTodos = true; desenharInicio();
+    const el = $("p-paravoce"); if (el) el.scrollIntoView({block: "start", behavior: "smooth"});
+  });
+  if (d.sessao) atualizar().finally(() => abrir(d.pc || "", d.sessao));
+}
+addEventListener("hashchange", () => {
+  const h = new URLSearchParams(location.hash.slice(1));
+  if (h.get("sessao") && !(aberta && aberta.id === h.get("sessao"))) abrirPeloAviso({sessao: h.get("sessao"), pc: h.get("pc") || ""});
+  else if (h.get("airats")) { history.replaceState(null, "", location.pathname); abrirPeloAviso({airats: true}); }
+  else if (h.get("pv")) { history.replaceState(null, "", location.pathname); abrirPeloAviso({pv: true}); }
+});
 if (!CFG.url || !CFG.publica) {
   document.body.insertAdjacentHTML("beforeend", `<div class="empty">Falta o config.js (endereço do Supabase).</div>`);
 } else if (chave) {
+  lerUltimo();   // 0.8.9: o último estado guardado aparece já (abre sem rede)
+  lerFila();
   entrar();
   const h = new URLSearchParams(location.hash.slice(1));   // vindo de uma notificação
   if (h.get("sessao")) atualizar().then(() => abrir(h.get("pc") || "", h.get("sessao")));
   else if (h.get("airats")) { history.replaceState(null, "", location.pathname); atualizar().then(abrirAiRats); }
+  else if (h.get("pv")) { history.replaceState(null, "", location.pathname); abrirPeloAviso({pv: true}); }
 } else {
   mostrarParear();
 }

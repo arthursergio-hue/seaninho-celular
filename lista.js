@@ -4,14 +4,17 @@
 "use strict";
 
 const PARADA_S = 3600;   // ociosa há mais de 1 h: parada
-const ESTADOS = [["esperando", "Esperando você"], ["trabalhando", "Trabalhando"], ["ociosa", "Ociosas"], ["parada", "Paradas"]];
+const ESTADOS = [["esperando", "Esperando você"], ["trabalhando", "Trabalhando"], ["ociosa", "Ociosas"], ["parada", "Paradas"],
+  ["desligado", "PC desligado"]];
 const GRUPOS = ["SZI", "Seaninho", "Pessoais", "Outras"];
 const MAX_FIXADAS = 30;
 
 // O estado de uma sessão na lista e no painel: "esperando" (pergunta, enquete, permissão ou um item do "Para você"
 // do maestro que veio dela, ainda sem resposta: paraVoce, que a página marca), "trabalhando", "ociosa" (parou há
-// menos de 1 h) ou "parada".
+// menos de 1 h) ou "parada". "desligado" (0.8.9): o PC dela não dá sinal há mais de 10 min (a página marca); o que ele
+// publicou por último fica de fora do "Esperando você" e dos contadores, como o "visto por último" do WhatsApp.
 function estadoDe(s, agoraMs) {
+  if (s.desligado) return "desligado";
   if (s.estado === "perguntando" || s.permissao || s.enquete || s.paraVoce) return "esperando";
   if (s.estado === "trabalhando") return "trabalhando";
   return agoraMs / 1000 - (s.desde || 0) > PARADA_S ? "parada" : "ociosa";
@@ -51,7 +54,7 @@ function filtrar(ss, f, busca, previaDe, agoraMs) {
 
 // As contas do painel e dos chips: total, por estado, por PC, por grupo e por pasta.
 function contar(ss, agoraMs) {
-  const c = {total: ss.length, esperando: 0, trabalhando: 0, ociosa: 0, parada: 0, porPc: {}, porGrupo: {}, porPasta: {}};
+  const c = {total: ss.length, esperando: 0, trabalhando: 0, ociosa: 0, parada: 0, desligado: 0, porPc: {}, porGrupo: {}, porPasta: {}};
   for (const s of ss) {
     c[estadoDe(s, agoraMs)] += 1;
     c.porPc[s.pc] = (c.porPc[s.pc] || 0) + 1;
@@ -68,8 +71,9 @@ function fixada(fixadas, s) { return (fixadas || []).some(f => mesma(f, s)); }
 function alternarFixada(fixadas, s) {
   const lista = (fixadas || []).filter(f => f && f.id);
   if (fixada(lista, s)) return lista.filter(f => !mesma(f, s));
-  return [...lista, {pc: s.pc, id: s.id, titulo: String(s.titulo || "").slice(0, 80), pasta: String(s.pasta || "").slice(0, 60)}]
-    .slice(-MAX_FIXADAS);
+  // o cwd vai junto (0.8.9): a fixada de uma aba fechada pode ser reaberta pelo celular
+  return [...lista, {pc: s.pc, id: s.id, titulo: String(s.titulo || "").slice(0, 80), pasta: String(s.pasta || "").slice(0, 60),
+    ...(s.cwd ? {cwd: String(s.cwd).slice(0, 260)} : {})}].slice(-MAX_FIXADAS);
 }
 function moverFixada(fixadas, i, j) {
   const out = [...(fixadas || [])];
@@ -123,12 +127,19 @@ function serieDosDias(paineis) {
       x.eu += d.eu || 0; x.claude += d.claude || 0; x.sessoes += d.sessoes || 0;
     }
   }
-  const prs = (paineis || []).map(p => p && p.prs).find(Boolean);   // os PRs são da pessoa: o primeiro PC que tiver
+  const prs = prsMaisNovos(paineis);   // os PRs são da pessoa: os do PC que leu por último
   for (const d of (prs && prs.dias) || []) {
     const x = dias[d.dia] || (dias[d.dia] = {dia: d.dia, eu: 0, claude: 0, sessoes: 0, abertos: 0, mergeados: 0});
     x.abertos = d.abertos || 0; x.mergeados = d.mergeados || 0;
   }
   return Object.values(dias).sort((a, b) => a.dia.localeCompare(b.dia)).slice(-7);
+}
+
+// Os PRs (da pessoa, iguais em todo PC): os do PC com o dia mais novo, para um PC desligado há dias não valer.
+function prsMaisNovos(paineis) {
+  const com = (paineis || []).map(p => p && p.prs).filter(x => x && Array.isArray(x.dias));
+  const ultimo = x => String((x.dias[x.dias.length - 1] || {}).dia || "");
+  return com.sort((a, b) => ultimo(b).localeCompare(ultimo(a)))[0] || (paineis || []).map(p => p && p.prs).find(Boolean) || null;
 }
 
 // Versões: a maior versão do agente entre os PCs e a que a página conhece; cada PC atrás disso fica marcado.
@@ -143,7 +154,7 @@ function compararVersao(a, b) {
 
 const Lista = {PARADA_S, ESTADOS, GRUPOS, MAX_FIXADAS, estadoDe, grupoDe, normalizar, combina, semFiltro, filtrar, contar,
   fixada, alternarFixada, moverFixada, fixadasNaTela, contaCurta, nivel, falhasRecentes, resumoHoje, serieDosDias,
-  compararVersao};
+  prsMaisNovos, compararVersao};
 if (typeof module !== "undefined" && module.exports) module.exports = Lista;
 else raiz.Lista = Lista;
 })(typeof window !== "undefined" ? window : globalThis);
