@@ -1,6 +1,6 @@
 // Seaninho no celular: guarda a casca da página (abre sem rede) e mostra as notificações.
-const CACHE = "seaninho-v16";
-const CASCA = ["./", "./index.html", "./config.js", "./markdown.js", "./chat.js", "./lista.js", "./usoia.js", "./marcar.js", "./manifest.webmanifest", "./icone-180.png", "./icone-192.png"];
+const CACHE = "seaninho-v17";
+const CASCA = ["./", "./index.html", "./config.js", "./markdown.js", "./chat.js", "./lista.js", "./usoia.js", "./ninja.js", "./marcar.js", "./manifest.webmanifest", "./icone-180.png", "./icone-192.png"];
 
 self.addEventListener("install", e => {
   // "reload": sem o cache HTTP do GitHub Pages (10 min), que podia misturar arquivos de duas versões

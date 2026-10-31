@@ -572,14 +572,6 @@ button.bloco-cab{display:block;width:100%;text-align:left}
 .pv-mais{width:100%;padding:10px;margin-top:4px;border-radius:12px;background:var(--glass-2);font-size:14px;font-weight:600;color:var(--muted)}
 .bloco .rodape{font-size:12.5px;color:var(--faint);margin-top:8px}
 /* 0.8.7: o uso de IA da semana (régua da Seazone) */
-.uf{display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:4px 0 2px}
-.uf .fx{display:flex;flex-direction:column;align-items:center;min-width:64px;padding:8px 10px;border-radius:14px;background:rgba(0,0,0,.25)}
-.uf .fx b{font-size:26px;line-height:1.05;color:var(--ink)}
-.uf .fx.prox b{color:var(--gold)}
-.uf .fx small{font-size:11.5px;color:var(--muted);white-space:nowrap}
-.uf .seta{color:var(--faint);font-size:20px}
-.uf .uf-txt{flex:1;min-width:0;font-size:13.5px;color:var(--muted);line-height:1.35}
-.uf .uf-txt b{color:var(--ink)}
 .prog{height:6px;border-radius:999px;background:rgba(255,255,255,.08);overflow:hidden;margin:10px 0 4px}
 .prog i{display:block;height:100%;border-radius:999px;background:var(--gold)}
 .uh{display:flex;justify-content:space-between;gap:10px;padding:6px 0;border-top:1px solid var(--stroke);font-size:14px}
@@ -641,6 +633,116 @@ button.bloco-cab{display:block;width:100%;text-align:left}
 .us .fx-mini{min-width:46px;text-align:center;padding:3px 0;border-radius:999px;background:#1D3566;font-weight:650;font-size:13px}
 .us .us-t{flex:1;min-width:0;color:var(--muted);font-size:13px}
 .us .us-t b{color:var(--ink);font-size:14px}
+/* ---- 0.8.10: o ninja da faixa (ninja.js): noite com lua no iPhone escuro, dia com sol no claro ---- */
+.ninja-palco{--ceu-a:#1E3A78;--ceu-b:#0B1A3E;--astro:#F8E7AE;--halo:rgba(248,231,174,.12);--solo:rgba(4,10,26,.5);--gi:#2D3858;--gi-luz:#56638A;
+  --linha:#0A0F1E;--pele:#F7D4B4;--olho:#161B2B;--fita:#FF5A4F;--fumaca:#E8EDF7;--zzz:#C9D3EA;
+  position:relative;display:block;flex:none;width:var(--np,84px);aspect-ratio:120/130;border-radius:18px;overflow:hidden;
+  background:linear-gradient(180deg,var(--ceu-a),var(--ceu-b));box-shadow:inset 0 0 0 1px rgba(255,255,255,.09)}
+@media (prefers-color-scheme:light){.ninja-palco{--ceu-a:#86C3FF;--ceu-b:#FFE6C4;--astro:#FFD36B;--halo:rgba(255,211,107,.3);--solo:rgba(150,104,48,.24);--zzz:#3C4A6E;--fumaca:#FFFFFF}}
+.ninja-palco .nj{display:block;width:100%;height:100%}
+.nj-halo{fill:var(--halo)} .nj-astro{fill:var(--astro)} .nj-cratera{fill:rgba(120,90,20,.1)} .nj-estrela{fill:#fff;opacity:.85} .nj-solo{fill:var(--solo)}
+.nj-nuvem{display:none;fill:#fff;opacity:.92}
+@media (prefers-color-scheme:light){.nj-cratera,.nj-estrela{display:none}.nj-nuvem{display:inline}}
+.nj-chao{fill:rgba(0,0,0,.32)}
+.nj-gi{fill:var(--gi);stroke:var(--linha);stroke-width:2;stroke-linejoin:round}
+.nj-pe{fill:#151B2D;stroke:var(--linha);stroke-width:1.6}
+.nj-linha{fill:none;stroke:var(--linha);stroke-width:12.5;stroke-linecap:round}
+.nj-manga{fill:none;stroke:var(--gi);stroke-width:9;stroke-linecap:round}
+.nj-mao{fill:var(--pele);stroke:var(--linha);stroke-width:1.8}
+.nj-peito{fill:#1B2340}
+.nj-gola{fill:none;stroke:var(--gi-luz);stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+.nj-brilho{fill:none;stroke:rgba(255,255,255,.2);stroke-width:3;stroke-linecap:round}
+.nj-testa-linha{fill:none;stroke:var(--linha);stroke-width:8.5;stroke-linecap:round}
+.nj-testa{fill:none;stroke:var(--fita);stroke-width:5.5;stroke-linecap:round}
+.nj-fita path{fill:var(--fita);stroke:var(--linha);stroke-width:1.6;stroke-linejoin:round}
+.nj-rosto{fill:var(--pele);stroke:var(--linha);stroke-width:1.8}
+.nj-sobrancelha{fill:none;stroke:var(--linha);stroke-width:2.2;stroke-linecap:round}
+.nj-olho{fill:var(--olho)} .nj-luz{fill:#fff}
+.nj-fechado{display:none;fill:none;stroke:var(--olho);stroke-width:2;stroke-linecap:round}
+.nj-bochecha{fill:#F08C8C;opacity:.55}
+.nj-sorriso{fill:none;stroke:var(--gi-luz);stroke-width:2;stroke-linecap:round}
+.nj-faixa path,.nj-faixa rect{stroke-width:1.6;stroke-linejoin:round}
+.nj-faixa .nj-trama{fill:none;stroke-width:1;opacity:.55}
+.nj-faixa .nj-ponteira{fill:#111;stroke:none}
+.nj-faixa .nj-lista{fill:none;stroke:#C0392B;stroke-width:1.3}
+.nj-sem{fill:none;stroke:rgba(255,255,255,.6);stroke-width:1.4;stroke-dasharray:2.4 2.2}
+.nj-repouso,.nj-zzz,.nj-fumaca,.nj-brilhos{display:none}
+.nj.dorme .nj-olhos,.nj.dorme .nj-aceno{display:none}
+.nj.dorme .nj-fechado,.nj.dorme .nj-repouso,.nj.dorme .nj-zzz{display:inline}
+.nj-zzz text{fill:var(--zzz);font-weight:800;font-family:var(--font)}
+.nj.dorme .nj-zzz text{animation:nj-zzz 2.6s ease-in-out infinite} .nj.dorme .nj-zzz text+text{animation-delay:.4s} .nj.dorme .nj-zzz text+text+text{animation-delay:.8s}
+@keyframes nj-zzz{0%,100%{opacity:.35;transform:translateY(0)}50%{opacity:1;transform:translateY(-3px)}}
+/* a entrada (toda vez que aparece): o puff de fumaça, o ninja surge, acena, a faixa balança e ele pisca */
+.ninja-palco.espera .nj-corpo,.ninja-palco.espera .nj-chao{opacity:0}
+.ninja-palco.entra .nj-fumaca{display:inline}
+.ninja-palco.entra .nj-fumaca circle{fill:var(--fumaca);opacity:0;animation:nj-puff .8s cubic-bezier(.2,.7,.3,1) both}
+.ninja-palco.entra .nj-corpo{transform-origin:60px 117px;animation:nj-surge .62s cubic-bezier(.3,1.5,.5,1) .16s both}
+.ninja-palco.entra .nj-chao{transform-origin:60px 120px;animation:nj-chao .5s ease-out .22s both}
+.ninja-palco.entra .nj-aceno{transform-origin:76px 77px;animation:nj-aceno .95s ease-in-out .6s both}
+.ninja-palco.entra .nj-pontas{transform-origin:60px 98px;animation:nj-balanca 1.15s ease-out .5s both}
+.ninja-palco.entra .nj-fita{transform-origin:36px 36px;animation:nj-fita 1.2s ease-out .4s both}
+.ninja-palco.entra .nj-olhos{transform-origin:60px 47px;animation:nj-pisca .2s ease-in-out 1.36s both}
+@keyframes nj-puff{0%{opacity:0;transform:scale(.2)}22%{opacity:.96;transform:scale(1)}100%{opacity:0;transform:scale(1.5)}}
+@keyframes nj-surge{0%{opacity:0;transform:translateY(16px) scale(.45)}55%{opacity:1;transform:translateY(-5px) scale(1.07)}80%{transform:translateY(1px) scale(.98)}100%{opacity:1;transform:none}}
+@keyframes nj-chao{0%{opacity:0;transform:scaleX(.3)}100%{opacity:1;transform:none}}
+@keyframes nj-aceno{0%,100%{transform:none}20%{transform:rotate(-16deg)}40%{transform:rotate(10deg)}60%{transform:rotate(-12deg)}80%{transform:rotate(6deg)}}
+@keyframes nj-balanca{0%{transform:rotate(16deg)}25%{transform:rotate(-11deg)}50%{transform:rotate(7deg)}75%{transform:rotate(-3deg)}100%{transform:none}}
+@keyframes nj-fita{0%{transform:rotate(18deg)}30%{transform:rotate(-12deg)}60%{transform:rotate(6deg)}100%{transform:none}}
+@keyframes nj-pisca{0%,100%{transform:none}50%{transform:scaleY(.1)}}
+/* a faixa nova: a faixa amarra na cintura, o nó aperta, as pontas caem e balançam, o ninja pula e brilha */
+.ninja-palco.festa .nj-cinta,.ninja-palco.festa .nj-faixa>.nj-trama{transform-origin:60px 93px;animation:nj-amarra .32s cubic-bezier(.3,1.2,.5,1) .72s both}
+.ninja-palco.festa .nj-no,.ninja-palco.festa .nj-faixa>path:last-child{transform-origin:60px 95px;animation:nj-no .36s cubic-bezier(.3,1.8,.5,1) 1.02s both}
+.ninja-palco.festa .nj-pontas{animation:nj-cai 1.5s ease-out 1.16s both}
+.ninja-palco.festa .nj-pula{transform-origin:60px 117px;animation:nj-pula .5s cubic-bezier(.3,1.4,.5,1) 1.18s both}
+.ninja-palco.festa .nj-brilhos{display:inline}
+.ninja-palco.festa .nj-brilhos path{opacity:0;stroke:rgba(0,0,0,.28);stroke-width:.6;transform-origin:0 0;animation:nj-brilho .9s ease-out both}
+@keyframes nj-amarra{0%{transform:scaleX(0)}100%{transform:none}}
+@keyframes nj-no{0%{transform:scale(0)}100%{transform:none}}
+@keyframes nj-cai{0%{transform:scaleY(0)}12%{transform:scaleY(1) rotate(18deg)}35%{transform:rotate(-12deg)}58%{transform:rotate(7deg)}80%{transform:rotate(-3deg)}100%{transform:none}}
+@keyframes nj-pula{0%,100%{transform:none}40%{transform:translateY(-9px) scale(1.04,.97)}}
+@keyframes nj-brilho{0%{opacity:0;transform:scale(.3)}30%{opacity:1}100%{opacity:0;transform:translate(var(--dx),var(--dy)) rotate(90deg)}}
+.np-festa{position:absolute;left:50%;top:5%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;white-space:nowrap;
+  padding:3px 9px;border-radius:999px;background:var(--fx,var(--gold));color:var(--fx-txt,#0B1E3F);font-size:11px;font-weight:800;
+  box-shadow:0 3px 10px rgba(0,0,0,.35),inset 0 0 0 1px rgba(0,0,0,.15);opacity:0;pointer-events:none}
+.ninja-palco.festa .np-festa{animation:nj-festa 3.3s cubic-bezier(.3,1.5,.5,1) 1.22s both}
+@keyframes nj-festa{0%{opacity:0;transform:translateX(-50%) scale(.3)}10%{opacity:1;transform:translateX(-50%) scale(1.08)}16%{transform:translateX(-50%) scale(1)}88%{opacity:1;transform:translateX(-50%) scale(1)}100%{opacity:0;transform:translateX(-50%) scale(.9)}}
+@media (prefers-reduced-motion:reduce){
+  .ninja-palco *{animation:none!important}
+  .ninja-palco.espera .nj-corpo,.ninja-palco.espera .nj-chao{opacity:1}
+  .ninja-palco .nj-fumaca,.ninja-palco .nj-brilhos{display:none!important}
+  .ninja-palco .np-festa{opacity:1}
+}
+/* o ninja no bloco do Início, no topo da tela do uso e na folha do toque */
+.uso-ninja{display:flex;align-items:center;gap:12px;margin:2px 0 6px}
+.ninja-btn{flex:none;padding:0;border-radius:18px}
+.ninja-btn:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.ninja-btn:active .ninja-palco{transform:scale(.96)}
+.un-txt{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px;text-align:left}
+.un-fx{display:flex;align-items:center;gap:8px;font-size:19px;font-weight:750;line-height:1.15;color:var(--ink)}
+.un-fx.grande{font-size:22px}
+.un-sub{font-size:13px;color:var(--muted)}
+.un-prox{font-size:13.5px;line-height:1.35;color:var(--muted)} .un-prox b{color:var(--ink)}
+.un-dica{font-size:12px;color:var(--faint)}
+.fx-cinto{flex:none;display:inline-block;width:24px;height:9px;border-radius:3px;
+  background:linear-gradient(90deg,var(--fx) 0 58%,#C0392B 58% 62%,#111 62% 84%,#C0392B 84% 88%,var(--fx) 88%);box-shadow:0 0 0 1px rgba(255,255,255,.28)}
+.fx-cinto.vazio{background:none;box-shadow:none;border:1.5px dashed rgba(255,255,255,.45)}
+.uso-heroi{display:flex;align-items:center;gap:14px}
+.uso-heroi .un-txt{gap:4px}
+.regua span[style]::after{content:"";position:absolute;left:11px;right:11px;bottom:-6px;height:3px;border-radius:2px;background:var(--fx);box-shadow:0 0 0 1px rgba(255,255,255,.22)}
+.us .fx-mini[style]{box-shadow:inset 0 -3px 0 var(--fx)}
+.nf{display:flex;flex-direction:column;align-items:center;text-align:center;gap:4px;padding-bottom:4px}
+.nf .un-fx{justify-content:center;font-size:22px;margin-top:8px}
+.nf .nf-prox{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:6px;font-size:14.5px;color:var(--muted)} .nf .nf-prox b{color:var(--ink)}
+.nf h4{align-self:stretch;text-align:left;margin:14px 0 4px}
+.nf-lista{align-self:stretch;text-align:left}
+.nf-lista .nl{display:flex;justify-content:space-between;gap:10px;padding:8px 2px;border-bottom:1px solid var(--stroke);font-size:14px}
+.nf-lista .nl span:last-child{color:var(--muted);text-align:right} .nf-lista .nl b{color:var(--ink)}
+.nf-escada{align-self:stretch;display:flex;flex-direction:column;gap:2px;margin-top:4px}
+.nf-escada .ne{display:flex;align-items:center;gap:10px;padding:7px 10px;border-radius:12px;font-size:14px;text-align:left;color:var(--muted)}
+.nf-escada .ne b{flex:1;color:var(--ink);font-weight:600} .nf-escada .ne i{font-style:normal;font-size:12.5px}
+.nf-escada .ne.aqui{background:rgba(226,184,74,.14);box-shadow:inset 0 0 0 1px rgba(226,184,74,.45)} .nf-escada .ne.aqui i{color:var(--gold-2);font-weight:650}
+.nf-nota{align-self:stretch;text-align:left;margin:10px 2px 0;font-size:12.5px;line-height:1.4;color:var(--faint)}
+.nf .btn+.btn{background:var(--glass-2);color:var(--ink)}
 .tiles{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
 .tile{padding:10px 12px;border-radius:12px;background:rgba(0,0,0,.2)}
 .tile b{display:block;font-size:22px;font-weight:700;line-height:1.15}
@@ -1092,6 +1194,7 @@ details>summary{padding:6px 0}
 <script src="chat.js"></script>
 <script src="lista.js"></script>
 <script src="usoia.js"></script>
+<script src="ninja.js"></script>
 <script src="marcar.js"></script>
 <script>
 "use strict";
@@ -1114,9 +1217,10 @@ const edicoes = {};      // id do pedido -> o texto como a pessoa editou (a tela
 let sugestoesAtuais = []; // as respostas prontas da sessão aberta (o PC pede à IA quando o Claude pergunta ou termina)
 let timer = null, timerSala = null;
 let aba = "Inicio";
-const VERSAO_APP = "0.8.9";     // esta página
+const VERSAO_APP = "0.8.10";    // esta página
 const AGENTE_ATUAL = "0.8.9";   // o agente que acompanha esta página (os PCs atrás dele aparecem no painel)
 const NOVIDADES_APP = [
+  ["0.8.10", "O ninja da faixa: no Uso de IA, um ninja de desenho animado veste a faixa da semana (P25 branca, P50 amarela, P75 azul, P100 preta, nas cores das 7 faixas do treinamento do Bill; sem faixa no P0) e surge num puff de fumaça toda vez que a seção aparece. Quando a faixa sobe, a nova amarra na cintura, com pulo e brilho. Toque no ninja: a faixa, a próxima, o que falta e a escada das faixas. A régua e as semanas anteriores ganharam a cor de cada faixa. Noite com lua no iPhone escuro, dia com sol no claro; parado com Reduzir movimento."],
   ["0.8.9", "A mensagem sem internet nunca se perde: fica no balão com 🕓 e sai sozinha quando a rede volta; o app abre sem rede com o último estado; o PC desligado não parece erro (as sessões dele saem do Esperando você, a caixa de escrever fica); fechar a aba de uma sessão parada no PC e reabrir a fixada pelo celular; avisos sem o ruído do maestro e o Slack novo do Para você avisa; silenciar uma sessão (8 h, até amanhã, sempre, com o 🔕) e o horário de silêncio no Ajustes (padrão 22h às 7h: só perguntas e permissões); com a RAM do PC acima de 90%, Fechar as N paradas; o Ajustes diz se as notificações estão ligadas, com teste; a aba Hoje mostra quando o Google não respondeu; o PC tenta de novo quando perde o cursor da caixa."],
   ["0.8.8", "Tabelas do Claude de verdade: cartões no celular em pé, tabela com cabeçalho e 1ª coluna fixos, tela cheia com pinça, deitada e tema claro, Copiar para o Sheets; % em barra, status em etiqueta, hora em destaque. Títulos, listas, citação e código com Copiar. A mensagem longa nunca é cortada (agente 0.8.8). Uso de IA: na virada da semana (sexta 17h), a que fechou ao lado da nova, com a faixa final e o que bateu; o erro de uma medida aparece à parte."],
   ["0.8.7", "Uso de IA da semana (a régua da Seazone, os dois PCs somados) no Início e numa tela com gráficos; o fundo de galáxia do Monitor geral em todas as telas."],
@@ -1666,6 +1770,7 @@ function desenharInicio() {
   por($("p-saude"), blocoSaude(lista, paineis, agora));
   por($("p-versoes"), blocoVersoes(lista, paineis));
   por($("p-resumos"), blocoResumos(agora));
+  Ninja.vigiar();
 }
 
 function oQueEspera(s) {
@@ -2019,33 +2124,96 @@ function errosUso(r, lista) {
       : e.semNumeros ? "" : "; ele tenta de novo sozinho."}</div>`;
   }).join("");
 }
+// ---- 0.8.10: o ninja da faixa (ninja.js) ----------------------------------------------------------------------
+// O ninja veste a faixa da semana (na virada e com a semana fechada, a da semana que fechou), surge num puff toda vez que
+// a seção aparece e, quando a faixa sobe, a nova amarra. A última faixa vista fica no aparelho, para saber se subiu.
+const NINJA_VISTO = "seaninho.ninja";
+function lerVistoNinja() { try { return JSON.parse(store.get(NINJA_VISTO) || "null"); } catch { return null; } }
+function ninjaDaSemana(r) {
+  if (!r) return null;
+  const w = r.virada ? r.virada.fechou : null, b = w || r, semana = w ? w.semana : r.semana;
+  return {semana, numero: numSemana(semana), banda: b.banda, pontos: b.pontos, proxima: b.proxima, faltas: b.faltas,
+    cumpridas: b.cumpridas, i: r.bandas.indexOf(b.banda), fechou: !!w || !!r.encerrada};
+}
+function palcoNinja(lugar, r, tamanho) {
+  const n = ninjaDaSemana(r);
+  if (!n) return Ninja.palco(lugar, null, {dorme: true, tamanho});
+  const festa = Ninja.subiu(lerVistoNinja(), n.semana, n.i) ? {titulo: "Faixa nova!"} : null;
+  return Ninja.palco(lugar, n.banda, {festa, tamanho,
+    aoVer: () => store.set(NINJA_VISTO, JSON.stringify(Ninja.guardar(lerVistoNinja(), n.semana, n.i)))});
+}
+const cintoNinja = banda => { const f = Ninja.faixaDe(banda); return `<i class="fx-cinto${f ? "" : " vazio"}"${f ? ` style="--fx:${f.cor}"` : ""}></i>`; };
+const corDaBanda = banda => { const f = Ninja.faixaDe(banda); return f ? ` style="--fx:${f.cor}"` : ""; };
+const nomeFaixa = banda => { const f = Ninja.faixaDe(banda); return f ? f.nome : ""; };
+function linhaNinja(r, texto, rotuloAria) {
+  return `<div class="uso-ninja"><button class="ninja-btn" data-ninja-ver aria-label="${esc(rotuloAria)}: toque para ver a próxima faixa e o que falta">${palcoNinja("bloco", r, 84)}</button>${texto}</div>`;
+}
+// A folha do toque no ninja: a faixa, a próxima, o que falta e a escada das faixas.
+function abrirNinja() {
+  const lista = usosDosPcs(), r = lista.length ? UsoIa.montar(lista, Date.now()) : null, n = ninjaDaSemana(r);
+  folhaEscolher = null;
+  const botoes = `${usoAberto ? "" : `<button class="btn" data-nf-uso>Ver o uso da semana</button>`}<button class="btn" data-nf-fechar>Fechar</button>`;
+  if (!n) {
+    $("folha").innerHTML = `<div class="pega"></div><div class="nf">${Ninja.palco("folha", null, {dorme: true, tamanho: 150})}
+      <span class="un-fx">${cintoNinja(null)}Ainda sem a medida da semana</span>
+      <p class="nf-nota">O ninja acorda quando um PC medir a semana com o coletor da Seazone (1 a 3 min depois de ligar).</p>${botoes}</div>`;
+  } else {
+    const pf = Ninja.faixaDe(n.proxima);
+    let falta = [];
+    if (!n.fechou) falta = r.criterios.filter(c => !c.ok).map(c => [c.rotulo, `${fmtUso(c.valor, c.chave)}${c.meta != null ? ` / ${fmtUso(c.meta, c.chave)}` : ""} · ${faltaTxt(c, true)}`]);
+    else falta = Object.entries(n.faltas || {}).map(([m, f]) => [UsoIa.ROTULO[m] || m,
+      `${fmtUso(f.valor, m)} / ${fmtUso(f.minimo, m)} · ${f.falta ? `faltaram ${fmtUso(f.falta, m)}` : `${f.dias} de ${f.dias_minimos} dias com tarefa`}`]);
+    const total = falta.length + (n.cumpridas || []).length;
+    const escada = [...r.bandas].reverse().map(b => {
+      const i = r.bandas.indexOf(b), est = b === n.banda ? "você está aqui" : b === n.proxima ? "próxima" : i < n.i && i > 0 ? "✓" : "";
+      return `<div class="ne${b === n.banda ? " aqui" : ""}">${cintoNinja(b)}<b>${esc(Ninja.rotulo(b))}</b><span>${esc(b)} · ${pts(r.pontosBanda[b] ?? 0)} pts</span><i>${est}</i></div>`;
+    }).join("");
+    $("folha").innerHTML = `<div class="pega"></div><div class="nf">${palcoNinja("folha", r, 150)}
+      <span class="un-fx">${cintoNinja(n.banda)}${esc(Ninja.rotulo(n.banda))}</span>
+      <span class="un-sub">${esc(n.banda)} · ${pts(n.pontos)} pts · semana ${esc(n.numero)}${n.fechou ? " (fechou)" : ""}</span>
+      ${n.proxima ? `<span class="nf-prox">Próxima: ${cintoNinja(n.proxima)}<b>${esc(pf ? "Faixa " + pf.nome : n.proxima)}</b> · ${esc(n.proxima)} · ${pts(r.pontosBanda[n.proxima] ?? 0)} pts</span>`
+        : `<span class="nf-prox"><b>Faixa máxima da régua.</b></span>`}
+      ${n.proxima ? `<h4>${n.fechou ? "Faltaram" : "Faltam"} ${falta.length} de ${total} critérios para a ${esc(pf ? pf.nome : n.proxima)}</h4>
+        <div class="nf-lista">${falta.map(([t, v]) => `<div class="nl"><span><b>${esc(t)}</b></span><span>${v}</span></div>`).join("")}</div>` : ""}
+      ${r.virada ? `<p class="nf-nota">A semana ${esc(r.numero)} começou ${esc(quandoFoi(r.inicio))}, do zero: o ninja veste a faixa da ${esc(n.numero)} por 24 h.</p>` : ""}
+      <h4>As faixas</h4><div class="nf-escada">${escada}</div>
+      <p class="nf-nota">As cores são as do Treinamento de IA Nível 3 (7 faixas, da branca à preta). A régua daqui é a do coletor da Seazone,
+        com 5 faixas: P25 Branca, P50 Amarela, P75 Azul e P100 Preta. No TeamZone, a régua tem as 7 cores e muda toda semana, então a cor pode não bater com a de lá.</p>
+      ${botoes}</div>`;
+  }
+  $("folhaFundo").classList.remove("hidden");
+  $("folha").scrollTop = 0;
+  Ninja.vigiar();
+}
 function blocoUsoIa() {
   const lista = usosDosPcs();
   if (!lista.length) return "";
   const r = UsoIa.montar(lista, Date.now());
   if (!r) {
     if (!lista.some(u => u.instalado)) return "";
-    return `<section class="bloco"><h3>📊 Uso de IA</h3>${errosUso(null, lista)}<p class="note">${lista.some(u => u.medindo) ? "Medindo a semana com o coletor da Seazone (1 a 3 min)…" : "Ainda sem a medida da semana."}</p></section>`;
+    return `<section class="bloco"><h3>📊 Uso de IA</h3>${errosUso(null, lista)}${linhaNinja(null,
+      `<p class="note un-txt">${lista.some(u => u.medindo) ? "Medindo a semana com o coletor da Seazone (1 a 3 min)…" : "Ainda sem a medida da semana."}</p>`, "Ainda sem a medida")}</section>`;
   }
   // a semana desta medida já fechou e nenhum PC ligado mede a nova (fim de semana com os PCs desligados): o resultado
   // final, e não "faltam 6 critérios · +18 hoje" de uma semana que acabou
   if (r.encerrada && !r.virada && !lista.some(u => u.ligado)) return `<section class="bloco"><button class="bloco-cab" data-uso><h3>📊 Uso de IA · semana ${esc(r.numero)} <span class="ir">Abrir ›</span></h3></button>
-    <button class="uf" data-uso aria-label="A semana ${esc(r.numero)} fechou em ${esc(r.banda)}">
-      <span class="fx"><b>${esc(r.banda)}</b><small>${pts(r.pontos)} pts</small></span>
-      <span class="uf-txt">A semana ${esc(r.numero)} fechou ${esc(quandoFoi(r.fim))}. A próxima aparece quando um PC ligar.</span></button>
+    ${linhaNinja(r, `<button class="un-txt" data-uso aria-label="A semana ${esc(r.numero)} fechou em ${esc(r.banda)}">
+      <span class="un-fx">${cintoNinja(r.banda)}${esc(Ninja.rotulo(r.banda))}</span><span class="un-sub">${esc(r.banda)} · ${pts(r.pontos)} pts</span>
+      <span class="un-prox">A semana ${esc(r.numero)} fechou ${esc(quandoFoi(r.fim))}. A próxima aparece quando um PC ligar.</span></button>`, Ninja.rotulo(r.banda))}
     ${errosUso(r, lista)}<div class="rodape">${esc(nomesPcs(r))} · medido ${quandoMedido(r.medido)}</div></section>`;
-  if (r.virada) return `<section class="bloco"><button class="bloco-cab" data-uso><h3>📊 Uso de IA · semana ${esc(r.numero)} <span class="ir">Abrir ›</span></h3></button>
+  if (r.virada) { const w = r.virada.fechou; return `<section class="bloco"><button class="bloco-cab" data-uso><h3>📊 Uso de IA · semana ${esc(r.numero)} <span class="ir">Abrir ›</span></h3></button>
+    ${linhaNinja(r, `<button class="un-txt" data-uso aria-label="A semana ${esc(numSemana(w.semana))} fechou na ${esc(Ninja.rotulo(w.banda))}">
+      <span class="un-fx">${cintoNinja(w.banda)}${esc(Ninja.rotulo(w.banda))}</span><span class="un-sub">a faixa da semana ${esc(numSemana(w.semana))}, que fechou</span></button>`, Ninja.rotulo(w.banda))}
     ${ladoALado(r, "button")}
     <p class="uso-virada-nota">🗓 A semana ${esc(r.numero)} começou ${esc(quandoFoi(r.inicio))}: os números começam do zero. Não é erro.</p>
-    ${errosUso(r)}<div class="rodape">${esc(nomesPcs(r))} · medido ${quandoMedido(r.medido)}</div></section>`;
+    ${errosUso(r)}<div class="rodape">${esc(nomesPcs(r))} · medido ${quandoMedido(r.medido)}</div></section>`; }
   const total = r.faltam + r.cumpridas.length, feito = total ? Math.round(100 * r.cumpridas.length / total) : 100;
   const hoje = r.criterios.filter(c => !c.ok).slice(0, 3);
   return `<section class="bloco"><button class="bloco-cab" data-uso><h3>📊 Uso de IA · semana ${esc(r.numero)} <span class="ir">Abrir ›</span></h3></button>
-    <button class="uf" data-uso aria-label="Faixa ${esc(r.banda)}${r.proxima ? ", próxima " + esc(r.proxima) : ""}">
-      <span class="fx"><b>${esc(r.banda)}</b><small>${String(r.pontos).replace(".", ",")} pts</small></span>
-      ${r.proxima ? `<span class="seta">→</span><span class="fx prox"><b>${esc(r.proxima)}</b><small>próxima</small></span>
-      <span class="uf-txt">Faltam <b>${r.faltam}</b> de ${total} critérios para a ${esc(r.proxima)}</span>` : `<span class="uf-txt"><b>Faixa máxima da régua.</b></span>`}
-    </button>
+    ${linhaNinja(r, `<button class="un-txt" data-uso aria-label="Faixa ${esc(r.banda)}${r.proxima ? ", próxima " + esc(r.proxima) : ""}">
+      <span class="un-fx">${cintoNinja(r.banda)}${esc(Ninja.rotulo(r.banda))}</span><span class="un-sub">${esc(r.banda)} · ${pts(r.pontos)} pts</span>
+      ${r.proxima ? `<span class="un-prox">Faltam <b>${r.faltam}</b> de ${total} critérios para a ${esc(r.proxima)}${nomeFaixa(r.proxima) ? ` · ${esc(nomeFaixa(r.proxima))}` : ""}</span>`
+        : `<span class="un-prox"><b>Faixa máxima da régua.</b></span>`}</button>`, Ninja.rotulo(r.banda))}
     ${r.proxima ? `<div class="prog" role="img" aria-label="${r.cumpridas.length} de ${total} critérios cumpridos"><i style="width:${feito}%"></i></div>` : ""}
     ${hoje.length ? `<div class="uso-hoje">${hoje.map(c => `<div class="uh"><span>${esc(c.rotulo)}</span><span>${faltaTxt(c, true)}</span></div>`).join("")}</div>` : ""}
     ${errosUso(r)}<div class="rodape">${esc(nomesPcs(r))} · medido ${quandoMedido(r.medido)}</div></section>`;
@@ -2112,28 +2280,36 @@ function viradaUso(r) {
 function desenharUsoIa() {
   if (!usoAberto) return;
   const lista = usosDosPcs(), r = UsoIa.montar(lista, Date.now());
-  if (!r) return por($("usoCorpo"), `${errosUso(null, lista)}<div class="empty">${lista.some(u => u.medindo) ? "Medindo a semana com o coletor da Seazone…" : "Ainda sem a medida da semana."}</div>`);
+  if (!r) { por($("usoCorpo"), `${errosUso(null, lista)}<section class="bloco uso-heroi"><button class="ninja-btn" data-ninja-ver aria-label="Ainda sem a medida">${palcoNinja("tela", null, 124)}</button>
+    <div class="un-txt"><span class="un-fx grande">${cintoNinja(null)}Ainda sem faixa</span><div class="empty" style="padding:0;text-align:left">${lista.some(u => u.medindo) ? "Medindo a semana com o coletor da Seazone…" : "Ainda sem a medida da semana."}</div></div></section>`);
+    return Ninja.vigiar(); }
   const sem = lista.filter(u => !r.pcs.includes(u.pc)).map(u => `${esc(nomeCurtoPc(u.pc))}: ${u.instalado === false ? "sem o coletor"
     : u.ligado === false ? `desligado desde ${esc(quandoFoi(u.visto))}${u.semana && u.semana < r.semana ? ` (com a semana ${esc(numSemana(u.semana))})` : ""}: entra quando ligar`
     : u.semana && u.semana < r.semana ? `ainda com a semana ${esc(numSemana(u.semana))} (a ${esc(r.numero)} chega em poucos minutos)`
     : u.medindo ? "medindo…" : "sem medida desta semana"}`);
   const ordem = [...r.criterios.filter(c => !c.ok), ...r.criterios.filter(c => c.ok)];
   const fmtData = iso => { const d = new Date(iso); return isNaN(d) ? "" : `${DIA_SEMANA[d.getDay()]} ${String(d.getDate()).padStart(2, "0")}/${String(d.getMonth() + 1).padStart(2, "0")}`; };
-  const pos = r.bandas.indexOf(r.banda);
-  por($("usoCorpo"), `${r.erros.length ? `<section class="bloco">${errosUso(r)}</section>` : ""}${r.virada ? viradaUso(r) : ""}
+  const pos = r.bandas.indexOf(r.banda), n = ninjaDaSemana(r), pf = Ninja.faixaDe(n.proxima);
+  const heroi = `<section class="bloco uso-heroi"><button class="ninja-btn" data-ninja-ver aria-label="${esc(Ninja.rotulo(n.banda))}: toque para ver a próxima faixa e o que falta">${palcoNinja("tela", r, 124)}</button>
+    <div class="un-txt"><span class="un-fx grande">${cintoNinja(n.banda)}${esc(Ninja.rotulo(n.banda))}</span>
+      <span class="un-sub">Semana ${esc(n.numero)}${n.fechou ? " · fechou" : ""} · ${esc(n.banda)} · ${pts(n.pontos)} pts</span>
+      ${n.proxima ? `<span class="un-prox">Próxima: <b>${esc(pf ? "Faixa " + pf.nome : n.proxima)}</b> (${esc(n.proxima)})</span>` : `<span class="un-prox"><b>Faixa máxima da régua.</b></span>`}
+      <span class="un-dica">Toque no ninja para ver o que falta</span></div></section>`;
+  por($("usoCorpo"), `${r.erros.length ? `<section class="bloco">${errosUso(r)}</section>` : ""}${heroi}${r.virada ? viradaUso(r) : ""}
     <section class="bloco"><h3>Semana ${esc(r.numero)} <span class="n3">${r.encerrada ? `fechou ${esc(quandoFoi(r.fim))}` : `${esc(fmtData(r.inicio))} a ${esc(fmtData(r.fim))}, 17h`}</span></h3>
       ${r.encerrada ? `<p class="uso-virada-nota">🗓 Esta semana fechou ${esc(quandoFoi(r.fim))}. ${lista.some(u => u.ligado)
         ? "Medindo a semana nova (1 a 3 min)…" : "A semana nova aparece quando um PC ligar."}</p>` : ""}
       <div class="regua" role="img" aria-label="Faixa ${esc(r.banda)}${r.proxima ? ", próxima " + esc(r.proxima) : ""}">${r.bandas.map((b, i) =>
-        `<span class="${i === pos ? "atual" : i < pos ? "feita" : b === r.proxima ? "prox" : ""}">${esc(b)}</span>`).join("")}</div>
+        `<span class="${i === pos ? "atual" : i < pos ? "feita" : b === r.proxima ? "prox" : ""}"${corDaBanda(b)} title="${esc(Ninja.rotulo(b))}">${esc(b)}</span>`).join("")}</div>
       <p class="pv-resumo" style="margin:10px 0 0">${String(r.pontos).replace(".", ",")} pontos · ${r.proxima ? `faltam <b>${r.faltam}</b> de ${r.faltam + r.cumpridas.length} critérios para a <b>${esc(r.proxima)}</b>` : "faixa máxima da régua"}</p>
       <div class="rodape">Somando ${esc(nomesPcs(r))}, como o servidor da Seazone soma · medido ${quandoMedido(r.medido)}${sem.length ? `<br>${sem.join(" · ")}` : ""}</div></section>
     <section class="bloco"><h3>${r.proxima ? `Critérios para a ${esc(r.proxima)}` : "Critérios"}</h3>${ordem.map(c => criterioUso(c, r)).join("")}</section>
     <section class="bloco"><h3>Evolução da semana</h3>${graficoUso(r)}</section>
-    <section class="bloco"><h3>Semanas anteriores</h3>${r.anteriores.length ? r.anteriores.map(w => `<div class="us"><span class="fx-mini">${esc(w.banda)}</span>
+    <section class="bloco"><h3>Semanas anteriores</h3>${r.anteriores.length ? r.anteriores.map(w => `<div class="us"><span class="fx-mini"${corDaBanda(w.banda)} title="${esc(Ninja.rotulo(w.banda))}">${esc(w.banda)}</span>
         <span class="us-t"><b>Semana ${esc(w.semana.split("-W")[1] || w.semana)}</b>${w.fechada ? " · fechada" : w.medido_em ? ` · última medida ${esc(quandoFoi(w.medido_em))}` : ""}<br>${fmtUso(w.valores.mensagens, "mensagens")} mensagens · ${fmtUso(w.valores.sessoes_iniciadas, "sessoes_iniciadas")} sessões · ${fmtUso(w.valores.tokens_saida, "tokens_saida")} tokens</span>
         <span class="n3">${pts(w.pontos)} pts<small>${esc(somandoPcs(w))}</small></span></div>`).join("")
       : `<p class="note">Aparecem aqui a partir da próxima sexta: o agente guarda a última medida de cada semana.</p>`}</section>`);
+  Ninja.vigiar();
 }
 
 const DIA_SEMANA = ["dom", "seg", "ter", "qua", "qui", "sex", "sáb"];
@@ -4628,6 +4804,7 @@ $("tabInicio").addEventListener("click", e => {
   if (t) return trocarConta(t.dataset.trocar, t);
   const cc = e.target.closest("[data-conta]");
   if (cc) return alternarConta(cc.dataset.conta);
+  if (e.target.closest("[data-ninja-ver]")) return abrirNinja();
   if (e.target.closest("[data-uso]")) return abrirUsoIa();
   const fp = e.target.closest("[data-fechar-paradas]");
   if (fp) return fecharParadas(fp.dataset.fecharParadas);
@@ -4660,6 +4837,7 @@ $("tabInicio").addEventListener("click", e => {
 });
 $("usoIa").addEventListener("click", e => {
   if (e.target.closest("#usoFechar")) return fecharUsoIa();
+  if (e.target.closest("[data-ninja-ver]")) return abrirNinja();
   const m = e.target.closest("[data-um]");
   if (m) { usoMetrica = m.dataset.um; store.set("seaninho.usoMetrica", usoMetrica); return desenharUsoIa(); }
   const d = e.target.closest("[data-ud]");
@@ -4713,6 +4891,8 @@ $("filtros").addEventListener("click", e => {
 $("folhaFundo").addEventListener("click", e => {
   const op = e.target.closest("[data-op]");
   if (op && folhaEscolher) { const f = folhaEscolher; fecharFolha(); return f(op.dataset.op); }
+  if (e.target.closest("[data-nf-fechar]")) return fecharFolha();
+  if (e.target.closest("[data-nf-uso]")) { fecharFolha(); return abrirUsoIa(); }
   if (e.target === $("folhaFundo")) fecharFolha();
 });
 $("menuSessao").addEventListener("click", e => {

@@ -142,7 +142,7 @@ function montar(lista, agoraMs) {
   const virada = fechou && agoraMs >= comeco && agoraMs - comeco < VIRADA_MS ? {desde: agoraMs - comeco, fechou} : null;
   if (virada) for (const c of criterios) c.anterior = fechou.valores[c.chave];
   return {semana: ref.semana, numero: String(ref.semana || "").split("-W")[1] || "", inicio: ref.inicio, fim: ref.fim,
-    hoje: ref.hoje, medido: Math.max(...doPc.map(u => u.gerado || 0)), pcs: doPc.map(u => u.pc), bandas, pontos,
+    hoje: ref.hoje, medido: Math.max(...doPc.map(u => u.gerado || 0)), pcs: doPc.map(u => u.pc), bandas, pontosBanda: pontos,
     ...b, criterios, faltam: Object.keys(b.faltas).length, dias: porDia(doPc), diaHoje: hoje, anteriores, virada,
     encerrada: Date.parse(ref.fim) <= agoraMs,                    // a semana desta medida já fechou (a nova vem já)
     atrasados: (lista || []).filter(u => u && u.valores && u.semana && u.semana < ref.semana).map(u => ({pc: u.pc, semana: u.semana})),
