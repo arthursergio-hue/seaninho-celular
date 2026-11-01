@@ -1,5 +1,5 @@
-// Seaninho no celular: o ninja da faixa do uso de IA (0.8.10). A faixa da semana vira a cor da faixa de um ninja de
-// desenho animado, que aparece num puff de fumaça toda vez que a seção entra na tela; quando a faixa sobe, a faixa nova
+// Seaninho no celular: o ninja da faixa do uso de IA (0.8.10; 0.8.11: as 7 faixas e a regra do TeamZone). O ninja veste
+// a faixa da semana e aparece num puff de fumaça toda vez que a seção entra na tela; quando a faixa sobe, a faixa nova
 // amarra numa comemoração. Só SVG e CSS, sem biblioteca. O desenho e as contas rodam sem tela (testados no Node:
 // test_ninja.cjs); vigiar a tela e tocar a animação, só no navegador.
 (function (raiz) {
@@ -17,26 +17,89 @@ const FAIXAS = {
   preta:   {nome: "Preta",   cor: "#17181C", sombra: "#000000", contorno: "#6A7184"},
 };
 const ORDEM_FAIXAS = ["branca", "amarela", "verde", "azul", "roxa", "marrom", "preta"];
-// A régua do app é a do coletor da Seazone (5 faixas, P0 a P100), não a do TeamZone (7 cores, recalculada toda semana):
-// cada banda vai para uma cor, na ordem das 7. P0 é "ainda sem faixa". Trocar a cor de uma banda é só mudar esta linha.
-const DA_BANDA = {P0: null, P25: "branca", P50: "amarela", P75: "azul", P100: "preta"};
 
 const semAcento = s => String(s ?? "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().trim();
-
-// A faixa de uma banda: {chave, nome, cor, ...} ou null (sem faixa). Aceita o nome da cor ("Azul", "faixa azul"), para
-// quando a régua vier com as 7 cores; uma banda P nova (P90) fica com a da banda conhecida logo abaixo.
-function faixaDe(banda) {
-  const b = String(banda ?? "").trim();
-  if (Object.prototype.hasOwnProperty.call(DA_BANDA, b)) return com(DA_BANDA[b]);
-  const nome = semAcento(b).replace(/^faixa\s+/, "");
-  if (FAIXAS[nome]) return com(nome);
-  const n = /^p(\d+)$/i.exec(b);
-  if (!n) return null;
-  const abaixo = Object.keys(DA_BANDA).map(k => [Number(k.slice(1)), k]).filter(([v]) => v <= Number(n[1])).sort((x, y) => y[0] - x[0])[0];
-  return abaixo ? com(DA_BANDA[abaixo[1]]) : null;
+// A faixa pelo nome ("Azul", "faixa azul"): {chave, nome, cor, ...} ou null (sem faixa).
+function faixaDe(nome) {
+  const k = semAcento(nome).replace(/^faixa\s+/, "");
+  return FAIXAS[k] ? com(k) : null;
 }
 const com = chave => chave ? {chave, ...FAIXAS[chave]} : null;
-const rotulo = banda => { const f = faixaDe(banda); return f ? `Faixa ${f.nome}` : "Ainda sem faixa"; };
+const rotulo = nome => { const f = faixaDe(nome); return f ? `Faixa ${f.nome}` : "Ainda sem faixa"; };
+
+// ---- a regra do TeamZone (seazone-tech/teamzone, src/lib/uso-ia/faixas.ts, lida em 31/10), linha a linha ----------
+// Os mínimos de cada faixa saem do P100 da régua da semana: a Branca tem base própria (21 sessões, 200 mensagens,
+// organização 61); a organização sobe em linha reta até o P100 e as outras métricas em progressão geométrica, em 6
+// passos, até a Preta (= o P100). As métricas sem base não contam na Branca.
+const FAIXAS_TIME = ["Branca", "Amarela", "Verde", "Azul", "Roxa", "Marrom", "Preta"];
+const METRICAS_TIME = ["sessoes_iniciadas", "mensagens", "tarefas_operacionais", "tarefas_internas", "skills_novas",
+  "linhas_sistema", "linhas_agente", "cron_jobs", "workflows", "organizacao"];
+const WHITE = {sessoes_iniciadas: 21, mensagens: 200, organizacao: 61};
+
+// regua = {versao, metricas, bandas, minimos: {métrica: {banda: n}}}; null se faltar o P100 de alguma métrica.
+function faixasDaRegua(regua) {
+  if (!regua || !String(regua.versao || "").trim() || !(regua.bandas || []).includes("P100")) return null;
+  const result = Object.fromEntries(FAIXAS_TIME.map(f => [f, {}]));
+  for (const m of METRICAS_TIME) {
+    const black = ((regua.minimos || {})[m] || {}).P100;
+    if (!(regua.metricas || []).includes(m) || !Number.isFinite(black) || black <= 0 || black < (WHITE[m] ?? 1)
+      || (m === "organizacao" && black > 100)) return null;
+    for (let i = 0; i < FAIXAS_TIME.length; i++) {
+      const white = WHITE[m];
+      if (i === 0 && white === undefined) continue;
+      const raw = m === "organizacao" ? white + (black - white) * i / 6
+        : white === undefined ? Math.pow(black, (i - 1) / 5) : white * Math.pow(black / white, i / 6);
+      // como no TeamZone: estabiliza em 9 casas antes do teto (as âncoras exatas da progressão ficam exatas)
+      result[FAIXAS_TIME[i]][m] = i === 6 ? black : Math.ceil(Number(raw.toFixed(9)));
+    }
+  }
+  return result;
+}
+
+// O mínimo até agora: proporcional aos dias já fechados da semana (sexta 17h a sexta 17h), menos a organização.
+const metaToDate = (minimo, metrica, dias) =>
+  metrica === "organizacao" ? minimo : Math.ceil(minimo * Math.max(0, Math.min(7, dias)) / 7);
+
+// Os dias fechados até a medida: fechaEm = a sexta em que a semana fecha ("2026-11-06"); geradoEm = a hora da medida.
+function diasFechados(fechaEm, geradoEm) {
+  if (!geradoEm || !Number.isFinite(Date.parse(geradoEm))) return null;
+  const p = Object.fromEntries(new Intl.DateTimeFormat("en-CA", {
+    timeZone: "America/Sao_Paulo", year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", hourCycle: "h23",
+  }).formatToParts(new Date(geradoEm)).map(part => [part.type, part.value]));
+  const day = Date.parse(`${p.year}-${p.month}-${p.day}T12:00:00Z`);
+  const saturday = Date.parse(`${fechaEm}T12:00:00Z`) - 6 * 86400000;
+  return Math.max(0, Math.min(7, Math.round((day - saturday) / 86400000) + (Number(p.hour) >= 17 ? 1 : 0)));
+}
+
+// O teto pela banda do coletor: P0 fica sem faixa; P25 chega no máximo à Branca; da P50 à P100, só os mínimos decidem.
+// Uma banda que a régua não conhece fica sem faixa. Devolve o índice mais alto permitido em FAIXAS_TIME (-1 = nenhum).
+const tetoDaBanda = banda => banda === "P25" ? 0 : ["P50", "P75", "P100"].includes(banda) ? FAIXAS_TIME.length - 1 : -1;
+
+// A faixa atual (a mais alta em que todas as métricas batem o mínimo até agora, limitada pela banda), a próxima, as
+// metas até agora da próxima (ou as da Preta, no topo) e quantas já bateram.
+function classificarFaixa(valores, faixas, dias, banda) {
+  if (!faixas || dias === null || dias === undefined) return null;
+  let pelosMinimos = null;
+  for (const f of FAIXAS_TIME) {
+    if (Object.entries(faixas[f]).some(([m, n]) => !Number.isFinite(valores[m]) || valores[m] < metaToDate(n, m, dias))) break;
+    pelosMinimos = f;
+  }
+  const teto = tetoDaBanda(banda);
+  const limitadaPelaBanda = pelosMinimos !== null && FAIXAS_TIME.indexOf(pelosMinimos) > teto;
+  const atual = limitadaPelaBanda ? (teto < 0 ? null : FAIXAS_TIME[teto]) : pelosMinimos;
+  const proxima = FAIXAS_TIME[atual === null ? 0 : FAIXAS_TIME.indexOf(atual) + 1] ?? null;
+  const metas = Object.fromEntries(Object.entries(proxima ? faixas[proxima] : faixas.Preta)
+    .map(([m, n]) => [m, metaToDate(n, m, dias)]));
+  const atingidos = proxima ? Object.entries(metas).filter(([m, n]) => Number.isFinite(valores[m]) && valores[m] >= n).length : 0;
+  return {atual, proxima, metas, atingidos, total: proxima ? Object.keys(metas).length : 0, limitadaPelaBanda, pelosMinimos};
+}
+
+// O farol de cada métrica, como no TeamZone: verde bateu; amarelo, ao menos 70% da meta; vermelho, abaixo.
+function farol(valor, meta) {
+  if (valor === undefined || valor === null || !Number.isFinite(valor)) return "neutro";
+  if (meta === undefined || !Number.isFinite(meta)) return "neutro";
+  return valor >= meta ? "ok" : valor >= meta * 0.7 ? "quase" : "longe";
+}
 
 // A comemoração: a faixa subiu desde a última vez que o ninja foi visto nesta semana (a semana nova começa sem faixa).
 // Na primeira vez, só guarda.
@@ -68,9 +131,9 @@ function faixaSvg(f) {
     <path class="nj-trama" stroke="${f.sombra}" d="M57.2 95.2H62.8"/></g>`;
 }
 
-// O ninja em SVG: banda = a da régua ("P50") ou o nome da cor; dorme = sem a medida (olhos fechados e zzz).
-function svg(banda, {dorme = false} = {}) {
-  const f = dorme ? null : faixaDe(banda);
+// O ninja em SVG: faixa = o nome dela ("Azul") ou null (sem faixa); dorme = sem a medida (olhos fechados e zzz).
+function svg(faixa, {dorme = false} = {}) {
+  const f = dorme ? null : faixaDe(faixa);
   const linha = `<path class="nj-linha" d="`;   // o contorno escuro por baixo da manga
   return `<svg class="nj${dorme ? " dorme" : ""}" viewBox="0 0 120 130" aria-hidden="true" focusable="false">
   <g class="nj-ceu"><circle class="nj-halo" cx="60" cy="52" r="47"/><circle class="nj-halo" cx="60" cy="52" r="42.5"/>
@@ -121,8 +184,8 @@ const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&": "&amp;", "<": "
 
 // O HTML do palco. festa = {titulo, sub} quando a faixa subiu; aoVer = o que fazer quando o ninja for visto de verdade
 // (a página guarda a faixa vista).
-function palco(lugar, banda, {festa = null, dorme = false, aoVer = null, tamanho = 84} = {}) {
-  const s = lugarDe(lugar), f = dorme ? null : faixaDe(banda);
+function palco(lugar, faixa, {festa = null, dorme = false, aoVer = null, tamanho = 84} = {}) {
+  const s = lugarDe(lugar), f = dorme ? null : faixaDe(faixa);
   s.aoVer = aoVer;
   if (festa && !s.festa && !s.festejou) {
     s.festa = festa;
@@ -133,7 +196,7 @@ function palco(lugar, banda, {festa = null, dorme = false, aoVer = null, tamanho
   const pilula = s.festa && (modo === "festa" || modo === "espera" || reduzir())
     ? `<span class="np-festa"><b>${esc(s.festa.titulo)}</b>${s.festa.sub ? `<small>${esc(s.festa.sub)}</small>` : ""}</span>` : "";
   const claro = f && (f.chave === "branca" || f.chave === "amarela");
-  return `<span class="ninja-palco${classes}${f ? "" : " sem-faixa"}" data-ninja="${esc(lugar)}" style="--np:${tamanho}px${f ? `;--fx:${f.cor};--fx-txt:${claro ? "#0B1E3F" : "#FFFFFF"}` : ""}">${svg(banda, {dorme})}${pilula}</span>`;
+  return `<span class="ninja-palco${classes}${f ? "" : " sem-faixa"}" data-ninja="${esc(lugar)}" style="--np:${tamanho}px${f ? `;--fx:${f.cor};--fx-txt:${claro ? "#0B1E3F" : "#FFFFFF"}` : ""}">${svg(faixa, {dorme})}${pilula}</span>`;
 }
 
 function aplicar(el, s) {
@@ -213,7 +276,8 @@ function acordar() {
 }
 if (typeof document !== "undefined") document.addEventListener("visibilitychange", acordar);
 
-const Ninja = {FAIXAS, ORDEM_FAIXAS, DA_BANDA, faixaDe, rotulo, subiu, guardar, svg, palco, vigiar, estado, DUR};
+const Ninja = {FAIXAS, ORDEM_FAIXAS, FAIXAS_TIME, METRICAS_TIME, WHITE, faixaDe, rotulo, faixasDaRegua, metaToDate,
+  diasFechados, tetoDaBanda, classificarFaixa, farol, subiu, guardar, svg, palco, vigiar, estado, DUR};
 if (typeof module !== "undefined" && module.exports) module.exports = Ninja;
 else raiz.Ninja = Ninja;
 })(typeof window !== "undefined" ? window : globalThis);

@@ -728,8 +728,13 @@ button.bloco-cab{display:block;width:100%;text-align:left}
 .fx-cinto.vazio{background:none;box-shadow:none;border:1.5px dashed rgba(255,255,255,.45)}
 .uso-heroi{display:flex;align-items:center;gap:14px}
 .uso-heroi .un-txt{gap:4px}
-.regua span[style]::after{content:"";position:absolute;left:11px;right:11px;bottom:-6px;height:3px;border-radius:2px;background:var(--fx);box-shadow:0 0 0 1px rgba(255,255,255,.22)}
 .us .fx-mini[style]{box-shadow:inset 0 -3px 0 var(--fx)}
+.faixas7{display:flex;gap:4px;margin:3px 0 1px}
+.faixas7 i{width:20px;height:7px;border-radius:2px;background:var(--fx);box-shadow:0 0 0 1px rgba(255,255,255,.25);opacity:.4}
+.faixas7 i.feita{opacity:.75} .faixas7 i.aqui{opacity:1;box-shadow:0 0 0 2px var(--gold)} .faixas7 i.prox{opacity:.9;outline:1.5px dashed var(--gold);outline-offset:1px}
+.nf-lista .fa{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:7px;vertical-align:1px;background:var(--faint)}
+.nf-lista .fa.ok{background:var(--green)} .nf-lista .fa.quase{background:var(--gold)} .nf-lista .fa.longe{background:var(--coral)}
+.nf-teto{color:var(--gold-2)}
 .nf{display:flex;flex-direction:column;align-items:center;text-align:center;gap:4px;padding-bottom:4px}
 .nf .un-fx{justify-content:center;font-size:22px;margin-top:8px}
 .nf .nf-prox{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:6px;font-size:14.5px;color:var(--muted)} .nf .nf-prox b{color:var(--ink)}
@@ -1217,9 +1222,10 @@ const edicoes = {};      // id do pedido -> o texto como a pessoa editou (a tela
 let sugestoesAtuais = []; // as respostas prontas da sessão aberta (o PC pede à IA quando o Claude pergunta ou termina)
 let timer = null, timerSala = null;
 let aba = "Inicio";
-const VERSAO_APP = "0.8.10";    // esta página
+const VERSAO_APP = "0.8.11";    // esta página
 const AGENTE_ATUAL = "0.8.9";   // o agente que acompanha esta página (os PCs atrás dele aparecem no painel)
 const NOVIDADES_APP = [
+  ["0.8.11", "As faixas do ninja como no TeamZone: as 7 (Branca, Amarela, Verde, Azul, Roxa, Marrom e Preta), com os mínimos de cada uma tirados do P100 da régua e proporcionais aos dias já fechados da semana; a banda do coletor limita (P0 sem faixa, P25 no máximo Branca). O ninja mostra a próxima faixa e quantos critérios faltam; o toque mostra cada critério com o farol (verde, amarelo, vermelho) e a escada das 7. A banda P0–P100 e os pontos continuam na linha de baixo."],
   ["0.8.10", "O ninja da faixa: no Uso de IA, um ninja de desenho animado veste a faixa da semana (P25 branca, P50 amarela, P75 azul, P100 preta, nas cores das 7 faixas do treinamento do Bill; sem faixa no P0) e surge num puff de fumaça toda vez que a seção aparece. Quando a faixa sobe, a nova amarra na cintura, com pulo e brilho. Toque no ninja: a faixa, a próxima, o que falta e a escada das faixas. A régua e as semanas anteriores ganharam a cor de cada faixa. Noite com lua no iPhone escuro, dia com sol no claro; parado com Reduzir movimento."],
   ["0.8.9", "A mensagem sem internet nunca se perde: fica no balão com 🕓 e sai sozinha quando a rede volta; o app abre sem rede com o último estado; o PC desligado não parece erro (as sessões dele saem do Esperando você, a caixa de escrever fica); fechar a aba de uma sessão parada no PC e reabrir a fixada pelo celular; avisos sem o ruído do maestro e o Slack novo do Para você avisa; silenciar uma sessão (8 h, até amanhã, sempre, com o 🔕) e o horário de silêncio no Ajustes (padrão 22h às 7h: só perguntas e permissões); com a RAM do PC acima de 90%, Fechar as N paradas; o Ajustes diz se as notificações estão ligadas, com teste; a aba Hoje mostra quando o Google não respondeu; o PC tenta de novo quando perde o cursor da caixa."],
   ["0.8.8", "Tabelas do Claude de verdade: cartões no celular em pé, tabela com cabeçalho e 1ª coluna fixos, tela cheia com pinça, deitada e tema claro, Copiar para o Sheets; % em barra, status em etiqueta, hora em destaque. Títulos, listas, citação e código com Copiar. A mensagem longa nunca é cortada (agente 0.8.8). Uso de IA: na virada da semana (sexta 17h), a que fechou ao lado da nova, com a faixa final e o que bateu; o erro de uma medida aparece à parte."],
@@ -2124,31 +2130,54 @@ function errosUso(r, lista) {
       : e.semNumeros ? "" : "; ele tenta de novo sozinho."}</div>`;
   }).join("");
 }
-// ---- 0.8.10: o ninja da faixa (ninja.js) ----------------------------------------------------------------------
-// O ninja veste a faixa da semana (na virada e com a semana fechada, a da semana que fechou), surge num puff toda vez que
-// a seção aparece e, quando a faixa sobe, a nova amarra. A última faixa vista fica no aparelho, para saber se subiu.
-const NINJA_VISTO = "seaninho.ninja";
+// ---- 0.8.10: o ninja da faixa (ninja.js); 0.8.11: as 7 faixas e a regra do TeamZone -----------------------------
+// O ninja veste a faixa como o TeamZone calcula: os mínimos de cada uma das 7 faixas saem do P100 da régua (a do coletor)
+// e valem proporcionais aos dias já fechados; a banda do coletor limita (P0 sem faixa, P25 no máximo Branca). Na virada
+// e com a semana fechada, a faixa da semana que fechou (7 dias). Surge num puff toda vez que a seção aparece e, quando a
+// faixa sobe, a nova amarra. A última faixa vista fica no aparelho, para saber se subiu.
+const NINJA_VISTO = "seaninho.ninja.faixa";   // 0.8.11: o índice agora é o das 7 faixas (o de antes era o das bandas)
 function lerVistoNinja() { try { return JSON.parse(store.get(NINJA_VISTO) || "null"); } catch { return null; } }
+const reguaDoColetor = r => ({versao: r.reguaVersao || "coletor", metricas: Object.keys(r.minimos || {}), bandas: r.bandas, minimos: r.minimos || {}});
+const dataSP = iso => { const d = new Date(iso); return isNaN(d) ? "" : new Intl.DateTimeFormat("en-CA", {timeZone: "America/Sao_Paulo"}).format(d); };
+// A faixa de uma semana pela régua de r: {faixa, proxima, metas, atingidos, total, limitadaPelaBanda, pelosMinimos, dias}.
+function faixaDaSemana(r, valores, banda, dias) {
+  const c = Ninja.classificarFaixa(valores || {}, Ninja.faixasDaRegua(reguaDoColetor(r)), dias, banda);
+  return c ? {...c, faixa: c.atual, dias} : {faixa: null, proxima: null, metas: {}, atingidos: 0, total: 0, semRegua: true, dias};
+}
 function ninjaDaSemana(r) {
   if (!r) return null;
-  const w = r.virada ? r.virada.fechou : null, b = w || r, semana = w ? w.semana : r.semana;
-  return {semana, numero: numSemana(semana), banda: b.banda, pontos: b.pontos, proxima: b.proxima, faltas: b.faltas,
-    cumpridas: b.cumpridas, i: r.bandas.indexOf(b.banda), fechou: !!w || !!r.encerrada};
+  const w = r.virada ? r.virada.fechou : null, b = w || r, fechou = !!w || !!r.encerrada, semana = w ? w.semana : r.semana;
+  const dias = fechou ? 7 : Ninja.diasFechados(dataSP(r.fim), new Date((r.medido || 0) * 1000).toISOString());
+  const f = faixaDaSemana(r, b.valores, b.banda, dias);
+  return {...f, semana, numero: numSemana(semana), banda: b.banda, pontos: b.pontos, valores: b.valores || {}, fechou,
+    i: f.faixa ? Ninja.FAIXAS_TIME.indexOf(f.faixa) + 1 : 0};
 }
+const faltamFaixa = n => n.total - n.atingidos;
+function proximaFaixaTxt(n) {
+  if (n.semRegua) return "Sem o P100 da régua do coletor: sem como calcular a faixa.";
+  if (!n.proxima) return "<b>Faixa máxima.</b>";
+  if (n.limitadaPelaBanda && !faltamFaixa(n))   // os números já dão a próxima: quem segura é a banda do coletor
+    return `Próxima: <b>Faixa ${esc(n.proxima)}</b> · os ${n.total} critérios já batem; falta a banda chegar à ${n.banda === "P0" ? "P25" : "P50"}`;
+  return `Próxima: <b>Faixa ${esc(n.proxima)}</b> · faltam <b>${faltamFaixa(n)}</b> de ${n.total} critérios`;
+}
+const bandaTxt = (r, comFalta = true) => `Banda ${esc(r.banda)} · ${pts(r.pontos)} pts${comFalta && r.proxima
+  ? ` · faltam ${r.faltam} de ${r.faltam + r.cumpridas.length} critérios para a ${esc(r.proxima)}` : ""}`;
 function palcoNinja(lugar, r, tamanho) {
   const n = ninjaDaSemana(r);
   if (!n) return Ninja.palco(lugar, null, {dorme: true, tamanho});
   const festa = Ninja.subiu(lerVistoNinja(), n.semana, n.i) ? {titulo: "Faixa nova!"} : null;
-  return Ninja.palco(lugar, n.banda, {festa, tamanho,
+  return Ninja.palco(lugar, n.faixa, {festa, tamanho,
     aoVer: () => store.set(NINJA_VISTO, JSON.stringify(Ninja.guardar(lerVistoNinja(), n.semana, n.i)))});
 }
-const cintoNinja = banda => { const f = Ninja.faixaDe(banda); return `<i class="fx-cinto${f ? "" : " vazio"}"${f ? ` style="--fx:${f.cor}"` : ""}></i>`; };
-const corDaBanda = banda => { const f = Ninja.faixaDe(banda); return f ? ` style="--fx:${f.cor}"` : ""; };
-const nomeFaixa = banda => { const f = Ninja.faixaDe(banda); return f ? f.nome : ""; };
+const cintoNinja = faixa => { const f = Ninja.faixaDe(faixa); return `<i class="fx-cinto${f ? "" : " vazio"}"${f ? ` style="--fx:${f.cor}"` : ""}></i>`; };
+const corDaFaixa = faixa => { const f = Ninja.faixaDe(faixa); return f ? ` style="--fx:${f.cor}"` : ""; };
 function linhaNinja(r, texto, rotuloAria) {
   return `<div class="uso-ninja"><button class="ninja-btn" data-ninja-ver aria-label="${esc(rotuloAria)}: toque para ver a próxima faixa e o que falta">${palcoNinja("bloco", r, 84)}</button>${texto}</div>`;
 }
-// A folha do toque no ninja: a faixa, a próxima, o que falta e a escada das faixas.
+// As 7 faixas em fila, como o canto do TeamZone: a atual marcada e a próxima tracejada.
+const fileiraFaixas = n => `<span class="faixas7" role="img" aria-label="${esc(Ninja.rotulo(n.faixa))}${n.proxima ? `; próxima ${esc(n.proxima)}` : ""}">${Ninja.FAIXAS_TIME.map((f, i) =>
+  `<i${corDaFaixa(f)} class="${f === n.faixa ? "aqui" : f === n.proxima ? "prox" : i < n.i - 1 ? "feita" : ""}" title="Faixa ${esc(f)}"></i>`).join("")}</span>`;
+// A folha do toque no ninja: a faixa, a próxima, cada critério contra a meta até agora (com o farol) e a escada.
 function abrirNinja() {
   const lista = usosDosPcs(), r = lista.length ? UsoIa.montar(lista, Date.now()) : null, n = ninjaDaSemana(r);
   folhaEscolher = null;
@@ -2158,27 +2187,29 @@ function abrirNinja() {
       <span class="un-fx">${cintoNinja(null)}Ainda sem a medida da semana</span>
       <p class="nf-nota">O ninja acorda quando um PC medir a semana com o coletor da Seazone (1 a 3 min depois de ligar).</p>${botoes}</div>`;
   } else {
-    const pf = Ninja.faixaDe(n.proxima);
-    let falta = [];
-    if (!n.fechou) falta = r.criterios.filter(c => !c.ok).map(c => [c.rotulo, `${fmtUso(c.valor, c.chave)}${c.meta != null ? ` / ${fmtUso(c.meta, c.chave)}` : ""} · ${faltaTxt(c, true)}`]);
-    else falta = Object.entries(n.faltas || {}).map(([m, f]) => [UsoIa.ROTULO[m] || m,
-      `${fmtUso(f.valor, m)} / ${fmtUso(f.minimo, m)} · ${f.falta ? `faltaram ${fmtUso(f.falta, m)}` : `${f.dias} de ${f.dias_minimos} dias com tarefa`}`]);
-    const total = falta.length + (n.cumpridas || []).length;
-    const escada = [...r.bandas].reverse().map(b => {
-      const i = r.bandas.indexOf(b), est = b === n.banda ? "você está aqui" : b === n.proxima ? "próxima" : i < n.i && i > 0 ? "✓" : "";
-      return `<div class="ne${b === n.banda ? " aqui" : ""}">${cintoNinja(b)}<b>${esc(Ninja.rotulo(b))}</b><span>${esc(b)} · ${pts(r.pontosBanda[b] ?? 0)} pts</span><i>${est}</i></div>`;
+    const linhas = Object.entries(n.metas || {}).map(([m, meta]) => {
+      const v = n.valores[m], fa = Ninja.farol(v, meta), ok = fa === "ok";
+      return `<div class="nl"><span><i class="fa ${fa}"></i><b>${esc(UsoIa.ROTULO[m] || m)}</b></span>
+        <span>${esc(fmtUso(v, m))} / ${esc(fmtUso(meta, m))} · ${ok ? "✓" : Number.isFinite(v) ? `falta${meta - v > 1 ? "m" : ""} ${esc(fmtUso(meta - v, m))}` : "sem o número"}</span></div>`;
     }).join("");
+    const escada = [...Ninja.FAIXAS_TIME].reverse().map(f => {
+      const est = f === n.faixa ? "você está aqui" : f === n.proxima ? "próxima" : Ninja.FAIXAS_TIME.indexOf(f) < n.i - 1 ? "✓" : "";
+      return `<div class="ne${f === n.faixa ? " aqui" : ""}">${cintoNinja(f)}<b>Faixa ${esc(f)}</b><i>${est}</i></div>`;
+    }).join("") + `<div class="ne${n.faixa ? "" : " aqui"}">${cintoNinja(null)}<b>Ainda sem faixa</b><i>${n.faixa ? "" : "você está aqui"}</i></div>`;
     $("folha").innerHTML = `<div class="pega"></div><div class="nf">${palcoNinja("folha", r, 150)}
-      <span class="un-fx">${cintoNinja(n.banda)}${esc(Ninja.rotulo(n.banda))}</span>
-      <span class="un-sub">${esc(n.banda)} · ${pts(n.pontos)} pts · semana ${esc(n.numero)}${n.fechou ? " (fechou)" : ""}</span>
-      ${n.proxima ? `<span class="nf-prox">Próxima: ${cintoNinja(n.proxima)}<b>${esc(pf ? "Faixa " + pf.nome : n.proxima)}</b> · ${esc(n.proxima)} · ${pts(r.pontosBanda[n.proxima] ?? 0)} pts</span>`
-        : `<span class="nf-prox"><b>Faixa máxima da régua.</b></span>`}
-      ${n.proxima ? `<h4>${n.fechou ? "Faltaram" : "Faltam"} ${falta.length} de ${total} critérios para a ${esc(pf ? pf.nome : n.proxima)}</h4>
-        <div class="nf-lista">${falta.map(([t, v]) => `<div class="nl"><span><b>${esc(t)}</b></span><span>${v}</span></div>`).join("")}</div>` : ""}
+      <span class="un-fx">${cintoNinja(n.faixa)}${esc(Ninja.rotulo(n.faixa))}</span>
+      <span class="un-sub">Semana ${esc(n.numero)} · ${n.fechou ? "fechada (7 de 7 dias)" : `${n.dias} de 7 dias fechados`} · banda ${esc(n.banda)} · ${pts(n.pontos)} pts</span>
+      <span class="nf-prox">${n.proxima ? `Próxima: ${cintoNinja(n.proxima)}<b>Faixa ${esc(n.proxima)}</b>` : proximaFaixaTxt(n)}</span>
+      ${n.limitadaPelaBanda ? `<p class="nf-nota nf-teto">Pelos mínimos daria a ${esc(n.pelosMinimos)}, mas a banda ${esc(n.banda)} do coletor limita
+        ${n.faixa ? `na ${esc(n.faixa)}` : "a sem faixa"}: P0 fica sem faixa e P25 chega no máximo à Branca.</p>` : ""}
+      ${linhas ? `<h4>${n.proxima ? `${n.fechou ? "Faltaram" : "Faltam"} ${faltamFaixa(n)} de ${n.total} critérios para a ${esc(n.proxima)}` : "As metas da Preta"}${n.fechou ? "" : " (meta até agora)"}</h4>
+        <div class="nf-lista">${linhas}</div>` : ""}
       ${r.virada ? `<p class="nf-nota">A semana ${esc(r.numero)} começou ${esc(quandoFoi(r.inicio))}, do zero: o ninja veste a faixa da ${esc(n.numero)} por 24 h.</p>` : ""}
       <h4>As faixas</h4><div class="nf-escada">${escada}</div>
-      <p class="nf-nota">As cores são as do Treinamento de IA Nível 3 (7 faixas, da branca à preta). A régua daqui é a do coletor da Seazone,
-        com 5 faixas: P25 Branca, P50 Amarela, P75 Azul e P100 Preta. No TeamZone, a régua tem as 7 cores e muda toda semana, então a cor pode não bater com a de lá.</p>
+      <p class="nf-nota">Como no TeamZone: os mínimos das 7 faixas saem do P100 da régua (a Branca parte de 21 sessões, 200 mensagens
+        e organização 61) e valem proporcionais aos dias já fechados da semana, menos a organização. A banda do coletor limita a faixa.
+        Régua do coletor: ${esc(r.reguaVersao || "a fixa (o agente deste PC ainda não manda a versão)")}. Enquanto o coletor deste PC não recebe a régua da semana do
+        servidor, os mínimos daqui podem diferir dos do TeamZone.</p>
       ${botoes}</div>`;
   }
   $("folhaFundo").classList.remove("hidden");
@@ -2194,27 +2225,27 @@ function blocoUsoIa() {
     return `<section class="bloco"><h3>📊 Uso de IA</h3>${errosUso(null, lista)}${linhaNinja(null,
       `<p class="note un-txt">${lista.some(u => u.medindo) ? "Medindo a semana com o coletor da Seazone (1 a 3 min)…" : "Ainda sem a medida da semana."}</p>`, "Ainda sem a medida")}</section>`;
   }
+  const n = ninjaDaSemana(r);
   // a semana desta medida já fechou e nenhum PC ligado mede a nova (fim de semana com os PCs desligados): o resultado
   // final, e não "faltam 6 critérios · +18 hoje" de uma semana que acabou
   if (r.encerrada && !r.virada && !lista.some(u => u.ligado)) return `<section class="bloco"><button class="bloco-cab" data-uso><h3>📊 Uso de IA · semana ${esc(r.numero)} <span class="ir">Abrir ›</span></h3></button>
-    ${linhaNinja(r, `<button class="un-txt" data-uso aria-label="A semana ${esc(r.numero)} fechou em ${esc(r.banda)}">
-      <span class="un-fx">${cintoNinja(r.banda)}${esc(Ninja.rotulo(r.banda))}</span><span class="un-sub">${esc(r.banda)} · ${pts(r.pontos)} pts</span>
-      <span class="un-prox">A semana ${esc(r.numero)} fechou ${esc(quandoFoi(r.fim))}. A próxima aparece quando um PC ligar.</span></button>`, Ninja.rotulo(r.banda))}
+    ${linhaNinja(r, `<button class="un-txt" data-uso aria-label="A semana ${esc(r.numero)} fechou na ${esc(Ninja.rotulo(n.faixa))}">
+      <span class="un-fx">${cintoNinja(n.faixa)}${esc(Ninja.rotulo(n.faixa))}</span><span class="un-sub">${bandaTxt(r, false)}</span>
+      <span class="un-prox">A semana ${esc(r.numero)} fechou ${esc(quandoFoi(r.fim))}. A próxima aparece quando um PC ligar.</span></button>`, Ninja.rotulo(n.faixa))}
     ${errosUso(r, lista)}<div class="rodape">${esc(nomesPcs(r))} · medido ${quandoMedido(r.medido)}</div></section>`;
   if (r.virada) { const w = r.virada.fechou; return `<section class="bloco"><button class="bloco-cab" data-uso><h3>📊 Uso de IA · semana ${esc(r.numero)} <span class="ir">Abrir ›</span></h3></button>
-    ${linhaNinja(r, `<button class="un-txt" data-uso aria-label="A semana ${esc(numSemana(w.semana))} fechou na ${esc(Ninja.rotulo(w.banda))}">
-      <span class="un-fx">${cintoNinja(w.banda)}${esc(Ninja.rotulo(w.banda))}</span><span class="un-sub">a faixa da semana ${esc(numSemana(w.semana))}, que fechou</span></button>`, Ninja.rotulo(w.banda))}
+    ${linhaNinja(r, `<button class="un-txt" data-uso aria-label="A semana ${esc(numSemana(w.semana))} fechou na ${esc(Ninja.rotulo(n.faixa))}">
+      <span class="un-fx">${cintoNinja(n.faixa)}${esc(Ninja.rotulo(n.faixa))}</span><span class="un-sub">a faixa da semana ${esc(numSemana(w.semana))}, que fechou</span></button>`, Ninja.rotulo(n.faixa))}
     ${ladoALado(r, "button")}
     <p class="uso-virada-nota">🗓 A semana ${esc(r.numero)} começou ${esc(quandoFoi(r.inicio))}: os números começam do zero. Não é erro.</p>
     ${errosUso(r)}<div class="rodape">${esc(nomesPcs(r))} · medido ${quandoMedido(r.medido)}</div></section>`; }
   const total = r.faltam + r.cumpridas.length, feito = total ? Math.round(100 * r.cumpridas.length / total) : 100;
   const hoje = r.criterios.filter(c => !c.ok).slice(0, 3);
   return `<section class="bloco"><button class="bloco-cab" data-uso><h3>📊 Uso de IA · semana ${esc(r.numero)} <span class="ir">Abrir ›</span></h3></button>
-    ${linhaNinja(r, `<button class="un-txt" data-uso aria-label="Faixa ${esc(r.banda)}${r.proxima ? ", próxima " + esc(r.proxima) : ""}">
-      <span class="un-fx">${cintoNinja(r.banda)}${esc(Ninja.rotulo(r.banda))}</span><span class="un-sub">${esc(r.banda)} · ${pts(r.pontos)} pts</span>
-      ${r.proxima ? `<span class="un-prox">Faltam <b>${r.faltam}</b> de ${total} critérios para a ${esc(r.proxima)}${nomeFaixa(r.proxima) ? ` · ${esc(nomeFaixa(r.proxima))}` : ""}</span>`
-        : `<span class="un-prox"><b>Faixa máxima da régua.</b></span>`}</button>`, Ninja.rotulo(r.banda))}
-    ${r.proxima ? `<div class="prog" role="img" aria-label="${r.cumpridas.length} de ${total} critérios cumpridos"><i style="width:${feito}%"></i></div>` : ""}
+    ${linhaNinja(r, `<button class="un-txt" data-uso aria-label="${esc(Ninja.rotulo(n.faixa))}${n.proxima ? ", próxima " + esc(n.proxima) : ""}; banda ${esc(r.banda)}">
+      <span class="un-fx">${cintoNinja(n.faixa)}${esc(Ninja.rotulo(n.faixa))}</span><span class="un-sub">${proximaFaixaTxt(n)}</span>
+      <span class="un-prox">${bandaTxt(r)}</span></button>`, Ninja.rotulo(n.faixa))}
+    ${r.proxima ? `<div class="prog" role="img" aria-label="${r.cumpridas.length} de ${total} critérios cumpridos para a ${esc(r.proxima)}"><i style="width:${feito}%"></i></div>` : ""}
     ${hoje.length ? `<div class="uso-hoje">${hoje.map(c => `<div class="uh"><span>${esc(c.rotulo)}</span><span>${faltaTxt(c, true)}</span></div>`).join("")}</div>` : ""}
     ${errosUso(r)}<div class="rodape">${esc(nomesPcs(r))} · medido ${quandoMedido(r.medido)}</div></section>`;
 }
@@ -2257,7 +2288,7 @@ function criterioUso(c, r) {
     <div class="uc-cab"><span>${esc(c.rotulo)}${c.estimada ? ` <i>(estimativa)</i>` : ""}</span>
       <span class="uc-v">${fmtUso(c.valor, c.chave)}${c.meta != null ? ` <small>/ ${fmtUso(c.meta, c.chave)}</small>` : ""}</span></div>
     <div class="uc-barra" role="img" aria-label="${esc(c.rotulo)}: ${esc(fmtUso(c.valor, c.chave))}${c.meta != null ? " de " + esc(fmtUso(c.meta, c.chave)) + " para a " + esc(r.proxima) : ""}"><i style="width:${c.pct}%"></i>${ticks}</div>
-    <div class="uc-pe"><span>faixa <span class="fxa">${esc(c.faixa)}</span></span><span class="st">${faltaTxt(c)}</span></div>
+    <div class="uc-pe"><span>banda <span class="fxa">${esc(c.faixa)}</span></span><span class="st">${faltaTxt(c)}</span></div>
     ${c.pcs.length > 1 ? `<div class="uc-pcs">${c.pcs.map(x => `${esc(nomeCurtoPc(x.pc))} ${esc(fmtUso(x.valor, c.chave))}`).join(" · ")}</div>` : ""}
     ${r.virada && c.anterior != null ? `<div class="uc-ant">A semana ${esc(numSemana(r.virada.fechou.semana))} fechou com <b>${esc(fmtUso(c.anterior, c.chave))}</b></div>` : ""}</div>`;
 }
@@ -2289,25 +2320,25 @@ function desenharUsoIa() {
     : u.medindo ? "medindo…" : "sem medida desta semana"}`);
   const ordem = [...r.criterios.filter(c => !c.ok), ...r.criterios.filter(c => c.ok)];
   const fmtData = iso => { const d = new Date(iso); return isNaN(d) ? "" : `${DIA_SEMANA[d.getDay()]} ${String(d.getDate()).padStart(2, "0")}/${String(d.getMonth() + 1).padStart(2, "0")}`; };
-  const pos = r.bandas.indexOf(r.banda), n = ninjaDaSemana(r), pf = Ninja.faixaDe(n.proxima);
-  const heroi = `<section class="bloco uso-heroi"><button class="ninja-btn" data-ninja-ver aria-label="${esc(Ninja.rotulo(n.banda))}: toque para ver a próxima faixa e o que falta">${palcoNinja("tela", r, 124)}</button>
-    <div class="un-txt"><span class="un-fx grande">${cintoNinja(n.banda)}${esc(Ninja.rotulo(n.banda))}</span>
-      <span class="un-sub">Semana ${esc(n.numero)}${n.fechou ? " · fechou" : ""} · ${esc(n.banda)} · ${pts(n.pontos)} pts</span>
-      ${n.proxima ? `<span class="un-prox">Próxima: <b>${esc(pf ? "Faixa " + pf.nome : n.proxima)}</b> (${esc(n.proxima)})</span>` : `<span class="un-prox"><b>Faixa máxima da régua.</b></span>`}
+  const pos = r.bandas.indexOf(r.banda), n = ninjaDaSemana(r);
+  const heroi = `<section class="bloco uso-heroi"><button class="ninja-btn" data-ninja-ver aria-label="${esc(Ninja.rotulo(n.faixa))}: toque para ver a próxima faixa e o que falta">${palcoNinja("tela", r, 124)}</button>
+    <div class="un-txt"><span class="un-fx grande">${cintoNinja(n.faixa)}${esc(Ninja.rotulo(n.faixa))}</span>
+      <span class="un-sub">Semana ${esc(n.numero)} · ${n.fechou ? "fechou" : `${n.dias} de 7 dias`} · banda ${esc(n.banda)} · ${pts(n.pontos)} pts</span>
+      <span class="un-prox">${proximaFaixaTxt(n)}</span>${fileiraFaixas(n)}
       <span class="un-dica">Toque no ninja para ver o que falta</span></div></section>`;
   por($("usoCorpo"), `${r.erros.length ? `<section class="bloco">${errosUso(r)}</section>` : ""}${heroi}${r.virada ? viradaUso(r) : ""}
     <section class="bloco"><h3>Semana ${esc(r.numero)} <span class="n3">${r.encerrada ? `fechou ${esc(quandoFoi(r.fim))}` : `${esc(fmtData(r.inicio))} a ${esc(fmtData(r.fim))}, 17h`}</span></h3>
       ${r.encerrada ? `<p class="uso-virada-nota">🗓 Esta semana fechou ${esc(quandoFoi(r.fim))}. ${lista.some(u => u.ligado)
         ? "Medindo a semana nova (1 a 3 min)…" : "A semana nova aparece quando um PC ligar."}</p>` : ""}
       <div class="regua" role="img" aria-label="Faixa ${esc(r.banda)}${r.proxima ? ", próxima " + esc(r.proxima) : ""}">${r.bandas.map((b, i) =>
-        `<span class="${i === pos ? "atual" : i < pos ? "feita" : b === r.proxima ? "prox" : ""}"${corDaBanda(b)} title="${esc(Ninja.rotulo(b))}">${esc(b)}</span>`).join("")}</div>
+        `<span class="${i === pos ? "atual" : i < pos ? "feita" : b === r.proxima ? "prox" : ""}">${esc(b)}</span>`).join("")}</div>
       <p class="pv-resumo" style="margin:10px 0 0">${String(r.pontos).replace(".", ",")} pontos · ${r.proxima ? `faltam <b>${r.faltam}</b> de ${r.faltam + r.cumpridas.length} critérios para a <b>${esc(r.proxima)}</b>` : "faixa máxima da régua"}</p>
       <div class="rodape">Somando ${esc(nomesPcs(r))}, como o servidor da Seazone soma · medido ${quandoMedido(r.medido)}${sem.length ? `<br>${sem.join(" · ")}` : ""}</div></section>
     <section class="bloco"><h3>${r.proxima ? `Critérios para a ${esc(r.proxima)}` : "Critérios"}</h3>${ordem.map(c => criterioUso(c, r)).join("")}</section>
     <section class="bloco"><h3>Evolução da semana</h3>${graficoUso(r)}</section>
-    <section class="bloco"><h3>Semanas anteriores</h3>${r.anteriores.length ? r.anteriores.map(w => `<div class="us"><span class="fx-mini"${corDaBanda(w.banda)} title="${esc(Ninja.rotulo(w.banda))}">${esc(w.banda)}</span>
+    <section class="bloco"><h3>Semanas anteriores</h3>${r.anteriores.length ? r.anteriores.map(w => { const fw = faixaDaSemana(r, w.valores, w.banda, 7).faixa; return `<div class="us"><span class="fx-mini"${corDaFaixa(fw)} title="${esc(Ninja.rotulo(fw))}">${esc(w.banda)}</span>
         <span class="us-t"><b>Semana ${esc(w.semana.split("-W")[1] || w.semana)}</b>${w.fechada ? " · fechada" : w.medido_em ? ` · última medida ${esc(quandoFoi(w.medido_em))}` : ""}<br>${fmtUso(w.valores.mensagens, "mensagens")} mensagens · ${fmtUso(w.valores.sessoes_iniciadas, "sessoes_iniciadas")} sessões · ${fmtUso(w.valores.tokens_saida, "tokens_saida")} tokens</span>
-        <span class="n3">${pts(w.pontos)} pts<small>${esc(somandoPcs(w))}</small></span></div>`).join("")
+        <span class="n3">${pts(w.pontos)} pts<small>${esc(somandoPcs(w))}</small></span></div>`; }).join("")
       : `<p class="note">Aparecem aqui a partir da próxima sexta: o agente guarda a última medida de cada semana.</p>`}</section>`);
   Ninja.vigiar();
 }
