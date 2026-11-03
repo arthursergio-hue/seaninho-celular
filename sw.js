@@ -1,6 +1,6 @@
 // Seaninho no celular: guarda a casca da página (abre sem rede) e mostra as notificações.
-const CACHE = "seaninho-v18";
-const CASCA = ["./", "./index.html", "./config.js", "./markdown.js", "./chat.js", "./lista.js", "./usoia.js", "./ninja.js", "./marcar.js", "./manifest.webmanifest", "./icone-180.png", "./icone-192.png"];
+const CACHE = "seaninho-v20";
+const CASCA = ["./", "./index.html", "./config.js", "./markdown.js", "./chat.js", "./lista.js", "./pcs.js", "./usoia.js", "./ninja.js", "./marcar.js", "./manifest.webmanifest", "./icone-180.png", "./icone-192.png"];
 
 self.addEventListener("install", e => {
   // "reload": sem o cache HTTP do GitHub Pages (10 min), que podia misturar arquivos de duas versões
@@ -47,12 +47,16 @@ self.addEventListener("notificationclick", e => {
   e.notification.close();
   const d = e.notification.data || {};
   const url = d.tipo === "ai_rats" ? "./#airats=1"   // a prévia do post do AI Rats
+    : d.tipo === "aparelho" ? "./#ajustes=1"   // 0.9.0: aparelho novo na conta: o ⚙ (aprovar ou não)
+    : d.tipo === "pc" ? `./#pcs=${encodeURIComponent(d.pc || "")}`   // 0.9.0: o PC caiu, voltou ou vai desligar: o cartão dele
     : d.tipo === "para_voce" || d.tipo === "teste" ? "./#pv=1"   // o Para você (0.8.9)
     : `./#sessao=${encodeURIComponent(d.sessao || "")}&pc=${encodeURIComponent(d.pc || "")}`;
   // app aberto: a página recebe o recado e abre a sessão (0.8.9; o navigate só mudava o "#" e a página não via)
   e.waitUntil(self.clients.matchAll({type: "window", includeUncontrolled: true}).then(abertas => {
     for (const c of abertas) {
-      c.postMessage({tipo: "abrir", sessao: d.sessao || "", pc: d.pc || "", airats: d.tipo === "ai_rats", pv: d.tipo === "para_voce" || d.tipo === "teste"});
+      c.postMessage({tipo: "abrir", sessao: d.tipo === "pc" ? "" : d.sessao || "", pc: d.pc || "", airats: d.tipo === "ai_rats",
+                     pv: d.tipo === "para_voce" || d.tipo === "teste", ...(d.tipo === "pc" ? {pcs: d.pc || ""} : {}),
+                     ...(d.tipo === "aparelho" ? {ajustes: true, sessao: ""} : {})});
       return c.focus();
     }
     return self.clients.openWindow(url);
