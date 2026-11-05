@@ -50,8 +50,39 @@ function dia(ms, agora) {   // "hoje", "ontem" ou "qui"
   return DIA[d.getDay()];
 }
 const quando = (ms, agora) => `${dia(ms, agora) === "hoje" ? "" : dia(ms, agora) + " "}${hm(ms)}`;
-const ehMaestro = (s, orquestra) => String(s.titulo || "").trim().toUpperCase() === "MAESTRO"
-  || !!(orquestra && orquestra.sessao && orquestra.sessao === s.id);
+// 0.9.0.3 (pedido do Arthur, 04/11 15h30: "redirecionando ainda para maestro não para o hokage"): desde 03/11 o maestro
+// se chama hokage (o "maestro" do ciclo.json, que o painel publica), e a conversa antiga com o título MAESTRO continua
+// aberta no mesmo PC. O agente até a 0.9.0.2 publicava a antiga como a sessão do maestro: comparava o nome do ciclo
+// ("hokage") com o da sessão ("HOKAGE") com as maiúsculas, e o título MAESTRO ganhava. A sessão do maestro é a do PC
+// dele com o nome do ciclo (no nome ou no título, sem diferença de maiúsculas); a antiga com o título MAESTRO só vale
+// quando o ciclo não dá outro nome, e nunca no lugar da que tem o nome.
+const nomeDoCiclo = o => String((o && o.maestro) || "").trim().toLowerCase();
+const comNome = (s, nome) => !!nome && [s.nome, s.titulo].some(x => String(x || "").trim().toLowerCase() === nome);
+const daPonte = s => String(s.pasta || "").toLowerCase() === "ponte-claude"
+  || /(^|[\\/])ponte-claude$/i.test(String(s.cwd || "").replace(/[\\/]+$/, ""));
+function sessaoDoMaestro(o, sessoes) {
+  if (!o) return "";
+  const nome = nomeDoCiclo(o), publicada = String(o.sessao || "");
+  if (!nome || nome === "maestro") return publicada;
+  const lista = (sessoes || []).filter(s => s && s.id);
+  const achada = lista.find(s => comNome(s, nome) && daPonte(s)) || lista.find(s => comNome(s, nome));
+  if (achada) return String(achada.id);
+  const pub = lista.find(s => s.id === publicada);
+  return pub && comNome(pub, "maestro") ? "" : publicada;   // a antiga, com o maestro de nome novo fechado: ninguém
+}
+// O nome que os botões mostram: o do ciclo ("hokage" -> "Hokage") quando é uma palavra; senão (um nome automático, como
+// "ponte-claude-98"), "Maestro".
+// no meio da frase: o nome próprio ("ao Hokage") ou, sem ele, o substantivo ("ao maestro")
+const nomeNoMeio = o => { const n = nomeDoMaestro(o); return n === "Maestro" ? "maestro" : n; };
+function nomeDoMaestro(o) {
+  const n = String((o && o.maestro) || "").trim();
+  return /^[A-Za-zÀ-ÿ]{2,24}$/.test(n) ? n[0].toUpperCase() + n.slice(1).toLowerCase() : "Maestro";
+}
+const ehMaestro = (s, orquestra) => {
+  const nome = nomeDoCiclo(orquestra);
+  if (nome && nome !== "maestro") return comNome(s, nome) || !!(orquestra.sessao && orquestra.sessao === s.id);
+  return String(s.titulo || "").trim().toUpperCase() === "MAESTRO" || !!(orquestra && orquestra.sessao && orquestra.sessao === s.id);
+};
 
 // O pedido de energia mais novo deste PC (o cel_estado traz os do último dia).
 function pedidoDe(pedidos, pc) {
@@ -134,7 +165,7 @@ function avisosDaFolha(p, {sessoes = [], orquestra = null, acao = "desligar"} = 
     trab.length > 3 ? ` e mais ${trab.length - 3}` : ""}`});
   if (luas) out.push({ico: "🌙", texto: `${plural(luas, "tarefa", "tarefas")} em segundo plano`});
   if (esperando) out.push({ico: "🔔", texto: `Esperando você: ${esperando}`});
-  if (orquestra && orquestra.pc === p.pc) out.push({ico: "🎼", forte: true, texto: "O maestro roda aqui: a orquestra para"});
+  if (orquestra && orquestra.pc === p.pc) out.push({ico: "🎼", forte: true, texto: `O ${nomeNoMeio(orquestra)} roda aqui: a orquestra para`});
   if (p.hoje && p.hoje.principal) out.push({ico: "📣", texto: "Os avisos do Seaninho, o AI Rats e as Tarefas Claude saem deste PC"});
   if (e.usando) out.push({ico: "👤", forte: true, texto: "Alguém está usando este PC agora"});
   else if (e.bloqueado) out.push({ico: "🔒", texto: "Bloqueado: ninguém aí vê o aviso da contagem"});
@@ -160,7 +191,7 @@ function historico(p, agora, n = 5) {
 }
 
 const Pcs = {AGENTE_ENERGIA, ACAO, ONLINE_MS, energiaDe, pedidoDe, emCurso, estado, vizinhosDe, podeEnergia,
-  avisosDaFolha, podeLigar, historico, mmss, hm, compararVersao, ehMaestro};
+  avisosDaFolha, podeLigar, historico, mmss, hm, compararVersao, ehMaestro, sessaoDoMaestro, nomeDoMaestro, nomeNoMeio};
 if (typeof module !== "undefined" && module.exports) module.exports = Pcs;
 raiz.Pcs = Pcs;
 })(typeof window !== "undefined" ? window : globalThis);

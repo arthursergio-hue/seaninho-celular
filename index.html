@@ -428,6 +428,11 @@ textarea:focus{outline:2px solid rgba(226,184,74,.6);border-color:transparent}
 .copia .txt{font-size:15px;white-space:pre-wrap;word-wrap:break-word;display:-webkit-box;-webkit-line-clamp:6;-webkit-box-orient:vertical;overflow:hidden}
 .copia img{display:block;max-width:100%;max-height:220px;border-radius:10px;background:rgba(0,0,0,.25)}
 .copia .ok{color:var(--green);font-weight:600}
+/* a etiqueta (o nome dado no PC) em destaque e o conteúdo menor embaixo; o segredo vem mascarado do PC */
+.copia .etq{font-size:16px;font-weight:700;line-height:1.3;margin-bottom:3px;word-wrap:break-word}
+.copia .etq ~ .txt{font-size:13.5px;color:var(--muted);-webkit-line-clamp:3}
+.copia .txt.seg{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.02em}
+.copia .selo{color:var(--gold);font-weight:600}
 /* ---- Imagem em tela cheia e o editor de marcações (marcar.js) ---- */
 #visor{position:fixed;inset:0;z-index:7;background:#000;overscroll-behavior:none;-webkit-user-select:none;user-select:none}
 .v-palco{position:absolute;inset:0;overflow:hidden;touch-action:none}
@@ -1024,6 +1029,111 @@ details>summary{padding:6px 0}
 @media (orientation:landscape) and (min-width:700px){#pcsCorpo{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-content:start} #pcsCorpo .pcc{margin:0}}
 @media (prefers-reduced-motion:reduce){.segurar.segura .enchendo{transition:none;background:rgba(255,255,255,.18)}}
 body.pcs-aberto #appAviso{z-index:8} body.pcs-aberto .menu-balao{z-index:9}
+/* ---- 0.9.0.4: a aba Workflows (as frentes de trabalho) e o detalhe da frente ---- */
+/* 7 botões na barra de baixo: em 320 px cada um ainda tem 44 px de largura (sem o espaço entre eles) */
+nav button span:not(.n){max-width:100%;overflow:hidden;text-overflow:clip;white-space:nowrap}
+@media (max-width:400px){nav button{font-size:10px;letter-spacing:-.15px}}
+@media (max-width:374px){nav{gap:0;padding-left:2px;padding-right:2px} nav button{font-size:9.5px;letter-spacing:-.2px}}
+.fr-topo{display:flex;align-items:center;gap:8px;margin:2px 0 10px}
+.fr-topo-t{flex:1;min-width:0}
+.fr-topo h2{margin:0 2px 2px}
+.fr-topo small{display:block;margin:0 2px;font-size:12.5px;color:var(--faint)}
+.fr-bt{flex:none;width:44px;height:44px;border-radius:50%;background:var(--glass);color:var(--muted);font-size:19px}
+.fr-faixa{margin:0 0 8px;padding:10px 12px;border-radius:12px;font-size:13.5px;line-height:1.35;background:rgba(226,184,74,.1);border:1px solid rgba(226,184,74,.35);color:var(--gold-2)}
+.fr-faixa.off{background:var(--glass);border-color:var(--stroke-2);color:var(--muted)}
+/* o resumo numa fileira só, que rola para o lado (como os filtros das Sessões) */
+/* 0.9.0.4 (crítico): os chips do resumo quebram em linhas (rolando para o lado, a 390 px só cabiam 3 dos 6) */
+.fr-resumo{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 12px;padding:2px 0}
+.fr-rchip{flex:none;min-height:44px;padding:0 13px;border-radius:999px;background:var(--glass);border:1px solid var(--stroke);font-size:13.5px;font-weight:650;color:var(--ink)}
+.fr-rchip.esperando{color:var(--tag-espera);border-color:rgba(226,184,74,.4)}
+.fr-rchip.paradas{color:var(--tag-erro);border-color:rgba(255,90,79,.35)}
+.fr-rchip.sem_novidade{color:#FF8A80;border-color:rgba(255,90,79,.35)}
+.fr-rchip.trabalhando{color:var(--tag-anda)}
+.fr-rchip.terminaram,.fr-rchip.sem_sinal,.fr-rchip.limpar{color:var(--muted)}
+.fr-rchip.on{background:var(--gold);border-color:var(--gold);color:var(--navy)}
+.card.fr{display:block;padding:12px 14px;min-height:44px}
+.card.fr.esperando{border-color:rgba(226,184,74,.45);background:rgba(226,184,74,.07)}
+.card.fr.sem_novidade{border-color:rgba(255,90,79,.5)}
+.card.fr.parada{border-color:rgba(255,90,79,.3)}
+.card.fr.sem_sinal>*,.card.fr.terminou>*{opacity:.78}
+.fr-l1,.fr-l2,.fr-l3{display:flex;align-items:center;gap:8px;min-width:0}
+/* o título em até 2 linhas; o chip do estado desce para a linha de baixo quando os dois não cabem (320 px) */
+.fr-l1{flex-wrap:wrap;align-items:flex-start;row-gap:6px}
+.fr-l1 .fr-ico{margin-top:3px}
+.fr-ico{flex:none;font-size:15px;line-height:1}
+.fr-l1 b{flex:1 1 150px;min-width:0;font-size:15.5px;font-weight:650;line-height:1.3;overflow:hidden;overflow-wrap:anywhere;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.fr-chip{flex:none;max-width:100%;margin-top:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px;font-weight:650;padding:2px 9px;border-radius:999px;color:var(--muted);background:var(--glass-2)}
+.fr-chip.anda{color:var(--tag-anda);background:var(--tag-anda-f)}
+.fr-chip.anda::before{content:"";display:inline-block;width:6px;height:6px;border-radius:50%;background:currentColor;margin-right:6px;vertical-align:1px;animation:pulse 1.4s infinite}
+.fr-chip.espera{color:var(--tag-espera);background:var(--tag-espera-f)}
+.fr-chip.erro{color:var(--tag-erro);background:var(--tag-erro-f)}
+.fr-chip.ok{color:var(--tag-ok);background:var(--tag-ok-f)}
+@media (prefers-reduced-motion:reduce){.fr-chip.anda::before{animation:none}}
+.fr-l2{margin-top:6px;font-size:13px;color:var(--muted)}
+.fr-pc{flex:none;font-size:11.5px;font-weight:700;color:var(--ink);padding:1px 7px;border-radius:6px;background:var(--glass-2);letter-spacing:.2px}
+.fr-barra{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fr-blocos{font-family:ui-monospace,Menlo,Consolas,"DejaVu Sans Mono",monospace;letter-spacing:-.5px;color:var(--gold)}
+.fr-blocos i{font-style:normal;color:var(--faint)}
+.fr-l3{margin-top:4px;font-size:12.5px;color:var(--faint);flex-wrap:wrap;gap:2px 10px}
+.verm{color:#FF8A80!important;font-weight:650}
+.fr-l4{display:block;margin-top:4px;font-size:13.5px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+details.fr-term{margin:6px 0 14px}
+details.fr-term>summary{display:flex;align-items:center;min-height:44px;padding:0 4px;cursor:pointer;font-size:13px;font-weight:650;color:var(--muted);text-transform:uppercase;letter-spacing:.6px}
+details.fr-term[open]>summary{margin-bottom:6px}
+.fr-bloco .contador.paradas b{color:var(--tag-erro)} .fr-bloco .contador.sem_novidade b{color:#FF8A80}
+.fr-bloco .contador{min-height:44px}
+#frente{position:fixed;inset:0;z-index:6;display:flex;flex-direction:column;background:#050C24 var(--ceu,linear-gradient(170deg,#0E224A,#08142E 60%)) 0 0/100vw auto no-repeat}
+#frente .ar-topo button{width:44px;height:44px;flex:none}
+#frente .ar-topo b{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#frente .ar-corpo{padding-bottom:calc(var(--bottom) + 24px)}
+body.fr-aberta #appAviso{z-index:8}
+.fr-cab .fr-l1{flex-wrap:wrap}
+.fr-tipo{font-size:12px;color:var(--faint)}
+.fr-h{margin:10px 0 4px;font-size:19px;line-height:1.25;font-weight:700}
+.fr-motivo{margin:6px 0 0;padding:8px 10px;border-radius:10px;background:rgba(0,0,0,.2);font-size:14px;color:var(--ink)}
+.fr-l4.fr-nota-l{font-style:italic}
+.fr-nota-m{margin:6px 0 0;font-size:13.5px;color:var(--muted);overflow-wrap:anywhere}
+.fr-mais{margin:8px 2px 0}
+.fr-meta{margin:6px 0 0;font-size:13.5px;color:var(--muted)}
+.fr-meta a{color:var(--md-link)}
+.fr-sec{margin-top:16px;padding:12px 14px;border-radius:16px;background:var(--glass);border:1px solid var(--stroke)}
+.fr-sec h4{display:flex;align-items:center;gap:6px;margin:0 0 8px;font-size:13px;font-weight:650;color:var(--muted);text-transform:uppercase;letter-spacing:.6px}
+.fr-sec h4 .n3{margin-left:auto;text-transform:none;letter-spacing:0;color:var(--faint);font-weight:600}
+.fr-barra-g{font-size:15px;color:var(--ink);line-height:1.4;overflow-wrap:anywhere}
+.fr-barra-g .fr-barra{white-space:normal}
+.fr-barra-g .fr-blocos{font-size:17px}
+.fr-agora{margin:6px 0 0;font-size:14px;color:var(--muted)}
+.fr-agora b{color:var(--ink);font-weight:650}
+.fr-fases{list-style:none;margin:10px 0 0;padding:0;display:flex;flex-wrap:wrap;gap:6px}
+.fr-fases li{font-size:12.5px;font-weight:600;padding:3px 9px;border-radius:999px;background:var(--glass-2);color:var(--muted)}
+.fr-fases li i{font-style:normal;margin-right:5px}
+.fr-fases li.ok{color:var(--tag-ok);background:var(--tag-ok-f)} .fr-fases li.anda{color:var(--tag-anda);background:var(--tag-anda-f)}
+.fr-fases li.erro{color:var(--tag-erro);background:var(--tag-erro-f)}
+.fr-ags{list-style:none;margin:10px 0 0;padding:0}
+.fr-ags li{display:flex;align-items:center;gap:8px;padding:6px 0;border-top:1px solid var(--stroke);font-size:14px}
+.fr-ags li span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fr-ags li small{flex:none;font-size:12.5px;color:var(--faint)}
+.fr-pasta{margin:0 0 8px;font-size:12.5px;color:var(--faint);overflow-wrap:anywhere}
+.fr-nota{margin:4px 0 8px;font-size:14px;color:var(--muted)}
+.fr-grade{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.fr-arq{display:flex;flex-direction:column;min-width:0;min-height:44px;padding:0;text-align:left;border-radius:12px;overflow:hidden;background:rgba(0,0,0,.22);border:1px solid var(--stroke)}
+.fr-arq:active{background:var(--glass-2)}
+.fr-arq-v{position:relative;display:grid;place-items:center;width:100%;aspect-ratio:4/3;background:#13254a;overflow:hidden}
+.fr-arq-v img{width:100%;height:100%;object-fit:cover;display:block}
+.fr-arq.pdf .fr-arq-v img{object-fit:contain;background:#fff}
+.fr-arq-ico{font-size:28px}
+.fr-arq-tag{position:absolute;left:5px;bottom:5px;font-size:10.5px;font-weight:700;padding:1px 6px;border-radius:6px;background:rgba(0,0,0,.65);color:#fff}
+.fr-arq-n{display:block;padding:5px 7px 0;font-size:12.5px;font-weight:600;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fr-arq-h{display:block;padding:0 7px 6px;font-size:11.5px;color:var(--faint);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fr-arq-s{display:block;padding:0 7px;font-size:11px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fr-botoes{margin-top:16px}
+.fr-botoes .btn{min-height:48px}
+.fr-botoes .status{margin-top:8px}
+.fr-por{margin:6px 2px 0;font-size:13.5px;color:var(--muted)}
+.fr-fala{font-size:15px;line-height:1.5;color:var(--ink);overflow-wrap:anywhere}
+.fr-sumiu .btn{max-width:240px;margin:16px auto 0}
+.folha .fr-folha-meta{margin:0 0 4px;font-size:13px;color:var(--faint);overflow-wrap:anywhere}
+.folha .fr-por{margin-bottom:6px}
 </style>
 </head>
 <body>
@@ -1062,6 +1172,13 @@ body.pcs-aberto #appAviso{z-index:8} body.pcs-aberto .menu-balao{z-index:9}
     <div class="filtros" id="filtros" role="toolbar" aria-label="Filtros"></div>
     <div id="fixadas"></div>
     <div id="sessoesLista"></div>
+  </section>
+  <section id="tabWorkflows" class="hidden" aria-label="Workflows: as frentes de trabalho">
+    <div id="wfTopo"></div>
+    <div id="wfFaixas"></div>
+    <div id="wfResumo"></div>
+    <div id="wfLista"></div>
+    <div id="wfTerm"></div>
   </section>
   <section id="tabHoje" class="hidden">
     <div id="hojeMsg" class="status hidden"></div>
@@ -1118,6 +1235,7 @@ body.pcs-aberto #appAviso{z-index:8} body.pcs-aberto .menu-balao{z-index:9}
 <nav id="nav" class="hidden">
   <button data-tab="Inicio" class="on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"><path d="M4 10.5 12 4l8 6.5V20a1 1 0 0 1-1 1h-4.5v-6h-5v6H5a1 1 0 0 1-1-1z"/></svg><span>Início</span><span class="n hidden" id="nInicio"></span></button>
   <button data-tab="Claude"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"><path d="M4 5.5A1.5 1.5 0 0 1 5.5 4h13A1.5 1.5 0 0 1 20 5.5v9a1.5 1.5 0 0 1-1.5 1.5H10l-4.5 4V16h0A1.5 1.5 0 0 1 4 14.5z"/><path d="M8 9h8M8 12h5" stroke-linecap="round"/></svg><span>Sessões</span><span class="n hidden" id="nAsk"></span></button>
+  <button data-tab="Workflows"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="4" width="17" height="4.4" rx="2.2"/><rect x="3.5" y="9.8" width="17" height="4.4" rx="2.2"/><rect x="3.5" y="15.6" width="17" height="4.4" rx="2.2"/><path d="M5.7 6.2h8.6M5.7 12h4M5.7 17.8h12.6" stroke-width="2.4"/></svg><span>Workflows</span><span class="n hidden" id="nWf"></span></button>
   <button data-tab="Hoje"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 9.5h16M8.5 3v4M15.5 3v4" stroke-linecap="round"/><path d="m9 14.5 2 2 4-4" stroke-linecap="round"/></svg><span>Hoje</span></button>
   <button data-tab="Pedir"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"><path d="M12 3.5 13.8 9l5.7 1.8-5.7 1.8L12 18.2l-1.8-5.6-5.7-1.8L10.2 9z"/><path d="M18.5 16.5l.7 2 2 .7-2 .7-.7 2-.7-2-2-.7 2-.7z"/></svg><span>Pedir</span></button>
   <button data-tab="Copias"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5.5A1.5 1.5 0 0 0 14.5 4h-9A1.5 1.5 0 0 0 4 5.5v9A1.5 1.5 0 0 0 5.5 16H8"/></svg><span>Cópias</span></button>
@@ -1138,6 +1256,10 @@ body.pcs-aberto #appAviso{z-index:8} body.pcs-aberto .menu-balao{z-index:9}
 <div id="computadores" class="hidden" role="dialog" aria-modal="true" aria-label="Computadores">
   <div class="ar-topo"><b>💻 Computadores</b><button id="pcsFechar" aria-label="Fechar">✕</button></div>
   <div class="ar-corpo" id="pcsCorpo"></div>
+</div>
+<div id="frente" class="hidden" role="dialog" aria-modal="true" aria-labelledby="frTitulo">
+  <div class="ar-topo"><button id="frVoltar" aria-label="Voltar às frentes">‹</button><b id="frTitulo">Frente</b><button id="frAtualizar" aria-label="Atualizar a frente agora">↻</button></div>
+  <div class="ar-corpo" id="frCorpo"></div>
 </div>
 <div class="folha-fundo hidden" id="folhaFundo"><div class="folha" id="folha" role="dialog" aria-modal="true"></div></div>
 
@@ -1276,6 +1398,7 @@ body.pcs-aberto #appAviso{z-index:8} body.pcs-aberto .menu-balao{z-index:9}
 <script src="markdown.js"></script>
 <script src="chat.js"></script>
 <script src="lista.js"></script>
+<script src="workflows.js"></script>
 <script src="pcs.js"></script>
 <script src="usoia.js"></script>
 <script src="ninja.js"></script>
@@ -1301,9 +1424,10 @@ const edicoes = {};      // id do pedido -> o texto como a pessoa editou (a tela
 let sugestoesAtuais = []; // as respostas prontas da sessão aberta (o PC pede à IA quando o Claude pergunta ou termina)
 let timer = null, timerSala = null;
 let aba = "Inicio";
-const VERSAO_APP = "0.9.0";     // esta página
+const VERSAO_APP = "0.9.0.4";   // esta página
 const AGENTE_ATUAL = "0.9.0";   // o agente que acompanha esta página (os PCs atrás dele aparecem no painel)
 const NOVIDADES_APP = [
+  ["0.9.0.4", "Workflows: uma linha por frente de trabalho (o que o maestro delegou e os workflows lançados direto), quem espera você primeiro. Em cada uma: o PC, o estado (trabalhando, esperando você, parada no limite da conta, parada sem andar, terminou), a barra do workflow (▰▰▱ 12/13 · fase · tempo), há quanto tempo sem novidade (vermelho com 20 min trabalhando sem gravar nada) e a última fala. O toque abre a frente: os agentes, os arquivos novos da pasta com miniatura (imagem e PDF abrem aqui), Abrir a pasta no PC e Mandar mensagem. O resumo também no Início. Precisa do Seaninho do celular 0.9.0.4 no PC do maestro; os arquivos e os agentes chegam com a atualização do banco."],
   ["0.9.0", "Computadores: os PCs, a saúde deles e as contas do Claude num lugar só (o bloco 💻 no Início, os PCs do topo e o ⚙ abrem a tela). Um cartão por PC: estado (ligado, em uso, sem sinal, desligado, ligado sem o Seaninho), RAM, disco, tomada ou bateria, falhas, versões, a conta com o Trocar conta, as sessões, o histórico de 7 dias e o aviso quando ele cai ou volta. O ⏻ hiberna, reinicia ou desliga: a folha diz o que se perde (sessões trabalhando, o maestro, programas abertos, alguém no PC), segure 1,5 s, e o PC conta 60 s com Cancelar aqui e lá (mexer no PC cancela); nunca força, e se um programa segurar você escolhe Deixar ligado ou Forçar. Bloquear no ⋯. Precisa do banco v9 e do agente 0.9.0 nos PCs; Ligar pelo celular e Suspender ficam para depois. Agente 0.9.0: também a sobra de entrega que ficava presa na caixa do Claude."],
   ["0.8.12", "O maestro fica sabendo de cada sessão fechada: quando o Seaninho sugere fechar uma parada (RAM do PC acima de 90%) e quando você fecha uma aba pelo celular, vai uma linha para a caixa dele (dos dois PCs). Ele responde: \"fechei\" (o Início mostra que o maestro fechou) ou \"mantive\" (o motivo aparece junto da sugestão, também na lista do Fechar as N paradas). O que a própria orquestra fecha não volta para ela. Agente 0.8.12: também usa a régua da semana do servidor no uso de IA, quando o coletor a tiver, e registra melhor quando a entrega não consegue pôr o cursor."],
   ["0.8.11", "As faixas do ninja como no TeamZone: as 7 (Branca, Amarela, Verde, Azul, Roxa, Marrom e Preta), com os mínimos de cada uma tirados do P100 da régua e proporcionais aos dias já fechados da semana; a banda do coletor limita (P0 sem faixa, P25 no máximo Branca). O ninja mostra a próxima faixa e quantos critérios faltam; o toque mostra cada critério com o farol (verde, amarelo, vermelho) e a escada das 7. A banda P0–P100 e os pontos continuam na linha de baixo."],
@@ -1715,7 +1839,7 @@ function notasDoMaestro(p) {
     vistas.add(e.sessao);
     const s = ss.find(x => x.id === e.sessao && x.pc === p.pc);   // a pessoal vai para a caixa sem o título; aqui ele aparece
     const disse = f.tipo === "mantive" ? "manteve" : s && !s.desligado ? "quis fechar" : "fechou";   // "fechei" com a aba ainda aberta
-    return `<div class="nota-maestro">🎼 O maestro ${disse} “${esc((s && s.titulo) || e.nome)}” (${esc(nomeCurtoPc(p.pc))})${disse === "quis fechar" ? " · ainda aberta" : ""}${
+    return `<div class="nota-maestro">🎼 O ${esc(nomeMaestro(true))} ${disse} “${esc((s && s.titulo) || e.nome)}” (${esc(nomeCurtoPc(p.pc))})${disse === "quis fechar" ? " · ainda aberta" : ""}${
       f.texto ? ": " + esc(f.texto) : ""}</div>`;
   }).join("");
 }
@@ -1728,7 +1852,7 @@ async function fecharParadas(pc) {
   if (!p || !lista.length) return avisar("appAviso", "Nenhuma sessão parada para fechar agora.", {});
   if (!confirm(`Fechar ${lista.length === 1 ? "a aba parada" : `as ${lista.length} abas paradas`} no ${nomeCurtoPc(pc)} (RAM em ${ramDe(p)}%)?\n\n`
       + lista.map(s => { const m = maestroSobre(pc, s.id); return `• ${s.titulo} (parada ${ha(s.desde * 1000)})${
-        m && m.tipo === "mantive" ? ` — o maestro manteve${m.texto ? ": " + m.texto : ""}` : ""}`; }).join("\n")
+        m && m.tipo === "mantive" ? ` — o ${esc(nomeMaestro(true))} manteve${m.texto ? ": " + m.texto : ""}` : ""}`; }).join("\n")
       + "\n\nLibera memória. As conversas continuam no histórico e podem ser reabertas.")) return;
   const grupo = {total: lista.length, feitos: 0, ok: 0, erros: []};
   avisar("appAviso", `Fechando ${lista.length === 1 ? "1 aba" : lista.length + " abas"} no PC…`, {});
@@ -1887,7 +2011,7 @@ function previa(s) {
 }
 
 // ---- Início: o painel do dia (blocos resumidos; cada um leva à aba ou à tela completa) -------------------
-const PAINEL_BLOCOS = ["airats", "esperando", "sessoes", "paravoce", "usoia", "computadores", "metricas", "resumos"];
+const PAINEL_BLOCOS = ["airats", "esperando", "frentes", "sessoes", "paravoce", "usoia", "computadores", "metricas", "resumos"];
 const painelDe = p => (p && p.hoje && p.hoje.painel) || null;
 function motivoRede(e) {
   const m = String((e && e.message) || e || "");
@@ -1915,6 +2039,7 @@ function desenharInicio() {
   }
   por($("p-airats"), blocoAiRats());
   por($("p-esperando"), blocoEsperando(ss, agora));
+  por($("p-frentes"), blocoFrentes(lista));   // 0.9.0.4
   por($("p-sessoes"), blocoSessoes(c, lista));
   const escrevendo = document.activeElement && document.activeElement.matches && document.activeElement.matches("#p-paravoce textarea");
   if (!escrevendo) por($("p-paravoce"), blocoParaVoce(lista));
@@ -1955,10 +2080,22 @@ function blocoSessoes(c, lista) {
     ${c.desligado ? `<button class="ses-off" data-ir="Claude" data-filtro="desligado">⏻ ${plural(c.desligado, "sessão", "sessões")} de PC desligado (${
       esc(lista.filter(desligadoHa).map(p => nomeCurtoPc(p.pc) + " visto " + ha(new Date(p.visto_em).getTime())).join(", "))}) ›</button>` : ""}</section>`;
 }
+// 0.9.0.3: a sessão do maestro pelo nome do ciclo, entre as do PC dele (Pcs.sessaoDoMaestro): o "Responder", o "Mandar
+// pelo …" e o resto vão para a HOKAGE, nunca para a conversa antiga com o título MAESTRO. nomeMaestro: o nome nos botões.
 function orquestraDe(lista) {
-  for (const p of lista) { const o = (painelDe(p) || {}).orquestra; if (o) return {...o, pc: p.pc}; }
+  for (const p of lista) {
+    const o = (painelDe(p) || {}).orquestra;
+    // com o pcs.js de antes no cache do iPhone (a casca troca um arquivo por vez), fica como era, sem quebrar
+    if (o) return {...o, pc: p.pc, sessao: Pcs.sessaoDoMaestro ? Pcs.sessaoDoMaestro(o, p.sessoes || []) : o.sessao,
+                   nomeMaestro: Pcs.nomeDoMaestro ? Pcs.nomeDoMaestro(o) : "Maestro"};
+  }
   return null;
 }
+// meio: no meio da frase ("ao Hokage"; sem nome próprio, "ao maestro")
+const nomeMaestro = (meio = false) => {
+  const o = orquestraDe(Object.values(pcs)), n = (o && o.nomeMaestro) || "Maestro";
+  return meio && n === "Maestro" ? "maestro" : n;
+};
 const linkSeguro = u => /^https:\/\//.test(String(u || "")) ? String(u) : "";
 function blocoParaVoce(lista) {
   const o = orquestraDe(lista);
@@ -1980,8 +2117,8 @@ function itemParaVoce(it, maestro, notas, slack) {
   const a = pvAlvo(it), r = pvRespondidos[it.chave];
   const botao = a && a.achou
     ? `<button data-pv="${esc(it.chave)}" ${a.ligado ? "" : "disabled"} aria-label="Responder à sessão ${esc(a.nome)} sobre: ${esc(it.texto)}">${a.ligado ? "↩ Responder a " + esc(curtoTxt(a.nome, 24)) : esc(nomeCurtoPc(a.pc)) + " desligado"}</button>`
-    : `<button data-pv="${esc(it.chave)}" ${maestro ? "" : "disabled"} aria-label="Responder ao Maestro sobre: ${esc(it.texto)}">${maestro ? "↩ Responder ao Maestro" : "Maestro fechado"}</button>`;
-  const de = a ? `<div class="pv-de">💬 ${esc(a.nome)} · ${esc(nomeCurtoPc(a.pc))}${a.achou ? "" : ` · <span class="alerta">a sessão não está aberta: a resposta vai ao maestro</span>`}</div>` : "";
+    : `<button data-pv="${esc(it.chave)}" ${maestro ? "" : "disabled"} aria-label="Responder ao ${esc(nomeMaestro())} sobre: ${esc(it.texto)}">${maestro ? "↩ Responder ao " + esc(nomeMaestro()) : esc(nomeMaestro()) + " fechado"}</button>`;
+  const de = a ? `<div class="pv-de">💬 ${esc(a.nome)} · ${esc(nomeCurtoPc(a.pc))}${a.achou ? "" : ` · <span class="alerta">a sessão não está aberta: a resposta vai ao ${esc(nomeMaestro(true))}</span>`}</div>` : "";
   return `<div class="pv-item" data-pv-item="${esc(it.chave)}">${de}<div class="pv-t">${esc(it.texto)}</div>${r ? `<div class="pv-feito">${estadoRespostaPv(r)}</div>` : ""}
     <div class="pv-acoes">${botao}
       ${notas ? `<button class="pv-ok" data-pv-ok="${esc(it.chave)}" aria-label="Marcar como resolvido: ${esc(it.texto)}">✓ Resolvido</button>` : ""}
@@ -2077,8 +2214,8 @@ function estadoRespostaPv(r) {
   const p = pedidos.find(x => x.id === r.pedido), h = hm(new Date(r.t).toISOString());
   if (p && ["erro", "cancelado"].includes(p.estado)) return `<span class="alerta">⚠ A resposta a ${esc(r.nome)} não entrou: abra a conversa para tentar de novo.</span>`;
   if (!r.nota && (!p || p.estado !== "entregue")) return `✓ Resposta a caminho de ${esc(r.nome)} (${h})`;
-  const nota = r.nota === "antigo" ? ` · o maestro não foi avisado (o agente do ${esc(nomeCurtoPc(r.maestro))} precisa da ${AGENTE_NOTA})`
-    : r.nota ? " · maestro avisado" : " · avisando o maestro…";
+  const nota = r.nota === "antigo" ? ` · o ${esc(nomeMaestro(true))} não foi avisado (o agente do ${esc(nomeCurtoPc(r.maestro))} precisa da ${AGENTE_NOTA})`
+    : r.nota ? ` · ${esc(nomeMaestro(true))} avisado` : ` · avisando o ${esc(nomeMaestro(true))}…`;
   return `✓✓ Você respondeu a ${esc(r.nome)} às ${h}${nota}`;
 }
 
@@ -2101,7 +2238,7 @@ function migrarPv(it, nova) {
 function pvIndice(chave) {
   const o = orquestraDe(Object.values(pcs));
   const i = ((o && o.para_voce) || []).findIndex(it => chavePv(it) === chave);
-  if (i < 0) avisar("appAviso", "Esse item saiu do Para você: o maestro atualizou a lista.", {});
+  if (i < 0) avisar("appAviso", `Esse item saiu do Para você: o ${nomeMaestro(true)} atualizou a lista.`, {});
   return i;
 }
 function salvarPv() {
@@ -2157,8 +2294,8 @@ function responderParaVoce(i) {
   const a = pvAlvo(it);
   if (a && a.achou) {   // a sessão que perguntou, no PC dela; a resposta leva o item citado
     abrir(a.pc, a.sessao);
-    citando = {id: "pv:" + i, nome: "Para você (maestro)", texto: it.texto, mini: "",
-               cita: Chat.citacao({nome: "Maestro · Para você", hora: horaDe(o.atualizado), texto: it.texto}),
+    citando = {id: "pv:" + i, nome: `Para você (${nomeMaestro(true)})`, texto: it.texto, mini: "",
+               cita: Chat.citacao({nome: `${nomeMaestro()} · Para você`, hora: horaDe(o.atualizado), texto: it.texto}),
                pv: {chave: chavePv(it), item: it.texto, pc: a.pc, sessao: a.sessao, nome: a.nome, maestro: o.pc}};
   } else {
     if (!o.sessao) return;
@@ -2184,7 +2321,7 @@ function resolverParaVoce(i, tipo = "resolvido") {
   pvResolvidos[nota.chave] = agora;
   notasMaestro.push(nota);
   salvarPv(); desenharInicio(); desenharSessoes();
-  avisar("appAviso", tipo === "slack_ja" ? "Marcado como respondido no Slack: o maestro tira da lista." : "Marcado como resolvido: o maestro tira da lista.",
+  avisar("appAviso", tipo === "slack_ja" ? `Marcado como respondido no Slack: o ${nomeMaestro(true)} tira da lista.` : `Marcado como resolvido: o ${nomeMaestro(true)} tira da lista.`,
          {ok: true, rotulo: "Desfazer", passa: true, acao: () => desfazerResolvido(nota)});
   setTimeout(() => processarNotas().then(m => m && desenharInicio()), PV_DESFAZER_MS + 300);
 }
@@ -2193,7 +2330,7 @@ function desfazerResolvido(nota) {
   delete pvResolvidos[nota.chave];
   notasMaestro = notasMaestro.filter(n => n !== nota);
   salvarPv(); desenharInicio(); desenharSessoes();
-  if (!ainda) avisar("appAviso", "O maestro já tinha sido avisado de que está resolvido; o item volta aqui.", {});
+  if (!ainda) avisar("appAviso", `O ${nomeMaestro(true)} já tinha sido avisado de que está resolvido; o item volta aqui.`, {});
 }
 // Manda ao PC do maestro os avisos que já podem ir: o "respondido" quando a resposta entrou na sessão, o "resolvido"
 // depois do tempo do "Desfazer". Falhou (sem internet): tenta de novo em 30 s. Devolve se mudou algo.
@@ -2265,7 +2402,18 @@ function ladoALado(r, tag = "div") {
     <span class="ul nova"><span class="ul-t">Semana ${esc(r.numero)} · começou</span>
       <span class="ul-fx"><b>${esc(r.banda)}</b><i>${pts(r.pontos)} pts</i></span><small>${esc(quandoFoi(r.inicio))} · ${haTempo(r.virada.desde)}</small></span></${tag}>`;
 }
+// 0.9.0.3: a medida que chegou ao teto do tempo fecha com o que já leu: os números são parciais (sobem na próxima,
+// que continua de onde parou). Em cinza, não como erro.
+function parciaisUso(lista) {
+  return (lista || usosDosPcs()).filter(u => u && u.parcial).map(u => {
+    const pct = Math.max(1, Math.min(99, Math.round(100 * (Number(u.cobertura) || 0))));
+    return `<div class="uso-erro off">ℹ <b>A medida do ${esc(nomeCurtoPc(u.pc))} é parcial</b> (leu ${pct}% das conversas da semana): os números dele ainda vão subir; a próxima medida continua de onde esta parou.</div>`;
+  }).join("");
+}
 function errosUso(r, lista) {
+  return errosUso0(r, lista) + parciaisUso(lista);
+}
+function errosUso0(r, lista) {
   const es = r ? r.erros : UsoIa.erros(lista);
   const lig = Object.fromEntries((lista || usosDosPcs()).map(u => [u.pc, u]));
   return es.map(e => {
@@ -2472,7 +2620,8 @@ function desenharUsoIa() {
       <span class="un-sub">Semana ${esc(n.numero)} · ${n.fechou ? "fechou" : `${n.dias} de 7 dias`} · banda ${esc(n.banda)} · ${pts(n.pontos)} pts</span>
       <span class="un-prox">${proximaFaixaTxt(n)}</span>${fileiraFaixas(n)}
       <span class="un-dica">Toque no ninja para ver o que falta</span></div></section>`;
-  por($("usoCorpo"), `${r.erros.length ? `<section class="bloco">${errosUso(r)}</section>` : ""}${heroi}${r.virada ? viradaUso(r) : ""}
+  const avisosUso = errosUso(r);   // 0.9.0.3: os erros e as medidas parciais
+  por($("usoCorpo"), `${avisosUso ? `<section class="bloco">${avisosUso}</section>` : ""}${heroi}${r.virada ? viradaUso(r) : ""}
     <section class="bloco"><h3>Semana ${esc(r.numero)} <span class="n3">${r.encerrada ? `fechou ${esc(quandoFoi(r.fim))}` : `${esc(fmtData(r.inicio))} a ${esc(fmtData(r.fim))}, 17h`}</span></h3>
       ${r.encerrada ? `<p class="uso-virada-nota">🗓 Esta semana fechou ${esc(quandoFoi(r.fim))}. ${lista.some(u => u.ligado)
         ? "Medindo a semana nova (1 a 3 min)…" : "A semana nova aparece quando um PC ligar."}</p>` : ""}
@@ -2598,7 +2747,7 @@ function blocoComputadores(lista, agora) {
   }).join("");
   const parado = o && o.atualizado && agora / 1000 - o.atualizado > 45 * 60;
   const maestro = o && (o.vigia === false || parado) ? `<p class="pcm-al critico" style="margin-top:8px">🎼 ${o.vigia === false
-    ? "A vigia do maestro está desligada" : "O loop do maestro pode ter parado"} (${esc(nomeCurtoPc(o.pc))})</p>` : "";
+    ? `A vigia do ${esc((Pcs.nomeNoMeio ? Pcs.nomeNoMeio(o) : "maestro"))} está desligada` : `O loop do ${esc((Pcs.nomeNoMeio ? Pcs.nomeNoMeio(o) : "maestro"))} pode ter parado`} (${esc(nomeCurtoPc(o.pc))})</p>` : "";
   return `<section class="bloco"><button class="bloco-cab" data-pcs-abrir=""><h3>💻 Computadores <span class="ir">Abrir ›</span></h3></button>
     <div class="pcs-grade">${cartoes}</div>${maestro}${faixaAparelhoNovo()}</section>`;
 }
@@ -2632,7 +2781,7 @@ function cartaoPc(p, {o, viz, falhas, ss, agora}) {
   const pc = p.pc, ped = Pcs.pedidoDe(pedidos, pc), st = estadoPc(p, viz, ped), e = Pcs.energiaDe(p), pa = painelDe(p) || {};
   const m = pa.maquina || {}, on = online(p), pode = podeEnergiaDe(p), ram = ramDe(p), atras = Lista.compararVersao(p.versao, AGENTE_ATUAL) < 0;
   const topo = `<div class="pc-topo"><span class="ico" aria-hidden="true">${e.notebook === false ? "🖥️" : "💻"}</span>
-      <div class="nome"><b>${esc(pc)}${o && o.pc === pc ? ` <span title="o maestro roda aqui">🎼</span>` : ""}</b>
+      <div class="nome"><b>${esc(pc)}${o && o.pc === pc ? ` <span title="o ${esc((Pcs.nomeNoMeio ? Pcs.nomeNoMeio(o) : "maestro"))} roda aqui">🎼</span>` : ""}</b>
         <small class="${st.cor}"><i class="dot ${st.cor}"></i><span${dataAte(st)}>${esc(st.texto)}</span></small></div>
       <button class="pc-bt" data-en-folha="${esc(pc)}" aria-label="Hibernar, reiniciar ou desligar o ${esc(pc)}" ${on && pode.ok ? "" : "disabled"}>⏻</button>
       <button class="pc-bt" data-pc-menu="${esc(pc)}" aria-label="Mais ações do ${esc(pc)}" aria-haspopup="menu">⋯</button></div>
@@ -2670,7 +2819,7 @@ function cartaoPc(p, {o, viz, falhas, ss, agora}) {
   const hist = Pcs.historico(p, Date.now(), 5);
   const reabre = pa.orquestra && !pa.orquestra.sessao && on && ultimoMaestro && ultimoMaestro.pc === pc && ultimoMaestro.sessao;
   return `<section class="pcc ${st.cor === "off" ? "off" : ""}" data-pc-card="${esc(pc)}" aria-label="${esc(pc)}">${topo}${agoraEn}
-    ${reabre ? `<button class="btn" data-reabrir-maestro="${esc(pc)}">🎼 Reabrir o maestro</button>` : ""}
+    ${reabre ? `<button class="btn" data-reabrir-maestro="${esc(pc)}">🎼 Reabrir o ${esc(nomeMaestro(true))}</button>` : ""}
     <div class="pc-sec"><h4>🩺 Saúde</h4><div class="pc-linhas">${saude}</div>${botaoRamCheia(p)}${notasDoMaestro(p)}</div>
     ${conta}
     <div class="pc-sec">${sessoes}${ligar}</div>
@@ -2682,7 +2831,7 @@ function cartaoPc(p, {o, viz, falhas, ss, agora}) {
 function blocoMaestro(o, agora) {
   if (!o) return "";
   const parado = o.atualizado && agora / 1000 - o.atualizado > 45 * 60;
-  return `<section class="pcc"><div class="pc-topo"><span class="ico" aria-hidden="true">🎼</span><div class="nome"><b>Maestro</b><small>no ${esc(nomeCurtoPc(o.pc))}</small></div></div>
+  return `<section class="pcc"><div class="pc-topo"><span class="ico" aria-hidden="true">🎼</span><div class="nome"><b>${esc(o.nomeMaestro || "Maestro")}</b><small>no ${esc(nomeCurtoPc(o.pc))}</small></div></div>
     <div class="pc-linhas" style="margin-top:8px">vigia ${o.vigia === true ? "ligada" : o.vigia === false ? `<span class="alerta critico">desligada</span>` : "sem leitura"} · última volta ${
       o.atualizado ? ha(o.atualizado * 1000) : "?"}${parado ? ` <span class="alerta">(o loop pode ter parado)</span>` : ""}</div></section>`;
 }
@@ -2718,7 +2867,7 @@ function lembrarMaestro() {
 function reabrirMaestro(pc) {
   if (!ultimoMaestro) return;
   pedirNoPc(pc, {acao: "abrir_sessao", sessao: ultimoMaestro.sessao, cwd: ultimoMaestro.cwd},
-            {indo: "Reabrindo o maestro no PC…", ok: "Maestro reaberto no VS Code. Mande “continuar” para o ciclo voltar.", erro: "Não reabriu"});
+            {indo: `Reabrindo o ${nomeMaestro(true)} no PC…`, ok: `${nomeMaestro()} reaberto no VS Code. Mande “continuar” para o ciclo voltar.`, erro: "Não reabriu"});
 }
 function verSessoesDoPc(pc) {
   fecharComputadores();
@@ -2997,8 +3146,9 @@ async function atualizarAgora() {
   mostrarPuxar(0, ok ? `✓ Atualizado às ${hm(new Date().toISOString())}` : `⚠ Não deu para atualizar: ${esc(rede.erro || "tente de novo")}`);
   setTimeout(() => { atualizandoAgora = false; mostrarPuxar(0); }, ok ? 1200 : 3000);
 }
-const podePuxar = e => ["Inicio", "Claude"].includes(aba) && $("detalhe").classList.contains("hidden") && $("folhaFundo").classList.contains("hidden")
-  && window.scrollY <= 0 && !e.target.closest(".fx-fila, .filtros, input, textarea, .sl .card.arrastando");
+const podePuxar = e => ["Inicio", "Claude", "Workflows"].includes(aba) && $("detalhe").classList.contains("hidden") && $("folhaFundo").classList.contains("hidden")
+  && $("frente").classList.contains("hidden")
+  && window.scrollY <= 0 && !e.target.closest(".fx-fila, .filtros, .fr-resumo, input, textarea, .sl .card.arrastando");
 document.addEventListener("touchstart", e => {
   puxando = e.touches.length === 1 && podePuxar(e) ? {y0: e.touches[0].clientY, dy: 0} : null;
 }, {passive: true});
@@ -3305,6 +3455,10 @@ function quandoCurto(iso) {
     : d.toLocaleDateString("pt-BR", {day: "2-digit", month: "2-digit"}) + " " + hora(iso);
 }
 
+// O segredo (chave, token, senha) chega do PC já mascarado: tocar não copia a máscara, diz que a chave fica no PC
+const SEGREDO_SELO = {"chave": "Chave", "chave privada": "Chave privada", "token": "Token", "senha": "Senha"};
+const SEGREDO_NOME = {"chave": "a chave", "chave privada": "a chave privada", "token": "o token", "senha": "a senha"};
+
 function desenharCopias() {
   const varios = Object.keys(copias).length > 1;
   listaCopias = [];
@@ -3314,12 +3468,23 @@ function desenharCopias() {
     $("tabCopias").innerHTML = `<div class="empty">Nada copiado ainda no Seaninho dos PCs.</div>`;
     return;
   }
-  $("tabCopias").innerHTML = `<p class="note">Toque num texto para copiar aqui no iPhone; num print, para ver grande.</p>` +
+  const temSegredo = listaCopias.some(c => c.segredo && !c.imagem);
+  $("tabCopias").innerHTML = `<p class="note">Toque num texto para copiar aqui no iPhone; num print, para ver grande.${temSegredo ? " Chaves e senhas vêm mascaradas e ficam só no PC." : ""}</p>` +
     listaCopias.map((c, i) => `<button class="card copia" data-i="${i}">
-      ${c.imagem ? `<img src="${esc(c.imagem)}" alt="Print${c.tamanho ? " " + esc(c.tamanho) : ""}">`
+      ${c.etiqueta ? `<div class="etq">${esc(c.etiqueta)}</div>` : ""}
+      ${c.imagem ? `<img src="${esc(c.imagem)}" alt="${c.etiqueta ? esc(c.etiqueta) : "Print" + (c.tamanho ? " " + esc(c.tamanho) : "")}">`
+                 : c.segredo ? `<div class="txt seg">🔒 ${esc(c.texto)}</div>`
                  : `<div class="txt">${esc(c.texto)}</div>`}
-      <div class="meta">${c.fixada ? "📌 " : ""}${quandoCurto(c.quando)}${c.app ? " · " + esc(c.app) : ""}${varios ? " · " + esc(c.pc) : ""}${c.cortado ? " · texto cortado" : ""}${c.imagem && c.tamanho ? " · " + esc(c.tamanho) : ""}</div>
+      <div class="meta">${c.fixada ? "📌 " : ""}${quandoCurto(c.quando)}${c.app ? " · " + esc(c.app) : ""}${varios ? " · " + esc(c.pc) : ""}${c.segredo && !c.imagem ? ` · <span class="selo">${esc(SEGREDO_SELO[c.segredo] || "Segredo")} · só no PC</span>` : ""}${c.cortado ? " · texto cortado" : ""}${c.imagem && c.tamanho ? " · " + esc(c.tamanho) : ""}</div>
     </button>`).join("");
+}
+
+function avisoNaCopia(card, html, ms) {   // a linha de baixo do cartão vira o aviso e volta sozinha (dois toques também)
+  const meta = card.querySelector(".meta");
+  if (meta._antes == null) meta._antes = meta.innerHTML;
+  clearTimeout(meta._volta);
+  meta.innerHTML = html;
+  meta._volta = setTimeout(() => { meta.innerHTML = meta._antes; meta._antes = null; }, ms);
 }
 
 async function tocarCopia(card) {
@@ -3328,6 +3493,10 @@ async function tocarCopia(card) {
   if (c.imagem) {
     $("imgGrande").src = c.imagem;
     $("imagem").classList.remove("hidden");
+    return;
+  }
+  if (c.segredo) {
+    avisoNaCopia(card, `<span class="selo">🔒 Por segurança, ${esc(SEGREDO_NOME[c.segredo] || "a chave")} fica só no PC.</span>`, 3200);
     return;
   }
   let ok = false;
@@ -3339,10 +3508,7 @@ async function tocarCopia(card) {
     try { ok = document.execCommand("copy"); } catch {}
     t.remove();
   }
-  const meta = card.querySelector(".meta");
-  const antes = meta.innerHTML;
-  meta.innerHTML = ok ? `<span class="ok">✓ Copiado</span>` : "Não consegui copiar: toque e segure o texto.";
-  setTimeout(() => { meta.innerHTML = antes; }, 1600);
+  avisoNaCopia(card, ok ? `<span class="ok">✓ Copiado</span>` : "Não consegui copiar: toque e segure o texto.", 1600);
 }
 
 // ---- Microfone: grava aqui, o PC transcreve com o transcritor do Seaninho ----------------------------
@@ -3592,6 +3758,8 @@ function sessaoAberta() {
 function abrir(pc, id) {
   if (Marcar.aberto() && !Marcar.sairEditor(true)) return;   // marcando uma imagem: pergunta antes de trocar de conversa
   Marcar.fecharVisor();
+  frVolta = null;   // 0.9.0.4: a conversa aberta por outro caminho não volta para a frente
+  if (frAberta) fecharFrente();
   aberta = {pc, id};
   assinaturaChat = ""; ultimaMsg = ""; novas = 0;   // 0.8.9: os balões que não saíram ficam (antes, sumiam ao sair do chat)
   limparAnexos(); menuAnexo(false); naoCitar(); fecharMenuBalao();
@@ -3610,6 +3778,7 @@ function fechar() {
   $("detalhe").classList.add("hidden");
   document.body.style.overflow = "";
   if (location.hash) history.replaceState(null, "", location.pathname);
+  if (frVolta) { const k = frVolta; frVolta = null; if (aba === "Workflows") abrirFrente(k); }   // 0.9.0.4: o Mandar mensagem volta para a frente
 }
 
 // O celular no iPhone: com o teclado aberto, a tela visível encolhe; o chat acompanha (a caixa fica em cima dele).
@@ -4208,7 +4377,7 @@ function acoesDaMsg(l) {
   const o = orquestraDe(Object.values(pcs)), maestro = o && aberta && o.pc === aberta.pc;
   const botoes = l.fila ? [b("tentar", "↻ Tentar agora")]
     : l.sinal === "esperando"
-    ? [b("agora", "↻ Tentar agora"), ...(l.rascunho ? [b("juntar", "Juntar e enviar", true), ...(maestro ? [b("maestro", "Mandar pelo maestro")] : [])] : [])]
+    ? [b("agora", "↻ Tentar agora"), ...(l.rascunho ? [b("juntar", "Juntar e enviar", true), ...(maestro ? [b("maestro", "Mandar pelo " + nomeMaestro(true))] : [])] : [])]
     : NAO_ADIANTA.test(l.erro || "") ? []
     : PODE_TER_SAIDO.test(l.erro || "") ? [b("tentar", "↻ Mandar de novo")]
     : [b("tentar", "↻ Tentar de novo", true)];
@@ -4241,7 +4410,7 @@ async function acaoMsg(acao, l) {
     try {
       await rpc("cel_pedir", {pc: aberta.pc, tipo: "acao", texto: JSON.stringify({acao: "entrega_opcao", pedido: l.pedido, opcao: acao})});
       avisar("dAviso", {agora: "O PC vai tentar de novo agora.", juntar: "O PC vai juntar com o rascunho da caixa e mandar.",
-                        maestro: "Vai pelo maestro."}[acao], {ok: true, sessao: aberta.id});
+                        maestro: `Vai pelo ${nomeMaestro(true)}.`}[acao], {ok: true, sessao: aberta.id});
     } catch (e) { avisar("dAviso", "Não saiu do celular: " + motivoRede(e), {erro: true, sessao: aberta.id}); }
     return;
   }
@@ -4899,6 +5068,7 @@ async function atualizar() {
     rede = {...rede, ok: false, erro: motivoRede(e)};
     desenharInicio();
     desenharComputadores();   // 0.9.0: os botões de energia ficam cinza sem rede
+    desenharWorkflows(); desenharFrente();   // 0.9.0.4: a faixa "Sem internet" e os botões cinza
     if (antes !== false) { desenharSessoes(); desenharDetalhe(); }   // o "Sem internet" aparece também na lista e no chat
     return false;
   }
@@ -4929,6 +5099,7 @@ async function atualizar() {
   desenharPcs(); desenharSessoes(); desenharInicio(); desenharFeed(); desenharComandos(); desenharAiRats(); desenharUsoIa();
   lembrarMaestro();
   desenharComputadores();
+  desenharWorkflows(); desenharFrente();   // 0.9.0.4
   fecharFolhaSeMudou();
   if (!digitando) desenharHoje(); else desenharMsgHoje();
   desenharDetalhe();   // o chat cuida do que está sendo editado (a prévia e a "Outra resposta" não se refazem por baixo)
@@ -5195,17 +5366,379 @@ async function testarPush() {
   pedirNoPc(p.pc, {acao: "aviso_teste"}, {indo: "Pedi ao PC: o aviso chega em segundos.", ok: "O PC mandou o aviso de teste.", erro: "O teste não saiu"});
 }
 
+// ---- Workflows: as frentes de trabalho (0.9.0.4) ----------------------------------------------------------------
+// Pedido do Arthur (04/11, 19h10): "eu fico que nem um louco olhando todas as seções ... queria ver cada um
+// trabalhando ... como uma barra de progresso, clicar e ver a pasta, o que ele colocou na pasta". Uma linha por frente
+// (o em_andamento do maestro e os workflows lançados sem ele), quem precisa de você primeiro. A lista vem do cel_estado
+// que a página já lê (hoje.painel.frentes do PC do maestro e hoje.painel.sinais de cada PC): abrir a aba não pede nada
+// ao banco. O toque abre a frente: a barra e os agentes, os arquivos novos da pasta de saída (cel_trabalhos, só com a
+// frente aberta e a página visível: ao abrir, a cada 15 s e no ↻), Abrir a pasta no PC e Mandar mensagem. A conta fica
+// no workflows.js (testada no Node); aqui, o desenho.
+const FR_TRAB_MS = window.__frTrabMs || 15000;               // o cel_trabalhos com a frente aberta (trabalhando)
+// 0.9.0.4 (céticos): o cel_trabalhos traz a lista dos dois PCs inteira (~150 KB): 15 s só com a frente trabalhando e o
+// PC dela ligado; a parada, a que espera ou a terminada, a cada 60 s; com o PC dela desligado, só ao abrir e no ↻
+const FR_TRAB_LENTO_MS = window.__frTrabLentoMs || 60000;
+const FR_SEM_FUNCAO_MS = window.__frSemFuncaoMs || 600000;   // banco sem a migração: 10 min sem tentar de novo
+const FR_MINI_DE_NOVO_MS = 15000;                            // a miniatura que ainda não chegou ao banco: pede de novo depois
+const FR_SEM_MINI = "data:image/svg+xml," + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="480" height="360"><rect width="100%" height="100%" fill="#13254a"/></svg>');
+let frFiltro = "";                 // o chip do resumo tocado ("" = todas)
+let frTerminadasAberto = false;    // "Terminaram hoje" começa fechado
+let frAberta = null;               // a chave da frente aberta no detalhe
+let frVolta = null;                // a frente para onde o ‹ do chat volta (depois do Mandar mensagem)
+let frPedido = null;               // o "Abrir a pasta no PC" em andamento: {chave, obj, id, erro}
+const frTrab = {linhas: null, erro: "", semFuncaoAte: 0, carregando: false, timer: null, lidoEm: 0};
+const frMinis = new Map(), frMinisPedidas = new Set(), frMinisTentou = new Map();   // id da miniatura -> data URL
+let frArqs = [];                   // os arquivos desenhados no detalhe (o toque acha pelo índice)
+let frArqsPasta = "";              // 0.9.0.4: a pasta que o PC leu para esses arquivos (os nomes são relativos a ela)
+
+const frVista = () => Workflows.vistaDasFrentes(Object.values(pcs), {agora: agoraRede()});
+function frCtx() {
+  const lista = Object.values(pcs);
+  return {pcs: lista, sessoes: todasSessoes(), agora: agoraRede(), rede, maestro: orquestraDe(lista), nomeMaestro: nomeMaestro(true)};
+}
+const frenteAtual = () => frAberta ? Workflows.frenteDoLink(frVista(), frAberta).item : null;
+// Os ▰ cheios em dourado e os ▱ vazios apagados; o resto ("12/13 · Gerar imagens · 3h12m") como texto.
+function barraFrHtml(b) {
+  const m = /^([▰▱]+)(.*)$/.exec(String(b || ""));
+  if (!m) return `<span class="fr-barra">${esc(b)}</span>`;
+  const cheios = (m[1].match(/▰/g) || []).length;
+  return `<span class="fr-barra"><span class="fr-blocos" aria-hidden="true">${"▰".repeat(cheios)}<i>${"▱".repeat(m[1].length - cheios)}</i></span>${esc(m[2])}</span>`;
+}
+
+// O selo da aba (esperando você + paradas, sem as pausadas de propósito: 0.9.0.4), a aba e o detalhe aberto: a cada
+// atualizar().
+function desenharWorkflows() {
+  const v = frVista(), r = v.resumo, n = Workflows.seloDasFrentes(v);
+  $("nWf").textContent = n; $("nWf").classList.toggle("hidden", !n);
+  if (aba !== "Workflows") return;
+  const ctx = frCtx(), fx = Workflows.faixasDasFrentes(v, ctx), quando = Workflows.quandoDaLista(v.cicloEm, ctx.agora);
+  por($("wfTopo"), `<div class="fr-topo"><div class="fr-topo-t"><h2>Frentes de trabalho</h2>${v.maestro
+      ? `<small>Lista do ${esc(nomeMaestro(true))}${quando ? " " + esc(quando) : ""}</small>` : ""}</div>
+    <button class="fr-bt" data-fr-atualizar aria-label="Atualizar agora">↻</button></div>`);
+  por($("wfFaixas"), (rede.ok === false ? `<div class="rede-off" role="status">⚠ Sem internet${rede.em ? " desde " + hm(new Date(rede.em).toISOString()) : ""}: a lista é a última que chegou.</div>` : "")
+    + fx.faixas.map(f => `<p class="fr-faixa ${f.cor}" role="status">${esc(f.texto)}</p>`).join(""));
+  // 0.9.0.4 (céticos): o chip das terminadas conta as de hoje antes do corte, como o "Terminaram hoje (N)" logo abaixo
+  const chips = Workflows.chipsDoResumo({...r, terminaram: v.totalTerminadas});
+  if (frFiltro && !(r[frFiltro] > 0)) frFiltro = "";   // o filtro ficou vazio: volta a mostrar todas
+  por($("wfResumo"), chips.length ? `<div class="fr-resumo" role="toolbar" aria-label="Resumo das frentes: toque para filtrar">${chips.map(c =>
+    `<button class="fr-rchip ${c.k}${frFiltro === c.k ? " on" : ""}" data-fr-filtro="${c.k}"${c.k === "terminaram" ? "" : ` aria-pressed="${frFiltro === c.k}"`}>${esc(c.texto)}</button>`).join("")}${
+    frFiltro ? `<button class="fr-rchip limpar" data-fr-filtro="" aria-label="Mostrar todas as frentes">✕ Todas</button>` : ""}</div>` : "");
+  const itens = Workflows.filtrarFrentes(v.itens, frFiltro);
+  // 0.9.0.4: "e mais N frentes" quando o maestro cortou a lista (o total_abertas)
+  const mais = Workflows.maisFrentes(v) && !frFiltro ? `<p class="note fr-mais">${esc(Workflows.maisFrentes(v))}.</p>` : "";
+  por($("wfLista"), !v.maestro || (!v.itens.length && !v.terminadas.length) ? `<div class="empty fr-vazio">${esc(fx.vazio)}.</div>`
+    : (itens.map(it => cartaoFrente(it, ctx)).join("") || (v.itens.length
+      ? `<div class="vazio-filtro">Nenhuma frente com esse filtro.<button class="btn sec" data-fr-filtro="">Ver todas</button></div>`
+      : `<p class="note">Nada em andamento agora.</p>`)) + mais);
+  por($("wfTerm"), v.terminadas.length ? `<details class="fr-term" data-fr-term ${frTerminadasAberto ? "open" : ""}><summary>Terminaram hoje (${v.totalTerminadas})</summary>${
+    v.terminadas.map(it => cartaoFrente(it, ctx)).join("")}${v.totalTerminadas > v.terminadas.length ? `<p class="note">Aqui ficam as ${v.terminadas.length} mais novas.</p>` : ""}</details>` : "");
+}
+// O cartão: título e estado; o PC e a barra; há quanto tempo sem novidade (vermelho com 20 min trabalhando) e desde
+// quando; a última fala em 1 linha. O motivo e o STATUS: ficam no detalhe.
+function cartaoFrente(it, ctx) {
+  const fala = Workflows.umaLinha(Workflows.falaDaFrente(it, ctx.sessoes)), nov = Workflows.novidadeDaFrente(it);
+  const tempo = Workflows.tempoDaFrente(it, ctx.agora);
+  // 0.9.0.4 (céticos): sem fala, a nota do hokage na 4ª linha (com a sessão fechada ou o PC desligado, é o que informa)
+  const nota = fala ? "" : Workflows.umaLinha(Workflows.notaDaFrente(it));
+  return `<button class="card fr ${it.grupo}" data-frente="${esc(it.chave)}" aria-label="${esc(Workflows.vozDaFrente(it, ctx.agora, fala || (nota ? "nota do maestro: " + nota : "")))}">
+    <span class="fr-l1"><span class="fr-ico" aria-hidden="true">${it.icone}</span><b>${esc(it.titulo)}</b><span class="fr-chip ${it.chip.cor}">${esc(it.chip.texto)}</span></span>
+    <span class="fr-l2"><span class="fr-pc">${esc(it.pcCurto)}</span>${it.barra ? barraFrHtml(it.barra) : ""}</span>
+    ${nov || tempo ? `<span class="fr-l3">${nov ? `<span class="${it.vermelho ? "verm" : ""}">${esc(nov)}</span>` : ""}${tempo ? `<span>${esc(tempo)}</span>` : ""}</span>` : ""}
+    ${fala ? `<span class="fr-l4">${esc(fala)}</span>` : nota ? `<span class="fr-l4 fr-nota-l"><span aria-hidden="true">🎼 </span>${esc(nota)}</span>` : ""}</button>`;
+}
+// O bloco do Início: os contadores da frente (como os das Sessões); o toque leva à aba, já com o filtro do contador.
+// Some quando o maestro não publica frentes.
+const CONTADORES_FR = [["esperando", "Esperando você"], ["paradas", "Paradas"], ["sem_novidade", "Sem novidade"], ["trabalhando", "Trabalhando"]];
+function blocoFrentes(lista) {
+  const agora = agoraRede(), v = Workflows.vistaDasFrentes(lista, {agora});
+  if (!v.maestro) return "";
+  const r = v.resumo, quando = Workflows.quandoDaLista(v.cicloEm, agora), nt = v.totalTerminadas;   // 0.9.0.4: antes do corte
+  const rodape = [r.sem_sinal ? `${r.sem_sinal} sem sinal` : "", nt ? `${nt} ${nt === 1 ? "terminou" : "terminaram"} hoje` : "",
+    quando ? `lista do ${nomeMaestro(true)} ${quando}` : ""].filter(Boolean).join(" · ");
+  return `<section class="bloco fr-bloco${r.esperando ? " destaque" : ""}"><button class="bloco-cab" data-fr-ir="" aria-label="Frentes de trabalho: ${
+      esc(Workflows.textoDoResumo(r))}. Abrir os Workflows"><h3>🧭 Frentes de trabalho <span class="ir">Abrir ›</span></h3></button>
+    <div class="contadores">${CONTADORES_FR.map(([k, rot]) => `<button class="contador ${k}" data-fr-ir="${k}" aria-label="${rot}: ${r[k]}${
+      k === "trabalhando" && r.sem_novidade ? `, ${r.sem_novidade} delas sem novidade` : ""}"><b>${r[k]}</b><span>${rot}</span></button>`).join("")}</div>
+    ${rodape ? `<div class="rodape">${esc(rodape)}</div>` : ""}</section>`;
+}
+
+// ---- O detalhe da frente --------------------------------------------------------------------------------------
+function abrirFrente(chave) {
+  if (!chave) return;
+  if (aba !== "Workflows") mostrarAba("Workflows");
+  if (frAberta !== chave) { frPedido = null; frArqs = []; }
+  frAberta = chave;
+  $("frente").classList.remove("hidden");
+  document.body.classList.add("fr-aberta");
+  document.body.style.overflow = "hidden";
+  $("frCorpo").scrollTop = 0;
+  desenharFrente();
+  carregarTrabalhos(true);
+  clearInterval(frTrab.timer);
+  frTrab.timer = setInterval(carregarTrabalhos, FR_TRAB_MS);
+}
+function fecharFrente() {
+  frAberta = null; frPedido = null;
+  clearInterval(frTrab.timer); frTrab.timer = null;
+  $("frente").classList.add("hidden");
+  document.body.classList.remove("fr-aberta");
+  document.body.style.overflow = "";
+  if (/(^#|&)frente=/.test(location.hash)) history.replaceState(null, "", location.pathname);
+}
+// O cel_trabalhos (banco novo): só com o detalhe aberto e a página visível. Sem a função no banco, 10 min sem tentar.
+async function carregarTrabalhos(forcar = false) {
+  if (!frAberta || !chave || document.visibilityState !== "visible" || frTrab.carregando || Date.now() < frTrab.semFuncaoAte) return;
+  if (forcar !== true) {   // a volta do relógio (e a página que voltou a aparecer): no ritmo da frente
+    const it = frenteAtual();
+    if (it && it.congelado) return;
+    if (it && it.estado !== "trabalhando" && Date.now() - frTrab.lidoEm < FR_TRAB_LENTO_MS) return;
+  }
+  frTrab.carregando = true; frTrab.lidoEm = Date.now();
+  try {
+    const r = await rpc("cel_trabalhos", {});
+    frTrab.linhas = Array.isArray(r) ? r : []; frTrab.erro = "";
+  } catch (e) {
+    if (/could not find the function|PGRST202/i.test(String((e && e.message) || ""))) frTrab.semFuncaoAte = Date.now() + FR_SEM_FUNCAO_MS;
+    else frTrab.erro = motivoRede(e);
+  } finally { frTrab.carregando = false; desenharFrente(); }
+}
+const ESTADO_FASE = {feita: ["ok", "✓", "feita"], rodando: ["anda", "●", "rodando"], parou: ["erro", "■", "parou"]};
+const ESTADO_AGENTE = {pronto: ["ok", "pronto"], rodando: ["anda", "rodando"], erro: ["erro", "com erro"], fila: ["", "na fila"]};
+function runFrHtml(run) {
+  const fases = run.fases.length ? `<ol class="fr-fases" aria-label="Fases do workflow">${run.fases.map(f => {
+    const [cls, ico, rot] = ESTADO_FASE[f.estado] || ["", "○", f.estado || "a fazer"];
+    return `<li class="${cls}" aria-label="${esc(f.nome)}: ${esc(rot)}"><i aria-hidden="true">${ico}</i>${esc(f.nome)}</li>`;
+  }).join("")}</ol>` : "";
+  const ags = run.agentes.slice(-12);
+  const agentes = ags.length ? `<ul class="fr-ags" aria-label="Agentes">${ags.map(a => {
+    const [cls, rot] = ESTADO_AGENTE[a.estado] || ["", a.estado || ""];
+    return `<li><i class="dot ${cls}" aria-hidden="true"></i><span>${esc(a.rotulo)}</span><small>${esc(rot)}${a.durTexto ? " · " + esc(a.durTexto) : ""}</small></li>`;
+  }).join("")}</ul>` : "";
+  return fases + agentes;
+}
+// A subpasta do arquivo (o nome relativo sem o nome dele), "" quando ele está na própria pasta.
+const subpastaArq = a => String(a.nome || "").slice(0, Math.max(0, String(a.nome || "").length - String(a.base || "").length)).replace(/[\\/]+$/, "");
+function tileArq(a, i) {
+  const src = a.mini ? frMinis.get(a.mini) : "";
+  const ico = a.tipo === "pdf" ? "📄" : a.tipo === "texto" ? "📝" : a.tipo === "imagem" ? "🖼️" : "📦";
+  const tag = a.tipo === "pdf" ? `PDF${a.doc ? ` · ${a.doc.paginas} p.` : ""}` : a.tipo === "imagem" ? "" : a.ext || "arquivo";
+  const rot = {imagem: "imagem", pdf: "PDF", texto: "texto", outro: "arquivo"}[a.tipo];
+  const acao = a.tipo === "imagem" ? "Toque para ver" : a.tipo === "pdf" && a.doc ? "Toque para abrir o PDF"
+    : a.tipo === "texto" ? "Toque para ler" : "Toque para mostrar no PC";
+  // 0.9.0.4 (crítico): dois LEIA-ME.md em subpastas diferentes não ficam iguais: a subpasta vai numa linha pequena
+  const sub = subpastaArq(a);
+  return `<button class="fr-arq ${a.tipo}" data-fr-arq="${i}" aria-label="${esc(`${a.base}${sub ? ", em " + sub : ""}, ${rot}, ${a.hora}${a.tamanho ? ", " + a.tamanho : ""}. ${acao}`)}">
+    <span class="fr-arq-v">${src ? `<img src="${esc(src)}" alt="">` : `<span class="fr-arq-ico" aria-hidden="true">${ico}</span>`}${tag ? `<span class="fr-arq-tag">${esc(tag)}</span>` : ""}</span>
+    <span class="fr-arq-n">${esc(a.base)}</span>${sub ? `<span class="fr-arq-s">${esc(sub)}</span>` : ""}<span class="fr-arq-h">${esc(a.hora)}${a.tamanho ? " · " + esc(a.tamanho) : ""}</span></button>`;
+}
+// As miniaturas (a tabela fotos, o id "mini"): guardadas no aparelho como foto:<id>; até 4 pedidos de cada vez; a que
+// ainda não chegou ao banco é pedida de novo depois de 15 s.
+function pedirMinis(itens) {
+  for (const a of itens) {
+    if (frMinisPedidas.size >= 4) break;
+    if (!a.mini || frMinis.has(a.mini) || frMinisPedidas.has(a.mini) || Date.now() - (frMinisTentou.get(a.mini) || 0) < FR_MINI_DE_NOVO_MS) continue;
+    pedirMini(a.mini);
+  }
+}
+async function pedirMini(id) {
+  frMinisPedidas.add(id); frMinisTentou.set(id, Date.now());
+  try {
+    let url = await Marcar.Grandes.ler(`foto:${id}`);
+    if (!url) {
+      const r = await rpc("cel_foto", {id, tamanho: "media"});
+      if (r && r.dados) { url = `data:${r.mime || "image/jpeg"};base64,${r.dados}`; Marcar.Grandes.guardar(`foto:${id}`, url); }
+    }
+    if (url) {
+      frMinis.set(id, url);
+      if (frMinis.size > 200) frMinis.delete(frMinis.keys().next().value);
+    }
+  } catch { /* sem rede: tenta de novo na próxima volta */ }
+  finally { frMinisPedidas.delete(id); if (frMinis.has(id)) desenharFrente(); }
+}
+// O "Abrir a pasta no PC" em andamento, como no acaoHoje: "Pedi ao PC…", e depois a resposta ou o erro do pedido.
+function andamentoDaPasta(it) {
+  if (!frPedido || frPedido.chave !== it.chave) return null;
+  const p = frPedido.id && pedidos.find(x => x.id === frPedido.id);
+  if (p && p.estado === "entregue") return {cls: "ok", texto: "✓ " + (p.resposta || "Pasta aberta no PC.")};
+  if (p && ["erro", "cancelado"].includes(p.estado)) return {cls: "err", texto: "Não abriu: " + (p.erro || "o PC não conseguiu")};
+  if (frPedido.erro) return {cls: "err", texto: frPedido.erro};
+  return {cls: "", texto: `Pedi ao ${nomeCurtoPc(it.pc)}…`, spin: true};
+}
+function desenharFrente() {
+  if (!frAberta) return;
+  if (!$("frCab")) $("frCorpo").innerHTML = ["frCab", "frProg", "frArqs", "frBotoes", "frFala"].map(id => `<div id="${id}"></div>`).join("");
+  const achou = Workflows.frenteDoLink(frVista(), frAberta);
+  if (!achou.item) {
+    $("frTitulo").textContent = "Frente";
+    por($("frCab"), `<div class="empty fr-sumiu">${esc(achou.texto)}.<button class="btn sec" data-fr-voltar>Voltar às frentes</button></div>`);
+    ["frProg", "frArqs", "frBotoes", "frFala"].forEach(id => por($(id), ""));
+    frArqs = [];
+    return;
+  }
+  const it = achou.item, ctx = frCtx(), agora = ctx.agora, f = it.f;
+  $("frTitulo").textContent = it.titulo;
+  // título, PC, estado e o porquê (o motivo ou a linha STATUS: só aparecem aqui)
+  const motivo = String(f.motivo || f.status_linha || ""), nov = Workflows.novidadeDaFrente(it), link = linkSeguro(f.link);
+  const nota = Workflows.notaDaFrente(it);   // 0.9.0.4: a nota do hokage (quando não é ela mesma o motivo)
+  por($("frCab"), `<div class="fr-cab"><div class="fr-l1"><span class="fr-ico" aria-hidden="true">${it.icone}</span><span class="fr-chip ${it.chip.cor}">${esc(it.chip.texto)}</span>
+      <span class="fr-pc">${esc(it.pcCurto)}</span><span class="fr-tipo">${it.tipo === "sessao" ? "Workflow lançado direto" : "Delegação do " + esc(nomeMaestro(true))}</span></div>
+    <h3 class="fr-h">${esc(it.titulo)}</h3>${motivo ? `<p class="fr-motivo">${esc(motivo)}</p>` : ""}${
+      nota && nota !== motivo ? `<p class="fr-nota-m"><b>Nota do ${esc(nomeMaestro(true))}:</b> ${esc(nota)}</p>` : ""}
+    <p class="fr-meta">${esc(Workflows.tempoDaFrente(it, agora, {longo: true}))}${nov ? ` · <span class="${it.vermelho ? "verm" : ""}">${esc(nov)}</span>` : ""}</p>
+    ${f.origem || link ? `<p class="fr-meta">${f.origem ? "Pedido: " + esc(f.origem) : ""}${link ? `${f.origem ? " · " : ""}<a href="${esc(link)}" target="_blank" rel="noopener">abrir o link do pedido</a>` : ""}</p>` : ""}</div>`);
+  // a barra e o que roda agora; com o banco novo, as fases e os agentes do run
+  const det = Workflows.detalheDaFrente(it, {linhas: frTrab.linhas, semFuncao: Date.now() < frTrab.semFuncaoAte, erro: frTrab.erro, agora, pcs: ctx.pcs});
+  const rodando = it.barra && it.wf && Array.isArray(it.wf.rodando) ? it.wf.rodando.filter(Boolean).slice(0, 4) : [];
+  por($("frProg"), `<section class="fr-sec" aria-label="Progresso"><h4>Progresso</h4>${it.barra ? `<div class="fr-barra-g">${barraFrHtml(it.barra)}</div>`
+      : `<p class="fr-nota">${it.wf ? "O workflow desta sessão começou antes da frente." : "Nenhum workflow nesta frente agora: a barra aparece quando um Workflow roda na sessão."}</p>`}
+    ${rodando.length ? `<p class="fr-agora"><b>Agora:</b> ${esc(rodando.join(", "))}</p>` : ""}${det.run ? runFrHtml(det.run) : ""}</section>`);
+  // os arquivos novos da pasta de saída
+  const a = det.arquivos, pasta = (a && a.pasta) || f.entrega || f.cwd || "";
+  frArqs = a ? a.itens : [];
+  frArqsPasta = (a && a.pasta) || "";
+  por($("frArqs"), `<section class="fr-sec" aria-label="Arquivos novos"><h4>Arquivos novos${a && a.total ? ` <span class="n3">${a.total}</span>` : ""}</h4>
+    ${pasta ? `<p class="fr-pasta">📁 ${esc(pasta)}</p>` : ""}${det.nota ? `<p class="fr-nota" role="status">${det.carregando ? `<span class="spin"></span>` : ""}${esc(det.nota)}${/[.…]$/.test(det.nota) ? "" : "."}</p>` : ""}
+    ${frArqs.length ? `<div class="fr-grade">${frArqs.map(tileArq).join("")}</div>` : ""}${a && a.total > frArqs.length ? `<p class="fr-nota">Aqui ficam os ${frArqs.length} mais novos de ${a.total}.</p>` : ""}</section>`);
+  if (frArqs.length) pedirMinis(frArqs);
+  // os botões (cinza com o motivo) e o andamento do pedido
+  const b = Workflows.botoesDaFrente(it, ctx), and = andamentoDaPasta(it);
+  por($("frBotoes"), `<div class="fr-botoes">
+    <button class="btn" data-fr-pasta ${b.pasta.ok ? "" : `disabled aria-describedby="frPorPasta"`}>📂 ${esc(b.pasta.texto)}</button>
+    ${b.pasta.ok ? "" : `<p class="fr-por" id="frPorPasta">${esc(b.pasta.motivo)}</p>`}
+    ${and ? `<div class="status${and.cls ? " " + and.cls : ""}" role="status">${and.spin ? `<span class="spin"></span>` : ""}${esc(and.texto)}</div>` : ""}
+    <button class="btn sec" data-fr-msg ${b.mensagem.ok ? "" : `disabled aria-describedby="frPorMsg"`}>💬 ${esc(b.mensagem.texto)}</button>
+    ${b.mensagem.ok ? "" : `<p class="fr-por" id="frPorMsg">${esc(b.mensagem.motivo)}</p>`}</div>`);
+  // a última fala inteira, com o markdown da página (0.9.0.4: a da frente de fundo vem da coluna falas, até 1500 letras)
+  const fala = Workflows.falaDaFrente(it, ctx.sessoes, frTrab.linhas);
+  por($("frFala"), `<section class="fr-sec" aria-label="Última fala"><h4>Última fala</h4>${fala ? `<div class="fr-fala md">${Chat.marcacao(fala)}</div>` : `<p class="note">Ainda sem fala.</p>`}</section>`);
+}
+// O toque num arquivo: imagem no visor (as da frente em sequência; a nítida quando o PC mandou), PDF no visor de PDF de
+// hoje, o texto (.md, .txt, .json…) pedido ao PC, que manda um PDF dele para o mesmo visor (0.9.0.4, crítico: é o que
+// mais sai das sessões), e o resto numa folha "Mostrar no PC" (o Explorer abre com o arquivo selecionado).
+function tocarArquivo(i) {
+  const it = frenteAtual(), a = frArqs[i];
+  if (!it || !a) return;
+  if (a.tipo === "imagem") return verImagensFrente(it, a);
+  if (a.tipo === "pdf" && a.doc) {
+    docsNaTela.set(a.doc.id, {doc: {...a.doc, nome: a.base, tamanho: a.b, capa: (a.mini && frMinis.get(a.mini)) || ""}, pc: it.pc});
+    return abrirPdf(a.doc.id);
+  }
+  if (a.tipo === "texto") return lerTextoFrente(it, a);
+  folhaMostrarNoPc(it, a);
+}
+// 0.9.0.4: o texto da frente. A folha diz "Pedi ao WIN…"; o PC confere as travas (as da pasta, o nome de segredo, até
+// 64 KB, chave no conteúdo), faz o PDF e responde {"doc", "nome", "texto"}; aí o visor de PDF abre. A folha fechada no
+// meio não abre o visor depois. Com o erro, a folha mostra o motivo e o "Mostrar no PC".
+let frTexto = null;   // o pedido em andamento: {chave, nome}
+async function lerTextoFrente(it, a) {
+  const b = Workflows.botoesDaFrente(it, frCtx()).pasta;
+  if (!b.ok) return folhaMostrarNoPc(it, a, {cls: "err", texto: b.motivo});
+  const pedido = frTexto = {chave: it.chave, nome: a.nome};
+  folhaMostrarNoPc(it, a, {spin: true, texto: `Pedi ao ${it.pcCurto} para abrir ${a.base}…`});
+  const obj = {acao: "ler_texto", frente: it.chave, pasta: frArqsPasta || b.pasta, arquivo: a.nome};
+  let id;
+  try { id = await rpc("cel_pedir", {pc: it.pc, tipo: "acao", texto: JSON.stringify(obj)}); }
+  catch (e) {   // não saiu do celular: o motivo da rede, como no "Abrir a pasta"
+    if (frTexto === pedido && !$("folhaFundo").classList.contains("hidden"))
+      folhaMostrarNoPc(it, a, {cls: "err", texto: "Não saiu do celular: " + motivoRede(e)});
+    if (frTexto === pedido) frTexto = null;
+    return;
+  }
+  try {
+    const p = await esperarPedido(id, 60000);
+    let r = null;
+    try { r = JSON.parse(p.resposta || ""); } catch { r = null; }
+    const d = r && r.doc;
+    if (!d || !/^[0-9a-f]{8,64}$/i.test(String(d.id || ""))) throw new Error("o PC não mandou o documento");
+    if (frTexto !== pedido || $("folhaFundo").classList.contains("hidden")) return;   // a folha foi fechada: nada abre
+    frTexto = null;
+    fecharFolha();
+    docsNaTela.set(d.id, {doc: {id: d.id, paginas: Math.max(1, parseInt(d.paginas, 10) || 1), w: Number(d.w) || 340,
+      h: Number(d.h) || 600, nome: a.base, tamanho: a.b, capa: ""}, pc: it.pc});
+    abrirPdf(d.id);
+  } catch (e) {
+    if (frTexto !== pedido || $("folhaFundo").classList.contains("hidden")) return;
+    frTexto = null;
+    folhaMostrarNoPc(it, a, {cls: "err", texto: "Não abriu: " + ((e && e.message) || motivoRede(e))});
+  }
+}
+function verImagensFrente(it, a) {
+  const imgs = frArqs.filter(x => x.tipo === "imagem"), pasta = Workflows.botoesDaFrente(it, frCtx()).pasta;
+  Marcar.ver({lista: imgs.map(x => {
+      const mini = x.mini && frMinis.get(x.mini);
+      const foto = {src: mini || FR_SEM_MINI, nome: x.base, sub: `${it.pcCurto} · ${x.hora}`, arquivo: x.base, rel: x.nome};
+      if (x.nitida && x.id) Object.assign(foto, {carregarAlta: () => fotoAlta({id: x.id}), rotuloAlta: "Carregando a imagem nítida…",
+        erroAlta: "A imagem nítida não veio · tocar para tentar de novo"});
+      else if (!mini && x.mini) Object.assign(foto, {carregarAlta: () => esperarFoto(x.mini, 20000), rotuloAlta: "Carregando a miniatura…"});
+      return foto;
+    }), indice: Math.max(0, imgs.indexOf(a)), faixa: true,
+    extra: pasta.ok ? [{rotulo: "📂 Mostrar no PC", acao: foto => { Marcar.avisoVisor(`Pedi ao ${it.pcCurto} para mostrar o arquivo na pasta.`); abrirPastaFrente(foto && foto.rel); }}] : []});
+}
+function folhaMostrarNoPc(it, a, estado = null) {
+  const b = Workflows.botoesDaFrente(it, frCtx()).pasta;
+  // 0.9.0.4: o texto (ler_texto) usa a mesma folha: "Pedi ao WIN…" enquanto espera, e o motivo quando não abre
+  const st = estado ? `<div class="status${estado.cls ? " " + estado.cls : ""}" role="status">${estado.spin ? `<span class="spin"></span>` : ""}${esc(estado.texto)}</div>` : "";
+  $("folha").innerHTML = `<div class="pega"></div><h4>${esc(a.base)}</h4>
+    <p class="fr-folha-meta">${esc(a.hora)}${a.tamanho ? " · " + esc(a.tamanho) : ""} · ${esc(a.nome)}</p>
+    ${st || `<p class="note">Este arquivo não abre no celular. O ${esc(it.pcCurto)} abre a pasta com ele selecionado.</p>`}
+    <button class="btn" data-fr-mostrar="${esc(a.nome)}" ${b.ok ? "" : "disabled"}>📂 Mostrar no ${esc(it.pcCurto)}</button>${b.ok ? "" : `<p class="fr-por">${esc(b.motivo)}</p>`}
+    <button class="op en-nao" data-nf-fechar>Cancelar</button>`;
+  $("folhaFundo").classList.remove("hidden");
+}
+// A ação abrir_pasta no PC da frente ({"acao" primeiro, como o PC espera}); o PC confere as travas de novo.
+async function abrirPastaFrente(selecionar = "") {
+  const it = frenteAtual();
+  if (!it) return;
+  const b = Workflows.botoesDaFrente(it, frCtx()).pasta;
+  if (!b.ok) { frPedido = {chave: it.chave, erro: b.motivo}; return desenharFrente(); }
+  // 0.9.0.4: o arquivo é relativo à pasta que o PC leu (a entrega, ou a cwd quando a entrega não tinha nada novo); o
+  // botão principal também abre essa (a que a lista mostra), e não a entrega vazia
+  const obj = {acao: "abrir_pasta", frente: it.chave, pasta: frArqsPasta || b.pasta};
+  if (selecionar) obj.selecionar = selecionar;
+  frPedido = {chave: it.chave, obj, id: null, erro: ""};
+  desenharFrente();
+  try {
+    const id = await rpc("cel_pedir", {pc: it.pc, tipo: "acao", texto: JSON.stringify(obj)});
+    if (frPedido && frPedido.obj === obj) frPedido.id = id;
+    desenharFrente();
+    atualizar();
+  } catch (e) {
+    if (frPedido && frPedido.obj === obj) frPedido.erro = "Não saiu do celular: " + motivoRede(e);
+    desenharFrente();
+  }
+}
+// Mandar mensagem: o chat de hoje (com as travas dele); o ‹ do chat volta para a frente. Falar com o maestro: a
+// conversa dele, com "Sobre a frente …" já na caixa, sem enviar.
+function mensagemFrente() {
+  const it = frenteAtual();
+  if (!it) return;
+  const m = Workflows.botoesDaFrente(it, frCtx()).mensagem;
+  if (!m.ok || !m.conversa) return;
+  abrir(m.conversa.pc, m.conversa.id);
+  frVolta = it.chave;
+  if (m.rascunho) {
+    const atual = $("texto").value;
+    if (!atual.startsWith(m.rascunho)) $("texto").value = m.rascunho + atual;
+    store.set("seaninho.rascunho." + m.conversa.id, $("texto").value);
+    ajustarCaixa();
+    $("texto").focus();
+  }
+}
+document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") carregarTrabalhos(); });
+
 // ---- Ligações ----------------------------------------------------------------------------------------
 document.querySelectorAll(".mic").forEach(b => { b.innerHTML = MIC; b.addEventListener("click", () => alternarMic(b)); });
 function mostrarAba(nome) {
   aba = nome;
   document.querySelectorAll("nav button").forEach(x => x.classList.toggle("on", x.dataset.tab === nome));
   $("gear").classList.toggle("on", nome === "Ajustes");
-  ["Inicio", "Claude", "Hoje", "Pedir", "Copias", "Feed", "Ajustes"].forEach(t => $("tab" + t).classList.toggle("hidden", t !== nome));
+  ["Inicio", "Claude", "Workflows", "Hoje", "Pedir", "Copias", "Feed", "Ajustes"].forEach(t => $("tab" + t).classList.toggle("hidden", t !== nome));
+  if (frAberta && nome !== "Workflows") fecharFrente();   // 0.9.0.4
   window.scrollTo(0, 0);
   fecharMenu();
   if (nome === "Copias") carregarCopias();
   if (nome === "Inicio") desenharInicio();
+  if (nome === "Workflows") desenharWorkflows();
   if (nome === "Ajustes") {
     desenharPush(); desenharHorario();
     const vistos = lerJson("seaninho.aparelhosVistos", []), novos = aparelhosNovos().map(a => a.id);   // a faixa do Início sai
@@ -5223,6 +5756,8 @@ $("tabInicio").addEventListener("click", e => {
   if (t) return trocarConta(t.dataset.trocar, t);
   const pa = e.target.closest("[data-pcs-abrir]");
   if (pa) return abrirComputadores(pa.dataset.pcsAbrir);
+  const fi = e.target.closest("[data-fr-ir]");   // 0.9.0.4: o bloco das frentes leva à aba Workflows (com o filtro do contador)
+  if (fi) { frFiltro = fi.dataset.frIr; return mostrarAba("Workflows"); }
   if (e.target.closest("[data-ninja-ver]")) return abrirNinja();
   if (e.target.closest("[data-uso]")) return abrirUsoIa();
   const fp = e.target.closest("[data-fechar-paradas]");
@@ -5363,11 +5898,38 @@ $("filtros").addEventListener("click", e => {
   const f = e.target.closest("[data-f]");
   if (f) mudarFiltro(f.dataset.f, f.dataset.v);
 });
+// 0.9.0.4: a aba Workflows (o chip filtra; o cartão abre a frente) e o detalhe da frente
+$("tabWorkflows").addEventListener("click", e => {
+  if (e.target.closest("[data-fr-atualizar]")) return atualizarAgora();
+  const f = e.target.closest("[data-fr-filtro]");
+  if (f) {
+    if (f.dataset.frFiltro === "terminaram") {
+      frTerminadasAberto = true; desenharWorkflows();
+      const d = $("wfTerm").querySelector("details"); if (d) { d.open = true; d.scrollIntoView({block: "start", behavior: "smooth"}); }
+      return;
+    }
+    frFiltro = frFiltro === f.dataset.frFiltro ? "" : f.dataset.frFiltro;
+    return desenharWorkflows();
+  }
+  const c = e.target.closest("[data-frente]");
+  if (c) abrirFrente(c.dataset.frente);
+});
+$("tabWorkflows").addEventListener("toggle", e => { if (e.target.matches && e.target.matches("details[data-fr-term]")) frTerminadasAberto = e.target.open; }, true);
+$("frente").addEventListener("click", e => {
+  if (e.target.closest("#frVoltar") || e.target.closest("[data-fr-voltar]")) return fecharFrente();
+  if (e.target.closest("#frAtualizar")) { atualizarAgora(); return carregarTrabalhos(true); }
+  const a = e.target.closest("[data-fr-arq]");
+  if (a) return tocarArquivo(Number(a.dataset.frArq));
+  if (e.target.closest("[data-fr-pasta]")) return abrirPastaFrente("");
+  if (e.target.closest("[data-fr-msg]")) return mensagemFrente();
+});
 $("folhaFundo").addEventListener("click", e => {
   const op = e.target.closest("[data-op]");
   if (op && folhaEscolher) { const f = folhaEscolher; fecharFolha(); return f(op.dataset.op); }
   if (e.target.closest("[data-nf-fechar]")) return fecharFolha();
   if (e.target.closest("[data-nf-uso]")) { fecharFolha(); return abrirUsoIa(); }
+  const fm = e.target.closest("[data-fr-mostrar]");   // 0.9.0.4: o arquivo da frente que não abre no celular
+  if (fm) { fecharFolha(); return abrirPastaFrente(fm.dataset.frMostrar); }
   if (e.target === $("folhaFundo")) fecharFolha();
 });
 $("menuSessao").addEventListener("click", e => {
@@ -5596,6 +6158,7 @@ addEventListener("hashchange", () => {
   else if (h.get("pv")) { history.replaceState(null, "", location.pathname); abrirPeloAviso({pv: true}); }
   else if (h.has("pcs")) { history.replaceState(null, "", location.pathname); abrirPeloAviso({pcs: h.get("pcs") || ""}); }
   else if (h.get("ajustes")) { history.replaceState(null, "", location.pathname); abrirPeloAviso({ajustes: true}); }
+  else if (h.get("frente") && h.get("frente") !== frAberta) { const k = h.get("frente"); if (aberta) fechar(); abrirFrente(k); }   // 0.9.0.4
 });
 if (!CFG.url || !CFG.publica) {
   document.body.insertAdjacentHTML("beforeend", `<div class="empty">Falta o config.js (endereço do Supabase).</div>`);
@@ -5609,6 +6172,7 @@ if (!CFG.url || !CFG.publica) {
   else if (h.get("pv")) { history.replaceState(null, "", location.pathname); abrirPeloAviso({pv: true}); }
   else if (h.has("pcs")) { history.replaceState(null, "", location.pathname); abrirPeloAviso({pcs: h.get("pcs") || ""}); }
   else if (h.get("ajustes")) { history.replaceState(null, "", location.pathname); abrirPeloAviso({ajustes: true}); }
+  else if (h.get("frente")) { const k = h.get("frente"); atualizar().finally(() => abrirFrente(k)); }   // 0.9.0.4: o link da frente
 } else {
   mostrarParear();
 }
