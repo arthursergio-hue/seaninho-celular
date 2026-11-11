@@ -106,6 +106,13 @@ function textoResposta(acao, enquete) {
   return partes.join("\n") || "Resposta da enquete";
 }
 
+// A mensagem que o PC mandou pela caixa da orquestra (o maestro lê pelo caixa.py): "entregue pela caixa", com o porquê
+// que o PC deu ("a janela do VS Code do maestro demorou a responder", 10/11) quando vier.
+function pelaCaixa(resposta) {
+  const porque = (String(resposta || "").match(/caixa da orquestra:\s*(.+?)\.?\s*$/) || [])[1];
+  return `Entregue pela caixa da orquestra${porque ? ` (${porque})` : ""}: chega ao maestro como aviso, não como mensagem sua.`;
+}
+
 // O estado de um pedido meu, do jeito do chat: {sinal, texto, erro, nota}. sinal null = não vira balão.
 function estadoDoPedido(p, enquete) {
   const resp = respostaDeEnquete(p), perm = respostaDePermissao(p);
@@ -124,7 +131,7 @@ function estadoDoPedido(p, enquete) {
               obs: perm || (resp && p.resposta && p.resposta !== "Respondida.") ? String(p.resposta || "")
                 // 0.8.9: digitada com a sessão trabalhando (entra quando ela terminar o passo), ou pela caixa da orquestra
                 : /^Na fila/.test(p.resposta || "") ? "Na fila da sessão: entra quando ela terminar o passo atual."
-                : /caixa da orquestra/.test(p.resposta || "") ? "Foi pela caixa da orquestra: chega ao maestro como aviso, não como mensagem sua."
+                : /caixa da orquestra/.test(p.resposta || "") ? pelaCaixa(p.resposta)
                 : ""};
     case "erro": return {sinal: "erro", texto, erro: p.erro || "Não foi."};
     default: return {sinal: null, texto};         // cancelado
@@ -328,7 +335,7 @@ function mover(lista, i, j) {
   return out;
 }
 
-const Chat = {SINAL, normalizar, versaoMin, montar, estadoDoPedido, pedidosDaSessao, respostaDeEnquete, textoResposta,
+const Chat = {SINAL, normalizar, versaoMin, montar, estadoDoPedido, pelaCaixa, pedidosDaSessao, respostaDeEnquete, textoResposta,
   ESPERANDO, respostaDePermissao, traduzirBotao, botoesPermissao, textoPermissao, reenviavel, MAX_IMAGENS, imagensDaColagem, imagensDosItens,
   nImagens, mover, citacao, comCitacao, separarCitacao, acharCitada,
   rotuloDia, marcacao, escolhidas, completas, acaoResponder, conversaDe, imagemDaColagem, imagemDosItens, esc};

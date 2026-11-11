@@ -1480,6 +1480,7 @@ const SEGURAR_MS = window.__segurarMs || 1500;
 async function rpc(nome, args = {}, comChave = true, ms = 0) {
   const headers = {"apikey": CFG.publica, "Content-Type": "application/json"};
   if ((CFG.publica || "").startsWith("ey")) headers.Authorization = "Bearer " + CFG.publica;
+  if (CFG.schema) headers["Accept-Profile"] = headers["Content-Profile"] = CFG.schema;   // 11/11: schema próprio num projeto compartilhado
   const body = comChave ? {chave, ...args} : args;
   const ctl = typeof AbortController === "function" ? new AbortController() : null;
   const limite = setTimeout(() => ctl && ctl.abort(), ms || (args && args.audio ? 60000 : 15000));
@@ -5296,6 +5297,9 @@ function entrar() {
 }
 function sair(motivo = "") {
   chave = ""; store.set("seaninho.chave", "");
+  if ("serviceWorker" in navigator) {   // 11/11: a assinatura de push é desta conta; desconectou, sai junto
+    navigator.serviceWorker.getRegistration().then(r => r && r.pushManager.getSubscription()).then(s => s && s.unsubscribe()).catch(() => {});
+  }
   for (const k of ["seaninho.ultimo", "seaninho.fila"]) store.set(k, "");
   fechar();
   $("gear").classList.add("hidden");
@@ -5307,6 +5311,26 @@ function sair(motivo = "") {
 function chaveVapid(b64) {
   const s = (b64 + "=".repeat((4 - b64.length % 4) % 4)).replace(/-/g, "+").replace(/_/g, "/");
   return Uint8Array.from(atob(s), c => c.charCodeAt(0));
+}
+// 11/11: a assinatura que já existe só vale se foi feita com a VAPID de agora. Com o banco novo (chaves VAPID novas), a
+// antiga ficaria no Safari e o push assinado com a chave nova seria recusado pela Apple: desfaz e assina de novo.
+function mesmaChaveVapid(a, b) {
+  if (!a) return true;   // navegador que não expõe a chave da assinatura: fica como está
+  const x = new Uint8Array(a);
+  if (x.length !== b.length) return false;
+  for (let i = 0; i < x.length; i++) if (x[i] !== b[i]) return false;
+  return true;
+}
+async function assinaturaPush(reg) {
+  let sub = await reg.pushManager.getSubscription();
+  const atual = chaveVapid(vapid);
+  if (sub && !mesmaChaveVapid(sub.options && sub.options.applicationServerKey, atual)) {
+    try { await sub.unsubscribe(); } catch {}
+    sub = null;
+  }
+  const nova = !sub;
+  if (!sub) sub = await reg.pushManager.subscribe({userVisibleOnly: true, applicationServerKey: atual});
+  return [sub, nova];
 }
 async function ativarPush() {
   const msg = $("pushMsg");
@@ -5322,8 +5346,7 @@ async function ativarPush() {
     const perm = await Notification.requestPermission();
     if (perm !== "granted") return err("As notificações foram negadas. Ative em Ajustes › Notificações › Seaninho.");
     const reg = await navigator.serviceWorker.ready;
-    let sub = await reg.pushManager.getSubscription();
-    if (!sub) sub = await reg.pushManager.subscribe({userVisibleOnly: true, applicationServerKey: chaveVapid(vapid)});
+    const [sub] = await assinaturaPush(reg);
     await rpc("cel_assinar", {assinatura: sub.toJSON()});
     store.set("seaninho.assinadoEm", diaIso(new Date()));
     ok("Notificações ativadas.");
@@ -5351,8 +5374,7 @@ async function renovarPush() {
   pushRenovado = true;
   try {
     const reg = await navigator.serviceWorker.ready;
-    let sub = await reg.pushManager.getSubscription(), nova = false;
-    if (!sub) { sub = await reg.pushManager.subscribe({userVisibleOnly: true, applicationServerKey: chaveVapid(vapid)}); nova = true; }
+    const [sub, nova] = await assinaturaPush(reg);
     if (nova || store.get("seaninho.assinadoEm") !== diaIso(new Date())) {
       await rpc("cel_assinar", {assinatura: sub.toJSON()});
       store.set("seaninho.assinadoEm", diaIso(new Date()));

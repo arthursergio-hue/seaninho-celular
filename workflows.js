@@ -166,15 +166,73 @@ const pastaPessoal = (cwd, pc) => {
 // ---- A linha STATUS: -------------------------------------------------------------------------------------
 // "STATUS: pronta — <frase>" ou "STATUS: precisa — <frase>" (CICLO.md do maestro), com travessão, meia-risca ou
 // hífen, em negrito ou não, no fim ou no meio do texto. Vale a última. {tipo: pronta|precisa|outra, frase, linha} | null.
-const STATUS_RE = /(?:^|[\s>(])[*_`]*STATUS:[*_`\s]*([A-Za-zÀ-ÿ]+)([^\n]*)/g;
+// 0.9.0.7: a 1ª palavra pode ser número ("STATUS: 3 frentes concluídas no WIN"); aspas, emoji e símbolos antes dela
+// ficam de fora ("STATUS: ✅ concluída", "STATUS: “aguardando o Arthur”"). A mesma gramática do _STATUS_LIVRE do
+// trabalhos.py, para os dois lerem as mesmas linhas. Uma classe só depois de "STATUS:" (o grupo aninhado tinha
+// retrocesso exponencial e travava a página com uma linha "STATUS:" seguida de muitos símbolos; o verificador).
+const STATUS_RE = /(?:^|[\s>(])[*_`]*STATUS:[^A-Za-zÀ-ÿ0-9\n]*([A-Za-zÀ-ÿ0-9]+)([^\n]*)/g;
+// 0.9.0.7: a mesma leitura tolerante do trabalhos.py (tipo_do_status): a 1ª palavra canônica (pronta, precisa) vale
+// como sempre; sem ela, a linha inteira: esperando você, parada, em andamento e, por último, terminou.
+// - Esperando você: as palavras do pedido em qualquer parte (precisa, aguardando, esperando, "Arthur decide",
+//   decisão), o "aguardo", "falta o Arthur", "depende do Arthur / de você" e "aguarda/espera o Arthur / você / sua…".
+//   Decidir, decisões, escolha e aprovar só com o Arthur (ou você, seu, sua) na mesma oração e sem particípio de coisa
+//   feita (respondidas, tomada, aplicadas…).
+// - A palavra negada na mesma oração não conta; "0" e "zero" negam só logo antes e nunca o terminou.
+// As frases de teste são as do status-frases.json, as mesmas do test_trabalhos.py.
+const STATUS_ESPERA = /\b(?:precis\w*|aguardando|esperando|aguardo|arthur decide|decisao|faltam? (?:[oa] )?arthur|depend(?:e|em) (?:do arthur|de voce|da sua|do seu)|(?:aguarda|aguardam|espera|esperam) (?:[oa] )?(?:arthur|voce|sua|seu))\b/g;
+const STATUS_DECIDE = /\b(?:decid(?:ir|e|a|am|em|as)|decis(?:ao|oes)|escolh(?:a|as|er|am|e)|aprov(?:ar|acao|e|em))\b/g;
+const STATUS_QUEM = /\b(?:arthur|voce|sua|seu|suas|seus)\b/;
+const STATUS_FEITO = /\b(?:respondid|tomad|aplicad|resolvid|feit|aprovad|decidid|escolhid|fechad)\w*/;
+const STATUS_TIPOS = [
+  ["parada", /\b(?:parad[ao]s?|pausad[ao]s?|parei|pausei)\b/g, true],
+  ["andamento", /\bem andamento\b/g, true],
+  ["pronta", /\b(?:pront[ao]s?|conclu(?:i|iu|id[ao]s?)|termin(?:ou|ei|ad[ao]s?)|feit[ao]s?|entregues?|encerrad[ao]s?|finalizad[ao]s?)\b/g, false],
+];
+const STATUS_NEGA = new Set(["nao", "nada", "nenhum", "nenhuma", "nenhuns", "nenhumas", "sem", "ninguem", "nem", "nunca"]);
+const STATUS_ZERO = new Set(["0", "zero"]);
+const STATUS_ORACOES = /[,;:·—–.!?()[\]|/]+|\s-\s/;
+function statusNegada(palavras, junto, inicio, zero) {
+  const i = (junto.slice(0, inicio).match(/ /g) || []).length;
+  return palavras.slice(Math.max(0, i - 3), i).some(p => STATUS_NEGA.has(p)) || (zero && i > 0 && STATUS_ZERO.has(palavras[i - 1]));
+}
+function casos(rx, junto) {
+  rx.lastIndex = 0;
+  const out = [];
+  let m;
+  while ((m = rx.exec(junto))) out.push(m);
+  return out;
+}
+function statusEspera(palavras) {
+  const junto = palavras.join(" "), feito = STATUS_FEITO.test(junto);
+  for (const m of casos(STATUS_ESPERA, junto)) {
+    if (!(m[0] === "decisao" && feito) && !statusNegada(palavras, junto, m.index, true)) return true;
+  }
+  if (!feito && STATUS_QUEM.test(junto)) return casos(STATUS_DECIDE, junto).some(m => !statusNegada(palavras, junto, m.index, true));
+  return false;
+}
+function statusTem(rx, oracoes, zero) {
+  return oracoes.some(palavras => {
+    const junto = palavras.join(" ");
+    return casos(rx, junto).some(m => !statusNegada(palavras, junto, m.index, zero));
+  });
+}
+function tipoDoStatus(palavra, resto) {
+  const linha = normalizar(`${palavra}${resto}`).replace(/[*_`]+/g, " ").replace(/\s+/g, " ").trim();
+  const primeira = (linha.match(/[a-z0-9]+/) || [""])[0];
+  if (/^pront/.test(primeira)) return "pronta";
+  if (/^precis/.test(primeira)) return "precisa";
+  const oracoes = linha.split(STATUS_ORACOES).map(o => o.match(/[a-z0-9]+/g) || []);
+  if (oracoes.some(statusEspera)) return "precisa";
+  for (const [tipo, rx, zero] of STATUS_TIPOS) if (statusTem(rx, oracoes, zero)) return tipo;
+  return "outra";
+}
 function linhaStatus(texto) {
   const t = String(texto || "");
   let m, ult = null;
   STATUS_RE.lastIndex = 0;
   while ((m = STATUS_RE.exec(t))) ult = m;
   if (!ult) return null;
-  const palavra = normalizar(ult[1]);
-  const tipo = /^pront/.test(palavra) ? "pronta" : /^precis/.test(palavra) ? "precisa" : "outra";
+  const tipo = tipoDoStatus(ult[1], ult[2]);
   const frase = ult[2].replace(/[*_`]+/g, "").replace(/^\s*(de voce|de você)?\s*[—–:-]+\s*/i, "").trim();
   return {tipo, frase: txt(frase, 280), linha: txt(`STATUS: ${ult[1]}${ult[2]}`.replace(/[*_`]+/g, ""), 300)};
 }
@@ -204,7 +262,8 @@ function estadoDelegacao(d, s) {
     // com o motivo no resumo. Não é "Terminado" em verde
     if (doPc === "outro" && !guardada) return {estado: "outro", status: null, fim: ms(d.fim) || desde,
       nota: maiuscula(txt(d.resumo || d.resultado, 160))};
-    return {estado: "terminado", status: guardada, fim: ms(d.fim) || desde};
+    return {estado: guardada && guardada.tipo === "parada" ? "parado" : "terminado", status: guardada,
+      fim: ms(d.fim) || desde};   // 0.9.0.7: o STATUS de parada não é Terminado
   }
   if (s) {
     // a última fala só vale se veio depois da delegação (a sessão pode ser reaproveitada)
@@ -217,11 +276,15 @@ function estadoDelegacao(d, s) {
       : {estado: "esperando", status: depois ? st : null};
     if (!depois) return {estado: "rodando", status: null, nota: "A mensagem ainda não entrou na sessão"};
     if ((st && st.tipo === "precisa") || s.paraVoce) return {estado: "esperando", status: st};
+    if (st && st.tipo === "andamento") return {estado: "rodando", status: st};  // 0.9.0.7
+    // 0.9.0.7 (revisão): "STATUS: parado, sem acesso ao Drive" / "pausada até amanhã" não é Terminado: é o "Parado
+    // antes do fim", como a frente (Parada) no trabalhos.py
+    if (st && st.tipo === "parada") return {estado: "parado", status: st, fim: (s.desde || 0) * 1000};
     return {estado: "terminado", status: st, fim: (s.desde || 0) * 1000};
   }
   // sem a sessão aqui: fechou depois de um STATUS visto = terminou; senão vale o que o PC viu (segundo plano, ou a
   // lista de sessões do celular atrasada); sem nada, "sessão fechada"
-  if (guardada) return {estado: "terminado", status: guardada, fim: ms(d.fim)};
+  if (guardada) return {estado: guardada.tipo === "parada" ? "parado" : "terminado", status: guardada, fim: ms(d.fim)};
   if (["rodando", "esperando", "terminado", "fechada"].includes(doPc)) return {estado: doPc, status: null, fim: doPc === "terminado" ? ms(d.fim) : 0};
   // 0.9.1.1: "desconhecido" = o maestro não via o PC da sessão (sem sinal). Não é "sessão fechada" nem falha: fica
   // "rodando" (com o PC fora do ar, congelado: "era: rodando") e fora das contagens, como no resumo_hoje do PC
@@ -1420,7 +1483,7 @@ function montar(linhas, ctx = {}) {
 
 const Workflows = {AGENTE_TRABALHOS, ONLINE_MS, DESLIGADO_MS, PRAZO_PERTO_MS, DISPENSA_DESFAZER_MS, RODAR_DESFAZER_MS,
   RODAR_REPETIR_MS, RODAR_EXPIRA_MS, FILTROS, SECOES, FILTROS_AUT, GRUPOS_SKILL, FAIXA_EXEMPLO,
-  linhaStatus, juntar, filtrar, opcoes, totalHoje, contagens, contagensDoHoje, folhaTrocarConta,
+  linhaStatus, estadoDelegacao, juntar, filtrar, opcoes, totalHoje, contagens, contagensDoHoje, folhaTrocarConta,
   dispensar, restaurar, desfazerDispensa, lerDispensadas, gravarDispensadas, lerFiltro, estadoTela, doLink,
   arquivosDoResultado, abrirResultado, responder, botoes, citacaoDe, podeIrAoMaestro, pastaPessoal,
   juntarAutomacoes, filtrarAutomacoes, andamentosDe, rodarAgora, textoEtapa, tocar, desfazerToque, marcarEnviado, pedidoRodar, novoRef,

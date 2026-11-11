@@ -1,5 +1,5 @@
 // Seaninho no celular: guarda a casca da página (abre sem rede) e mostra as notificações.
-const CACHE = "seaninho-v21";   // 0.9.0.4: a aba Workflows (o workflows.js entra na casca)
+const CACHE = "seaninho-v23";   // 11/11: o banco novo (config.js) e o push com a VAPID nova; 0.9.0.7: o workflows.js novo (o STATUS tolerante); 0.9.0.4: ele entra na casca
 const CASCA = ["./", "./index.html", "./config.js", "./markdown.js", "./chat.js", "./lista.js", "./workflows.js", "./pcs.js", "./usoia.js", "./ninja.js", "./marcar.js", "./manifest.webmanifest", "./icone-180.png", "./icone-192.png"];
 
 self.addEventListener("install", e => {
@@ -46,16 +46,17 @@ self.addEventListener("push", e => {
 self.addEventListener("notificationclick", e => {
   e.notification.close();
   const d = e.notification.data || {};
+  const doPc = d.tipo === "pc" || d.tipo === "seaninho_caiu";   // 0.9.0.7: o Seaninho do PC caiu: o cartão do PC
   const url = d.tipo === "ai_rats" ? "./#airats=1"   // a prévia do post do AI Rats
     : d.tipo === "aparelho" ? "./#ajustes=1"   // 0.9.0: aparelho novo na conta: o ⚙ (aprovar ou não)
-    : d.tipo === "pc" ? `./#pcs=${encodeURIComponent(d.pc || "")}`   // 0.9.0: o PC caiu, voltou ou vai desligar: o cartão dele
+    : doPc ? `./#pcs=${encodeURIComponent(d.pc || "")}`   // 0.9.0: o PC caiu, voltou ou vai desligar: o cartão dele
     : d.tipo === "para_voce" || d.tipo === "teste" ? "./#pv=1"   // o Para você (0.8.9)
     : `./#sessao=${encodeURIComponent(d.sessao || "")}&pc=${encodeURIComponent(d.pc || "")}`;
   // app aberto: a página recebe o recado e abre a sessão (0.8.9; o navigate só mudava o "#" e a página não via)
   e.waitUntil(self.clients.matchAll({type: "window", includeUncontrolled: true}).then(abertas => {
     for (const c of abertas) {
-      c.postMessage({tipo: "abrir", sessao: d.tipo === "pc" ? "" : d.sessao || "", pc: d.pc || "", airats: d.tipo === "ai_rats",
-                     pv: d.tipo === "para_voce" || d.tipo === "teste", ...(d.tipo === "pc" ? {pcs: d.pc || ""} : {}),
+      c.postMessage({tipo: "abrir", sessao: doPc ? "" : d.sessao || "", pc: d.pc || "", airats: d.tipo === "ai_rats",
+                     pv: d.tipo === "para_voce" || d.tipo === "teste", ...(doPc ? {pcs: d.pc || ""} : {}),
                      ...(d.tipo === "aparelho" ? {ajustes: true, sessao: ""} : {})});
       return c.focus();
     }
