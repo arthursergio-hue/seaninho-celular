@@ -1,7 +1,8 @@
-// Seaninho no celular: o ninja da faixa do uso de IA (0.8.10; 0.8.11: as 7 faixas e a regra do TeamZone). O ninja veste
-// a faixa da semana e aparece num puff de fumaça toda vez que a seção entra na tela; quando a faixa sobe, a faixa nova
-// amarra numa comemoração. Só SVG e CSS, sem biblioteca. O desenho e as contas rodam sem tela (testados no Node:
-// test_ninja.cjs); vigiar a tela e tocar a animação, só no navegador.
+// Seaninho no celular: o ninja da faixa do uso de IA (0.8.10; 0.8.11: as 7 faixas; v24: a regra do TeamZone de hoje, o
+// plano B da página quando o PC não manda o conjunto). O ninja veste a faixa da semana e aparece num puff de fumaça toda
+// vez que a seção entra na tela; quando a faixa sobe, a faixa nova amarra numa comemoração. Só SVG e CSS, sem
+// biblioteca. O desenho e as contas rodam sem tela (testados no Node: test_ninja.cjs, com os casos do faixa_casos.json);
+// vigiar a tela e tocar a animação, só no navegador.
 (function (raiz) {
 "use strict";
 
@@ -27,15 +28,259 @@ function faixaDe(nome) {
 const com = chave => chave ? {chave, ...FAIXAS[chave]} : null;
 const rotulo = nome => { const f = faixaDe(nome); return f ? `Faixa ${f.nome}` : "Ainda sem faixa"; };
 
-// ---- a regra do TeamZone (seazone-tech/teamzone, src/lib/uso-ia/faixas.ts, lida em 31/10), linha a linha ----------
-// Os mínimos de cada faixa saem do P100 da régua da semana: a Branca tem base própria (21 sessões, 200 mensagens,
-// organização 61); a organização sobe em linha reta até o P100 e as outras métricas em progressão geométrica, em 6
-// passos, até a Preta (= o P100). As métricas sem base não contam na Branca.
+// ---- a regra do TeamZone (v24, 12/11), o plano B da página -----------------------------------------------------
+// A faixa oficial chega pronta no `uso_ia_conjunto` (o Seaninho Pro soma os PCs e lê o TeamZone; CONTRATO-v24, seção
+// 6). Sem ele, a página conta sozinha com a MESMA regra, copiada linha a linha do TeamZone (seazone-tech/teamzone,
+// src/lib/uso-ia/: faixas.ts, semana.ts, regua-painel.ts e o "dia 0 sem faixa" de consultas/uso-ia.ts, lidos em 11/11)
+// e do `scripto/uso_ia_faixa.py` do Pro, que é a cópia em Python; os dois passam pelos mesmos casos
+// (faixa_casos.json, test_ninja.cjs). Até a v23 a página dava Branca quando o TeamZone dava Azul: aplicava o portão da
+// banda (que acabou na W44), tirava a régua de uma fórmula sobre o P100 do coletor e contava os dias pela hora da medida.
 const FAIXAS_TIME = ["Branca", "Amarela", "Verde", "Azul", "Roxa", "Marrom", "Preta"];
 const METRICAS_TIME = ["sessoes_iniciadas", "mensagens", "tarefas_operacionais", "tarefas_internas", "skills_novas",
   "linhas_sistema", "linhas_agente", "cron_jobs", "workflows", "organizacao"];
 const WHITE = {sessoes_iniciadas: 21, mensagens: 200, organizacao: 61};
+// O portão da banda acabou com a W44 (R-28.63, 09/11: a W45 foi reprocessada sem ele). O comentário do calculo.ts do
+// TeamZone ainda diz W45: é armadilha; vale a constante do faixas.ts.
+const PORTAO_DA_BANDA_ATE = "2026-W44";
+// Da W45 em diante a régua é a TABELA do painel (as 70 células); a fórmula sobre o P100 só vale para as semanas de antes,
+// e sempre com o aviso. A régua do coletor nunca decide a faixa da W45 em diante (ela varia por pessoa; a do TeamZone é
+// uma por semana, a mesma para todos).
+const PRIMEIRA_SEMANA_DA_TABELA = "2026-W45";
+const MOTIVO_PRIMEIRO_DIA = "as faixas aparecem no sábado, às 17h";
+const MOTIVO_SEM_REGUA = "sem régua da semana (o TeamZone também ainda não tem)";
+const AVISO_SEM_PAINEL = "sem a régua do painel";
+const SELO_PAGINA = "régua lida no TeamZone";
+const SELO_CODIGO = "régua do código do TeamZone";
+// O fuso é fixo, −03:00 (o corte das 17h do TeamZone e o FUSO_REGUA do coletor; São Paulo não tem horário de verão
+// desde 2019): a conta não depende do fuso do aparelho (o iPhone numa viagem dava outro dia fechado).
+const FUSO_MS = 3 * 3600000, CORTE_H = 17, DIA_MS = 86400000;
 
+const finito = v => typeof v === "number" && Number.isFinite(v);
+// O `num` do coletor.ts: número, ou texto numérico; o resto vale 0.
+const num = v => finito(v) ? v : typeof v === "string" && /^-?[0-9]+(\.[0-9]+)?$/.test(v.trim()) ? Number(v.trim()) : 0;
+// Uma diferença sem o ruído do ponto flutuante (84 − 83,7 dá 0,3, e não 0,2999…), como o `_limpo` do Pro.
+const limpo = x => Math.round(x * 1e6) / 1e6;
+// Um momento em ms: Date, número (ms; até 1e11, segundos, como o `gerado` do agente) ou texto ISO (sem fuso, −03:00).
+function instante(x) {
+  if (x instanceof Date) return Number.isFinite(x.getTime()) ? x.getTime() : null;
+  if (finito(x)) return x < 1e11 ? x * 1000 : x;
+  if (typeof x !== "string" || !x.trim()) return null;
+  const s = x.trim(), semFuso = /T\d\d:\d\d(:\d\d(\.\d+)?)?$/.test(s);
+  const t = Date.parse(semFuso ? s + "-03:00" : s);
+  return Number.isFinite(t) ? t : null;
+}
+// O dia e a hora do momento em −03:00: {dia: "AAAA-MM-DD", hora}.
+function emSP(ms) {
+  const d = new Date(ms - FUSO_MS);
+  return {dia: d.toISOString().slice(0, 10), hora: d.getUTCHours(), minuto: d.getUTCMinutes()};
+}
+const DIA_RE = /^\d{4}-\d{2}-\d{2}$/;
+const diaValido = d => typeof d === "string" && DIA_RE.test(d) && new Date(`${d}T12:00:00Z`).toISOString().slice(0, 10) === d;
+const meioDia = dia => Date.parse(`${dia}T12:00:00Z`);
+const somarDias = (dia, n) => new Date(meioDia(dia) + n * DIA_MS).toISOString().slice(0, 10);
+const diaDaSemanaIso = dia => { const d = new Date(meioDia(dia)).getUTCDay(); return d === 0 ? 7 : d; };   // 1 = segunda
+
+// ---- a semana do programa (semana.ts) -----------------------------------------------------------------------------
+// A semana ISO do dia (a da quinta-feira dela), como "AAAA-Wnn".
+function rotuloIso(dia) {
+  const quinta = somarDias(dia, 4 - diaDaSemanaIso(dia));
+  const ano = Number(quinta.slice(0, 4));
+  const diaDoAno = Math.round((meioDia(quinta) - Date.UTC(ano, 0, 1, 12)) / DIA_MS);
+  return `${ano}-W${String(Math.floor(diaDoAno / 7) + 1).padStart(2, "0")}`;
+}
+// A semana em andamento no instante: de sexta 17h a sexta 17h, rotulada pela sexta em que fecha (nunca o ISO de hoje:
+// sábado 07/11 é a W46; sexta 13/11 às 17h00 já é a W47; sexta 01/01/2027 às 16h é a 2026-W53). {rotulo, fecha_em}.
+function semanaDoPrograma(agora) {
+  const t = instante(agora);
+  if (t === null) return null;
+  const {dia: hoje, hora} = emSP(t);
+  let sexta = somarDias(hoje, 5 - diaDaSemanaIso(hoje));
+  if (hoje > sexta || (hoje === sexta && hora >= CORTE_H)) sexta = somarDias(sexta, 7);
+  return {rotulo: rotuloIso(sexta), fecha_em: sexta};
+}
+// A sexta em que a semana "AAAA-Wnn" fecha (o inverso do rótulo). Rótulo inválido: null.
+function sextaDoRotulo(rotulo) {
+  if (typeof rotulo !== "string" || !/^\d{4}-W\d{2}$/.test(rotulo)) return null;
+  const ano = Number(rotulo.slice(0, 4)), semana = Number(rotulo.slice(6)), quatro = `${ano}-01-04`;
+  const sexta = somarDias(somarDias(quatro, 1 - diaDaSemanaIso(quatro)), (semana - 1) * 7 + 4);
+  return semana >= 1 && rotuloIso(sexta) === rotulo ? sexta : null;
+}
+// A semana da linha do coletor de data `dia` (a linha de D cobre D−1 17h a D 17h; sábado a sexta pela data).
+function semanaDaData(dia) {
+  const fecha = somarDias(dia, (5 - new Date(meioDia(dia)).getUTCDay() + 7) % 7);
+  return {rotulo: rotuloIso(fecha), fecha_em: fecha};
+}
+// A data da janela diária (17h a 17h) do instante: quarta 16h59 é a janela de quarta; quarta 17h00, a de quinta.
+const janelaDoMomento = agora => { const t = instante(agora); return t === null ? null : emSP(t + 7 * 3600000).dia; };
+// A sexta 17h em que a semana fecha, e o corte (o sábado seguinte, 17h): até ele o TeamZone ainda relê a semana.
+const fimDaSemana = fechaEm => Date.parse(`${fechaEm}T17:00:00-03:00`);
+const corteDaSemana = fechaEm => Date.parse(`${somarDias(fechaEm, 1)}T17:00:00-03:00`);
+
+// Os dias já fechados da semana que fecha na sexta `fechaEm`, no instante `agora` (o `diasFechados` do faixas.ts, com o
+// fuso fixo): o dia fecha às 17h; sábado 17h é o dia 1 e sexta 17h o dia 7; de sexta 17h a sábado 17h, 0. A página
+// passa a hora de AGORA, como o TeamZone, que conta pelo relógio de quem abre (consultas/uso-ia.ts:293): de quinta
+// 17h00 em diante os mesmos números já dão "faltam 290", antes de o dado novo chegar às 17h35. null sem o instante.
+function diasFechados(fechaEm, agora) {
+  const t = instante(agora);
+  if (t === null || !diaValido(fechaEm)) return null;
+  const {dia, hora} = emSP(t);
+  const sabado = meioDia(fechaEm) - 6 * DIA_MS;
+  return Math.max(0, Math.min(7, Math.round((meioDia(dia) - sabado) / DIA_MS) + (hora >= CORTE_H ? 1 : 0)));
+}
+
+// ---- a faixa (faixas.ts, calculo.ts) ------------------------------------------------------------------------------
+// A meta até hoje: o mínimo da semana inteira × dias fechados ÷ 7, para cima; a organização não se divide.
+const metaToDate = (minimo, metrica, dias) =>
+  metrica === "organizacao" ? minimo : Math.ceil(minimo * Math.max(0, Math.min(7, dias)) / 7);
+
+// O portão da banda (só até a W44): P0 sem faixa; P25 no máximo Branca; da P50 à P100, só os mínimos. Devolve o índice
+// mais alto permitido em FAIXAS_TIME (-1 = nenhum).
+const tetoDaBanda = banda => banda === "P25" ? 0 : ["P50", "P75", "P100"].includes(banda) ? FAIXAS_TIME.length - 1 : -1;
+const temPortaoDaBanda = rotulo => String(rotulo) <= PORTAO_DA_BANDA_ATE;
+const tetoDaSemana = (rotulo, banda) => temPortaoDaBanda(rotulo) ? tetoDaBanda(banda) : FAIXAS_TIME.length - 1;
+
+// O `classificarFaixa` do faixas.ts, linha por linha: a faixa mais alta cujos mínimos (pela meta até hoje) a pessoa bate,
+// todos, com as de baixo também batidas; depois o teto da semana (sem `rotulo`, o portão vale sempre, como no TeamZone).
+// Com 0 dias dá Preta só pela organização: quem desenha usa `faixaDaSemana`, que esconde a faixa no dia 0.
+function classificarFaixa(valores, faixas, dias, banda, rotulo) {
+  if (!faixas || dias === null || dias === undefined) return null;
+  let pelosMinimos = null;
+  for (const f of FAIXAS_TIME) {
+    if (Object.entries(faixas[f] || {}).some(([m, n]) => !finito(valores[m]) || valores[m] < metaToDate(n, m, dias))) break;
+    pelosMinimos = f;
+  }
+  const teto = rotulo === undefined || rotulo === null ? tetoDaBanda(banda) : tetoDaSemana(rotulo, banda);
+  const limitadaPelaBanda = pelosMinimos !== null && FAIXAS_TIME.indexOf(pelosMinimos) > teto;
+  const atual = limitadaPelaBanda ? (teto < 0 ? null : FAIXAS_TIME[teto]) : pelosMinimos;
+  const proxima = FAIXAS_TIME[atual === null ? 0 : FAIXAS_TIME.indexOf(atual) + 1] ?? null;
+  const metas = Object.fromEntries(Object.entries(proxima ? faixas[proxima] : faixas.Preta)
+    .map(([m, n]) => [m, metaToDate(n, m, dias)]));
+  const atingidos = proxima ? Object.entries(metas).filter(([m, n]) => finito(valores[m]) && valores[m] >= n).length : 0;
+  return {atual, proxima, metas, atingidos, total: proxima ? Object.keys(metas).length : 0, limitadaPelaBanda, pelosMinimos};
+}
+// Só os 10 critérios, ausente ou não numérico = 0 (o `valoresDosFatores` do calculo.ts). Tokens ficam de fora.
+const valoresDosFatores = v => Object.fromEntries(METRICAS_TIME.map(m => [m, finito((v || {})[m]) ? v[m] : 0]));
+
+// O que a tela do TeamZone mostra para os números na semana `rotulo` com `dias` fechados (o `faixa_da_semana` do Pro):
+// {faixa, proxima, metas, faltam ({critério: quanto falta}, só os abaixo da meta da próxima), atingidos, total,
+// limitada_pela_banda, dias, sem_regua, primeiro_dia, sem_faixa, motivo}. Sem régua, sem faixa e sem meta (nada é
+// inventado); no dia 0, sem faixa ("as faixas aparecem no sábado, às 17h"). `regua`: {faixas} ou a tabela {faixa:
+// {critério: mínimo}}. "sem_faixa" (pro-62): true quando não há faixa para mostrar (sem régua, dia 0, sem os dias; o
+// "motivo" diz qual); false quando houve conta, e aí "faixa" null é abaixo da Branca.
+function faixaDaSemana(valores, regua, dias, rotulo, banda = "", primeiroDia = null) {
+  const out = {faixa: null, proxima: null, metas: {}, faltam: {}, atingidos: 0, total: 0, limitada_pela_banda: false,
+    dias, sem_regua: false, primeiro_dia: false, sem_faixa: true, motivo: ""};
+  if (dias === null || dias === undefined) return {...out, dias: null, motivo: "sem os dias da semana"};
+  if (!regua) return {...out, sem_regua: true, motivo: MOTIVO_SEM_REGUA};
+  if (primeiroDia === null) primeiroDia = dias === 0;
+  if (primeiroDia) return {...out, primeiro_dia: true, motivo: MOTIVO_PRIMEIRO_DIA};
+  const v = valoresDosFatores(valores);
+  const c = classificarFaixa(v, regua.faixas || regua, dias, banda, rotulo);
+  if (!c) return {...out, sem_regua: true, motivo: MOTIVO_SEM_REGUA};
+  const faltam = c.proxima ? Object.fromEntries(Object.entries(c.metas).filter(([m, meta]) => v[m] < meta)
+    .map(([m, meta]) => [m, limpo(meta - v[m])])) : {};
+  return {...out, faixa: c.atual, proxima: c.proxima, metas: c.metas, faltam, atingidos: c.atingidos, total: c.total,
+    limitada_pela_banda: c.limitadaPelaBanda, pelos_minimos: c.pelosMinimos, sem_faixa: false};
+}
+
+// A faixa dos números lidos no TeamZone, desenhada com o relógio de AGORA (o `faixa_do_oficial` do Pro): na semana em
+// andamento, os dias fechados de agora; na que já fechou, 7. "fechando": de sexta 17h a sábado 17h (o TeamZone ainda
+// relê a semana); "fechada": depois do corte de sábado 17h. A faixa lida (`lido`) só confere o leitor.
+function faixaDoOficial(oficial, regua, agora, banda = "") {
+  const semana = String((oficial || {}).semana || "");
+  const fechaEm = diaValido((oficial || {}).fecha_em) ? oficial.fecha_em : sextaDoRotulo(semana);
+  const t = instante(agora);
+  if (t === null || !fechaEm) return {...faixaDaSemana({}, null, null, semana), semana, fecha_em: fechaEm, fechada: false, fechando: false};
+  const emAndamento = semana === semanaDoPrograma(t).rotulo;
+  const dias = emAndamento ? diasFechados(fechaEm, t) : 7;
+  const fechada = !emAndamento && t >= corteDaSemana(fechaEm);
+  const out = faixaDaSemana(oficial.valores || {}, regua, dias, semana, banda, !fechada && dias === 0);
+  return {...out, semana, fecha_em: fechaEm, fechada, fechando: !emAndamento && !fechada};
+}
+// Confere o leitor da página do TeamZone: a faixa recalculada com os números e os dias da leitura tem de dar a lida.
+function conferirLeitura(oficial, regua, banda = "") {
+  const lido = oficial && oficial.lido && typeof oficial.lido === "object" ? oficial.lido : null;
+  if (!lido || !finito(lido.dias_na_leitura)) return {ok: false, motivo: "a leitura não trouxe a faixa nem os dias"};
+  const f = faixaDaSemana(oficial.valores || {}, regua, Math.trunc(lido.dias_na_leitura), String(oficial.semana || ""), banda);
+  const erros = [];
+  if (f.faixa !== (lido.faixa ?? null)) erros.push(`faixa ${f.faixa} × lida ${lido.faixa}`);
+  if ("proxima" in lido && f.proxima !== lido.proxima) erros.push(`próxima ${f.proxima} × lida ${lido.proxima}`);
+  for (const [m, n] of Object.entries(lido.faltam || {})) if (f.faltam[m] !== n) erros.push(`faltam ${m} ${f.faltam[m]} × lidas ${n}`);
+  return {ok: !erros.length, motivo: erros.join("; ")};
+}
+
+// O farol de cada critério, como no TeamZone: verde bateu; amarelo, ao menos 70% da meta; vermelho, abaixo.
+function farol(valor, meta) {
+  if (valor === undefined || valor === null || !finito(valor)) return "neutro";
+  if (meta === undefined || !finito(meta)) return "neutro";
+  return valor >= meta ? "ok" : valor >= meta * 0.7 ? "quase" : "longe";
+}
+
+// ---- a régua da semana (regua-painel.ts) --------------------------------------------------------------------------
+// As linhas do painel ([{metrica, minimos: {faixa: número ou null}}]) viram a régua, sem arredondar nem recalcular (o
+// `reguaDasLinhasDoPainel`). Recusa (lança Error) o que não dá para ler sem adivinhar: critério faltando, repetido ou de
+// fora, faixa faltando ou de fora, valor que não é número ≥ 0, Preta vazia, célula vazia acima de uma cheia, escada que
+// desce e organização acima de 100. {semana, versao, fonte, faixas: {faixa: {critério: mínimo}}, branca, preta}.
+function reguaDasLinhas(semana, versao, fonte, linhas) {
+  const falha = motivo => Object.assign(new Error(`régua do painel da ${semana} recusada: ${motivo}`), {recusada: true});
+  if (typeof semana !== "string" || !/^\d{4}-W\d{2}$/.test(semana)) throw falha("semana inválida");
+  if (typeof versao !== "string" || !versao.trim() || versao.length > 93) throw falha("versão do painel ausente ou longa demais (até 93 caracteres)");
+  if (typeof fonte !== "string" || !fonte.trim()) throw falha("fonte ausente");
+  if (!Array.isArray(linhas) || !linhas.every(x => x && typeof x === "object")) throw falha("linhas inválidas");
+  const metricas = linhas.map(x => String(x.metrica));
+  if (JSON.stringify([...metricas].sort()) !== JSON.stringify([...METRICAS_TIME].sort()))
+    throw falha(`os critérios precisam ser exatamente os 10 do TeamZone (veio: ${metricas.join(", ")})`);
+  const faixas = Object.fromEntries(FAIXAS_TIME.map(f => [f, {}])), branca = {}, preta = {};
+  for (const m of METRICAS_TIME) {
+    const minimos = linhas.find(x => x.metrica === m).minimos;
+    if (!minimos || typeof minimos !== "object" || JSON.stringify(Object.keys(minimos).sort()) !== JSON.stringify([...FAIXAS_TIME].sort()))
+      throw falha(`${m}: as faixas precisam ser exatamente ${FAIXAS_TIME.join(", ")}`);
+    let anterior = null;
+    for (const f of FAIXAS_TIME) {
+      const v = minimos[f];
+      if (v === null || v === undefined) {
+        if (anterior !== null) throw falha(`${m}: ${f} vazia acima de uma faixa com mínimo`);
+        continue;
+      }
+      if (!finito(v) || v < 0) throw falha(`${m}: ${f} não é um número ≥ 0`);
+      if (m === "organizacao" && v > 100) throw falha(`${m}: ${f} acima de 100`);
+      if (anterior !== null && v < anterior) throw falha(`${m}: ${f} (${v}) abaixo da faixa anterior (${anterior})`);
+      faixas[f][m] = v;
+      anterior = v;
+    }
+    if (minimos.Preta === null || minimos.Preta === undefined) throw falha(`${m}: a Preta não tem mínimo`);
+    branca[m] = minimos.Branca ?? 0;
+    preta[m] = minimos.Preta;
+  }
+  return {semana, versao, fonte, faixas, branca, preta};
+}
+// O inverso: a tabela {faixa: {critério: mínimo}} (a régua lida na página, no oficial e no conjunto) vira as linhas.
+const linhasDasFaixas = faixas => METRICAS_TIME.map(m =>
+  ({metrica: m, minimos: Object.fromEntries(FAIXAS_TIME.map(f => [f, ((faixas || {})[f] || {})[m] ?? null]))}));
+
+// As réguas do painel transcritas no TeamZone (regua-painel.ts, LINHAS_DO_PAINEL; os fixtures uso-ia-painel-regua-W45 e
+// -W46): a régua embutida, para quando o PC não manda a da semana. Validadas ao carregar: uma transcrição errada quebra
+// o teste. Semana nova entra aqui só copiando a tabela do painel, nunca por fórmula.
+const LINHAS_DO_PAINEL = {
+  "2026-W45": {versao: "auto-2026-W45-oficial-w44-20261102", fonte: "painel:/api/farol (semana fechada) lida em 2026-11-09T12:19:31-03:00",
+    tabela: {sessoes_iniciadas: [21, 40, 76, 144, 272, 514, 974], mensagens: [200, 355, 628, 1112, 1970, 3489, 6180],
+      tarefas_operacionais: [null, 1, 4, 12, 38, 128, 428], tarefas_internas: [null, 1, 5, 17, 69, 281, 1150],
+      skills_novas: [null, 1, 2, 3, 5, 8, 13], linhas_sistema: [null, 1, 12, 137, 1601, 18723, 219000],
+      linhas_agente: [null, 1, 10, 87, 802, 7441, 69100], cron_jobs: [null, 1, 2, 4, 8, 16, 30],
+      workflows: [null, 1, 4, 13, 46, 165, 589], organizacao: [61, 67, 73, 78, 84, 90, 95]}},
+  "2026-W46": {versao: "auto-2026-W46", fonte: "painel:/api/regua lida em 2026-11-09T12:19:25-03:00",
+    tabela: {sessoes_iniciadas: [21, 36, 61, 103, 174, 295, 500], mensagens: [200, 326, 532, 867, 1412, 2301, 3750],
+      tarefas_operacionais: [null, 1, 4, 12, 38, 128, 428], tarefas_internas: [null, 1, 5, 17, 69, 281, 1150],
+      skills_novas: [null, 1, 2, 3, 5, 8, 13], linhas_sistema: [null, 1, 12, 137, 1601, 18723, 219000],
+      linhas_agente: [null, 1, 10, 87, 802, 7441, 69100], cron_jobs: [null, 1, 2, 4, 8, 16, 30],
+      workflows: [null, 1, 4, 13, 46, 165, 589], organizacao: [61, 67, 73, 78, 84, 90, 95]}},
+};
+const REGUAS_DO_PAINEL = Object.freeze(Object.fromEntries(Object.entries(LINHAS_DO_PAINEL).map(([semana, r]) =>
+  [semana, reguaDasLinhas(semana, r.versao, r.fonte, METRICAS_TIME.map(m =>
+    ({metrica: m, minimos: Object.fromEntries(FAIXAS_TIME.map((f, i) => [f, r.tabela[m][i]]))})))])));
+
+// Os mínimos de cada faixa pela fórmula sobre o P100 da régua do coletor (o `faixasDaRegua` do faixas.ts): só para as
+// semanas de antes da W45, que não têm a tabela do painel, e sempre com o aviso "sem a régua do painel".
 // regua = {versao, metricas, bandas, minimos: {métrica: {banda: n}}}; null se faltar o P100 de alguma métrica.
 function faixasDaRegua(regua) {
   if (!regua || !String(regua.versao || "").trim() || !(regua.bandas || []).includes("P100")) return null;
@@ -55,50 +300,73 @@ function faixasDaRegua(regua) {
   }
   return result;
 }
+const iguais = (a, b) => JSON.stringify(linhasDasFaixas(a)) === JSON.stringify(linhasDasFaixas(b));
 
-// O mínimo até agora: proporcional aos dias já fechados da semana (sexta 17h a sexta 17h), menos a organização.
-const metaToDate = (minimo, metrica, dias) =>
-  metrica === "organizacao" ? minimo : Math.ceil(minimo * Math.max(0, Math.min(7, dias)) / 7);
-
-// Os dias fechados até a medida: fechaEm = a sexta em que a semana fecha ("2026-11-06"); geradoEm = a hora da medida.
-function diasFechados(fechaEm, geradoEm) {
-  if (!geradoEm || !Number.isFinite(Date.parse(geradoEm))) return null;
-  const p = Object.fromEntries(new Intl.DateTimeFormat("en-CA", {
-    timeZone: "America/Sao_Paulo", year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", hourCycle: "h23",
-  }).formatToParts(new Date(geradoEm)).map(part => [part.type, part.value]));
-  const day = Date.parse(`${p.year}-${p.month}-${p.day}T12:00:00Z`);
-  const saturday = Date.parse(`${fechaEm}T12:00:00Z`) - 6 * 86400000;
-  return Math.max(0, Math.min(7, Math.round((day - saturday) / 86400000) + (Number(p.hour) >= 17 ? 1 : 0)));
-}
-
-// O teto pela banda do coletor: P0 fica sem faixa; P25 chega no máximo à Branca; da P50 à P100, só os mínimos decidem.
-// Uma banda que a régua não conhece fica sem faixa. Devolve o índice mais alto permitido em FAIXAS_TIME (-1 = nenhum).
-const tetoDaBanda = banda => banda === "P25" ? 0 : ["P50", "P75", "P100"].includes(banda) ? FAIXAS_TIME.length - 1 : -1;
-
-// A faixa atual (a mais alta em que todas as métricas batem o mínimo até agora, limitada pela banda), a próxima, as
-// metas até agora da próxima (ou as da Preta, no topo) e quantas já bateram.
-function classificarFaixa(valores, faixas, dias, banda) {
-  if (!faixas || dias === null || dias === undefined) return null;
-  let pelosMinimos = null;
-  for (const f of FAIXAS_TIME) {
-    if (Object.entries(faixas[f]).some(([m, n]) => !Number.isFinite(valores[m]) || valores[m] < metaToDate(n, m, dias))) break;
-    pelosMinimos = f;
+// A régua da semana, nesta ordem (o `regua_da_semana` do Pro, a seção 2 do PLANO):
+//  1. a lida na página do TeamZone (`oficial` da mesma semana), que manda: se a página diz "a régua desta semana ainda
+//     não foi gravada" (`sem_regua`), vale "sem régua", mesmo com o código do TeamZone já tendo a régua;
+//  2. a que veio no conjunto do Pro (`conjunto.regua`: a do gh ou a que vai com o Seaninho, com a fonte dela), a do gh
+//     (`gh`: {fonte, reguas: {semana: tabela}}, para os casos) e a embutida aqui (W45 e W46), com o selo do código;
+//  3. só nas semanas de antes da W45, a fórmula sobre o P100 da régua do coletor (`coletor`), com o aviso "sem a régua
+//     do painel". Da W45 em diante a régua do coletor nunca entra.
+// {regua: {semana, versao, fonte, faixas, ...} | null, fonte, selo, sem_regua, avisos: [texto]}.
+function reguaDaSemana(semana, {oficial = null, conjunto = null, gh = null, coletor = null} = {}) {
+  const avisos = [];
+  let pagina = null, paginaSemRegua = false;
+  if (oficial && typeof oficial === "object" && oficial.semana === semana && !oficial.erro) {
+    if (oficial.sem_regua === true) paginaSemRegua = true;
+    else if (oficial.regua && typeof oficial.regua === "object" && Object.keys(oficial.regua).length) {
+      try {
+        pagina = reguaDasLinhas(semana, String(oficial.regua_versao || `pagina-${semana}`), "pagina:" + String(oficial.fonte || "teamzone"),
+          linhasDasFaixas(oficial.regua));
+      } catch (e) { avisos.push(`a régua lida na página foi recusada (${e.message}): vale a do código do TeamZone`); }
+    }
   }
-  const teto = tetoDaBanda(banda);
-  const limitadaPelaBanda = pelosMinimos !== null && FAIXAS_TIME.indexOf(pelosMinimos) > teto;
-  const atual = limitadaPelaBanda ? (teto < 0 ? null : FAIXAS_TIME[teto]) : pelosMinimos;
-  const proxima = FAIXAS_TIME[atual === null ? 0 : FAIXAS_TIME.indexOf(atual) + 1] ?? null;
-  const metas = Object.fromEntries(Object.entries(proxima ? faixas[proxima] : faixas.Preta)
-    .map(([m, n]) => [m, metaToDate(n, m, dias)]));
-  const atingidos = proxima ? Object.entries(metas).filter(([m, n]) => Number.isFinite(valores[m]) && valores[m] >= n).length : 0;
-  return {atual, proxima, metas, atingidos, total: proxima ? Object.keys(metas).length : 0, limitadaPelaBanda, pelosMinimos};
+  let codigo = null, origem = null;
+  const doConjunto = conjunto && conjunto.semana === semana && conjunto.regua && conjunto.regua.faixas;
+  if (doConjunto) {
+    try {
+      const c = conjunto.regua;
+      codigo = reguaDasLinhas(semana, String(c.versao || `conjunto-${semana}`), String(c.fonte || "conjunto"), linhasDasFaixas(c.faixas));
+      origem = String(c.fonte || "conjunto");
+    } catch (e) { avisos.push(`a régua que veio do PC foi recusada (${e.message})`); }
+  }
+  if (!codigo && gh && gh.reguas && gh.reguas[semana]) {
+    try {
+      codigo = reguaDasLinhas(semana, `gh-${semana}`, String(gh.fonte || "gh"), linhasDasFaixas(gh.reguas[semana]));
+      origem = String(gh.fonte || "gh");
+    } catch (e) { avisos.push(`a régua do gh foi recusada (${e.message})`); }
+  }
+  if (!codigo && REGUAS_DO_PAINEL[semana]) { codigo = REGUAS_DO_PAINEL[semana]; origem = "asset"; }
+  const curta = String(semana).split("-W").pop();
+  // a régua do conjunto lida na página pelo Pro é a da página (o selo diz isso), mesmo sem o oficial aqui
+  const selo = o => /^pagina/.test(String(o)) ? SELO_PAGINA : SELO_CODIGO;
+  if (paginaSemRegua) {
+    if (codigo) avisos.push(`o código do TeamZone já tem a régua da semana ${curta}, mas a página ainda não: vale a página`);
+    return {regua: null, fonte: "pagina", selo: SELO_PAGINA, sem_regua: true, avisos};
+  }
+  if (pagina) {
+    if (codigo && !iguais(codigo.faixas, pagina.faixas)) avisos.push(`a régua da página difere da do código do TeamZone (${origem}): vale a da página`);
+    // a página não escreve a versão: a do conjunto da semana, ou a do código quando a tabela é a mesma
+    else if (!oficial.regua_versao && codigo) pagina.versao = codigo.versao;
+    if (!oficial.regua_versao && doConjunto && conjunto.regua.versao) pagina.versao = String(conjunto.regua.versao);
+    return {regua: {...pagina, origem: "pagina"}, fonte: "pagina", selo: SELO_PAGINA, sem_regua: false, avisos};
+  }
+  if (codigo) return {regua: {...codigo, origem}, fonte: origem, selo: selo(origem), sem_regua: false, avisos};
+  if (String(semana) < PRIMEIRA_SEMANA_DA_TABELA) {
+    const faixas = faixasDaRegua(coletor);
+    if (faixas) return {regua: {semana, versao: String(coletor.versao), fonte: "coletor", faixas}, fonte: "coletor",
+      selo: AVISO_SEM_PAINEL, sem_regua: false, avisos: [`${AVISO_SEM_PAINEL}: os mínimos saem da fórmula sobre o P100 da régua do coletor`]};
+  }
+  return {regua: null, fonte: null, selo: "", sem_regua: true, avisos};
 }
 
-// O farol de cada métrica, como no TeamZone: verde bateu; amarelo, ao menos 70% da meta; vermelho, abaixo.
-function farol(valor, meta) {
-  if (valor === undefined || valor === null || !Number.isFinite(valor)) return "neutro";
-  if (meta === undefined || !Number.isFinite(meta)) return "neutro";
-  return valor >= meta ? "ok" : valor >= meta * 0.7 ? "quase" : "longe";
+// 1 casa, empate para o par com folga de 1e-9 (o `umaCasa` do coletor.ts): 0,35 dá 0,4 e 98,25 dá 98,2. Não é o
+// `round` do Python (0,35 dá 0,3) nem o Math.round puro.
+function umaCasa(x) {
+  const y = x * 10, piso = Math.floor(y), resto = y - piso;
+  const inteiro = Math.abs(resto - 0.5) < 1e-9 ? (piso % 2 === 0 ? piso : piso + 1) : Math.round(y);
+  return inteiro / 10;
 }
 
 // A comemoração: a faixa subiu desde a última vez que o ninja foi visto nesta semana (a semana nova começa sem faixa).
@@ -276,8 +544,12 @@ function acordar() {
 }
 if (typeof document !== "undefined") document.addEventListener("visibilitychange", acordar);
 
-const Ninja = {FAIXAS, ORDEM_FAIXAS, FAIXAS_TIME, METRICAS_TIME, WHITE, faixaDe, rotulo, faixasDaRegua, metaToDate,
-  diasFechados, tetoDaBanda, classificarFaixa, farol, subiu, guardar, svg, palco, vigiar, estado, DUR};
+const Ninja = {FAIXAS, ORDEM_FAIXAS, FAIXAS_TIME, METRICAS_TIME, WHITE, PORTAO_DA_BANDA_ATE, PRIMEIRA_SEMANA_DA_TABELA,
+  MOTIVO_PRIMEIRO_DIA, MOTIVO_SEM_REGUA, AVISO_SEM_PAINEL, SELO_PAGINA, SELO_CODIGO, REGUAS_DO_PAINEL,
+  faixaDe, rotulo, instante, emSP, num, limpo, somarDias, rotuloIso, semanaDoPrograma, sextaDoRotulo, semanaDaData, janelaDoMomento,
+  fimDaSemana, corteDaSemana, diasFechados, metaToDate, tetoDaBanda, temPortaoDaBanda, tetoDaSemana, classificarFaixa,
+  valoresDosFatores, faixaDaSemana, faixaDoOficial, conferirLeitura, farol, reguaDasLinhas, linhasDasFaixas, faixasDaRegua,
+  reguaDaSemana, umaCasa, subiu, guardar, svg, palco, vigiar, estado, DUR};
 if (typeof module !== "undefined" && module.exports) module.exports = Ninja;
 else raiz.Ninja = Ninja;
 })(typeof window !== "undefined" ? window : globalThis);

@@ -132,6 +132,9 @@ function estadoDoPedido(p, enquete) {
                 // 0.8.9: digitada com a sessão trabalhando (entra quando ela terminar o passo), ou pela caixa da orquestra
                 : /^Na fila/.test(p.resposta || "") ? "Na fila da sessão: entra quando ela terminar o passo atual."
                 : /caixa da orquestra/.test(p.resposta || "") ? pelaCaixa(p.resposta)
+                // 11/11: a entrega digitada não deu (nada escrito) e foi pela caixa de quem repassa (o plano B do PC;
+                // "Pelo plano B: …" desde a revisão, "Entregue pelo plano B: …" no agente de antes)
+                : /^(Entregue pelo|Pelo) plano B/.test(p.resposta || "") ? String(p.resposta)
                 : ""};
     case "erro": return {sinal: "erro", texto, erro: p.erro || "Não foi."};
     default: return {sinal: null, texto};         // cancelado

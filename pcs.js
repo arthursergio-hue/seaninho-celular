@@ -6,7 +6,10 @@
 
 const ONLINE_MS = 150000;        // o mesmo online() da página
 const DESLIGADO_MS = 600000;     // e o desligadoHa
-const PEGAR_MS = 15000;          // o agente olha os pedidos a cada 2,5 s: em 15 s ele já pegou
+// v24 (12/11, o corte de tráfego): o agente olha os pedidos a cada 2,5 s só nos 3 min depois do último pedido; parado
+// (ninguém usando o celular), a cada 10 s. O pedido de energia costuma chegar no ritmo devagar: até ~12 s para o
+// agente pegar, mais a volta da página que traz o "recebi" (4 s). Com 15 s, o cartão dizia "não pegou" de um PC ligado.
+const PEGAR_MS = 25000;
 const NAO_VOLTOU_MS = 6 * 60000; // reiniciou e não deu sinal nisso: "não voltou"
 const RECENTE_MS = 10 * 60000;   // o pedido que ainda muda o estado do cartão
 const AGENTE_ENERGIA = "0.9.0";
@@ -99,7 +102,7 @@ function estado(p, {agora, ped = null, vizinhos = [], dispensado = 0} = {}) {
     const criado = Date.parse(ped.criado_em) || 0, atual = Date.parse(ped.atualizado_em) || criado;
     if (ped.estado === "novo") return agora - criado < PEGAR_MS
       ? {k: "pedindo", texto: "Pedindo ao PC…", cor: "anda", cancelar: true}
-      : {k: "nao_pegou", texto: "O PC não pegou o pedido em 15 s: talvez já esteja desligado", cor: "erro", cancelar: true};
+      : {k: "nao_pegou", texto: `O PC não pegou o pedido em ${PEGAR_MS / 1000} s: talvez já esteja desligado`, cor: "erro", cancelar: true};
     if (ped.estado === "escrevendo") {
       const r = json(ped.resposta);
       if (r.estado === "esperando") return {k: "esperando", cor: "anda", cancelar: true,
@@ -145,7 +148,8 @@ const vizinhosDe = (todos, agora) => [...new Set((todos || []).filter(x => onlin
 
 // Os botões de energia valem? {ok, motivo}. O motivo aparece no lugar do botão (ele não some).
 function podeEnergia(p, {agora, bancoV9, aprovado, rede = true, ped = null} = {}) {
-  if (!bancoV9) return {ok: false, motivo: "Chega quando o banco novo (v9) entrar"};
+  // a frase vai para a tela do Arthur: sem "v9" nem outro código interno (corretor final de 12/11)
+  if (!bancoV9) return {ok: false, motivo: "Chega com a próxima atualização do banco"};
   if (!aprovado) return {ok: false, motivo: "Este celular ainda não pode ligar e desligar os PCs (⚙ Ajustes)"};
   if (rede === false) return {ok: false, motivo: "Sem internet"};
   if (!online(p, agora)) return {ok: false, motivo: "PC sem sinal"};

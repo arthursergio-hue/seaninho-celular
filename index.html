@@ -557,6 +557,18 @@ button.bloco-cab{display:block;width:100%;text-align:left}
 .esp-t small{font-size:13.5px;color:var(--muted);overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
 .esp-ir{flex:none;font-size:13.5px;font-weight:650;color:var(--navy);background:var(--gold);padding:6px 11px;border-radius:999px}
 .pv-resumo{margin:-4px 0 8px;font-size:13.5px;color:var(--muted)}
+/* 11/11, o quadro visual do Hokage: os chips do resumo, o contador por cor e o Para você em cards */
+.pv-chips{display:flex;flex-wrap:wrap;gap:6px;margin:-2px 0 8px}
+.pv-chip{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:999px;background:var(--glass-2);font-size:13px;color:var(--ink)}
+.pv-cont{display:flex;gap:6px;margin:0 0 10px}
+.pv-cont span{flex:1;text-align:center;padding:7px 0;border-radius:12px;background:var(--glass-2);font-size:15px;font-weight:700}
+.pv-item.pv-card{margin:8px 0;padding:11px 12px 11px 15px;border:1px solid var(--stroke);border-left:4px solid var(--gold);border-radius:14px;background:var(--glass)}
+.pv-item.pv-card.alta{box-shadow:0 0 0 1px rgba(226,184,74,.45),0 0 16px rgba(226,184,74,.2)}
+.pv-tit{font-size:16px;font-weight:700;line-height:1.3;margin-bottom:6px}
+.pv-mais-t summary{font-size:12.5px;color:var(--muted);cursor:pointer;margin:2px 0 4px}
+.pv-frases{display:flex;flex-direction:column;gap:7px;margin-top:8px}
+.pv-frases button{min-height:46px;padding:9px 12px;border-radius:12px;background:var(--glass-2);color:var(--ink);font-size:15px;font-weight:650;text-align:left}
+.pv-frases button.rec{background:var(--gold);color:var(--navy)}
 .pv-item{padding:10px 0;border-top:1px solid var(--stroke);font-size:14.5px}
 .pv-acoes{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
 .pv-de{font-size:12.5px;font-weight:600;color:var(--muted);margin-bottom:3px}
@@ -576,60 +588,62 @@ button.bloco-cab{display:block;width:100%;text-align:left}
 .pv-acoes a{background:var(--glass-2);color:var(--ink)}
 .pv-mais{width:100%;padding:10px;margin-top:4px;border-radius:12px;background:var(--glass-2);font-size:14px;font-weight:600;color:var(--muted)}
 .bloco .rodape{font-size:12.5px;color:var(--faint);margin-top:8px}
-/* 0.8.7: o uso de IA da semana (régua da Seazone) */
-.prog{height:6px;border-radius:999px;background:rgba(255,255,255,.08);overflow:hidden;margin:10px 0 4px}
-.prog i{display:block;height:100%;border-radius:999px;background:var(--gold)}
-.uh{display:flex;justify-content:space-between;gap:10px;padding:6px 0;border-top:1px solid var(--stroke);font-size:14px}
-.uh:first-child{border-top:0}
-.uh span:last-child{color:var(--muted);text-align:right}
-.uh b{color:var(--gold-2);font-weight:650}
-.regua{display:flex;justify-content:space-between;align-items:center;margin:6px 0 4px;position:relative}
-.regua:before{content:"";position:absolute;left:18px;right:18px;top:50%;height:2px;background:rgba(255,255,255,.12)}
-.regua span{position:relative;z-index:1;width:46px;padding:6px 0;text-align:center;border-radius:999px;font-size:13px;font-weight:650;
-  background:#0E1C3A;border:1px solid var(--stroke);color:var(--faint)}
-.regua span.feita{color:var(--ink);background:#1D3566}
-.regua span.atual{color:var(--navy);background:var(--gold);border-color:var(--gold)}
-.regua span.prox{color:var(--gold-2);border:1.5px dashed var(--gold)}
-/* 0.8.8: a virada da semana (a que fechou ao lado da que começou) e o erro de verdade */
-.uso-lado{display:grid;grid-template-columns:1fr 1fr;gap:8px;width:100%;text-align:left;margin:4px 0 2px}
-.ul{display:flex;flex-direction:column;gap:3px;padding:10px 11px;border-radius:14px;background:rgba(0,0,0,.25);border:1px solid var(--stroke);min-width:0}
-.ul.fechou{border-color:rgba(226,184,74,.45);background:rgba(226,184,74,.07)}
-.ul.nova{border:1px dashed rgba(127,211,255,.45)}
-.ul small{font-size:11.5px;color:var(--muted);line-height:1.3}
-.ul .ul-t{font-size:12px;font-weight:650;color:var(--ink);letter-spacing:.2px}
-.ul .ul-fx{display:flex;align-items:baseline;gap:6px}
-.ul .ul-fx b{font-size:26px;line-height:1.05;color:var(--ink)}
-.ul.fechou .ul-fx b{color:var(--gold-2)}
-.ul .ul-fx i{font-style:normal;font-size:12.5px;color:var(--muted);white-space:nowrap}
+/* v24: o uso de IA igual ao TeamZone: o selo, os chips, a linha "se parar agora", a semana que fecha, a escada das 7
+   faixas e a régua 7 × 10 com a meta até hoje (no lugar das pílulas P0–P100 e dos critérios por banda) */
+.uso-selo{font-weight:650;color:var(--gold-2)}
+.uso-chips{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0 2px}
+.uso-chip{font-size:12.5px;padding:3px 10px;border-radius:999px;background:var(--glass-2);color:var(--ink);white-space:nowrap}
+.uso-chip.meio{background:rgba(226,184,74,.13);color:var(--gold-2)}
+.uso-agora{margin:8px 0 0;padding:8px 11px;border-radius:12px;background:rgba(0,0,0,.22);border:1px dashed rgba(127,211,255,.4);
+  font-size:13.5px;line-height:1.45;color:var(--muted)}
+.uso-agora b{color:var(--ink)} .uso-agora .fx-cinto{vertical-align:0;margin:0 4px 0 2px}
+.uso-fecha{display:flex;flex-direction:column;gap:3px;margin:8px 0 2px;padding:10px 12px;border-radius:14px;
+  border:1px solid rgba(226,184,74,.45);background:rgba(226,184,74,.07)}
+.uso-fecha .uf-t{font-size:12px;font-weight:650;letter-spacing:.2px;color:var(--gold-2)}
+.uso-fecha .un-fx{font-size:18px}
+.uso-fecha small{font-size:12px;color:var(--muted);line-height:1.35}
 .uso-virada-nota{margin:8px 0 2px;font-size:13px;line-height:1.4;color:#C3D3EE}
-.uv-tit{margin:0 0 10px;font-size:14.5px;line-height:1.45}
-.uv-crit{margin-top:10px}
-.uv-crit>small{display:block;font-size:12.5px;color:var(--muted);margin-bottom:6px}
-.uv-chips{display:flex;flex-wrap:wrap;gap:5px}
-.uv-chip{font-size:12.5px;padding:3px 9px;border-radius:999px;background:rgba(72,214,128,.13);color:#86E8AE;white-space:nowrap}
-.uv-chip.falta{background:rgba(255,255,255,.07);color:var(--muted)}
-.uv-chip.falta b{color:var(--gold-2);font-weight:650}
+/* v24 (o cético): sem o conjunto, a soma só dos PCs daqui é um piso; a projeção da semana que fecha à parte; o
+   diagnóstico (a soma daqui × TeamZone e os avisos) recolhido no pé, em cinza, e não no alto da tela */
+.uso-piso{margin:8px 0 2px;padding:8px 11px;border-radius:12px;border:1px solid rgba(226,184,74,.45);background:rgba(226,184,74,.08);
+  color:#FBE7B4;font-size:13px;line-height:1.4}
+.uso-fecha .uf-proj{color:#C3D3EE}
+.uso-diag{margin-top:10px;font-size:12.5px;color:var(--faint)}
+.uso-diag summary{display:inline-flex;align-items:center;min-height:44px;padding:0 12px;border-radius:999px;background:var(--glass);
+  border:1px solid var(--stroke);cursor:pointer;list-style:none}
+.uso-diag summary::-webkit-details-marker{display:none}
+.uso-diag .uso-erro{font-size:12.5px}
 .uso-erro{margin:8px 0 2px;padding:9px 11px;border-radius:12px;border:1px solid rgba(255,90,79,.5);background:rgba(255,90,79,.1);
   color:#FFC2BD;font-size:13.5px;line-height:1.4}
 .uso-erro b{color:#FFD9D6}
-.uc-ant{font-size:12px;color:var(--muted);margin-top:3px}
-.uc-ant b{color:var(--gold-2);font-weight:650}
+.esc7{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;align-items:end;margin:4px 0 2px}
+.e7{display:flex;flex-direction:column;align-items:center;gap:3px;min-width:0;opacity:.45}
+.e7 i{display:block;width:100%;border-radius:6px 6px 3px 3px;background:var(--fx);box-shadow:inset 0 0 0 1px rgba(255,255,255,.25)}
+.e7 b{font-size:11px;font-weight:650;color:var(--ink);max-width:100%;overflow:hidden;text-overflow:ellipsis}
+.e7 small{font-size:10.5px;height:15px;line-height:15px;color:var(--muted)}
+.un-prox .fx-cinto,.nf-prox .fx-cinto{vertical-align:0;margin:0 4px 0 2px}
+.e7.feita{opacity:.8} .e7.feita small{color:var(--green)}
+.e7.aqui{opacity:1} .e7.aqui i{box-shadow:0 0 0 2px var(--gold),0 0 14px rgba(226,184,74,.45)} .e7.aqui small{color:var(--gold-2);font-weight:700}
+.e7.prox{opacity:.95} .e7.prox i{outline:1.5px dashed var(--gold);outline-offset:2px}
+.r7-cab,.r7-l{display:flex;flex-direction:column;gap:3px}
+.r7-cab{position:sticky;top:-14px;z-index:1;padding:4px 0;background:#0D1B36}
+.r7-cab>span:first-child{display:none}
+.r7-c{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
+.r7-cab i{font-style:normal;text-align:center;font-size:10.5px;font-weight:700;padding:2px 0;border-radius:6px;color:var(--ink);
+  box-shadow:inset 0 -3px 0 var(--fx);background:rgba(255,255,255,.05)}
+.r7-cab i.aqui{background:rgba(226,184,74,.22)} .r7-cab i.prox{outline:1.5px dashed var(--gold);outline-offset:-1px}
+.r7-l{padding:7px 0;border-top:1px solid var(--stroke)}
+.r7-t{display:flex;justify-content:space-between;gap:8px;font-size:13.5px}
+.r7-t span{font-weight:650;white-space:nowrap} .r7-t em{font-style:normal;font-weight:500;color:var(--gold-2);font-size:12.5px}
+.r7{text-align:center;font-size:11px;padding:4px 0;border-radius:6px;background:rgba(255,255,255,.05);color:var(--muted);
+  white-space:nowrap;overflow:hidden}
+.r7.ok{background:rgba(72,214,128,.16);color:#86E8AE} .r7.quase{background:rgba(226,184,74,.16);color:var(--gold-2)}
+.r7.longe{background:rgba(255,90,79,.13);color:#FFB1AA} .r7.vazio{opacity:.45}
+.r7.aqui{box-shadow:inset 0 0 0 1.5px var(--gold);font-weight:700} .r7.prox{outline:1.5px dashed var(--gold);outline-offset:-1px}
+.r7-leg{display:flex;flex-wrap:wrap;gap:10px;margin-top:8px;font-size:11.5px;color:var(--faint)}
+.r7-leg i{display:inline-block;width:9px;height:9px;border-radius:3px;margin-right:4px;vertical-align:-1px}
+.r7-leg i.ok{background:#48D680} .r7-leg i.quase{background:var(--gold)} .r7-leg i.longe{background:var(--coral)}
 .us .n3 small{display:block;text-align:right}
-.uc{padding:10px 0;border-top:1px solid var(--stroke)}
-.uc:first-of-type{border-top:0}
-.uc-cab{display:flex;justify-content:space-between;gap:10px;font-size:14.5px}
-.uc-cab i{font-style:normal;color:var(--faint);font-size:12.5px}
-.uc-v{font-weight:650;white-space:nowrap}
-.uc-v small{color:var(--muted);font-weight:500}
-.uc-barra{position:relative;height:8px;border-radius:999px;background:rgba(255,255,255,.08);margin:7px 0 5px}
-.uc-barra i{position:absolute;left:0;top:0;bottom:0;border-radius:999px;background:var(--gold)}
-.uc.ok .uc-barra i{background:var(--green)}
-.uc-barra .tk{position:absolute;top:-3px;bottom:-3px;width:2px;margin-left:-1px;background:rgba(255,255,255,.35);border-radius:1px}
-.uc-pe{display:flex;justify-content:space-between;gap:10px;font-size:12.5px;color:var(--muted)}
-.uc-pe .fxa{font-weight:650;color:var(--ink)}
-.uc.ok .uc-pe .st{color:var(--green)}
-.uc:not(.ok) .uc-pe .st{color:var(--gold-2)}
-.uc-pcs{font-size:12px;color:var(--faint);margin-top:3px}
 .um{display:flex;gap:6px;flex-wrap:wrap;margin:2px 0 8px}
 .um button{font-size:13px;padding:5px 11px;border-radius:999px;background:var(--glass-2);color:var(--muted)}
 .um button.on{background:var(--gold);color:var(--navy);font-weight:650}
@@ -752,6 +766,12 @@ button.bloco-cab{display:block;width:100%;text-align:left}
 .nf-escada .ne b{flex:1;color:var(--ink);font-weight:600} .nf-escada .ne i{font-style:normal;font-size:12.5px}
 .nf-escada .ne.aqui{background:rgba(226,184,74,.14);box-shadow:inset 0 0 0 1px rgba(226,184,74,.45)} .nf-escada .ne.aqui i{color:var(--gold-2);font-weight:650}
 .nf-nota{align-self:stretch;text-align:left;margin:10px 2px 0;font-size:12.5px;line-height:1.4;color:var(--faint)}
+/* o "ver como conta" da régua: a explicação longa recolhida (o rodapé fica de uma linha) */
+.uso-como{align-self:stretch;text-align:left;font-size:12.5px;line-height:1.4;color:var(--faint)}
+.uso-como summary{min-height:44px;display:flex;align-items:center;color:var(--gold);cursor:pointer;list-style:none}
+.uso-como summary::-webkit-details-marker{display:none}
+.uso-como summary::after{content:" ▾";white-space:pre}
+.uso-como[open] summary::after{content:" ▴"}
 .nf .btn+.btn{background:var(--glass-2);color:var(--ink)}
 .tiles{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
 .tile{padding:10px 12px;border-radius:12px;background:rgba(0,0,0,.2)}
@@ -1134,7 +1154,38 @@ body.fr-aberta #appAviso{z-index:8}
 .fr-sumiu .btn{max-width:240px;margin:16px auto 0}
 .folha .fr-folha-meta{margin:0 0 4px;font-size:13px;color:var(--faint);overflow-wrap:anywhere}
 .folha .fr-por{margin-bottom:6px}
+/* v24: as telas cheias de Decisões, Entregas e Meus pedidos (o padrão da #frente: o fundo de galáxia, o topo com ‹) */
+#decisoes,#entregas,#meusPedidos{position:fixed;inset:0;z-index:6;display:flex;flex-direction:column;padding-left:var(--esq);padding-right:var(--dir);
+  background:#050C24 var(--ceu,linear-gradient(170deg,#0E224A,#08142E 60%)) 0 0/100vw auto no-repeat}
+#decisoes .ar-topo button,#entregas .ar-topo button,#meusPedidos .ar-topo button{width:44px;height:44px;flex:none}
+#decisoes .ar-topo b,#entregas .ar-topo b,#meusPedidos .ar-topo b{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#entregas .ar-corpo,#meusPedidos .ar-corpo{padding-bottom:calc(var(--bottom) + 24px)}
+/* o pé "Conferir e enviar" do decisoes.js gruda no fim da tela (aqui não há a barra de baixo) */
+#decisoes .ar-corpo{--dc-pe-bottom:0px;padding-bottom:calc(var(--bottom) + 12px);overscroll-behavior:contain;scroll-padding-top:70px}
+/* a barra das colunas presa rente ao alto (o respiro de 14 px do corpo não aparece por cima dela); o scroll-padding faz o
+   que é levado à vista não ficar debaixo dela */
+#decisoes .ar-corpo .dc-abas{top:-14px}
+.v24-fonte{margin:-4px 2px 10px;font-size:12px;color:var(--faint)}
+.v24-fonte.off{color:var(--gold-2)}
+body.tela24 #appAviso{z-index:8}
+.dc24-and{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:0 0 10px;padding:10px 12px;border-radius:14px;font-size:14px;line-height:1.4;
+  background:var(--glass);border:1px solid var(--stroke-2);color:var(--muted)}
+.dc24-and.ok{color:#86E8AE;border-color:rgba(72,214,128,.45);background:rgba(72,214,128,.08)}
+.dc24-and.erro{color:#FFA49C;border-color:rgba(255,90,79,.45);background:rgba(255,90,79,.08)}
+.dc24-and > span:not(.spin){flex:1;min-width:0;overflow-wrap:anywhere}
+.dc24-and .spin{flex:none;margin:0}
+.dc24-and button{flex:none;min-height:44px;padding:0 14px;border-radius:999px;background:var(--glass-2);border:1px solid var(--stroke-2);color:var(--ink);font-weight:650}
+.dc24-corr{display:flex;align-items:center;gap:10px;margin:0 0 10px;padding:10px 12px;border-radius:14px;background:rgba(226,184,74,.1);border:1px solid rgba(226,184,74,.5);
+  color:var(--gold-2);font-size:14px}
+.dc24-corr span{flex:1}
+.dc24-corr button{flex:none;min-height:44px;padding:0 14px;border-radius:999px;background:var(--glass-2);color:var(--ink);font-weight:650}
+.dc24-vazio{text-align:center;color:var(--muted);padding:28px 12px 8px}
+.dc24-vazio b{display:block;color:var(--ink);font-size:17px;margin-bottom:6px}
+.dc24-carrega{display:flex;align-items:center;justify-content:center;gap:8px;padding:40px 12px;color:var(--muted)}
+#dcFolha{position:fixed;inset:0;z-index:20;display:flex;align-items:flex-end;padding:12px 12px calc(var(--bottom) + 12px);background:rgba(2,6,18,.62)}
+#dcFolha .dc-conf{width:100%}
 </style>
+<style id="estiloV24">/* o CSS dos módulos da v24 (decisoes.js, entregas.js, pedidos.js e rodar.js), posto aqui quando a página abre */</style>
 </head>
 <body>
 <header>
@@ -1261,7 +1312,21 @@ body.fr-aberta #appAviso{z-index:8}
   <div class="ar-topo"><button id="frVoltar" aria-label="Voltar às frentes">‹</button><b id="frTitulo">Frente</b><button id="frAtualizar" aria-label="Atualizar a frente agora">↻</button></div>
   <div class="ar-corpo" id="frCorpo"></div>
 </div>
+<div id="decisoes" class="hidden" role="dialog" aria-modal="true" aria-label="Decisões">
+  <div class="ar-topo"><button id="dcVoltar" aria-label="Fechar as Decisões">‹</button><b id="dcTitulo">🗳 Decisões</b><button id="dcAtualizar" aria-label="Atualizar agora">↻</button></div>
+  <div class="ar-corpo" id="dcCorpo"></div>
+  <div id="dcFolha" class="hidden"></div>
+</div>
+<div id="entregas" class="hidden" role="dialog" aria-modal="true" aria-labelledby="entTitulo">
+  <div class="ar-topo"><button id="entVoltar" aria-label="Voltar">‹</button><b id="entTitulo">📦 Entregas</b><button id="entAtualizar" aria-label="Atualizar agora">↻</button></div>
+  <div class="ar-corpo" id="entCorpo"></div>
+</div>
+<div id="meusPedidos" class="hidden" role="dialog" aria-modal="true" aria-label="Meus pedidos">
+  <div class="ar-topo"><button id="mpVoltar" aria-label="Fechar os Meus pedidos">‹</button><b>📝 Meus pedidos</b><button id="mpAtualizar" aria-label="Atualizar agora">↻</button></div>
+  <div class="ar-corpo" id="mpCorpo"></div>
+</div>
 <div class="folha-fundo hidden" id="folhaFundo"><div class="folha" id="folha" role="dialog" aria-modal="true"></div></div>
+<div id="rdFolha" class="hidden"></div>
 
 <div id="detalhe" class="hidden">
   <div class="chat-topo">
@@ -1400,8 +1465,13 @@ body.fr-aberta #appAviso{z-index:8}
 <script src="lista.js"></script>
 <script src="workflows.js"></script>
 <script src="pcs.js"></script>
+<script src="volta.js"></script>
 <script src="usoia.js"></script>
 <script src="ninja.js"></script>
+<script src="decisoes.js"></script>
+<script src="entregas.js"></script>
+<script src="pedidos.js"></script>
+<script src="rodar.js"></script>
 <script src="marcar.js"></script>
 <script>
 "use strict";
@@ -1417,6 +1487,9 @@ const MIC = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-w
 let chave = store.get("seaninho.chave");
 let pcs = {};            // pc -> {pc, visto_em, mudou_em, sessoes, atualizacoes}
 let pedidos = [];
+// v24 (12/11): o corte de tráfego (web/volta.js). O mudou_em de cada PC em `pcs` é o do último inteiro (é ele que vai
+// nos conhecidos do próximo inteiro, para o hoje novo vir); o mais novo do banco e o das sessões ficam aqui.
+const corte = Volta.novo();
 let vapid = "";
 let aberta = null;       // {pc, id} da sessão aberta no detalhe
 let melhorar = store.get("seaninho.melhorar") !== "nao";
@@ -1424,9 +1497,13 @@ const edicoes = {};      // id do pedido -> o texto como a pessoa editou (a tela
 let sugestoesAtuais = []; // as respostas prontas da sessão aberta (o PC pede à IA quando o Claude pergunta ou termina)
 let timer = null, timerSala = null;
 let aba = "Inicio";
-const VERSAO_APP = "0.9.0.4";   // esta página
-const AGENTE_ATUAL = "0.9.0";   // o agente que acompanha esta página (os PCs atrás dele aparecem no painel)
+const VERSAO_APP = "0.9.0.14";   // esta página (v24, a casca seaninho-v24; no contrato corrigido do agente 0.9.0.14)
+// o agente que acompanha esta página (os PCs atrás dele aparecem no painel). Corretor final de 12/11 (o cético): as
+// Decisões, as Entregas, os Meus pedidos e o Rodar só existem no agente 0.9.0.14 (o AGENTE_V24); com o 0.9.0 aqui, o
+// PC no 0.9.0.12 não aparecia como atrasado e as telas novas ficavam vazias sem dizer por quê
+const AGENTE_ATUAL = "0.9.0.14";
 const NOVIDADES_APP = [
+  ["0.9.0.14", "Decisões no celular, como a tela do Monitor geral: um card por pergunta, as opções lado a lado com o desenho e a recomendada em dourado; arraste a opção para a direita (gostei) ou para a esquerda (não gostei), o título do card para a esquerda (nenhuma serve), ou toque em 👍 / 👎; comentário em cada card (o rascunho fica no celular), Conferir e enviar, e o andamento até a sessão receber; Refazer nas respondidas. Também as Entregas (a prova grande, ✓ Aprovar e ✎ Pedir ajuste), os Meus pedidos à sessão central e o ⚡ Rodar no PC nos itens do Para você com comando (com a folha de confirmação). O uso de IA igual ao TeamZone. As imagens leves: a miniatura só quando aparece, a grande só no toque. Precisa do agente 0.9.0.14 nos PCs."],
   ["0.9.0.4", "Workflows: uma linha por frente de trabalho (o que o maestro delegou e os workflows lançados direto), quem espera você primeiro. Em cada uma: o PC, o estado (trabalhando, esperando você, parada no limite da conta, parada sem andar, terminou), a barra do workflow (▰▰▱ 12/13 · fase · tempo), há quanto tempo sem novidade (vermelho com 20 min trabalhando sem gravar nada) e a última fala. O toque abre a frente: os agentes, os arquivos novos da pasta com miniatura (imagem e PDF abrem aqui), Abrir a pasta no PC e Mandar mensagem. O resumo também no Início. Precisa do Seaninho do celular 0.9.0.4 no PC do maestro; os arquivos e os agentes chegam com a atualização do banco."],
   ["0.9.0", "Computadores: os PCs, a saúde deles e as contas do Claude num lugar só (o bloco 💻 no Início, os PCs do topo e o ⚙ abrem a tela). Um cartão por PC: estado (ligado, em uso, sem sinal, desligado, ligado sem o Seaninho), RAM, disco, tomada ou bateria, falhas, versões, a conta com o Trocar conta, as sessões, o histórico de 7 dias e o aviso quando ele cai ou volta. O ⏻ hiberna, reinicia ou desliga: a folha diz o que se perde (sessões trabalhando, o maestro, programas abertos, alguém no PC), segure 1,5 s, e o PC conta 60 s com Cancelar aqui e lá (mexer no PC cancela); nunca força, e se um programa segurar você escolhe Deixar ligado ou Forçar. Bloquear no ⋯. Precisa do banco v9 e do agente 0.9.0 nos PCs; Ligar pelo celular e Suspender ficam para depois. Agente 0.9.0: também a sobra de entrega que ficava presa na caixa do Claude."],
   ["0.8.12", "O maestro fica sabendo de cada sessão fechada: quando o Seaninho sugere fechar uma parada (RAM do PC acima de 90%) e quando você fecha uma aba pelo celular, vai uma linha para a caixa dele (dos dois PCs). Ele responde: \"fechei\" (o Início mostra que o maestro fechou) ou \"mantive\" (o motivo aparece junto da sugestão, também na lista do Fechar as N paradas). O que a própria orquestra fecha não volta para ela. Agente 0.8.12: também usa a régua da semana do servidor no uso de IA, quando o coletor a tiver, e registra melhor quando a entrega não consegue pôr o cursor."],
@@ -1492,14 +1569,28 @@ async function rpc(nome, args = {}, comChave = true, ms = 0) {
       x.rede = true; throw x;
     }
     if (!r.ok) {
-      let msg = r.statusText;
-      try { msg = (await r.json()).message || msg; } catch {}
-      const e = new Error(msg || `o banco respondeu ${r.status}`); e.status = r.status; throw e;
+      let msg = r.statusText, codigo = "";
+      try { const j = await r.json(); msg = j.message || msg; codigo = j.code || ""; } catch {}
+      const e = new Error(msg || `o banco respondeu ${r.status}`); e.status = r.status; e.codigo = codigo; throw e;
     }
     let t;
     try { t = await r.text(); } catch (e) { const x = new Error("a resposta do banco não chegou inteira"); x.rede = true; throw x; }
-    return t ? JSON.parse(t) : null;
+    const v = t ? JSON.parse(t) : null;
+    if (["cel_pedir", "cel_confirmar", "cel_cancelar"].includes(nome)) mandou(nome, args, v);
+    return v;
   } finally { clearTimeout(limite); }
+}
+// v24 (o corte de tráfego): a página mandou algo. O pedido mandado, confirmado ou cancelado fica acompanhado pela leve
+// até chegar ao fim (quem mandou faz uma volta já, voltaJa(): o pedido novo chega na hora). Corretor de 12/11: mandar não
+// pede mais o inteiro (o inteiro logo depois do cel_pedir vinha com o hoje de ANTES de o PC agir, e a água só mudava no
+// inteiro dos 2 min); o fim de uma ação que muda o hoje é que pede o inteiro (Volta.olhado). Só o pedido que a leve não
+// busca (o id que não é uuid, ou o banco sem a leve) ainda pede o inteiro. Mandar na conversa aberta a deixa quente (a
+// cada volta, 2 min).
+function mandou(nome, args, v) {
+  const agora = Date.now(), id = nome === "cel_pedir" ? v : args && args.id;
+  if (!Volta.acompanhar(corte, id, agora) || corte.semLeveEm) Volta.quererInteiro(corte);
+  const p = pedidos.find(x => x.id === id), pc = (args && args.pc) || (p && p.pc), sessao = (args && args.sessao) || (p && p.sessao);
+  if (aberta && pc === aberta.pc && sessao && String(sessao).toLowerCase() === String(aberta.id).toLowerCase()) Volta.conversaQuente(corte, agora);
 }
 
 // ---- Tempo e PCs -------------------------------------------------------------------------------
@@ -1585,7 +1676,8 @@ const iniciais = t => (String(t || "?").replace(/[^\p{L}\p{N} ]/gu, " ").trim().
 function desenharSessoes() {
   const ss = todasSessoes(), agora = Date.now();
   const c = contarSessoes(ss, agora);
-  for (const id of ["nAsk", "nInicio"]) { $(id).textContent = c.esperando; $(id).classList.toggle("hidden", !c.esperando); }
+  // v24: o Início também conta os lotes de decisões que esperam você (os já mandados daqui não contam)
+  for (const [id, n] of [["nAsk", c.esperando], ["nInicio", c.esperando + dcPendentes().length]]) { $(id).textContent = n; $(id).classList.toggle("hidden", !n); }
   por($("contasLista"), linhaContas());
   if (gestoSessao || arrastoFixada) return;   // não refaz o que está embaixo do dedo
   desenharFiltros(c);
@@ -1862,7 +1954,7 @@ async function fecharParadas(pc) {
     catch (e) { grupo.feitos++; grupo.erros.push(`${s.titulo}: não saiu do celular (${motivoRede(e)})`); }
   }
   if (grupo.feitos >= grupo.total) avisoDoGrupo(grupo);   // nenhuma saiu do celular
-  atualizar();
+  voltaJa();
 }
 function avisoDoGrupo(g) {
   avisar("appAviso", `${g.ok ? "✓ " : ""}Fechei ${g.ok} de ${g.total}.${g.erros.length ? " Não fechou: " + g.erros.join("; ") : ""}`,
@@ -1886,7 +1978,7 @@ async function pedirNoPc(pc, obj, vigia) {
   try {
     acoesVigiadas.set(await rpc("cel_pedir", {pc, tipo: "acao", texto: JSON.stringify(obj)}), vigia);
     avisar("appAviso", vigia.indo, {});
-    atualizar();
+    voltaJa();
   } catch (e) { avisar("appAviso", "Não saiu do celular: " + motivoRede(e), {erro: true, acao: () => pedirNoPc(pc, obj, vigia)}); }
 }
 function fecharAbaNoPc(pc, id, titulo) {
@@ -2012,7 +2104,9 @@ function previa(s) {
 }
 
 // ---- Início: o painel do dia (blocos resumidos; cada um leva à aba ou à tela completa) -------------------
-const PAINEL_BLOCOS = ["airats", "esperando", "frentes", "sessoes", "paravoce", "usoia", "computadores", "metricas", "resumos"];
+// v24: as Decisões no alto quando há lote; as Entregas e os Meus pedidos depois do Para você; sem lote esperando, a
+// última respondida desce para perto deles (dcfim)
+const PAINEL_BLOCOS = ["decisoes", "airats", "esperando", "frentes", "sessoes", "paravoce", "entregas", "pedidos", "dcfim", "usoia", "computadores", "metricas", "resumos"];
 const painelDe = p => (p && p.hoje && p.hoje.painel) || null;
 function motivoRede(e) {
   const m = String((e && e.message) || e || "");
@@ -2031,24 +2125,32 @@ function desenharInicio() {
   const paineis = lista.map(painelDe);
   por($("pTopo"), rede.ok === false
     ? `<span class="err">⚠ Sem conexão${rede.em ? " desde " + hm(new Date(rede.em).toISOString()) : ""}: ${esc(rede.erro)}. Tentando de novo…</span><button data-atualizar aria-label="Atualizar agora">↻</button>`
-    : rede.em ? `<span>Atualizado às ${hm(new Date(rede.em).toISOString())}</span><button data-atualizar aria-label="Atualizar agora">↻</button>`
+    // corretor de 12/11: a hora é a da última volta (a leve, a cada 4 s), mas o painel (Para você, decisões, uso de IA,
+    // Novidades) vem só no inteiro (2 min ou mais): quando ele ficou mais de 1 min para trás, a hora dele também
+    : rede.em ? `<span>Atualizado às ${hm(new Date(rede.em).toISOString())}${corte.inteiroEm && rede.em - corte.inteiroEm > 60000
+        ? ` · painel das ${hm(new Date(corte.inteiroEm).toISOString())}` : ""}</span><button data-atualizar aria-label="Atualizar agora">↻</button>`
     : `<span><span class="spin"></span>Carregando o painel…</span>`);
   if (!lista.length) {
     PAINEL_BLOCOS.forEach(b => por($("p-" + b), ""));
     return por($("p-sessoes"), rede.ok === null ? "" : rede.ok === false ? `<div class="empty">Sem internet: o painel aparece quando a rede voltar.</div>`
       : `<div class="empty">Nenhum PC publicou ainda. Ligue o Seaninho no celular num PC.</div>`);
   }
+  por($("p-decisoes"), blocoDecisoes());   // v24
   por($("p-airats"), blocoAiRats());
   por($("p-esperando"), blocoEsperando(ss, agora));
   por($("p-frentes"), blocoFrentes(lista));   // 0.9.0.4
   por($("p-sessoes"), blocoSessoes(c, lista));
   const escrevendo = document.activeElement && document.activeElement.matches && document.activeElement.matches("#p-paravoce textarea");
   if (!escrevendo) por($("p-paravoce"), blocoParaVoce(lista));
+  por($("p-entregas"), blocoEntregas());   // v24
+  por($("p-pedidos"), blocoMeusPedidos());
+  por($("p-dcfim"), blocoDecisoesFim());
   por($("p-usoia"), blocoUsoIa());
   por($("p-metricas"), blocoMetricas(lista, paineis));
   por($("p-computadores"), blocoComputadores(lista, agora));
   por($("p-resumos"), blocoResumos(agora));
   Ninja.vigiar();
+  observarMinis(el);   // v24: as miniaturas das entregas, só as que aparecem
 }
 
 function oQueEspera(s) {
@@ -2106,13 +2208,32 @@ function blocoParaVoce(lista) {
   const notas = !!(pcs[o.pc] && Lista.compararVersao(pcs[o.pc].versao, AGENTE_NOTA) >= 0);   // o ✓ Resolvido avisa o maestro
   const slack = !notas ? `Enviar no Slack (precisa do agente ${AGENTE_NOTA} no ${nomeCurtoPc(o.pc)})`
     : !online(pcs[o.pc]) ? `${nomeCurtoPc(o.pc)} desligado` : "";   // "" = pode enviar
+  // 11/11, o quadro visual: com os chips e o contador do quadro novo, eles no lugar do parágrafo do resumo
+  const visual = Array.isArray(o.chips) && o.contador && typeof o.contador === "object";
+  const n = k => Math.max(0, Math.floor(Number(visual && o.contador[k]) || 0));   // só número (o contador vem da rede)
+  const topo = visual ? `${o.chips.length ? `<div class="pv-chips">${o.chips.map(c => `<span class="pv-chip">${esc(c.icone)} ${esc(c.texto)}</span>`).join("")}</div>` : ""}
+    <div class="pv-cont" aria-label="Esperam você, rodando, prontos, esperando"><span>🟡 ${n("voce")}</span><span>🔵 ${n("rodando")}</span><span>🟢 ${n("pronto")}</span><span>⚪ ${n("esperando")}</span></div>`
+    : o.resumo ? `<p class="pv-resumo">${esc(o.resumo)}</p>` : "";
+  // O rodapé com o quadro visual não repete as contagens das seções (que somam as antigas e brigavam com o contador)
+  const contas = visual ? (n("antigas") ? `🗄 ${n("antigas")} antigas · ` : "")
+    : `Em andamento ${o.em_andamento || 0} · Esperando ${o.esperando || 0} · `;
   return `<section class="bloco"><h3>🎼 Para você <span class="n3">${itens.length ? itens.length + (itens.length === 1 ? " item" : " itens") : ""}</span></h3>
-    ${o.resumo ? `<p class="pv-resumo">${esc(o.resumo)}</p>` : ""}
+    ${topo}
     ${mostrar.map(it => itemParaVoce(it, maestro, notas, slack)).join("") || `<p class="note">Nada esperando decisão sua agora.</p>`}
     ${itens.length > mostrar.length ? `<button class="pv-mais" data-pv-todos>Ver todos (${itens.length})</button>` : ""}
-    <div class="rodape">Em andamento ${o.em_andamento || 0} · Esperando ${o.esperando || 0} · ${o.delegacoes_hoje || 0} ${o.delegacoes_hoje === 1 ? "delegação" : "delegações"} hoje</div></section>`;
+    <div class="rodape">${contas}${o.delegacoes_hoje || 0} ${o.delegacoes_hoje === 1 ? "delegação" : "delegações"} hoje</div></section>`;
 }
 const curtoTxt = (t, n) => (t = String(t || "")).length > n ? t.slice(0, n - 1).trimEnd() + "…" : t;
+// O card do item (quadro visual): o título curto em cima, o texto inteiro no "ver mais" e as frases como botões grandes
+// (a recomendada dourada); o toque na frase abre a resposta com ela escrita, para você conferir e mandar.
+function cartaoPv(it, corpo) {
+  if (!it.titulo) return corpo;
+  return `<div class="pv-tit">${esc(it.titulo)}</div><details class="pv-mais-t"><summary>ver mais</summary>${corpo}</details>`;
+}
+function frasesPv(it) {
+  if (!Array.isArray(it.respostas) || !it.respostas.length) return "";
+  return `<div class="pv-frases">${it.respostas.map((f, n) => `<button class="${n === (it.recomendada || 0) ? "rec" : ""}" data-pv-frase="${esc(it.chave)}" data-n="${n}">${esc(f)}</button>`).join("")}</div>`;
+}
 function itemParaVoce(it, maestro, notas, slack) {
   if (it.slack) return itemSlack(it, slack);
   const a = pvAlvo(it), r = pvRespondidos[it.chave];
@@ -2120,7 +2241,7 @@ function itemParaVoce(it, maestro, notas, slack) {
     ? `<button data-pv="${esc(it.chave)}" ${a.ligado ? "" : "disabled"} aria-label="Responder à sessão ${esc(a.nome)} sobre: ${esc(it.texto)}">${a.ligado ? "↩ Responder a " + esc(curtoTxt(a.nome, 24)) : esc(nomeCurtoPc(a.pc)) + " desligado"}</button>`
     : `<button data-pv="${esc(it.chave)}" ${maestro ? "" : "disabled"} aria-label="Responder ao ${esc(nomeMaestro())} sobre: ${esc(it.texto)}">${maestro ? "↩ Responder ao " + esc(nomeMaestro()) : esc(nomeMaestro()) + " fechado"}</button>`;
   const de = a ? `<div class="pv-de">💬 ${esc(a.nome)} · ${esc(nomeCurtoPc(a.pc))}${a.achou ? "" : ` · <span class="alerta">a sessão não está aberta: a resposta vai ao ${esc(nomeMaestro(true))}</span>`}</div>` : "";
-  return `<div class="pv-item" data-pv-item="${esc(it.chave)}">${de}<div class="pv-t">${esc(it.texto)}</div>${r ? `<div class="pv-feito">${estadoRespostaPv(r)}</div>` : ""}
+  return `<div class="pv-item${it.titulo ? " pv-card" : ""}${it.alta ? " alta" : ""}" data-pv-item="${esc(it.chave)}">${cartaoPv(it, `${de}<div class="pv-t">${esc(it.texto)}</div>`)}${r ? `<div class="pv-feito">${estadoRespostaPv(r)}</div>` : ""}${frasesPv(it)}${caixaRodar(it)}
     <div class="pv-acoes">${botao}
       ${notas ? `<button class="pv-ok" data-pv-ok="${esc(it.chave)}" aria-label="Marcar como resolvido: ${esc(it.texto)}">✓ Resolvido</button>` : ""}
       ${linkSeguro(it.link) ? `<a href="${esc(linkSeguro(it.link))}" target="_blank" rel="noopener">Abrir o link</a>` : ""}</div></div>`;
@@ -2137,8 +2258,12 @@ function itemSlack(it, bloqueio) {
          : st.fase === "erro" ? `<div class="pv-feito"><span class="alerta">⚠ Não saiu: ${esc(st.erro)}</span></div>` : ""}`;
   const botoes = st.fase === "ok" ? "" : `<button data-pv-slack="${esc(it.chave)}" ${bloqueio || st.fase === "enviando" ? "disabled" : ""}>${esc(bloqueio || (st.fase === "erro" ? "Tentar de novo" : "Enviar no Slack"))}</button>
       <button class="pv-ok" data-pv-ja="${esc(it.chave)}" aria-label="Já respondi no Slack: ${esc(it.texto)}">Já respondi</button>`;
-  return `<div class="pv-item pv-slack" data-pv-item="${esc(it.chave)}"><div class="pv-de">💬 Slack${sl.de ? " · " + esc(sl.de) : ""}</div>
-    <div class="pv-t">${esc(it.texto)}</div>${sl.texto ? `<div class="pv-msg">${esc(sl.texto)}</div>` : ""}${corpo}
+  // No card (com título), a mensagem inteira fica no "ver a mensagem"; sem título, à vista como antes
+  const msg = !sl.texto ? "" : it.titulo
+    ? `<details class="pv-mais-t"><summary>ver a mensagem</summary><div class="pv-msg">${esc(sl.texto)}</div></details>`
+    : `<div class="pv-msg">${esc(sl.texto)}</div>`;
+  return `<div class="pv-item pv-slack${it.titulo ? " pv-card" : ""}${it.alta ? " alta" : ""}" data-pv-item="${esc(it.chave)}">${it.titulo ? `<div class="pv-tit">💬 ${esc(it.titulo)}</div>` : ""}<div class="pv-de">💬 Slack${sl.de ? " · " + esc(sl.de) : ""}</div>
+    ${it.titulo ? "" : `<div class="pv-t">${esc(it.texto)}</div>`}${msg}${corpo}
     <div class="pv-acoes">${botoes}
       ${a && a.achou ? `<button class="pv-sec" data-pv="${esc(it.chave)}" ${a.ligado ? "" : "disabled"} aria-label="Responder à sessão ${esc(a.nome)} sobre: ${esc(it.texto)}">↩ Responder a ${esc(curtoTxt(a.nome, 22))}</button>` : ""}
       ${linkSeguro(it.link) ? `<a href="${esc(linkSeguro(it.link))}" target="_blank" rel="noopener">Abrir no Slack</a>` : ""}</div></div>`;
@@ -2181,7 +2306,7 @@ async function enviarSlack(i) {
     e.pedido = await rpc("cel_pedir", {pc: o.pc, tipo: "acao", texto: JSON.stringify({acao: "slack_responder", ref: e.ref, canal: sl.canal,
       thread_ts: sl.thread_ts || "", texto, item: it.texto, de: sl.de || "", link: linkSeguro(it.link)})});
     salvarPv();
-    await atualizar();
+    await voltaJa();
   } catch (err) {
     e.erroLocal = "não saiu do celular (" + motivoRede(err) + ")";
     salvarPv(); desenharInicio(); desenharSessoes();
@@ -2289,7 +2414,7 @@ function marcarParaVoce(ss) {
   }
 }
 
-function responderParaVoce(i) {
+function responderParaVoce(i, frase) {
   const o = orquestraDe(Object.values(pcs)), it = o && (o.para_voce || [])[i];
   if (!it) return;
   const a = pvAlvo(it);
@@ -2305,7 +2430,14 @@ function responderParaVoce(i) {
                cita: Chat.citacao({nome: "Para você", hora: horaDe(o.atualizado), texto: it.texto})};
   }
   desenharCitando();
-  $("texto").focus();
+  // A frase pronta do card vai para a caixa da conversa que abriu (o abrir() já pôs o rascunho dela): sozinha, ou na
+  // frente do rascunho que já estava, para nada se perder. Não sai sozinha: você confere e manda.
+  const t = $("texto"), alvo = a && a.achou ? a.sessao : o.sessao;
+  if (frase && aberta && aberta.id === alvo && t && !t.value.includes(frase)) {
+    t.value = t.value.trim() ? `${frase}\n\n${t.value}` : frase;
+    t.dispatchEvent(new Event("input", {bubbles: true}));
+  }
+  t.focus();
 }
 // A resposta saiu do celular (o pedido existe): o item mostra o andamento e o maestro fica sabendo quando ela entrar.
 function registrarResposta(pv, pedido, texto) {
@@ -2355,7 +2487,7 @@ async function processarNotas() {
       try {
         const pid = await rpc("cel_pedir", {pc: n.maestro, tipo: "acao", texto: JSON.stringify({acao: "nota_maestro", tipo: n.tipo,
           ref: n.ref, item: n.item, nome: n.nome || "", sessao: n.sessao || "", pc_sessao: n.pc_sessao || "", resposta: n.resposta || "",
-          de: n.de || ""})});
+          de: n.de || "", ...(n.card ? {card: n.card} : {})})});   // v24: o "✓ Rodei" vai como a nota "card" do quadro visual
         if (desta) r.nota = String(pid || "ok");
         fora();
       } catch { n.tenta = Date.now() + 30000; }
@@ -2369,20 +2501,30 @@ async function processarNotas() {
 const novoId = () => (crypto.randomUUID ? crypto.randomUUID() : [...crypto.getRandomValues(new Uint8Array(16))]
   .map(b => b.toString(16).padStart(2, "0")).join("")).toLowerCase();
 
-// ---- Uso de IA da semana (0.8.7): o painel "Seu uso de IA" do Monitor geral, com os PCs somados (usoia.js) ------
-const usosDosPcs = () => Object.values(pcs).map(p => ({...((painelDe(p) || {}).uso_ia || {}), pc: p.pc, ligado: online(p), visto: p.visto_em}))
-  .filter(u => u.valores || u.instalado !== undefined);
+// ---- Uso de IA da semana (0.8.7; v24, 12/11: igual ao TeamZone) ----------------------------------------------------
+// Até a v23 a página dava "Branca" quando o TeamZone dava "Azul": somava só os PCs do banco, aplicava o portão da banda
+// (que acabou na W44) e tirava as faixas de uma fórmula sobre a régua do coletor. Agora a manchete é a do TeamZone: o
+// conjunto que o PC publica (painel.uso_ia_conjunto: o oficial lido no TeamZone, a régua da semana e a "próxima
+// atualização"), recalculado com os dias fechados de AGORA (UsoIa.painel, usoia.js). Sem ele, o plano B pelos PCs, com o
+// selo "estimativa". A banda P0–P100 do coletor saiu da tela (é outra escala, que o TeamZone não tem).
+const usosDosPcs = () => Object.values(pcs).map(p => {
+  const pn = painelDe(p) || {}, obj = x => x && typeof x === "object" && !Array.isArray(x) ? x : null;
+  return {...(pn.uso_ia || {}), pc: p.pc, ligado: online(p), visto: p.visto_em,
+    conjunto: obj(pn.uso_ia_conjunto), oficial: obj(pn.uso_ia_oficial)};
+}).filter(u => u.valores || u.instalado !== undefined || u.conjunto || u.oficial);
+// Quantas máquinas o TeamZone conta: a última leitura dele fica no aparelho, para o selo "estimativa · N de 3" sem ela.
+const MAQ_TZ = "seaninho.usoia.maquinas";
+function painelUso(lista = usosDosPcs()) {
+  const lembradas = Number(store.get(MAQ_TZ)) || UsoIa.MAQUINAS_PADRAO;
+  // a hora do banco (agoraBanco), não a do iPhone: com o relógio do aparelho 2 min atrasado, das 17h00 às 17h02 a
+  // página ainda dava "faltam 88" e o TeamZone (que conta pelo relógio do servidor) já dava "faltam 290"
+  const p = UsoIa.painel(lista, agoraBanco(), {maquinasPadrao: lembradas});
+  if (p && p.teamzone && p.teamzone.maquinas && p.teamzone.maquinas !== lembradas) store.set(MAQ_TZ, String(p.teamzone.maquinas));
+  return p;
+}
 const fmtUso = (v, k) => UsoIa.formatar(v, k);
 const quandoMedido = t => t ? ha(t * 1000) : "?";
-const nomesPcs = r => r.pcs.map(nomeCurtoPc).join(" + ");
-function faltaTxt(c, curto = false) {
-  if (c.ok) return "✓ ok";
-  if (c.dias != null && !c.falta) return `${c.dias} de ${UsoIa.DIAS_MIN} dias com tarefa`;
-  return `faltam ${fmtUso(c.falta, c.chave)}` + (c.porDia ? (curto ? ` · <b>+${fmtUso(c.porDia, c.chave)} hoje</b>` : ` · +${fmtUso(c.porDia, c.chave)} por dia`) : "");
-}
-// ---- 0.8.8: a virada da semana (sexta 17h) e o erro de verdade -------------------------------------------------
-// O Arthur viu a tela às 17h28 com 0 pontos, P0 e 3 sessões e achou que era erro: era a semana nova. Nas primeiras 24 h,
-// a semana que fechou vai ao lado, com a faixa final; o erro de uma medida aparece à parte, em vermelho.
+// 0.8.8: o Arthur viu a tela às 17h28 com 0 pontos e 3 sessões e achou que era erro: era a semana nova.
 const horaCurta = d => `${d.getHours()}h${d.getMinutes() ? String(d.getMinutes()).padStart(2, "0") : ""}`;
 function quandoFoi(iso) {
   const d = new Date(iso), hoje = new Date(), ontem = new Date();
@@ -2391,18 +2533,15 @@ function quandoFoi(iso) {
   return d.toDateString() === hoje.toDateString() ? `hoje às ${horaCurta(d)}` : d.toDateString() === ontem.toDateString()
     ? `ontem às ${horaCurta(d)}` : `${DIA_SEMANA[d.getDay()]} às ${horaCurta(d)}`;
 }
-const haTempo = ms => ms < 3600000 ? `há ${Math.max(1, Math.round(ms / 60000))} min` : `há ${Math.floor(ms / 3600000)} h`;
-const numSemana = s => String(s || "").split("-W")[1] || s;
-const somandoPcs = w => w.pcs > 1 ? `somando os ${w.pcs} PCs` : `só o ${nomeCurtoPc(w.nomes[0])}`;
-const pts = p => String(p).replace(".", ",");
-function ladoALado(r, tag = "div") {
-  const w = r.virada.fechou, quando = w.fechada ? "resultado final" : `última medida ${quandoFoi(w.medido_em)}`;
-  return `<${tag} class="uso-lado"${tag === "button" ? " data-uso" : ""} aria-label="Semana ${esc(numSemana(w.semana))} fechou em ${esc(w.banda)}; semana ${esc(r.numero)} em ${esc(r.banda)}">
-    <span class="ul fechou"><span class="ul-t">Semana ${esc(numSemana(w.semana))} · fechou</span>
-      <span class="ul-fx"><b>${esc(w.banda)}</b><i>${pts(w.pontos)} pts</i></span><small>${esc(quando)} · ${esc(somandoPcs(w))}</small></span>
-    <span class="ul nova"><span class="ul-t">Semana ${esc(r.numero)} · começou</span>
-      <span class="ul-fx"><b>${esc(r.banda)}</b><i>${pts(r.pontos)} pts</i></span><small>${esc(quandoFoi(r.inicio))} · ${haTempo(r.virada.desde)}</small></span></${tag}>`;
+// A hora em −03:00, como o TeamZone escreve ("18h35", "17h"); de outro dia, com o dia ("ontem 18h35", "qui 17h35").
+function horaTz(ms, {dia = true} = {}) {
+  if (!Number.isFinite(ms)) return "";
+  const s = Ninja.emSP(ms), h = `${s.hora}h${s.minuto ? String(s.minuto).padStart(2, "0") : ""}`;
+  if (!dia) return h;
+  const hoje = Ninja.emSP(Date.now()).dia, d = Date.parse(`${s.dia}T12:00:00Z`), dif = Math.round((Date.parse(`${hoje}T12:00:00Z`) - d) / 864e5);
+  return dif === 0 ? h : dif === 1 ? `ontem ${h}` : `${DIA_SEMANA[new Date(d).getUTCDay()]} ${h}`;
 }
+const numSemana = s => String(s || "").split("-W")[1] || s;
 // 0.9.0.3: a medida que chegou ao teto do tempo fecha com o que já leu: os números são parciais (sobem na próxima,
 // que continua de onde parou). Em cinza, não como erro.
 function parciaisUso(lista) {
@@ -2425,127 +2564,122 @@ function errosUso0(r, lista) {
       : e.semNumeros ? "" : "; ele tenta de novo sozinho."}</div>`;
   }).join("");
 }
-// ---- 0.8.10: o ninja da faixa (ninja.js); 0.8.11: as 7 faixas e a regra do TeamZone -----------------------------
-// O ninja veste a faixa como o TeamZone calcula: os mínimos de cada uma das 7 faixas saem do P100 da régua (a do coletor)
-// e valem proporcionais aos dias já fechados; a banda do coletor limita (P0 sem faixa, P25 no máximo Branca). Na virada
-// e com a semana fechada, a faixa da semana que fechou (7 dias). Surge num puff toda vez que a seção aparece e, quando a
-// faixa sobe, a nova amarra. A última faixa vista fica no aparelho, para saber se subiu.
-const NINJA_VISTO = "seaninho.ninja.faixa";   // 0.8.11: o índice agora é o das 7 faixas (o de antes era o das bandas)
+// A conferência do Pro (a soma daqui contra o oficial) e os avisos da régua: diagnóstico, nunca a manchete. Fica
+// recolhido no pé da tela, num chip pequeno ("ℹ 2 de 3 máquinas · mensagens −31"), e abre no toque (PLANO, seção 2:
+// "Conferência automática (diagnóstico, não manchete)"; o Arthur quer pouco texto no alto).
+function avisosDoPainel(p) {
+  const c = p.conferencia, partes = [];
+  let chip = "";
+  if (c && c.ok === false) {
+    const dif = Object.entries(c.diferencas || {}).map(([m, n]) => `${(UsoIa.ROTULO[m] || m).toLowerCase()} ${n > 0 ? "+" : "−"}${fmtUso(Math.abs(n), m)}`);
+    chip = dif[0] || "a soma daqui difere";
+    partes.push(`<div class="uso-erro off">ℹ <b>A soma daqui não bate com o TeamZone</b>${dif.length ? `: ${esc(dif.join(", "))}` : ""}${c.motivo ? ` (${esc(c.motivo)})` : ""}. Vale o TeamZone.</div>`);
+  }
+  const avisos = [...p.avisos].filter((x, i, l) => l.indexOf(x) === i);
+  for (const a of avisos) partes.push(`<div class="uso-erro off">ℹ ${esc(a)}</div>`);
+  if (!partes.length) return "";
+  const resumo = [`${p.pcs.length} de ${p.maquinas} máquinas`, chip, !chip && avisos.length ? `${avisos.length} ${avisos.length === 1 ? "aviso" : "avisos"}` : ""].filter(Boolean).join(" · ");
+  return `<details class="uso-diag"><summary>ℹ ${esc(resumo)}</summary>${partes.join("")}</details>`;
+}
+
+// ---- o ninja da faixa (ninja.js) ---------------------------------------------------------------------------------
+// O ninja veste a faixa da manchete (a do conjunto, a do TeamZone); no dia 0 da semana nova (sexta 17h a sábado 17h,
+// sem faixa ainda), a da semana que fecha. Surge num puff toda vez que a seção aparece e, quando a faixa sobe, a nova
+// amarra. A última faixa vista fica no aparelho, para saber se subiu.
+const NINJA_VISTO = "seaninho.ninja.faixa";   // 0.8.11: o índice é o das 7 faixas
 function lerVistoNinja() { try { return JSON.parse(store.get(NINJA_VISTO) || "null"); } catch { return null; } }
-const reguaDoColetor = r => ({versao: r.reguaVersao || "coletor", metricas: Object.keys(r.minimos || {}), bandas: r.bandas, minimos: r.minimos || {}});
-const dataSP = iso => { const d = new Date(iso); return isNaN(d) ? "" : new Intl.DateTimeFormat("en-CA", {timeZone: "America/Sao_Paulo"}).format(d); };
-// A faixa de uma semana pela régua de r: {faixa, proxima, metas, atingidos, total, limitadaPelaBanda, pelosMinimos, dias}.
-function faixaDaSemana(r, valores, banda, dias) {
-  const c = Ninja.classificarFaixa(valores || {}, Ninja.faixasDaRegua(reguaDoColetor(r)), dias, banda);
-  return c ? {...c, faixa: c.atual, dias} : {faixa: null, proxima: null, metas: {}, atingidos: 0, total: 0, semRegua: true, dias};
-}
-function ninjaDaSemana(r) {
-  if (!r) return null;
-  const w = r.virada ? r.virada.fechou : null, b = w || r, fechou = !!w || !!r.encerrada, semana = w ? w.semana : r.semana;
-  const dias = fechou ? 7 : Ninja.diasFechados(dataSP(r.fim), new Date((r.medido || 0) * 1000).toISOString());
-  const f = faixaDaSemana(r, b.valores, b.banda, dias);
-  return {...f, semana, numero: numSemana(semana), banda: b.banda, pontos: b.pontos, valores: b.valores || {}, fechou,
-    i: f.faixa ? Ninja.FAIXAS_TIME.indexOf(f.faixa) + 1 : 0};
-}
-const faltamFaixa = n => n.total - n.atingidos;
-function proximaFaixaTxt(n) {
-  if (n.semRegua) return "Sem o P100 da régua do coletor: sem como calcular a faixa.";
-  if (!n.proxima) return "<b>Faixa máxima.</b>";
-  if (n.limitadaPelaBanda && !faltamFaixa(n))   // os números já dão a próxima: quem segura é a banda do coletor
-    return `Próxima: <b>Faixa ${esc(n.proxima)}</b> · os ${n.total} critérios já batem; falta a banda chegar à ${n.banda === "P0" ? "P25" : "P50"}`;
-  return `Próxima: <b>Faixa ${esc(n.proxima)}</b> · faltam <b>${faltamFaixa(n)}</b> de ${n.total} critérios`;
-}
-const bandaTxt = (r, comFalta = true) => `Banda ${esc(r.banda)} · ${pts(r.pontos)} pts${comFalta && r.proxima
-  ? ` · faltam ${r.faltam} de ${r.faltam + r.cumpridas.length} critérios para a ${esc(r.proxima)}` : ""}`;
-function palcoNinja(lugar, r, tamanho) {
-  const n = ninjaDaSemana(r);
-  if (!n) return Ninja.palco(lugar, null, {dorme: true, tamanho});
-  const festa = Ninja.subiu(lerVistoNinja(), n.semana, n.i) ? {titulo: "Faixa nova!"} : null;
+function palcoNinja(lugar, p, tamanho) {
+  if (!p) return Ninja.palco(lugar, null, {dorme: true, tamanho});
+  const n = p.ninja, festa = Ninja.subiu(lerVistoNinja(), n.semana, n.i) ? {titulo: "Faixa nova!"} : null;
   return Ninja.palco(lugar, n.faixa, {festa, tamanho,
     aoVer: () => store.set(NINJA_VISTO, JSON.stringify(Ninja.guardar(lerVistoNinja(), n.semana, n.i)))});
 }
 const cintoNinja = faixa => { const f = Ninja.faixaDe(faixa); return `<i class="fx-cinto${f ? "" : " vazio"}"${f ? ` style="--fx:${f.cor}"` : ""}></i>`; };
 const corDaFaixa = faixa => { const f = Ninja.faixaDe(faixa); return f ? ` style="--fx:${f.cor}"` : ""; };
-function linhaNinja(r, texto, rotuloAria) {
-  return `<div class="uso-ninja"><button class="ninja-btn" data-ninja-ver aria-label="${esc(rotuloAria)}: toque para ver a próxima faixa e o que falta">${palcoNinja("bloco", r, 84)}</button>${texto}</div>`;
+function linhaNinja(p, texto, rotuloAria) {
+  return `<div class="uso-ninja"><button class="ninja-btn" data-ninja-ver aria-label="${esc(rotuloAria)}: toque para ver a próxima faixa e o que falta">${palcoNinja("bloco", p, 84)}</button>${texto}</div>`;
 }
 // As 7 faixas em fila, como o canto do TeamZone: a atual marcada e a próxima tracejada.
-const fileiraFaixas = n => `<span class="faixas7" role="img" aria-label="${esc(Ninja.rotulo(n.faixa))}${n.proxima ? `; próxima ${esc(n.proxima)}` : ""}">${Ninja.FAIXAS_TIME.map((f, i) =>
-  `<i${corDaFaixa(f)} class="${f === n.faixa ? "aqui" : f === n.proxima ? "prox" : i < n.i - 1 ? "feita" : ""}" title="Faixa ${esc(f)}"></i>`).join("")}</span>`;
-// A folha do toque no ninja: a faixa, a próxima, cada critério contra a meta até agora (com o farol) e a escada.
-function abrirNinja() {
-  const lista = usosDosPcs(), r = lista.length ? UsoIa.montar(lista, Date.now()) : null, n = ninjaDaSemana(r);
-  folhaEscolher = null;
-  const botoes = `${usoAberto ? "" : `<button class="btn" data-nf-uso>Ver o uso da semana</button>`}<button class="btn" data-nf-fechar>Fechar</button>`;
-  if (!n) {
-    $("folha").innerHTML = `<div class="pega"></div><div class="nf">${Ninja.palco("folha", null, {dorme: true, tamanho: 150})}
-      <span class="un-fx">${cintoNinja(null)}Ainda sem a medida da semana</span>
-      <p class="nf-nota">O ninja acorda quando um PC medir a semana com o coletor da Seazone (1 a 3 min depois de ligar).</p>${botoes}</div>`;
-  } else {
-    const linhas = Object.entries(n.metas || {}).map(([m, meta]) => {
-      const v = n.valores[m], fa = Ninja.farol(v, meta), ok = fa === "ok";
-      return `<div class="nl"><span><i class="fa ${fa}"></i><b>${esc(UsoIa.ROTULO[m] || m)}</b></span>
-        <span>${esc(fmtUso(v, m))} / ${esc(fmtUso(meta, m))} · ${ok ? "✓" : Number.isFinite(v) ? `falta${meta - v > 1 ? "m" : ""} ${esc(fmtUso(meta - v, m))}` : "sem o número"}</span></div>`;
-    }).join("");
-    const escada = [...Ninja.FAIXAS_TIME].reverse().map(f => {
-      const est = f === n.faixa ? "você está aqui" : f === n.proxima ? "próxima" : Ninja.FAIXAS_TIME.indexOf(f) < n.i - 1 ? "✓" : "";
-      return `<div class="ne${f === n.faixa ? " aqui" : ""}">${cintoNinja(f)}<b>Faixa ${esc(f)}</b><i>${est}</i></div>`;
-    }).join("") + `<div class="ne${n.faixa ? "" : " aqui"}">${cintoNinja(null)}<b>Ainda sem faixa</b><i>${n.faixa ? "" : "você está aqui"}</i></div>`;
-    $("folha").innerHTML = `<div class="pega"></div><div class="nf">${palcoNinja("folha", r, 150)}
-      <span class="un-fx">${cintoNinja(n.faixa)}${esc(Ninja.rotulo(n.faixa))}</span>
-      <span class="un-sub">Semana ${esc(n.numero)} · ${n.fechou ? "fechada (7 de 7 dias)" : `${n.dias} de 7 dias fechados`} · banda ${esc(n.banda)} · ${pts(n.pontos)} pts</span>
-      <span class="nf-prox">${n.proxima ? `Próxima: ${cintoNinja(n.proxima)}<b>Faixa ${esc(n.proxima)}</b>` : proximaFaixaTxt(n)}</span>
-      ${n.limitadaPelaBanda ? `<p class="nf-nota nf-teto">Pelos mínimos daria a ${esc(n.pelosMinimos)}, mas a banda ${esc(n.banda)} do coletor limita
-        ${n.faixa ? `na ${esc(n.faixa)}` : "a sem faixa"}: P0 fica sem faixa e P25 chega no máximo à Branca.</p>` : ""}
-      ${linhas ? `<h4>${n.proxima ? `${n.fechou ? "Faltaram" : "Faltam"} ${faltamFaixa(n)} de ${n.total} critérios para a ${esc(n.proxima)}` : "As metas da Preta"}${n.fechou ? "" : " (meta até agora)"}</h4>
-        <div class="nf-lista">${linhas}</div>` : ""}
-      ${r.virada ? `<p class="nf-nota">A semana ${esc(r.numero)} começou ${esc(quandoFoi(r.inicio))}, do zero: o ninja veste a faixa da ${esc(n.numero)} por 24 h.</p>` : ""}
-      <h4>As faixas</h4><div class="nf-escada">${escada}</div>
-      <p class="nf-nota">Como no TeamZone: os mínimos das 7 faixas saem do P100 da régua (a Branca parte de 21 sessões, 200 mensagens
-        e organização 61) e valem proporcionais aos dias já fechados da semana, menos a organização. A banda do coletor limita a faixa.
-        Régua do coletor: ${esc(r.reguaVersao || "a fixa (o agente deste PC ainda não manda a versão)")}. Enquanto o coletor deste PC não recebe a régua da semana do
-        servidor, os mínimos daqui podem diferir dos do TeamZone.</p>
-      ${botoes}</div>`;
-  }
-  $("folhaFundo").classList.remove("hidden");
-  $("folha").scrollTop = 0;
-  Ninja.vigiar();
+const fileiraFaixas = (faixa, proxima) => { const i = faixa ? Ninja.FAIXAS_TIME.indexOf(faixa) : -1;
+  return `<span class="faixas7" role="img" aria-label="${esc(Ninja.rotulo(faixa))}${proxima ? `; próxima ${esc(proxima)}` : ""}">${Ninja.FAIXAS_TIME.map((f, j) =>
+    `<i${corDaFaixa(f)} class="${f === faixa ? "aqui" : f === proxima ? "prox" : j < i ? "feita" : ""}" title="Faixa ${esc(f)}"></i>`).join("")}</span>`; };
+
+// ---- a manchete: a faixa, o selo (TeamZone 18h35 ou estimativa), a próxima e o que falta -------------------------
+const tituloFaixa = (p, m = p.manchete) => m.faixa ? `Faixa ${m.faixa}${p.parcial && m === p.manchete && m.proxima ? " ou acima" : ""}`
+  : m.primeiro_dia || (m === p.manchete && p.dias === 0) ? `Semana ${p.numero} começou` : m.sem_regua ? "Sem régua da semana" : "Ainda sem faixa";
+const seloUso = p => p.base === "oficial" && p.teamzone ? `TeamZone ${horaTz(p.teamzone.atualizado_em)}`
+  : `estimativa · ${p.pcs.length} de ${p.maquinas} ${p.maquinas === 1 ? "máquina" : "máquinas"}`;
+function proximaTxt(m, p = null) {
+  if (m.primeiro_dia || m.sem_regua) return esc(m.motivo);
+  if (!m.proxima) return m.faixa ? "<b>Faixa máxima.</b>" : "";
+  let falta = UsoIa.faltasTxt(m.faltam);
+  if (falta && p && p.parcial) falta = falta.replace(/^(faltam?) /, "$1 até ");   // o piso: com as outras máquinas, falta menos
+  return `Próxima: ${cintoNinja(m.proxima)}<b>${esc(m.proxima)}</b>${falta ? ` · ${esc(falta)}` : ""}`;
 }
+// Sem o conjunto do PC (o agente de antes do 0.9.0.12) e sem a leitura do TeamZone: a soma é só a dos PCs daqui, um piso.
+function pisoUso(p) {
+  if (!p.parcial || p.manchete.sem_faixa) return "";   // sem faixa (dia 0, sem régua) não há piso a dizer
+  const nomes = p.pcs.map(nomeCurtoPc).join(" + ") || "nenhum PC";
+  return `<p class="uso-piso">⚠ Sem a leitura do TeamZone: a conta soma só ${esc(nomes)} (${p.pcs.length} de ${p.maquinas} máquinas). A faixa do TeamZone pode ser maior.</p>`;
+}
+// A linha "se parar agora": o que o TeamZone vai mostrar na atualização que leva a janela de hoje (17h a 17h).
+function linhaProxima(p) {
+  const q = p.proxima, m = p.manchete;
+  if (!q || m.primeiro_dia || (!q.faixa && !q.proxima && !q.sem_regua)) return "";
+  // sem o oficial, a manchete já é o "se parar agora": a linha repetiria os mesmos números
+  if (q.faixa === m.faixa && q.proxima === m.proxima && JSON.stringify(q.faltam) === JSON.stringify(m.faltam)) return "";
+  const quando = horaTz(q.quando), falta = UsoIa.faltasTxt(q.faltam);
+  // os dois "faltam" na mesma tela: o de cima é o de agora; este é o da próxima atualização, que conta mais um dia
+  // (a meta sobe às 17h). O cético achou que eles pareciam se contradizer.
+  const porque = !q.passou && Number.isFinite(q.dias) && q.dias > m.dias ? `com o dia ${q.dias} de 7, a meta sobe` : "";
+  const oQue = q.sem_regua ? esc(q.motivo) : `${cintoNinja(q.faixa)}<b>${esc(q.faixa ? `Faixa ${q.faixa}` : "sem faixa")}</b>${q.proxima && falta ? ` · ${esc(falta)} para a ${esc(q.proxima)}` : ""}`;
+  return `<p class="uso-agora">${q.passou ? `Na atualização de ${esc(quando)}` : `Se parar agora (${esc(quando)})`}: ${oQue}${porque ? ` <small class="uso-pq">(${esc(porque)})</small>` : ""}</p>`;
+}
+function chipsUso(p) {
+  const pcsTxt = `${p.pcs.length} de ${p.maquinas} ${p.maquinas === 1 ? "máquina" : "máquinas"}`;
+  return `<div class="uso-chips"><span class="uso-chip">📅 dia ${p.dias} de 7</span><span class="uso-chip${p.pcs.length < p.maquinas ? " meio" : ""}">🖥 ${pcsTxt}</span>${p.medido
+    ? `<span class="uso-chip">🕒 medido às ${esc(horaTz(p.medido))}</span>` : ""}</div>`;
+}
+// Quem entra na soma e quem fica de fora (o PC desligado, o que ainda não mede, o que o conjunto não cobre).
+function somandoTxt(p) {
+  const nomes = p.pcs.map(nomeCurtoPc).join(" + ");
+  const vistos = Object.entries(p.visto || {}).map(([pc, x]) => [pc, Date.parse((x || {}).visto_em)])
+    .filter(([, t]) => Number.isFinite(t) && Date.now() - t > 10 * 60000).map(([pc, t]) => `${nomeCurtoPc(pc)} visto ${horaTz(t)}`);
+  const fora = p.fora.map(f => `${nomeCurtoPc(f.pc)}: ${f.ligado === false && f.motivo !== "sem o coletor" ? `desligado desde ${quandoFoi(f.visto)}` : f.motivo}`);
+  return `${nomes ? `Somando ${esc(nomes)} (${p.pcs.length} de ${p.maquinas} máquinas do TeamZone)` : "Sem PC na soma"}${vistos.length ? ` · ${esc(vistos.join(" · "))}` : ""}${fora.length ? `<br>${esc(fora.join(" · "))}` : ""}`;
+}
+// A semana que fecha (dia 0 da nova): a faixa final dela, com a hora do retrato de sábado.
+function blocoFechando(p, curto = false) {
+  const f = p.fechando;
+  if (!f) return "";
+  const m = f.manchete, selo = f.base === "oficial" && f.teamzone ? `TeamZone ${horaTz(f.teamzone.atualizado_em)}` : "estimativa";
+  const falta = m.proxima ? UsoIa.faltasTxt(m.faltam) : "", pj = f.projecao;
+  const proj = pj ? `<small class="uf-proj">se o que falta entrar até ${esc(horaTz(f.retrato - 5 * 60000))}: ${cintoNinja(pj.faixa)}${esc(pj.faixa ? `Faixa ${pj.faixa}` : "sem faixa")}${!curto && pj.proxima && UsoIa.faltasTxt(pj.faltam) ? ` · ${esc(UsoIa.faltasTxt(pj.faltam))} para a ${esc(pj.proxima)}` : ""} (projeção)</small>` : "";
+  return `<div class="uso-fecha"><span class="uf-t">Semana ${esc(f.numero)} · fechando</span>
+    <span class="un-fx">${cintoNinja(m.faixa)}${esc(m.faixa ? `Faixa ${m.faixa}` : m.sem_regua ? "Sem régua" : "Sem faixa")}</span>
+    <small>${esc(selo)} · o retrato sai ${esc(horaTz(f.retrato))}${!curto && falta ? ` · para a ${esc(m.proxima)}, ${esc(falta)}` : ""}</small>${proj}</div>`;
+}
+
+// ---- o bloco do Início --------------------------------------------------------------------------------------------
 function blocoUsoIa() {
   const lista = usosDosPcs();
   if (!lista.length) return "";
-  const r = UsoIa.montar(lista, Date.now());
-  if (!r) {
-    if (!lista.some(u => u.instalado)) return "";
-    return `<section class="bloco"><h3>📊 Uso de IA</h3>${errosUso(null, lista)}${linhaNinja(null,
+  const p = painelUso(lista), r = UsoIa.montar(lista, agoraBanco());
+  if (!p) {
+    if (!lista.some(u => u.instalado || u.conjunto)) return "";
+    return `<section class="bloco"><h3>📊 Uso de IA</h3>${errosUso(r, lista)}${linhaNinja(null,
       `<p class="note un-txt">${lista.some(u => u.medindo) ? "Medindo a semana com o coletor da Seazone (1 a 3 min)…" : "Ainda sem a medida da semana."}</p>`, "Ainda sem a medida")}</section>`;
   }
-  const n = ninjaDaSemana(r);
-  // a semana desta medida já fechou e nenhum PC ligado mede a nova (fim de semana com os PCs desligados): o resultado
-  // final, e não "faltam 6 critérios · +18 hoje" de uma semana que acabou
-  if (r.encerrada && !r.virada && !lista.some(u => u.ligado)) return `<section class="bloco"><button class="bloco-cab" data-uso><h3>📊 Uso de IA · semana ${esc(r.numero)} <span class="ir">Abrir ›</span></h3></button>
-    ${linhaNinja(r, `<button class="un-txt" data-uso aria-label="A semana ${esc(r.numero)} fechou na ${esc(Ninja.rotulo(n.faixa))}">
-      <span class="un-fx">${cintoNinja(n.faixa)}${esc(Ninja.rotulo(n.faixa))}</span><span class="un-sub">${bandaTxt(r, false)}</span>
-      <span class="un-prox">A semana ${esc(r.numero)} fechou ${esc(quandoFoi(r.fim))}. A próxima aparece quando um PC ligar.</span></button>`, Ninja.rotulo(n.faixa))}
-    ${errosUso(r, lista)}<div class="rodape">${esc(nomesPcs(r))} · medido ${quandoMedido(r.medido)}</div></section>`;
-  if (r.virada) { const w = r.virada.fechou; return `<section class="bloco"><button class="bloco-cab" data-uso><h3>📊 Uso de IA · semana ${esc(r.numero)} <span class="ir">Abrir ›</span></h3></button>
-    ${linhaNinja(r, `<button class="un-txt" data-uso aria-label="A semana ${esc(numSemana(w.semana))} fechou na ${esc(Ninja.rotulo(n.faixa))}">
-      <span class="un-fx">${cintoNinja(n.faixa)}${esc(Ninja.rotulo(n.faixa))}</span><span class="un-sub">a faixa da semana ${esc(numSemana(w.semana))}, que fechou</span></button>`, Ninja.rotulo(n.faixa))}
-    ${ladoALado(r, "button")}
-    <p class="uso-virada-nota">🗓 A semana ${esc(r.numero)} começou ${esc(quandoFoi(r.inicio))}: os números começam do zero. Não é erro.</p>
-    ${errosUso(r)}<div class="rodape">${esc(nomesPcs(r))} · medido ${quandoMedido(r.medido)}</div></section>`; }
-  const total = r.faltam + r.cumpridas.length, feito = total ? Math.round(100 * r.cumpridas.length / total) : 100;
-  const hoje = r.criterios.filter(c => !c.ok).slice(0, 3);
-  return `<section class="bloco"><button class="bloco-cab" data-uso><h3>📊 Uso de IA · semana ${esc(r.numero)} <span class="ir">Abrir ›</span></h3></button>
-    ${linhaNinja(r, `<button class="un-txt" data-uso aria-label="${esc(Ninja.rotulo(n.faixa))}${n.proxima ? ", próxima " + esc(n.proxima) : ""}; banda ${esc(r.banda)}">
-      <span class="un-fx">${cintoNinja(n.faixa)}${esc(Ninja.rotulo(n.faixa))}</span><span class="un-sub">${proximaFaixaTxt(n)}</span>
-      <span class="un-prox">${bandaTxt(r)}</span></button>`, Ninja.rotulo(n.faixa))}
-    ${r.proxima ? `<div class="prog" role="img" aria-label="${r.cumpridas.length} de ${total} critérios cumpridos para a ${esc(r.proxima)}"><i style="width:${feito}%"></i></div>` : ""}
-    ${hoje.length ? `<div class="uso-hoje">${hoje.map(c => `<div class="uh"><span>${esc(c.rotulo)}</span><span>${faltaTxt(c, true)}</span></div>`).join("")}</div>` : ""}
-    ${errosUso(r)}<div class="rodape">${esc(nomesPcs(r))} · medido ${quandoMedido(r.medido)}</div></section>`;
+  const m = p.manchete, rotuloNinja = p.ninja.fechou ? `Faixa ${p.ninja.faixa} (semana ${numSemana(p.ninja.semana)}, que fecha)` : tituloFaixa(p);
+  return `<section class="bloco"><button class="bloco-cab" data-uso><h3>📊 Uso de IA · semana ${esc(p.numero)} <span class="ir">Abrir ›</span></h3></button>
+    ${linhaNinja(p, `<button class="un-txt" data-uso aria-label="${esc(tituloFaixa(p))}${m.proxima ? ", próxima " + esc(m.proxima) : ""}; ${esc(seloUso(p))}">
+      <span class="un-fx">${cintoNinja(m.faixa)}${esc(tituloFaixa(p))}</span><span class="un-sub uso-selo">${esc(seloUso(p))}</span>
+      <span class="un-prox">${proximaTxt(m, p)}</span></button>`, rotuloNinja)}
+    ${pisoUso(p)}${blocoFechando(p, true)}${chipsUso(p)}${linhaProxima(p)}
+    ${errosUso(r, lista)}<div class="rodape">${somandoTxt(p)}</div></section>`;
 }
 
-// A tela: a régua, cada critério contra a próxima faixa, a evolução de cada dia e as semanas anteriores.
+// ---- a tela -------------------------------------------------------------------------------------------------------
 let usoAberto = false, usoMetrica = store.get("seaninho.usoMetrica") || "mensagens", usoDia = -1;
 function abrirUsoIa() { usoAberto = true; usoDia = -1; $("usoIa").classList.remove("hidden"); document.body.style.overflow = "hidden"; desenharUsoIa(); $("usoCorpo").scrollTop = 0; }
 function fecharUsoIa() { usoAberto = false; $("usoIa").classList.add("hidden"); document.body.style.overflow = ""; }
@@ -2576,66 +2710,124 @@ function graficoUso(r) {
         ${dias.map(x => `<tr><td>${esc(diaUso(x.dia))}</td><td>${fmtUso(x.mensagens, "mensagens")}</td><td>${fmtUso(x.sessoes_iniciadas, "sessoes_iniciadas")}</td><td>${fmtUso(x.tokens_saida, "tokens_saida")}</td><td>${fmtUso(x.workflows, "workflows")}</td><td>${fmtUso(x.linhas, "linhas")}</td></tr>`).join("")}
       </table></details></div>`;
 }
-function criterioUso(c, r) {
-  const top = c.minimos[r.bandas[r.bandas.length - 1]] || Math.max(1, ...Object.values(c.minimos));
-  const ticks = Object.entries(c.minimos).map(([b, v]) => `<span class="tk" style="left:${Math.min(100, 100 * v / top)}%" title="${esc(b)}: ${esc(fmtUso(v, c.chave))}"></span>`).join("");
-  return `<div class="uc ${c.ok ? "ok" : ""}">
-    <div class="uc-cab"><span>${esc(c.rotulo)}${c.estimada ? ` <i>(estimativa)</i>` : ""}</span>
-      <span class="uc-v">${fmtUso(c.valor, c.chave)}${c.meta != null ? ` <small>/ ${fmtUso(c.meta, c.chave)}</small>` : ""}</span></div>
-    <div class="uc-barra" role="img" aria-label="${esc(c.rotulo)}: ${esc(fmtUso(c.valor, c.chave))}${c.meta != null ? " de " + esc(fmtUso(c.meta, c.chave)) + " para a " + esc(r.proxima) : ""}"><i style="width:${c.pct}%"></i>${ticks}</div>
-    <div class="uc-pe"><span>banda <span class="fxa">${esc(c.faixa)}</span></span><span class="st">${faltaTxt(c)}</span></div>
-    ${c.pcs.length > 1 ? `<div class="uc-pcs">${c.pcs.map(x => `${esc(nomeCurtoPc(x.pc))} ${esc(fmtUso(x.valor, c.chave))}`).join(" · ")}</div>` : ""}
-    ${r.virada && c.anterior != null ? `<div class="uc-ant">A semana ${esc(numSemana(r.virada.fechou.semana))} fechou com <b>${esc(fmtUso(c.anterior, c.chave))}</b></div>` : ""}</div>`;
+// A escada das 7 faixas (no lugar das pílulas P0–P100): degraus que sobem, a atual marcada e a próxima tracejada.
+function escadaUso(m) {
+  const i = m.faixa ? Ninja.FAIXAS_TIME.indexOf(m.faixa) : -1;
+  return `<div class="esc7" role="img" aria-label="${esc(m.faixa ? `Faixa ${m.faixa}` : "Ainda sem faixa")}${m.proxima ? `; próxima ${esc(m.proxima)}` : ""}">${Ninja.FAIXAS_TIME.map((f, j) => {
+    const est = f === m.faixa ? "você" : f === m.proxima ? "próxima" : j < i ? "✓" : "";
+    return `<div class="e7${f === m.faixa ? " aqui" : f === m.proxima ? " prox" : j < i ? " feita" : ""}"${corDaFaixa(f)}><i style="height:${14 + j * 9}px"></i><b>${esc(f)}</b><small>${est}</small></div>`;
+  }).join("")}</div>`;
 }
-// O topo da tela na virada: o aviso, as duas semanas lado a lado e o que bateu na que fechou.
-function viradaUso(r) {
-  const w = r.virada.fechou, n = numSemana(w.semana);
-  const chaves = UsoIa.ORDEM.filter(m => w.proxima && ((r.criterios.find(c => c.chave === m) || {}).minimos || {})[w.proxima] != null);
-  const chips = chaves.map(m => {
-    const rot = UsoIa.ROTULO[m] || m, f = w.faltas[m];
-    if (!f) return `<span class="uv-chip">✓ ${esc(rot)}</span>`;
-    return `<span class="uv-chip falta">✗ ${esc(rot)} <b>${f.falta ? `${esc(fmtUso(f.valor, m))}/${esc(fmtUso(f.minimo, m))}` : `${f.dias} de ${f.dias_minimos} dias`}</b></span>`;
+// A régua 7 × 10 (no lugar de "Critérios para a P50"): cada critério com o seu número e a meta até hoje de cada faixa,
+// com o farol do TeamZone (verde bateu; amarelo, ao menos 70% da meta; vermelho, abaixo). A faixa atual e a próxima
+// em destaque. Os mínimos da semana inteira, à parte, no toque ("a régua inteira").
+function reguaUso(p, valores, dias, m) {
+  const faixas = p.regua.regua && p.regua.regua.faixas;
+  if (!faixas) return `<p class="note">${esc(m.motivo || "Sem a régua da semana")}: sem as metas das faixas.</p>`;
+  const cab = `<div class="r7-cab"><span></span><span class="r7-c">${Ninja.FAIXAS_TIME.map(f => `<i${corDaFaixa(f)} class="${f === m.faixa ? "aqui" : f === m.proxima ? "prox" : ""}" title="Faixa ${esc(f)}">${esc(f.slice(0, 3))}</i>`).join("")}</span></div>`;
+  const linhas = UsoIa.CRITERIOS.map(k => {
+    const v = valores[k], prox = m.proxima && faixas[m.proxima][k] != null ? Ninja.metaToDate(faixas[m.proxima][k], k, dias) : null;
+    const cels = Ninja.FAIXAS_TIME.map(f => {
+      const min = faixas[f][k];
+      if (min == null) return `<span class="r7 vazio" title="A Faixa ${esc(f)} não pede ${esc((UsoIa.ROTULO[k] || k).toLowerCase())}">–</span>`;
+      const meta = Ninja.metaToDate(min, k, dias), fa = Ninja.farol(v, meta);
+      return `<span class="r7 ${fa}${f === m.faixa ? " aqui" : f === m.proxima ? " prox" : ""}" title="Faixa ${esc(f)}: meta até hoje ${esc(fmtUso(meta, k))} (a semana inteira pede ${esc(fmtUso(min, k))})">${esc(UsoIa.curto(meta, k))}</span>`;
+    }).join("");
+    const falta = prox != null && Number.isFinite(v) && v < prox ? ` <em>falta${prox - v >= 2 ? "m" : ""} ${esc(fmtUso(Ninja.limpo(prox - v), k))}</em>` : "";
+    return `<div class="r7-l"><div class="r7-t"><b>${esc(UsoIa.ROTULO[k] || k)}</b><span>${esc(fmtUso(v, k))}${falta}</span></div><div class="r7-c">${cels}</div></div>`;
   }).join("");
-  return `<section class="bloco"><p class="uv-tit">🗓 <b>A semana ${esc(r.numero)} começou ${esc(quandoFoi(r.inicio))}.</b> A semana ${esc(n)} fechou em
-      <b>${esc(w.banda)}</b> · ${pts(w.pontos)} pts (${esc(somandoPcs(w))}).</p>
-    ${ladoALado(r)}
-    ${w.proxima ? `<div class="uv-crit"><small>Na semana ${esc(n)}, para a ${esc(w.proxima)}: ${w.cumpridas.length} de ${chaves.length} critérios bateram</small><div class="uv-chips">${chips}</div></div>` : ""}
-    ${w.fechada ? "" : `<p class="note">Valores da última medida de cada PC (${esc(quandoFoi(w.medido_em))}): o agente 0.8.8 mede a semana inteira, até sexta 17h, e o resultado final aparece aqui.</p>`}
-    <p class="uso-virada-nota">Os números da semana ${esc(r.numero)} começam do zero: não é erro.</p></section>`;
+  return `${cab}${linhas}<div class="r7-leg"><span><i class="ok"></i>bateu</span><span><i class="quase"></i>70% ou mais</span><span><i class="longe"></i>abaixo de 70%</span><span>– a faixa não pede</span></div>`;
+}
+// De onde vem a régua, curto e sem o id interno (corretor final de 12/11, o cético: o rodapé dizia "Régua
+// auto-2026-W46 · régua lida no TeamZone" e um parágrafo): "Régua lida no TeamZone · semana 46".
+const semanaDaRegua = r => { const m = /W(\d{1,2})\b/.exec(`${(r && r.semana) || ""} ${(r && r.versao) || ""}`); return m ? ` · semana ${Number(m[1])}` : ""; };
+const fonteRegua = p => {
+  if (!p.regua.regua) return p.manchete.motivo || "Sem a régua da semana";
+  const selo = String(p.regua.selo || "régua do TeamZone");
+  return `${selo.charAt(0).toUpperCase()}${selo.slice(1)}${semanaDaRegua(p.regua.regua)}`;
+};
+let usoComoAberto = false;   // o "como conta" da régua fica aberto entre um desenho e outro
+const COMO_CONTA = "A meta de cada faixa é a da semana inteira × os dias fechados ÷ 7 (o dia fecha às 17h), menos a Organização, como no TeamZone.";
+const comoConta = () => `<details class="uso-como" data-uso-como ${usoComoAberto ? "open" : ""}><summary>ver como conta</summary>${esc(COMO_CONTA)}</details>`;
+// A faixa de uma semana que já fechou (Semanas anteriores): a régua da semana (a do painel da W45 em diante), 7 dias.
+function faixaFechada(w, r) {
+  const coletor = r && r.minimos ? {versao: r.reguaVersao || "coletor", metricas: Object.keys(r.minimos), bandas: r.bandas, minimos: r.minimos} : null;
+  const rg = Ninja.reguaDaSemana(w.semana, {coletor});
+  return Ninja.faixaDaSemana(w.valores, rg.regua, 7, w.semana, w.banda).faixa;
 }
 function desenharUsoIa() {
   if (!usoAberto) return;
-  const lista = usosDosPcs(), r = UsoIa.montar(lista, Date.now());
-  if (!r) { por($("usoCorpo"), `${errosUso(null, lista)}<section class="bloco uso-heroi"><button class="ninja-btn" data-ninja-ver aria-label="Ainda sem a medida">${palcoNinja("tela", null, 124)}</button>
+  const lista = usosDosPcs(), p = painelUso(lista), r = UsoIa.montar(lista, agoraBanco());
+  if (!p) { por($("usoCorpo"), `${errosUso(r, lista)}<section class="bloco uso-heroi"><button class="ninja-btn" data-ninja-ver aria-label="Ainda sem a medida">${palcoNinja("tela", null, 124)}</button>
     <div class="un-txt"><span class="un-fx grande">${cintoNinja(null)}Ainda sem faixa</span><div class="empty" style="padding:0;text-align:left">${lista.some(u => u.medindo) ? "Medindo a semana com o coletor da Seazone…" : "Ainda sem a medida da semana."}</div></div></section>`);
     return Ninja.vigiar(); }
-  const sem = lista.filter(u => !r.pcs.includes(u.pc)).map(u => `${esc(nomeCurtoPc(u.pc))}: ${u.instalado === false ? "sem o coletor"
-    : u.ligado === false ? `desligado desde ${esc(quandoFoi(u.visto))}${u.semana && u.semana < r.semana ? ` (com a semana ${esc(numSemana(u.semana))})` : ""}: entra quando ligar`
-    : u.semana && u.semana < r.semana ? `ainda com a semana ${esc(numSemana(u.semana))} (a ${esc(r.numero)} chega em poucos minutos)`
-    : u.medindo ? "medindo…" : "sem medida desta semana"}`);
-  const ordem = [...r.criterios.filter(c => !c.ok), ...r.criterios.filter(c => c.ok)];
-  const fmtData = iso => { const d = new Date(iso); return isNaN(d) ? "" : `${DIA_SEMANA[d.getDay()]} ${String(d.getDate()).padStart(2, "0")}/${String(d.getMonth() + 1).padStart(2, "0")}`; };
-  const pos = r.bandas.indexOf(r.banda), n = ninjaDaSemana(r);
-  const heroi = `<section class="bloco uso-heroi"><button class="ninja-btn" data-ninja-ver aria-label="${esc(Ninja.rotulo(n.faixa))}: toque para ver a próxima faixa e o que falta">${palcoNinja("tela", r, 124)}</button>
-    <div class="un-txt"><span class="un-fx grande">${cintoNinja(n.faixa)}${esc(Ninja.rotulo(n.faixa))}</span>
-      <span class="un-sub">Semana ${esc(n.numero)} · ${n.fechou ? "fechou" : `${n.dias} de 7 dias`} · banda ${esc(n.banda)} · ${pts(n.pontos)} pts</span>
-      <span class="un-prox">${proximaFaixaTxt(n)}</span>${fileiraFaixas(n)}
+  const m = p.manchete, fmtData = ms => { const s = Ninja.emSP(ms), d = new Date(`${s.dia}T12:00:00Z`); return `${DIA_SEMANA[d.getUTCDay()]} ${s.dia.slice(8, 10)}/${s.dia.slice(5, 7)}`; };
+  const heroi = `<section class="bloco uso-heroi"><button class="ninja-btn" data-ninja-ver aria-label="${esc(tituloFaixa(p))}: toque para ver a próxima faixa e o que falta">${palcoNinja("tela", p, 124)}</button>
+    <div class="un-txt"><span class="un-fx grande">${cintoNinja(m.faixa)}${esc(tituloFaixa(p))}</span>
+      <span class="un-sub uso-selo">${esc(seloUso(p))}</span>
+      <span class="un-prox">${proximaTxt(m, p)}</span>${fileiraFaixas(m.faixa, m.proxima)}
       <span class="un-dica">Toque no ninja para ver o que falta</span></div></section>`;
-  const avisosUso = errosUso(r);   // 0.9.0.3: os erros e as medidas parciais
-  por($("usoCorpo"), `${avisosUso ? `<section class="bloco">${avisosUso}</section>` : ""}${heroi}${r.virada ? viradaUso(r) : ""}
-    <section class="bloco"><h3>Semana ${esc(r.numero)} <span class="n3">${r.encerrada ? `fechou ${esc(quandoFoi(r.fim))}` : `${esc(fmtData(r.inicio))} a ${esc(fmtData(r.fim))}, 17h`}</span></h3>
-      ${r.encerrada ? `<p class="uso-virada-nota">🗓 Esta semana fechou ${esc(quandoFoi(r.fim))}. ${lista.some(u => u.ligado)
-        ? "Medindo a semana nova (1 a 3 min)…" : "A semana nova aparece quando um PC ligar."}</p>` : ""}
-      <div class="regua" role="img" aria-label="Faixa ${esc(r.banda)}${r.proxima ? ", próxima " + esc(r.proxima) : ""}">${r.bandas.map((b, i) =>
-        `<span class="${i === pos ? "atual" : i < pos ? "feita" : b === r.proxima ? "prox" : ""}">${esc(b)}</span>`).join("")}</div>
-      <p class="pv-resumo" style="margin:10px 0 0">${String(r.pontos).replace(".", ",")} pontos · ${r.proxima ? `faltam <b>${r.faltam}</b> de ${r.faltam + r.cumpridas.length} critérios para a <b>${esc(r.proxima)}</b>` : "faixa máxima da régua"}</p>
-      <div class="rodape">Somando ${esc(nomesPcs(r))}, como o servidor da Seazone soma · medido ${quandoMedido(r.medido)}${sem.length ? `<br>${sem.join(" · ")}` : ""}</div></section>
-    <section class="bloco"><h3>${r.proxima ? `Critérios para a ${esc(r.proxima)}` : "Critérios"}</h3>${ordem.map(c => criterioUso(c, r)).join("")}</section>
-    <section class="bloco"><h3>Evolução da semana</h3>${graficoUso(r)}</section>
-    <section class="bloco"><h3>Semanas anteriores</h3>${r.anteriores.length ? r.anteriores.map(w => { const fw = faixaDaSemana(r, w.valores, w.banda, 7).faixa; return `<div class="us"><span class="fx-mini"${corDaFaixa(fw)} title="${esc(Ninja.rotulo(fw))}">${esc(w.banda)}</span>
-        <span class="us-t"><b>Semana ${esc(w.semana.split("-W")[1] || w.semana)}</b>${w.fechada ? " · fechada" : w.medido_em ? ` · última medida ${esc(quandoFoi(w.medido_em))}` : ""}<br>${fmtUso(w.valores.mensagens, "mensagens")} mensagens · ${fmtUso(w.valores.sessoes_iniciadas, "sessoes_iniciadas")} sessões · ${fmtUso(w.valores.tokens_saida, "tokens_saida")} tokens</span>
-        <span class="n3">${pts(w.pontos)} pts<small>${esc(somandoPcs(w))}</small></span></div>`; }).join("")
+  const avisos = errosUso(r, lista);
+  // na semana que fecha (dia 0, com ou sem a régua da nova), a régua mostrada é a dela; a da semana nova ainda não pede nada
+  const daRegua = p.fechando && p.dias === 0 ? {p: {...p, regua: p.fechando.regua}, valores: p.fechando.manchete.valores || {}, dias: 7, m: p.fechando.manchete, titulo: `semana ${p.fechando.numero} inteira`}
+    // sem o oficial, a manchete conta com os dias da próxima atualização: a régua mostra as metas desses dias (as de
+    // hoje dariam outro "faltam" na mesma tela)
+    : Number.isFinite(m.dias) && m.dias > p.dias ? {p, valores: p.valores, dias: m.dias, m, titulo: `meta da próxima atualização · dia ${m.dias} de 7`}
+    : {p, valores: p.valores, dias: p.dias, m, titulo: `meta até hoje · dia ${p.dias} de 7`};
+  por($("usoCorpo"), `${avisos ? `<section class="bloco">${avisos}</section>` : ""}${heroi}
+    <section class="bloco"><h3>Semana ${esc(p.numero)} <span class="n3">${esc(fmtData(p.inicio))} a ${esc(fmtData(p.fim))}, 17h</span></h3>
+      ${pisoUso(p)}${chipsUso(p)}${linhaProxima(p)}${blocoFechando(p)}
+      ${p.dias === 0 ? `<p class="uso-virada-nota">🗓 A semana ${esc(p.numero)} começou ${esc(quandoFoi(new Date(p.inicio).toISOString()))}: ${m.primeiro_dia
+        ? "as faixas aparecem no sábado, às 17h" : "o TeamZone ainda não gravou a régua dela, e as faixas aparecem quando ela chegar"}. Não é erro.</p>` : ""}
+      <div class="rodape">${somandoTxt(p)}</div>${avisosDoPainel(p)}</section>
+    <section class="bloco"><h3>As 7 faixas</h3>${escadaUso(daRegua.m)}</section>
+    <section class="bloco"><h3>A régua da semana <span class="n3">${esc(daRegua.titulo)}</span></h3>${reguaUso(daRegua.p, daRegua.valores, daRegua.dias, daRegua.m)}
+      <div class="rodape">${esc(fonteRegua(daRegua.p))}${comoConta()}</div></section>
+    ${r && r.dias.length ? `<section class="bloco"><h3>Evolução da semana</h3>${graficoUso(r)}</section>` : ""}
+    <section class="bloco"><h3>Semanas anteriores</h3>${r && r.anteriores.length ? r.anteriores.map(w => { const fw = faixaFechada(w, r); return `<div class="us"><span class="fx-mini"${corDaFaixa(fw)} title="${esc(Ninja.rotulo(fw))}">${esc(fw || "–")}</span>
+        <span class="us-t"><b>Semana ${esc(numSemana(w.semana))}</b>${w.fechada ? " · fechada" : w.medido_em ? ` · última medida ${esc(quandoFoi(w.medido_em))}` : ""}<br>${fmtUso(w.valores.mensagens, "mensagens")} mensagens · ${fmtUso(w.valores.sessoes_iniciadas, "sessoes_iniciadas")} sessões · ${fmtUso(w.valores.tokens_saida, "tokens_saida")} tokens</span>
+        <span class="n3">${esc(w.pcs > 1 ? `${w.pcs} PCs` : nomeCurtoPc(w.nomes[0]))}</span></div>`; }).join("")
       : `<p class="note">Aparecem aqui a partir da próxima sexta: o agente guarda a última medida de cada semana.</p>`}</section>`);
+  Ninja.vigiar();
+}
+
+// A folha do toque no ninja: a faixa, a próxima, cada critério da próxima contra a meta até hoje (com o farol) e a escada.
+function abrirNinja() {
+  const lista = usosDosPcs(), p = lista.length ? painelUso(lista) : null;
+  folhaEscolher = null;
+  const botoes = `${usoAberto ? "" : `<button class="btn" data-nf-uso>Ver o uso da semana</button>`}<button class="btn" data-nf-fechar>Fechar</button>`;
+  if (!p) {
+    $("folha").innerHTML = `<div class="pega"></div><div class="nf">${Ninja.palco("folha", null, {dorme: true, tamanho: 150})}
+      <span class="un-fx">${cintoNinja(null)}Ainda sem a medida da semana</span>
+      <p class="nf-nota">O ninja acorda quando um PC medir a semana com o coletor da Seazone (1 a 3 min depois de ligar).</p>${botoes}</div>`;
+  } else {
+    // no dia 0, a folha é a da semana que fecha (é a faixa que o ninja veste)
+    const f = p.ninja.fechou && p.fechando ? p.fechando : null, m = f ? f.manchete : p.manchete;
+    const valores = f ? (m.valores || {}) : p.valores, dias = f ? 7 : p.dias, semana = f ? f.numero : p.numero;
+    const linhas = Object.entries(m.metas || {}).map(([k, meta]) => {
+      const v = valores[k], fa = Ninja.farol(v, meta), ok = fa === "ok";
+      return `<div class="nl"><span><i class="fa ${fa}"></i><b>${esc(UsoIa.ROTULO[k] || k)}</b></span>
+        <span>${esc(fmtUso(v, k))} / ${esc(fmtUso(meta, k))} · ${ok ? "✓" : Number.isFinite(v) ? `falta${meta - v >= 2 ? "m" : ""} ${esc(fmtUso(Ninja.limpo(meta - v), k))}` : "sem o número"}</span></div>`;
+    }).join("");
+    const i = m.faixa ? Ninja.FAIXAS_TIME.indexOf(m.faixa) : -1;
+    const escada = [...Ninja.FAIXAS_TIME].reverse().map(x => {
+      const est = x === m.faixa ? "você está aqui" : x === m.proxima ? "próxima" : Ninja.FAIXAS_TIME.indexOf(x) < i ? "✓" : "";
+      return `<div class="ne${x === m.faixa ? " aqui" : ""}">${cintoNinja(x)}<b>Faixa ${esc(x)}</b><i>${est}</i></div>`;
+    }).join("") + `<div class="ne${m.faixa ? "" : " aqui"}">${cintoNinja(null)}<b>Ainda sem faixa</b><i>${m.faixa ? "" : "você está aqui"}</i></div>`;
+    const selo = f ? (f.base === "oficial" && f.teamzone ? `TeamZone ${horaTz(f.teamzone.atualizado_em)}` : "estimativa") : seloUso(p);
+    $("folha").innerHTML = `<div class="pega"></div><div class="nf">${palcoNinja("folha", p, 150)}
+      <span class="un-fx">${cintoNinja(m.faixa)}${esc(f ? `Faixa ${m.faixa}` : tituloFaixa(p))}</span>
+      <span class="un-sub">Semana ${esc(semana)} · ${f ? "fechando (7 de 7 dias)" : `dia ${dias} de 7`} · ${esc(selo)}</span>
+      <span class="nf-prox">${m.proxima ? `Próxima: ${cintoNinja(m.proxima)}<b>Faixa ${esc(m.proxima)}</b>` : proximaTxt(m)}</span>
+      ${linhas ? `<h4>${m.proxima ? `${f ? "Faltaram" : "Faltam"} ${m.total - m.atingidos} de ${m.total} critérios para a ${esc(m.proxima)}` : "As metas da Preta"}${f ? "" : Number.isFinite(m.dias) && m.dias > p.dias ? " (meta da próxima atualização)" : " (meta até hoje)"}</h4>
+        <div class="nf-lista">${linhas}</div>` : ""}
+      ${f ? `<p class="nf-nota">A semana ${esc(p.numero)} começou ${esc(quandoFoi(new Date(p.inicio).toISOString()))}: as faixas dela aparecem no sábado, às 17h. Até lá, o ninja veste a faixa da ${esc(f.numero)}.</p>` : ""}
+      <h4>As faixas</h4><div class="nf-escada">${escada}</div>
+      <p class="nf-nota">${esc(fonteRegua(f ? {...p, regua: f.regua, manchete: m} : p))}.</p>${comoConta()}
+      ${botoes}</div>`;
+  }
+  $("folhaFundo").classList.remove("hidden");
+  $("folha").scrollTop = 0;
   Ninja.vigiar();
 }
 
@@ -2964,7 +3156,7 @@ async function enviarEnergia(pc, acao, esperar = false) {
     try {
       await rpc("cel_pedir", {pc, tipo: "energia", texto: JSON.stringify({acao, esperar}), id,
                               pedido_em: new Date(Date.now() + relogio).toISOString()});
-      await atualizar();
+      await voltaJa();
       return avisar("appAviso", acao === "bloquear" ? `✓ Bloqueando o ${nomeCurtoPc(pc)}.` : acao === "forcar" ? `✓ Forçando no ${nomeCurtoPc(pc)}.`
         : `✓ O ${nomeCurtoPc(pc)} ${A.verbo} em 60 s${esperar ? ", depois que as sessões terminarem" : ""}, se ninguém cancelar.`, {ok: true});
     } catch (e) {
@@ -2977,7 +3169,7 @@ async function cancelarEnergia(id) {
   if (rede.ok === false) return avisar("appAviso", "Sem internet: o Cancelar não chega ao PC. Cancele no próprio PC.", {erro: true, fica: true});
   try {
     const ok = await rpc("cel_cancelar", {id});
-    await atualizar();
+    await voltaJa();
     avisar("appAviso", ok ? "✓ Cancelado: o PC não vai fazer nada." : "Tarde demais: o PC já estava fazendo.", ok ? {ok: true} : {erro: true, fica: true});
   } catch (e) { avisar("appAviso", `O Cancelar não chegou (${motivoRede(e)}). Cancele no próprio PC.`, {erro: true, fica: true}); }
 }
@@ -3109,7 +3301,7 @@ async function decidirAiRats(decisao) {
     arPedido[a.id] = await rpc("cel_pedir", {pc: a.pc, tipo: "acao", texto: JSON.stringify({acao: "ai_rats", id: a.id, decisao, texto})});
   } catch (e) { arPedido[a.id] = "erro:" + motivoRede(e); }
   desenharAiRats(); desenharInicio();
-  atualizar();
+  voltaJa();
 }
 
 // ---- Botões extras das sessões (os do acoes-sessoes.json, como no Monitor Claude: "Postar no AI Rats"…) ----
@@ -3139,16 +3331,18 @@ function mostrarPuxar(dy, texto = "") {
   el.classList.add("on"); el.classList.toggle("pronto", pronto);
   el.style.transform = `translate(-50%,${Math.min(dy * 0.45, 40) - 40}px)`;
 }
+// Corretor de 12/11: o inteiro só se o último tem mais de 1 min; senão, a leve com a lista de cada PC que mudou (antes,
+// o inteiro a cada puxar, mesmo segundos depois do outro). O painel diz de quando é (o "painel das HH:MM").
 async function atualizarAgora() {
   if (atualizandoAgora) return;
   atualizandoAgora = true;
   mostrarPuxar(0, `<span class="spin"></span>Atualizando…`);
-  const ok = await atualizar();
+  const ok = Volta.puxar(corte, pcs, Date.now()) === "inteiro" ? await atualizar() : await naVez(lerLeve);
   mostrarPuxar(0, ok ? `✓ Atualizado às ${hm(new Date().toISOString())}` : `⚠ Não deu para atualizar: ${esc(rede.erro || "tente de novo")}`);
   setTimeout(() => { atualizandoAgora = false; mostrarPuxar(0); }, ok ? 1200 : 3000);
 }
 const podePuxar = e => ["Inicio", "Claude", "Workflows"].includes(aba) && $("detalhe").classList.contains("hidden") && $("folhaFundo").classList.contains("hidden")
-  && $("frente").classList.contains("hidden")
+  && $("frente").classList.contains("hidden") && !telaV24 && !rdFolha   // v24: o arrasto das Decisões não é o puxar
   && window.scrollY <= 0 && !e.target.closest(".fx-fila, .filtros, .fr-resumo, input, textarea, .sl .card.arrastando");
 document.addEventListener("touchstart", e => {
   puxando = e.touches.length === 1 && podePuxar(e) ? {y0: e.touches[0].clientY, dy: 0} : null;
@@ -3260,7 +3454,7 @@ async function trocarConta(pc, botao) {
   botao.disabled = true;
   try {
     trocas[pc] = await rpc("cel_pedir", {pc, tipo: "acao", texto: JSON.stringify({acao: "trocar_conta"})});
-    await atualizar();
+    await voltaJa();
   } catch (e) { trocas[pc] = "erro:" + (e.message || e); desenharSessoes(); desenharInicio(); }
 }
 
@@ -3376,7 +3570,7 @@ async function acaoHoje(obj, botao) {
     if (obj.acao === "tarefa_feita") concluindo.set(obj.id, id);
     if (obj.acao === "tarefa_nova") tarefaNova = {pedido: id, texto: obj.texto};   // antes do atualizar: o PC pode ser rápido
     desenharMsgHoje();
-    await atualizar();
+    await voltaJa();
     return id;
   } catch (e) {
     const jan = janela(inicio, agoraBanco());
@@ -3435,7 +3629,7 @@ async function enviarComando() {
   try {
     await rpc("cel_pedir", {pc: pc.pc, tipo: "comando", texto});
     $("cmd").value = ""; store.set("seaninho.rascunho.cmd", "");
-    await atualizar();
+    await voltaJa();
   } catch (e) { erroMic("cmd", "Não deu: " + (e.message || e), {acao: enviarComando}); }
   finally { $("cmdEnviar").disabled = false; }
 }
@@ -3661,8 +3855,7 @@ async function transcrever1(blob, alvo, sessao) {
     const fim = Date.now() + 60000;
     while (Date.now() < fim) {
       await new Promise(r => setTimeout(r, 1000));
-      const r = await rpc("cel_estado", {conhecidos: conhecidos()});
-      const p = (r.pedidos || []).find(x => x.id === id);
+      const p = await olharPedido(id);   // v24: a leve só com este pedido (antes, o cel_estado inteiro a cada 1 s)
       if (p && p.estado === "entregue") {
         if (sessao && !(aberta && aberta.id === sessao.id)) {   // saiu da conversa: o texto vai para o rascunho dela
           const k = "seaninho.rascunho." + sessao.id, antes = String(store.get(k) || "").trim();
@@ -4636,14 +4829,16 @@ async function esperarFoto(id, ms = 60000) {
   }
   throw new Error("não chegou");
 }
-// Espera o pedido sair do PC (entregue ou erro), lendo o cel_estado de 2 em 2 s.
+// Espera o pedido sair do PC (entregue ou erro), olhando o pedido de 2 em 2 s (v24: a leve só com ele; antes, o
+// cel_estado inteiro a cada 2 s). A rede que cai no meio não para a espera (ela tenta de novo até o fim do prazo).
 async function esperarPedido(pid, ms = 90000) {
   const fim = Date.now() + ms;
   while (Date.now() < fim) {
     const p = pedidos.find(x => x.id === pid);
     if (p && p.estado === "entregue") return p;
     if (p && p.estado === "erro") throw new Error(p.erro || "não deu");
-    await dorme(2000); await atualizar();
+    await dorme(2000);
+    try { await olharPedido(pid); } catch {}
   }
   throw new Error("o PC não respondeu");
 }
@@ -4836,7 +5031,7 @@ async function enviarLocal(local, args) {
       Marcar.Grandes.guardar(`${local.pedidoId}#${i}`, g);
       if (local.grupo) guardarRef(`${local.grupo.slice(0, 8)}-${i}`, `${local.pedidoId}#${i}`);
     });
-    await atualizar();
+    await voltaJa();
   } catch (e) {
     if (ehRede(e)) {   // a janela desta tentativa (na hora do banco, com folga): o pedido gravado nela é desta mensagem
       local.tentativas = [...(local.tentativas || []), janela(inicio, agoraBanco())].slice(-20);
@@ -5043,45 +5238,69 @@ async function acaoPedido(acao, id, onde = "dAviso") {
       await rpc("cel_cancelar", {id});
     }
     $("dRascunho").innerHTML = "";
-    await atualizar();
+    await voltaJa();
   } catch (e) { onde === "dAviso" ? alerta(e) : avisar(onde, "Não deu: " + motivoRede(e), {erro: true}); }
 }
 
 function alerta(e) { avisar("dAviso", "Não deu: " + motivoRede(e), {erro: true, ...chatAviso()}); }
 
 // ---- Laço ------------------------------------------------------------------------------------------
+// v24 (12/11, o corte de tráfego; as regras e o porquê estão no web/volta.js): a volta de 4 s pede a leve (quem está
+// ligado e quem mudou; a conversa aberta, as listas e os pedidos acompanhados quando mudam), e o inteiro (atualizar())
+// só ao abrir, ao voltar ao app, no puxar/↻, depois de mandar algo e a cada 2 min (algum PC mudou) ou 10 min (nada
+// mudou). Uma leitura do banco por vez (naVez): o inteiro pedido no meio de uma volta espera ela acabar, e a resposta
+// aplicada por último é sempre a mais nova (o balão recém-mandado não some).
 function conhecidos() {
   const c = {};
   for (const p of Object.values(pcs)) c[p.pc] = p.mudou_em;
   return c;
 }
 
-let seqPedido = 0, seqAplicado = 0;   // várias voltas correm juntas (laço, puxar, depois de mandar): vale a mais nova
-async function atualizar() {
+let filaBanco = Promise.resolve();
+function naVez(fn) {
+  const p = filaBanco.then(fn);
+  filaBanco = p.then(() => {}, () => {});
+  return p;
+}
+
+let seqPedido = 0, seqAplicado = 0;   // com o naVez as leituras não se cruzam mais; a conferência fica por garantia
+let inteiroNaFila = null, inteiroConferir = false;
+// O inteiro (o cel_estado com tudo). Quem chama durante uma volta espera ela acabar; dois pedidos enquanto ele ainda
+// espera a vez viram um só (os dois querem o estado de depois do pedido, e ele sai depois dos dois). Corretor de 12/11:
+// o do laço (conferir) olha de novo na vez dele e vira a leve se outro inteiro, que estava no ar, já atendeu (a rede
+// lenta punha dois iguais seguidos); quem pede de fora (abrir pelo aviso, conferir a fila) quer o inteiro de qualquer jeito.
+function atualizar(conferir = false) {
+  if (!chave) return Promise.resolve(false);
+  if (inteiroNaFila) { if (!conferir) inteiroConferir = false; return inteiroNaFila; }
+  inteiroConferir = conferir;
+  inteiroNaFila = naVez(() => {
+    inteiroNaFila = null;
+    if (inteiroConferir) {
+      const m = Volta.motivoInteiro(corte, pcs, Date.now());
+      if (m === "espera") return true;
+      if (!m) return lerLeve();
+    }
+    return lerInteiro();
+  });
+  return inteiroNaFila;
+}
+
+async function lerInteiro() {
   if (!chave) return false;
   const pedidoEm = Date.now(), n = ++seqPedido;   // pedidoEm: também o começo da volta (o relógio do banco)
+  // os pedidos de inteiro feitos até aqui: este atende (corretor de 12/11: e a volta que cai no meio dele já sabe, e não
+  // põe outro igual na fila)
+  const atende = Volta.inteiroSaiu(corte);
   let r;
   try { r = await rpc("cel_estado", {conhecidos: conhecidos()}); }
-  catch (e) {
-    if (e.status && /chave/i.test(e.message)) { sair("A chave deste celular não vale mais (desconectado no PC?). Conecte de novo."); return false; }
-    if (n < seqAplicado) return false;
-    const antes = rede.ok;
-    rede = {...rede, ok: false, erro: motivoRede(e)};
-    desenharInicio();
-    desenharComputadores();   // 0.9.0: os botões de energia ficam cinza sem rede
-    desenharWorkflows(); desenharFrente();   // 0.9.0.4: a faixa "Sem internet" e os botões cinza
-    if (antes !== false) { desenharSessoes(); desenharDetalhe(); }   // o "Sem internet" aparece também na lista e no chat
-    return false;
+  catch (e) {   // corretor de 12/11: o inteiro que falhou espera 20 s, 40 s… (a leve segue no meio: a conversa anda)
+    Volta.inteiroFalhou(corte, Date.now());
+    return leituraRuim(e, n);
   }
   if (n < seqAplicado) return false;   // uma resposta mais nova já foi desenhada (o balão recém-mandado não some)
   seqAplicado = n;
-  const voltou = rede.ok === false;
-  rede = {ok: true, em: Date.now(), erro: ""};
-  if (r.agora && !isNaN(Date.parse(r.agora))) {   // o "agora" do banco é de algum ponto da volta: o meio dela
-    const fim = Date.now();
-    ultimaVolta = Math.min(30000, fim - pedidoEm);
-    relogio = Date.parse(r.agora) - (pedidoEm + fim) / 2;
-  }
+  const voltou = leituraBoa(r, pedidoEm);
+  Volta.inteiroChegou(corte, r, pedidoEm, atende);
   if (r.prefs && Array.isArray(r.prefs.fixadas) && !fixadasSalvando && pedidoEm > fixadasMudouEm) {
     fixadas = r.prefs.fixadas;   // a do banco vale (outro aparelho pode ter mudado)
     store.set("seaninho.fixadas", JSON.stringify(fixadas));
@@ -5094,13 +5313,122 @@ async function atualizar() {
   aparelhos = Array.isArray(r.aparelhos) ? r.aparelhos : [];
   prefs = r.prefs && typeof r.prefs === "object" ? r.prefs : {};
   pcs = novos;
-  pedidos = r.pedidos || [];
+  pedidos = r.pedidos || [];   // o inteiro vale como antes (os 40 mais novos do último dia); a leve só troca um a um
+  return desenharTudo(voltou);
+}
+
+// A volta de 4 s pela leve. A primeira chamada já traz a parte leve de todos os PCs (e, com a conversa aberta, a
+// conversa nova dela, se o PC mudou); as outras, as listas vencidas e o resto dos pedidos acompanhados. Cada chamada
+// leva um pedido acompanhado (até 5 na volta). Um PC novo na conta (a leve não traz o que a página não tem) ou o banco
+// sem a leve: o inteiro, na mesma vez.
+async function lerLeve() {
+  if (!chave) return false;
+  const inicio = Date.now(), n = ++seqPedido;
+  const olhar = Volta.pedidosParaOlhar(corte, pedidos, aberta, inicio), feitas = [];
+  // o PC novo na conta vem no inteiro, menos na espera depois de um inteiro que falhou (aí a leve segue sem ele)
+  const inteiroJa = () => Volta.podeInteiro(corte, Date.now());
+  const pedir = async c => {
+    const id = olhar.shift() || "", args = {pc: c.pc || "", sessao: c.sessao || "", conhecidos: c.conhecidos || {}};
+    if (id) args.pedido = id;
+    const r = await rpc("cel_estado_leve", args), agora = Date.now();
+    const j = Volta.juntar(corte, pcs, r, c, agora);
+    pcs = j.pcs;
+    if (c.pc) { feitas.push(c); if (!c.sessao) corte.listaEm[c.pc] = agora; }
+    if (id) { Volta.olhado(corte, id, agora, r.pedidos); pedidos = Volta.juntarPedidos(pedidos, r.pedidos); }
+    return {r, apareceu: j.apareceu && inteiroJa()};
+  };
+  let x;
+  try { x = await pedir(Volta.primeira(corte, pcs, aberta, inicio)); }
+  catch (e) {
+    if (Volta.semLeve(e)) { corte.semLeveEm = Date.now(); return inteiroJa() ? lerInteiro() : false; }
+    return leituraRuim(e, n);
+  }
+  if (n < seqAplicado) return false;
+  seqAplicado = n;
+  corte.semLeveEm = 0;
+  const voltou = leituraBoa(x.r, inicio);
+  if (x.apareceu) return lerInteiro();
+  try {
+    for (const c of Volta.resto(corte, pcs, aberta, Date.now(), feitas)) if ((await pedir(c)).apareceu) return lerInteiro();
+    while (olhar.length) if ((await pedir({})).apareceu) return lerInteiro();
+  } catch {}   // a rede caiu no meio: o que veio fica; a próxima volta diz se ela voltou
+  return desenharTudo(voltou);
+}
+
+// Uma volta do laço: o inteiro, se for a vez dele (Volta.motivoInteiro), ou a leve. Corretor de 12/11: a conversa aberta
+// entra na conta antes (o orçamento muda com ela), e o inteiro confere de novo na vez dele (outra leitura pode estar no
+// meio: o inteiro que chegou nela já atende, e esta vira a leve, e não um segundo inteiro igual).
+function volta() {
+  if (!chave) return Promise.resolve(false);
+  const agora = Date.now();
+  Volta.conversaDe(corte, aberta, agora);
+  const motivo = Volta.motivoInteiro(corte, pcs, agora);
+  if (motivo === "espera") return Promise.resolve(true);
+  return motivo ? atualizar(true) : naVez(lerLeve);
+}
+// Depois de mandar algo: uma volta já (a leve com o pedido novo, que o mandou() pôs no acompanhamento; o inteiro, se for
+// a vez dele). Antes era o inteiro (o atualizar()) depois de cada envio.
+function voltaJa() { return volta(); }
+
+// Um pedido que a página espera de perto (a transcrição, as páginas do PDF): a leve só com ele. Sem a leve no banco, o
+// que o inteiro trouxe (o inteiro no máximo a cada 20 s).
+async function olharPedido(id) {
+  if (!chave) return null;
+  if (!Volta.UUID.test(String(id || "")) || corte.semLeveEm) {
+    if (Date.now() - corte.inteiroEm >= Volta.SEM_LEVE_MS || !corte.semLeveEm) await atualizar();
+    return pedidos.find(x => x.id === id) || null;
+  }
+  const lido = await naVez(async () => {
+    try {
+      const r = await rpc("cel_estado_leve", {pc: "", sessao: "", conhecidos: {}, pedido: id}), agora = Date.now();
+      pcs = Volta.juntar(corte, pcs, r, {}, agora).pcs;
+      Volta.olhado(corte, id, agora, r.pedidos);   // olhado agora (a volta deixa para depois; o fim sai do acompanhamento)
+      pedidos = Volta.juntarPedidos(pedidos, r.pedidos);
+      return true;
+    } catch (e) {
+      if (Volta.semLeve(e)) { corte.semLeveEm = Date.now(); return false; }
+      throw e;
+    }
+  });
+  if (!lido) return olharPedido(id);
+  return pedidos.find(x => x.id === id) || null;
+}
+
+// A leitura não veio: a chave que não vale mais desconecta; a rede caída aparece na tela.
+function leituraRuim(e, n) {
+  if (e.status && /chave/i.test(e.message)) { sair("A chave deste celular não vale mais (desconectado no PC?). Conecte de novo."); return false; }
+  if (n < seqAplicado) return false;
+  const antes = rede.ok;
+  rede = {...rede, ok: false, erro: motivoRede(e)};
+  desenharInicio();
+  desenharComputadores();   // 0.9.0: os botões de energia ficam cinza sem rede
+  desenharWorkflows(); desenharFrente();   // 0.9.0.4: a faixa "Sem internet" e os botões cinza
+  if (antes !== false) { desenharSessoes(); desenharDetalhe(); }   // o "Sem internet" aparece também na lista e no chat
+  return false;
+}
+// A leitura veio: a rede de pé e o relógio do banco. Devolve se a rede tinha caído (o "Conectado de novo").
+function leituraBoa(r, pedidoEm) {
+  const voltou = rede.ok === false;
+  rede = {ok: true, em: Date.now(), erro: ""};
+  if (r && r.agora && !isNaN(Date.parse(r.agora))) {   // o "agora" do banco é de algum ponto da volta: o meio dela
+    const fim = Date.now();
+    ultimaVolta = Math.min(30000, fim - pedidoEm);
+    relogio = Date.parse(r.agora) - (pedidoEm + fim) / 2;
+  }
+  return voltou;
+}
+
+// Depois de cada volta (a leve ou o inteiro): a tela inteira se refaz, como antes do corte, e o que depende do estado
+// novo (a fila sem rede, as ações vigiadas, o horário, o push) anda.
+async function desenharTudo(voltou) {
   const ativo = document.activeElement;
   const digitando = ativo && ["tarefaTexto", "tarefaData", "tarefaHora"].includes(ativo.id);
   desenharPcs(); desenharSessoes(); desenharInicio(); desenharFeed(); desenharComandos(); desenharAiRats(); desenharUsoIa();
   lembrarMaestro();
   desenharComputadores();
   desenharWorkflows(); desenharFrente();   // 0.9.0.4
+  desenharTela24(); vigiarMinis();         // v24: as telas cheias (Decisões, Entregas, Meus pedidos) e as miniaturas
+  rdConferirFolha();                       // v24: a folha do Rodar aberta confere se o comando do item mudou
   fecharFolhaSeMudou();
   if (!digitando) desenharHoje(); else desenharMsgHoje();
   desenharDetalhe();   // o chat cuida do que está sendo editado (a prévia e a "Outra resposta" não se refazem por baixo)
@@ -5249,10 +5577,30 @@ function desenharCeu() {
 desenharCeu();
 addEventListener("resize", () => { clearTimeout(desenharCeu.t); desenharCeu.t = setTimeout(desenharCeu, 400); });
 
+// O laço: uma volta de cada vez, 4 s depois do fim da anterior. Chamado no meio de uma volta (o app voltou, a rede
+// voltou), a próxima sai logo que ela acabar.
+let emVolta = false, voltaDeNovo = false, voltasFeitas = 0;
 function ciclo() {
   clearTimeout(timer);
   if (document.visibilityState !== "visible" || !chave) return;
-  atualizar().finally(() => { timer = setTimeout(ciclo, 4000); });
+  if (emVolta) { voltaDeNovo = true; return; }
+  emVolta = true;
+  volta().catch(() => {}).finally(() => {
+    emVolta = false; voltasFeitas++;
+    clearTimeout(timer);
+    timer = setTimeout(ciclo, voltaDeNovo ? 0 : Volta.VOLTA_MS);
+    voltaDeNovo = false;
+  });
+}
+// Ao voltar ao app e quando a rede volta: a volta na hora, com o inteiro se já era a vez dele (o que mudou enquanto o app
+// estava no fundo; corretor de 12/11: antes, o inteiro a cada volta ao app, mesmo segundos depois do último), e a espera
+// do inteiro que falhou zera.
+function quererInteiro() { Volta.voltou(corte, Date.now()); ciclo(); }
+// O aviso do PC (o push) chegou com o app aberto (o sw.js repassa): a sessão que pergunta, terminou ou parou no limite
+// pede a lista daquele PC na volta que sai agora; o de decisões, do Para você e do PC, o inteiro (Volta.avisoDoPc).
+function avisoChegou(d) {
+  if (!chave || !d) return;
+  if (Volta.avisoDoPc(corte, d, Date.now())) ciclo();
 }
 
 // ---- Conectar (parear) -------------------------------------------------------------------------------
@@ -5723,7 +6071,7 @@ async function abrirPastaFrente(selecionar = "") {
     const id = await rpc("cel_pedir", {pc: it.pc, tipo: "acao", texto: JSON.stringify(obj)});
     if (frPedido && frPedido.obj === obj) frPedido.id = id;
     desenharFrente();
-    atualizar();
+    voltaJa();
   } catch (e) {
     if (frPedido && frPedido.obj === obj) frPedido.erro = "Não saiu do celular: " + motivoRede(e);
     desenharFrente();
@@ -5747,6 +6095,768 @@ function mensagemFrente() {
   }
 }
 document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") carregarTrabalhos(); });
+
+// ==== v24 (12/11): Decisões, Entregas, Meus pedidos e o "⚡ Rodar no PC" do Para você =============================
+// Pedido do Arthur (11/11): "Atualiza o do celular. Com a parte de decisões. E o que mais vc achar interessante." O que o
+// agente publica e o que a página manda está no CONTRATO-v24 (corrigido em 12/11): o índice no hoje.painel (decisoes,
+// com o lote inteiro dentro, entregas, meus_pedidos, rodar) e as imagens na tabela fotos, cada uma com uma id de 32 hex
+// (a imagem de uma opção no "img" dela, a prova de uma entrega no "mini"; o tipo vem do campo, nunca da id). O banco
+// grátis tem 5 GB/mês de saída: a miniatura só quando aparece na tela, a grande só no toque, cada id uma vez (o id muda
+// quando o conteúdo muda, então o que está guardado nunca fica velho). As contas e o HTML estão nos módulos
+// (decisoes.js, entregas.js, pedidos.js e rodar.js, testados no Node); aqui ficam a tela, o banco e o aparelho.
+// As três ações novas (decisao_responder, entrega_marcar e rodar_comando) só existem no agente 0.9.0.14: o de antes
+// responde "ação desconhecida". A página só as oferece ao PC com esse agente ou mais novo.
+const AGENTE_V24 = "0.9.0.14";
+const AGENTE_RODAR = AGENTE_V24;   // o agente que roda o comando do Para você (rodar_comando)
+const temAgenteV24 = pc => { const p = pcs[pc]; return !!p && Lista.compararVersao(p.versao, AGENTE_V24) >= 0; };
+const frasePedeV24 = (pc, onde) => `O agente do ${nomeCurtoPc(pc) || "PC"} é de antes da ${AGENTE_V24} e não recebe isso do celular: ${onde}.`;
+const AGENTE_CARD = "0.9.0.11";    // o agente que leva a nota "card" (o quadro visual) à caixa do maestro
+// Com a casca velha no cache do iPhone (um arquivo de cada versão), a página não quebra: só não mostra o que é da v24.
+const temV24 = () => typeof Decisoes !== "undefined" && typeof Entregas !== "undefined" && typeof MeusPedidos !== "undefined" && typeof Rodar !== "undefined";
+$("estiloV24").textContent = [window.Decisoes, window.Entregas, window.MeusPedidos, window.Rodar].map(m => (m && m.CSS) || "").join("\n");
+
+// ---- as fotos e os lotes (CONTRATO seção 1): memória + aparelho ---------------------------------------------------
+// No aparelho (localStorage "sf:<id>:<tamanho>") só a miniatura pequena (até 40 KB), com teto de 2 MB (sai a mais
+// velha); a grande fica só na memória. Dois pedidos da mesma foto ao mesmo tempo viram um.
+const SF_TETO = 2 * 1024 * 1024, SF_MINI = 40 * 1024, SF_MEM = 80, SF_INDICE = "seaninho.sfIndice";
+const sfMem = new Map(), sfPedindo = new Map();
+function sfDoAparelho(id, tamanho) {
+  try {
+    const v = localStorage.getItem(`sf:${id}:${tamanho}`);
+    const o = v ? JSON.parse(v) : null;
+    return o && typeof o.d === "string" && o.d ? {mime: String(o.m || ""), dados: o.d} : null;
+  } catch { return null; }
+}
+function sfNaMemoria(k, v) { sfMem.delete(k); sfMem.set(k, v); while (sfMem.size > SF_MEM) sfMem.delete(sfMem.keys().next().value); }
+function sfGuardar(id, tamanho, f) {
+  if (tamanho !== "media" || f.dados.length > SF_MINI) return;
+  const k = `sf:${id}:${tamanho}`, valor = JSON.stringify({m: f.mime, d: f.dados});
+  if (valor.length > SF_TETO) return;
+  const ind = lerJson(SF_INDICE, {});
+  ind[k] = [valor.length, Date.now()];
+  let total = Object.values(ind).reduce((s, x) => s + (Number(x && x[0]) || 0), 0);
+  for (const [kk, x] of Object.entries(ind).sort((a, b) => (a[1][1] || 0) - (b[1][1] || 0))) {   // a mais velha sai primeiro
+    if (total <= SF_TETO) break;
+    if (kk === k) continue;
+    total -= Number(x && x[0]) || 0;
+    delete ind[kk];
+    try { localStorage.removeItem(kk); } catch {}
+  }
+  try { localStorage.setItem(k, valor); localStorage.setItem(SF_INDICE, JSON.stringify(ind)); }
+  catch { try { localStorage.removeItem(k); } catch {} }   // sem espaço: fica só na memória
+}
+// O cel_foto com o cache: {mime, dados} ou null (o banco não tem essa id). Sem rede, rejeita: quem chamou tenta depois.
+function celFoto(id, tamanho = "media") {
+  const k = `${id}:${tamanho}`;
+  if (sfMem.has(k)) return Promise.resolve(sfMem.get(k));
+  const local = sfDoAparelho(id, tamanho);
+  if (local) { sfNaMemoria(k, local); return Promise.resolve(local); }
+  if (sfPedindo.has(k)) return sfPedindo.get(k);
+  const p = rpc("cel_foto", {id, tamanho}).then(f => {
+    if (!f || typeof f.dados !== "string" || !f.dados) return null;
+    const v = {mime: String(f.mime || ""), dados: f.dados};
+    sfNaMemoria(k, v);
+    sfGuardar(id, tamanho, v);
+    return v;
+  }).finally(() => sfPedindo.delete(k));
+  sfPedindo.set(k, p);
+  return p;
+}
+const urlFoto = f => f && f.dados ? `data:${/^image\/(png|jpeg|gif|webp)$/.test(f.mime) ? f.mime : "image/jpeg"};base64,${f.dados}` : "";
+
+// As miniaturas que aparecem na tela: o IntersectionObserver diz quais estão à vista; cada id é pedido uma vez (o
+// cache e o "pedindo" seguram a repetição) e a que não veio só é pedida de novo depois de um tempo, nunca em laço.
+const minisNaTela = new Set(), minisFalhou = new Map();
+const minisIo = typeof IntersectionObserver === "function" ? new IntersectionObserver(entradas => {
+  for (const e of entradas) {
+    if (e.isIntersecting) { minisNaTela.add(e.target); pedirMiniDe(e.target); }
+    else { minisNaTela.delete(e.target); if (!e.target.isConnected) minisIo.unobserve(e.target); }
+  }
+}, {rootMargin: "80px"}) : null;
+// A id e o tipo de uma miniatura na tela: a imagem de uma opção das Decisões (img[data-foto], o "img" da opção) ou a
+// prova de uma entrega ([data-foto-mini], o "mini" dela). Corrigido em 12/11: as ids são só hex (a trava do banco), e
+// o tipo vem do campo onde a id aparece, nunca de um prefixo.
+const RX_FOTO = /^[0-9a-f]{16,40}$/;
+const idDaMini = el => (el && el.dataset && (el.dataset.foto || el.dataset.fotoMini)) || "";
+const tipoDaMini = el => (el && el.dataset && el.dataset.foto ? "dc" : "en");
+const pedirMiniDe = el => pedirMiniV24(idDaMini(el), tipoDaMini(el));
+function observarMinis(raiz) {
+  if (!raiz || !temV24()) return;
+  for (const el of raiz.querySelectorAll("img[data-foto]:not([src]), [data-foto-mini]")) {
+    if (el._v24) continue;
+    el._v24 = true;
+    if (minisIo) minisIo.observe(el); else pedirMiniDe(el);
+  }
+}
+// A cada volta do banco: as que estão à vista e ainda não chegaram (a rede caiu no meio) e as que saíram do DOM.
+function vigiarMinis() {
+  for (const el of [...minisNaTela]) {
+    if (!el.isConnected) { minisNaTela.delete(el); if (minisIo) minisIo.unobserve(el); continue; }
+    pedirMiniDe(el);
+  }
+}
+const miniPronta = (id, tipo) => (tipo === "dc" ? dcFotos.has(id) : !!entMinis[id]);
+function pedirMiniV24(id, tipo) {
+  if (!RX_FOTO.test(id) || miniPronta(id, tipo) || sfPedindo.has(`${id}:media`) || (minisFalhou.get(id) || 0) > Date.now()) return;
+  celFoto(id, "media").then(f => {
+    if (!f) minisFalhou.set(id, Date.now() + 60000);   // o banco ainda não tem: 1 min
+    chegouMini(id, urlFoto(f), tipo);
+  }, () => minisFalhou.set(id, Date.now() + 20000));   // sem rede: 20 s
+}
+// tipo: "dc" (a imagem de uma opção) ou "en" (a prova de uma entrega); sem ele, o que a tela das Decisões mostra.
+function chegouMini(id, url, tipo) {
+  const t = tipo || ($("dcCorpo").querySelector(`img[data-foto="${CSS.escape(id)}"]`) ? "dc" : "en");
+  if (t === "dc") {
+    if (url) dcFotos.set(id, url);
+    Decisoes.porFoto($("dcCorpo"), id, url);   // sem url: "a imagem não chegou" (o toque tenta a grande)
+  } else if (url) { entMinis[id] = url; desenharEntregasJa(); desenharInicio(); }
+}
+// A imagem grande em tela cheia, com zoom (o visor do chat): a miniatura na hora e a "alta" quando chega.
+const PIXEL = "data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==";
+// Uma foto do visor: a miniatura na hora e a "alta" só quando ela aparece (o visor pede ao mostrar: leveza).
+const fotoZoom = (id, mini, nome, sub = "") => ({src: mini || PIXEL, nome, sub, rotuloAlta: "Baixando a imagem grande…",
+  erroAlta: "A grande não veio · tocar para tentar de novo",
+  carregarAlta: () => celFoto(id, "alta").then(f => { const u = urlFoto(f); if (!u) throw new Error("sem a grande"); return u; })});
+function abrirZoom(id, mini, nome, sub = "") { Marcar.ver(fotoZoom(id, mini, nome, sub)); }
+
+// ---- as telas cheias e o voltar do iPhone ----------------------------------------------------------------------------
+// Cada tela entra no histórico (#decisoes=1, #entregas=1, #pedidos=1): o voltar do iPhone (ou do navegador) fecha a tela
+// pelo popstate; o ‹ da tela tira a entrada que ela pôs. O detalhe de uma entrega é mais uma entrada (volta à lista).
+const TELAS24 = {decisoes: "decisoes", entregas: "entregas", pedidos: "meusPedidos"};
+let telaV24 = "";
+const telaDoHash = h => ["decisoes", "entregas", "pedidos"].find(t => h.get(t)) || "";
+function abrirTela24(nome) {
+  if (!temV24() || !TELAS24[nome]) return;
+  if (telaV24 && telaV24 !== nome) esconderTela24();
+  const nova = telaV24 !== nome;
+  telaV24 = nome;
+  $(TELAS24[nome]).classList.remove("hidden");
+  document.body.classList.add("tela24");
+  document.body.style.overflow = "hidden";
+  if (nova && !(history.state && history.state.tela24 === nome)) history.pushState({tela24: nome}, "", `#${nome}=1`);
+  desenharTela24(true);
+  if (nova) $(TELAS24[nome]).querySelector(".ar-corpo").scrollTop = 0;
+}
+function esconderTela24() {
+  if (!telaV24) return;
+  $(TELAS24[telaV24]).classList.add("hidden");
+  if (telaV24 === "decisoes") { dcFecharConf(); dcSemAviso(); }
+  if (telaV24 === "entregas") { entDetalhe = ""; entAjuste = ""; }
+  telaV24 = "";
+  document.body.classList.remove("tela24");
+  document.body.style.overflow = "";
+  desenharInicio(); desenharSessoes();   // o que mudou lá (decidido, aprovado) aparece no Início
+}
+function fecharTela24() {
+  const nome = telaV24, st = history.state || {};
+  esconderTela24();
+  if (nome && st.tela24 === nome) history.go(st.det ? -2 : -1);
+}
+addEventListener("popstate", e => {
+  const s = e.state || {};
+  if (telaV24 === "entregas" && s.tela24 === "entregas") {   // dentro das Entregas: do detalhe para a lista (e de volta)
+    const det = String(s.det || "");
+    if (det !== entDetalhe) { entDetalhe = det; entAjuste = ""; desenharEntregas(true); $("entCorpo").scrollTop = 0; }
+    return;
+  }
+  if (telaV24 === "decisoes" && s.tela24 === "decisoes") { if (dcConf && !s.folha) dcFecharConf(); return; }   // o voltar fecha só a folha
+  if (telaV24 && s.tela24 !== telaV24) esconderTela24();
+  if (!telaV24 && s.tela24 && TELAS24[s.tela24]) {   // o "avançar": a tela volta como estava
+    if (s.tela24 === "entregas") entDetalhe = String(s.det || "");
+    abrirTela24(s.tela24);
+  }
+});
+function desenharTela24(forcar = false) {
+  if (telaV24 === "decisoes") desenharDecisoes(forcar);
+  else if (telaV24 === "entregas") desenharEntregas(forcar);
+  else if (telaV24 === "pedidos") desenharPedidos(forcar);
+}
+
+// ---- Decisões (CONTRATO seções 2 e 8) ----------------------------------------------------------------------------------
+// Um lote por vez; o lote inteiro vem dentro do índice do hoje (o campo "lote", corrigido em 12/11: não há mais blob
+// para baixar). O lote sem o conteúdo ("grande", o "so_indice" sem a cópia do dono, o pessoal) mostra só a frase, sem
+// botões. O que a pessoa decide fica num rascunho por lote no aparelho (fechar o app não perde nada). O envio vai ao PC
+// que publicou o lote (cel_pedir "decisao_responder"); a página acompanha o pedido ("Enviando…" → "Decisões entregues a
+// <sessão>" ou o erro com Tentar de novo) e guarda o que mandou (e o conteúdo, para o "Refazer este lote" nas
+// respondidas: o lote respondido sai do índice).
+const DC_GUARDA_MS = 7 * 86400e3;
+// Os envios em voo NESTA página (o cel_pedir ainda não voltou). O envio gravado no aparelho sem o id do pedido e que não
+// está em voo é de uma página que recarregou no meio (o iPhone matou o app; a versão nova recarregou ao ir para o
+// fundo): não se sabe se saiu. O crítico viu esse envio ficar em "Enviando…" por 7 dias, sem Tentar de novo, e o lote
+// sumir do Início. Agora vira "Não sei se saiu" com Tentar de novo (o agente ignora a mesma resposta duas vezes); o
+// mesmo nas Entregas e no Rodar. Em voo há mais de 1 min também (a rede pendurou).
+const dcEmVoo = new Set(), entEmVoo = new Set(), rdEmVoo = new Set();
+const ENVIO_SEM_ID_MS = 60e3;
+const semResposta = (e, emVoo, k, campo = "pedido") => !!e && !e[campo] && !e.erroLocal && !e.ok
+  && (!emVoo.has(k) || Date.now() - e.t > ENVIO_SEM_ID_MS);
+const dcFotos = new Map();            // id hex da imagem de uma opção -> a miniatura (data URL)
+const dcEstados = {};                 // chave do lote (+ "#refazer") -> {ver, marca, estado}
+const dcAbertos = new Set();          // os "mais" abertos (contexto, porquê)
+// chave -> {t, pc, pedido, respostas, substitui, marca, ver, indice, lote (o conteúdo, para o Refazer), ok, erroLocal}
+let dcEnvios = lerJson("seaninho.dc.envios", {});
+// O conteúdo guardado para o Refazer: só nos envios mais novos e até um tamanho (o aparelho tem uns 5 MB para tudo).
+const DC_LOTES_GUARDADOS = 6, DC_LOTE_MAX = 60000;
+let dcRasc = lerJson("seaninho.dc.rasc", {});       // chave -> {r: rascunhoDe(estado), t}
+const dcVistos = new Set(lerJson("seaninho.dc.vistos", []));
+let dcSel = "", dcRefazer = null, dcConf = false, dcAssin = "", dcDedo = false, dcRascTimer = 0;
+// A versão do lote que a folha "Confira antes de enviar" mostra ({chave, ver, marca, refazer}). O crítico viu a sessão
+// regravar o lote com a folha aberta: a folha seguia igual e o Enviar mandava a marca nova com o card mudado "sem
+// resposta", sem a pessoa ver (e a trava do agente "o lote mudou" nunca disparava). Agora a folha fecha com o aviso e o
+// pedido leva a marca com que a pessoa decidiu.
+let dcConfDe = null;
+const DC_MUDOU = "O lote mudou no PC enquanto você conferia: veja os cards marcados e envie de novo.";
+function dcConfMudou(j = dcJuntar()) {
+  if (!dcConf || !dcConfDe || dcConfDe.refazer) return false;
+  const atual = j.lotes.find(l => l.chave === dcConfDe.chave);
+  return !atual || atual.ver !== dcConfDe.ver || atual.marca !== dcConfDe.marca;
+}
+let dcAtual = {lote: null, mostrado: null, k: "", modo: ""};
+function salvarDc() {
+  const agora = Date.now();
+  // (o envio sem "ver" é da página de antes do contrato corrigido, com o blob: sai)
+  dcEnvios = Object.fromEntries(Object.entries(dcEnvios).filter(([, e]) => e && "ver" in e && agora - e.t < DC_GUARDA_MS).sort((a, b) => b[1].t - a[1].t).slice(0, 20));
+  Object.values(dcEnvios).forEach((e, i) => { if (i >= DC_LOTES_GUARDADOS) delete e.lote; });
+  dcRasc = Object.fromEntries(Object.entries(dcRasc).filter(([, r]) => r && agora - r.t < DC_GUARDA_MS).sort((a, b) => b[1].t - a[1].t).slice(0, 20));
+  store.set("seaninho.dc.envios", Object.keys(dcEnvios).length ? JSON.stringify(dcEnvios) : "");
+  store.set("seaninho.dc.rasc", Object.keys(dcRasc).length ? JSON.stringify(dcRasc) : "");
+  store.set("seaninho.dc.vistos", JSON.stringify([...dcVistos].slice(-60)));
+}
+const dcJuntar = () => temV24() ? Decisoes.juntar(pcs) : {lotes: [], respondidos: [], erros: []};
+// O andamento do envio de um lote: null (nada mandado daqui), "enviando", "ok" (com a resposta do agente) ou "erro".
+function dcFase(e) {
+  if (!e) return null;
+  const p = e.pedido && pedidos.find(x => x.id === e.pedido);
+  if (p && p.estado === "entregue" && !e.ok) {   // entregue: o rascunho já pode sair
+    e.ok = String(p.resposta || "").trim() || `Decisões entregues no ${nomeCurtoPc(e.pc)}`;
+    if (e.indice) delete dcRasc[e.indice.chave];
+    salvarDc();
+  }
+  if (e.ok) return {fase: "ok", texto: e.ok};
+  if (e.erroLocal) return {fase: "erro", texto: `Não saiu do celular: ${e.erroLocal}`};
+  if (semResposta(e, dcEmVoo, e.indice && e.indice.chave)) return {fase: "erro", texto: "Não sei se saiu do celular: confira e tente de novo."};
+  if (p && ["erro", "cancelado"].includes(p.estado)) return {fase: "erro", texto: p.erro || "o PC não conseguiu"};
+  if (!p && e.pedido && Date.now() - e.t > 15 * 60e3) return {fase: "erro", texto: "O PC não respondeu. Confira no Monitor geral antes de mandar de novo."};
+  return {fase: "enviando", texto: `Enviando ao ${nomeCurtoPc(e.pc)}…${pcs[e.pc] && !online(pcs[e.pc]) ? " (desligado: vai quando ele ligar)" : ""}`};
+}
+// O lote que já foi mandado daqui e não voltou nem mudou fica só de leitura, com o andamento.
+function dcMandado(l) {
+  const e = dcEnvios[l.chave], f = dcFase(e);
+  return !!f && f.fase !== "erro" && !e.substitui && e.marca === l.marca && e.ver === l.ver && !(f.fase === "ok" && l.reenviar);
+}
+const dcPendentes = () => dcJuntar().lotes.filter(l => !dcMandado(l));
+function blocoDecisoes() {
+  if (!temV24()) return "";
+  const pend = dcPendentes();
+  return pend.length ? Decisoes.htmlResumo(pend, [], {vistos: dcVistos}) : "";
+}
+function blocoDecisoesFim() {
+  if (!temV24()) return "";
+  const j = dcJuntar();
+  return dcPendentes().length || !j.respondidos.length ? "" : Decisoes.htmlResumo([], j.respondidos);
+}
+function abrirDecisoes(chaveLote = "") {
+  if (chaveLote) dcSel = chaveLote;
+  dcRefazer = null;
+  if (telaV24 === "decisoes") { desenharDecisoes(true); $("dcCorpo").scrollTop = 0; } else abrirTela24("decisoes");
+}
+function dcEstadoDe(lote, modo) {
+  const k = lote.chave + (modo ? "#refazer" : ""), r = dcEstados[k];
+  if (r && r.ver === lote.ver && r.marca === lote.marca) return r.estado;
+  // o lote mudou (outra marca ou outra imagem): o card que mudou volta ao meio com o aviso, o comentário fica
+  const envio = dcEnvios[lote.chave];
+  const estado = modo === "refazer" ? (r ? Decisoes.novoEstado(lote, Decisoes.rascunhoDe(r.estado)) : Decisoes.estadoDaResposta(lote, (envio && envio.respostas) || []))
+    : Decisoes.novoEstado(lote, r ? Decisoes.rascunhoDe(r.estado) : (dcRasc[lote.chave] || {}).r);
+  dcEstados[k] = {ver: lote.ver, marca: lote.marca, estado};
+  return estado;
+}
+function dcGuardar(estado) {
+  const {lote, k, modo} = dcAtual;
+  if (!lote || !dcEstados[k]) return;
+  dcEstados[k].estado = estado;
+  if (modo) return;
+  clearTimeout(dcRascTimer);   // o comentário chama a cada letra: grava no aparelho depois de uma pausa
+  dcRascTimer = setTimeout(() => { dcRasc[lote.chave] = {r: Decisoes.rascunhoDe(estado), t: Date.now()}; salvarDc(); }, 300);
+}
+function dcPodeRefazer(r) {
+  const e = dcEnvios[r.chave], f = dcFase(e);
+  return !!(e && e.indice && e.lote && Array.isArray(e.respostas) && f && f.fase !== "enviando");
+}
+function dcAndamento(lote) {
+  const f = dcFase(dcEnvios[lote.chave]);
+  if (!f) return "";
+  if (f.fase === "erro") return `<div class="dc24-and erro" role="alert"><span>⚠ ${esc(f.texto)}</span><button type="button" data-dc24="reenviar">Tentar de novo</button></div>`;
+  if (f.fase === "ok") return `<div class="dc24-and ok" role="status"><span>✓ ${esc(f.texto)}</span></div>`;
+  return `<div class="dc24-and" role="status"><span class="spin"></span><span>${esc(f.texto)}</span></div>`;
+}
+function desenharDecisoes(forcar = false) {
+  if (telaV24 !== "decisoes" || !temV24()) return;
+  const el = $("dcCorpo"), j = dcJuntar();
+  if (dcConfMudou(j)) { dcFecharConf(); avisar("appAviso", DC_MUDOU, {erro: true, fica: true}); forcar = true; }
+  // dedo na tela ou escrevendo um comentário: não refaz por baixo (o próximo desenho pega o que mudou)
+  if (!forcar && (dcDedo || (el.contains(document.activeElement) && document.activeElement.matches("textarea")))) return;
+  let item = null, modo = "";
+  if (dcRefazer) {   // o lote respondido já saiu do índice: o conteúdo é o que o aparelho guardou ao mandar
+    const e = dcEnvios[dcRefazer.chave];
+    item = e && e.indice && e.lote ? {...e.indice, lote: e.lote, reenviar: null} : null;
+    modo = item ? "refazer" : "";
+    if (!item) dcRefazer = null;
+  }
+  if (!item) {
+    item = j.lotes.find(l => l.chave === dcSel) || j.lotes[0] || null;
+    dcSel = item ? item.chave : "";
+  }
+  const lote = item ? Decisoes.montarLote(item) : null, sem = item && !lote ? Decisoes.semConteudo(item) : null;
+  const ro = !!(lote && !modo && dcMandado(lote));
+  const envio = item ? dcEnvios[item.chave] : null, f = dcFase(envio);
+  const assin = JSON.stringify([item && [item.chave, item.ver, item.marca, item.reenviar, item.online, item.n, !!item.lote, item.pessoal], modo,
+    lote ? temAgenteV24(Decisoes.destino(lote)) : null,
+    ro, f, j.lotes.map(l => [l.chave, l.n, dcMandado(l)]), j.respondidos.map(r => [r.chave, r.andamento, r.enviado, dcPodeRefazer(r)]), j.erros.length]);
+  if (!forcar && assin === dcAssin) return;
+  dcAssin = assin;
+  // lote: o que se pode decidir (o mandado fica só de leitura); mostrado: o que está na tela (o nome no zoom)
+  dcAtual = {lote: lote && !ro ? lote : null, mostrado: lote, k: lote ? lote.chave + (modo ? "#refazer" : "") : "", modo};
+  if (lote || sem) { dcVistos.add(item.chave); salvarDc(); }
+  const substitui = modo ? dcRefazer.enviado : null;
+  dcOpcoes.substitui = substitui;
+  const estados = {};
+  for (const [k, v] of Object.entries(dcEstados)) if (!k.includes("#")) estados[k] = v.estado;
+  let meio;
+  if (!item) meio = `<div class="dc24-vazio"><b>Nada esperando decisão agora 🎉</b>Quando uma sessão mandar um lote, ele aparece aqui (e chega um aviso).</div>`;
+  else if (!lote) meio = Decisoes.htmlSemConteudo(item);   // grande, só o índice ou pessoal: a frase, sem botões
+  else meio = (modo ? `<div class="dc24-corr"><span>✎ Corrigindo o que você mandou${substitui ? ` em ${esc(Decisoes.rotuloData(substitui))}` : ""}</span><button type="button" data-dc24="sair">Sair</button></div>` : dcAndamento(lote))
+    // o PC que recebe a resposta com o agente de antes da 0.9.0.14: dá para decidir, mas o Enviar não vai (diz já aqui)
+    + (!ro && Decisoes.destino(lote) && !temAgenteV24(Decisoes.destino(lote)) ? `<div class="dc24-and erro" role="status"><span>⚠ ${esc(frasePedeV24(Decisoes.destino(lote), "responda no Monitor geral"))}</span></div>` : "")
+    + Decisoes.htmlLote(lote, ro ? Decisoes.estadoDaResposta(lote, (envio && envio.respostas) || []) : dcEstadoDe(lote, modo),
+                        {fotos: dcFotos, abertos: dcAbertos, ro, substitui, andamento: ro && f ? f.fase : ""});
+  el.innerHTML = Decisoes.htmlErros(j.erros) + (modo ? "" : Decisoes.htmlLotes(j.lotes, dcSel, estados)) + meio
+    + (modo ? "" : Decisoes.htmlRespondidos(j.respondidos, {podeRefazer: dcPodeRefazer}));
+  $("dcTitulo").textContent = modo ? "✎ Refazer o lote" : `🗳 Decisões${j.lotes.length > 1 ? ` (${j.lotes.length})` : ""}`;
+  observarMinis(el);
+}
+const dcOpcoes = {lote: () => dcAtual.lote, estado: () => (dcAtual.k && dcEstados[dcAtual.k] ? dcEstados[dcAtual.k].estado : null),
+  guardar: dcGuardar, fotos: dcFotos, abertos: dcAbertos, substitui: null, carregar: el => observarMinis(el),
+  aviso: m => avisar("appAviso", m, {}),
+  // o toque na imagem abre o visor com as opções do card que têm desenho, já na tocada: dá para passar para o lado e
+  // comparar A × B em tela cheia, como o abrirVisor do Monitor (a grande de cada uma só quando ela aparece)
+  zoom: id => {
+    for (const c of (dcAtual.mostrado || {}).cartoes || []) {
+      const ops = (c.opcoes || []).filter(o => Decisoes.FOTO_ID.test(String(o.img || ""))), i = ops.findIndex(o => o.img === id);
+      if (i < 0) continue;
+      const lista = ops.map(o => fotoZoom(o.img, dcFotos.get(o.img) || "", `Card ${c.id} · opção ${o.id}${o.titulo ? ": " + o.titulo : ""}`,
+        String(o.id) === String(c.recomendada) ? "★ Recomendada" : ""));
+      return Marcar.ver({lista, indice: i});
+    }
+    abrirZoom(id, dcFotos.get(id) || "", "Desenho da opção");
+  },
+  acao: (nome, chaveLote) => {
+    if (nome === "conferir") return dcAbrirConf();
+    if (nome === "lote") { dcSel = chaveLote; dcRefazer = null; dcSemAviso(); desenharDecisoes(true); $("dcCorpo").scrollTop = 0; return; }
+    if (nome === "refazer") return dcComecarRefazer(chaveLote);
+  }};
+function dcAbrirConf() {
+  const {lote, k, modo} = dcAtual;
+  if (!lote || !dcEstados[k]) return;
+  const envio = dcEnvios[lote.chave];
+  dcConf = true;
+  dcConfDe = {chave: lote.chave, ver: lote.ver, marca: lote.marca, refazer: !!modo};
+  avisar("appAviso", "");   // o aviso de baixo (ex.: o comentário que passou) não cobre a folha, que diz o mesmo no lugar dela
+  // a folha entra no histórico: o voltar do iPhone fecha só ela (antes fechava a tela Decisões inteira)
+  if (!(history.state && history.state.folha)) history.pushState({...(history.state || {}), tela24: "decisoes", folha: 1}, "", "#decisoes=1");
+  $("dcFolha").innerHTML = Decisoes.htmlConferencia(lote, dcEstados[k].estado, {substitui: modo ? dcRefazer.enviado : null, antes: modo && envio ? envio.respostas : undefined});
+  $("dcFolha").classList.remove("hidden");
+  const b = $("dcFolha").querySelector("[data-dc-acao='enviar']");
+  if (b) b.focus();
+}
+function dcFecharConf() {
+  const tinha = dcConf;
+  dcConf = false; dcConfDe = null; $("dcFolha").classList.add("hidden"); $("dcFolha").innerHTML = "";
+  if (tinha && history.state && history.state.folha) history.back();   // tira a entrada da folha (o popstate não faz nada)
+}
+function dcComecarRefazer(chaveLote) {
+  const r = dcJuntar().respondidos.find(x => x.chave === chaveLote), e = dcEnvios[chaveLote];
+  if (!r || !e || !e.indice) return avisar("appAviso", "Este lote foi respondido em outro lugar: refaça pelo Monitor geral.", {});
+  dcRefazer = {chave: chaveLote, enviado: r.enviado || ""};
+  delete dcEstados[chaveLote + "#refazer"];
+  desenharDecisoes(true);
+  $("dcCorpo").scrollTop = 0;
+}
+async function dcEnviar() {
+  const {lote, k, modo} = dcAtual;
+  if (!lote || !dcEstados[k]) return;
+  // o lote mudou depois que a folha abriu (a volta do banco ainda não redesenhou): não manda o que a pessoa não viu
+  const de = dcConfDe;
+  if (dcConfMudou() || (de && (de.chave !== lote.chave || de.ver !== lote.ver || de.marca !== lote.marca))) {
+    dcFecharConf(); desenharDecisoes(true);
+    return avisar("appAviso", DC_MUDOU, {erro: true, fica: true});
+  }
+  const substitui = modo && dcRefazer ? dcRefazer.enviado || null : null;
+  // a marca com que a pessoa decidiu (a da folha), não a última vista: se o PC já tiver outra, o agente recusa
+  const pedido = Decisoes.pedidoResposta(de ? {...lote, marca: de.marca} : lote, dcEstados[k].estado, {substitui});
+  const texto = JSON.stringify(pedido), c = Decisoes.podeEnviar(lote, dcEstados[k].estado, {substitui}), pc = Decisoes.destino(lote);
+  if (!c.ok) return avisar("appAviso", c.msg, {erro: true, fica: true});
+  if (!pc) return avisar("appAviso", "Nenhum PC publicou este lote agora: tente quando um deles ligar.", {erro: true});
+  // o decisao_responder só existe no agente 0.9.0.14 (o de antes responde "ação desconhecida")
+  if (!temAgenteV24(pc)) { dcFecharConf(); return avisar("appAviso", frasePedeV24(pc, "responda no Monitor geral"), {erro: true, fica: true}); }
+  const indice = {pc: lote.pc, id: lote.id, titulo: lote.titulo, sessao: lote.sessao, criado: lote.criado, n: lote.cartoes.length,
+    marca: lote.marca, ver: lote.ver, via: lote.via, online: lote.online, publicado_por: lote.publicado_por, chave: lote.chave};
+  // o conteúdo vai junto para o Refazer (o lote respondido sai do índice), se não for grande demais para o aparelho
+  const conteudo = {cartoes: lote.cartoes}, cabe = JSON.stringify(conteudo).length <= DC_LOTE_MAX;
+  const e = dcEnvios[lote.chave] = {t: Date.now(), pc, pedido: "", respostas: pedido.respostas, substitui, marca: lote.marca, ver: lote.ver, indice,
+    ...(cabe ? {lote: conteudo} : {})};
+  dcEmVoo.add(lote.chave);
+  dcSemAviso();
+  dcFecharConf();
+  dcRefazer = null;
+  salvarDc(); desenharDecisoes(true); desenharSessoes();
+  $("dcCorpo").scrollTop = 0;   // o andamento ("Enviando ao WIN…" → "✓ Chegou") fica no alto: a tela sobe até ele
+  try { e.pedido = await rpc("cel_pedir", {pc, tipo: "acao", texto}); }
+  catch (err) { e.erroLocal = motivoRede(err); }
+  finally { dcEmVoo.delete(lote.chave); }
+  salvarDc(); desenharDecisoes(true); desenharSessoes();
+  voltaJa();
+}
+// Tentar de novo: o mesmo quadro (o estado ficou na memória e no rascunho), outro pedido
+function dcReenviar() {
+  const l = dcAtual.lote;
+  if (l && dcEnvios[l.chave]) { delete dcEnvios[l.chave]; salvarDc(); desenharDecisoes(true); dcAbrirConf(); }
+}
+const dcCorpo = $("dcCorpo");
+const dcLigado = temV24() ? Decisoes.ligar(dcCorpo, dcOpcoes) : null;
+const dcSemAviso = () => { if (dcLigado) dcLigado.esconderSnack(); };
+dcCorpo.addEventListener("pointerdown", () => { dcDedo = true; });
+for (const t of ["pointerup", "pointercancel"]) addEventListener(t, () => { if (dcDedo) { dcDedo = false; } }, true);
+$("decisoes").addEventListener("click", e => {
+  if (e.target.closest("#dcVoltar")) return dcConf ? dcFecharConf() : fecharTela24();
+  if (e.target.closest("#dcAtualizar")) return atualizarAgora();
+  const x = e.target.closest("[data-dc24]");
+  if (x) {
+    const a = x.dataset.dc24;
+    if (a === "recarregar") return atualizarAgora();
+    if (a === "reenviar") return dcReenviar();
+    if (a === "sair") { dcRefazer = null; return desenharDecisoes(true); }
+  }
+  if (!dcConf || !e.target.closest("#dcFolha")) return;
+  if (e.target === $("dcFolha") || e.target.closest("[data-dc-acao='voltar']")) return dcFecharConf();
+  const env = e.target.closest("[data-dc-acao='enviar']");
+  if (env && !env.disabled) return dcEnviar();
+});
+
+// ---- Entregas (CONTRATO seção 3) --------------------------------------------------------------------------------------
+// A lista dos dois PCs juntada pelo id (entregas.js). Abrir mostra a prova grande ("alta", baixada só agora); ✓ Aprovar e
+// ✎ Pedir ajuste vão ao PC que publicou (cel_pedir "entrega_marcar") e a página mostra o andamento do pedido.
+let entFiltro = "novas", entDetalhe = "", entAjuste = "", entErro = "";
+const entMinis = {}, entAltas = {}, entAltasPedidas = new Set();
+let entPedidos = lerJson("seaninho.ent.pedidos", {});   // id da entrega -> {t, pc, pedido, marca, ok, erroLocal}
+let entRasc = lerJson("seaninho.ent.rasc", {});         // id da entrega -> {v, t}: o texto do ajuste sendo escrito
+function salvarEnt() {
+  const agora = Date.now();
+  entPedidos = Object.fromEntries(Object.entries(entPedidos).filter(([, e]) => e && agora - e.t < (e.ok ? 20 * 60e3 : 2 * 3600e3)));
+  entRasc = Object.fromEntries(Object.entries(entRasc).filter(([, r]) => r && agora - r.t < DC_GUARDA_MS));
+  store.set("seaninho.ent.pedidos", Object.keys(entPedidos).length ? JSON.stringify(entPedidos) : "");
+  store.set("seaninho.ent.rasc", Object.keys(entRasc).length ? JSON.stringify(entRasc) : "");
+}
+const entItens = () => temV24() ? Entregas.juntar(pcs, agoraRede()) : [];
+// O andamento de cada pedido para o entregas.js: a linha do cel_pedir, ou o {fase, texto} que a página sabe.
+function entAndamentos() {
+  const out = {};
+  for (const [id, e] of Object.entries(entPedidos)) {
+    const p = e.pedido && pedidos.find(x => x.id === e.pedido);
+    if (p && p.estado === "entregue" && !e.ok) { e.ok = String(p.resposta || "").trim() || "Feito"; salvarEnt(); }
+    if (e.erroLocal) out[id] = {fase: "erro", texto: `não saiu do celular (${e.erroLocal})`};
+    else if (e.ok) out[id] = {fase: "ok", texto: e.ok};
+    else if (semResposta(e, entEmVoo, id)) out[id] = {fase: "erro", texto: "não sei se saiu do celular: confira e toque de novo"};
+    else if (p) out[id] = p;
+    else if (e.pedido && Date.now() - e.t > 15 * 60e3) out[id] = {fase: "erro", texto: "o PC não respondeu"};
+    else out[id] = {fase: "enviando", texto: `Pedi ao ${nomeCurtoPc(e.pc)}…`};
+  }
+  return out;
+}
+function blocoEntregas() { return temV24() ? Entregas.htmlResumo(entItens(), {minis: entMinis}) : ""; }
+function desenharEntregas(forcar = false) {
+  if (telaV24 !== "entregas" || !temV24()) return;
+  const el = $("entCorpo");
+  if (!forcar && el.contains(document.activeElement) && document.activeElement.matches("textarea")) return;
+  const itens = entItens(), op = {minis: entMinis, altas: entAltas, pedidos: entAndamentos(), ajuste: entAjuste, erro: entErro,
+    rascunhos: Object.fromEntries(Object.entries(entRasc).map(([k, v]) => [k, v.v])), agora: Date.now()};
+  if (entDetalhe) {
+    const it = itens.find(x => x.id === entDetalhe);
+    $("entTitulo").textContent = it ? it.titulo : "Entrega";
+    por(el, Entregas.htmlDetalhe(it, op));
+    if (it && it.mini) entBaixarAlta(it.mini);
+  } else {
+    $("entTitulo").textContent = "📦 Entregas";
+    por(el, linhaFonteV24("entregas") + Entregas.htmlLista(itens, entFiltro, op));
+  }
+  observarMinis(el);
+}
+// A prova grande do Abrir: uma vez por id (a grande só fica na memória; o visor reaproveita).
+function entBaixarAlta(id) {
+  if (entAltas[id] || entAltasPedidas.has(id)) return;
+  entAltasPedidas.add(id);
+  celFoto(id, "alta").then(f => {
+    const u = urlFoto(f);
+    if (u) entAltas[id] = u;
+    else { entAltas[id] = entMinis[id] || ""; avisar("appAviso", "A imagem grande desta entrega não está no banco: fica a miniatura.", {}); }
+  }, err => { entAltasPedidas.delete(id); avisar("appAviso", "Não baixou a imagem grande: " + motivoRede(err), {erro: true}); })
+    .finally(() => desenharEntregasJa());
+}
+// Com o teclado aberto numa caixa das Entregas (o Pedir ajuste), o que chega (a miniatura, a prova grande) não refaz a
+// tela por baixo: o redesenho fica para quando a caixa perde o foco. O crítico viu o teclado fechar no meio da frase.
+let entPendente = false;
+const entEscrevendo = () => { const a = document.activeElement; return !!(a && $("entCorpo").contains(a) && a.matches("textarea")); };
+function desenharEntregasJa() {
+  if (telaV24 === "entregas" && entEscrevendo()) { entPendente = true; return; }
+  desenharEntregas(true);
+}
+$("entCorpo").addEventListener("focusout", () => setTimeout(() => {
+  if (entPendente && !entEscrevendo()) { entPendente = false; desenharEntregas(true); }
+}, 0));
+function entAbrir(id) {
+  if (telaV24 !== "entregas") abrirTela24("entregas");
+  entDetalhe = id; entAjuste = ""; entErro = "";
+  history.pushState({tela24: "entregas", det: id}, "", "#entregas=1");
+  desenharEntregas(true);
+  $("entCorpo").scrollTop = 0;
+}
+function entVoltar() {
+  if (!entDetalhe) return fecharTela24();
+  if (history.state && history.state.det) return history.back();   // o popstate volta à lista
+  entDetalhe = ""; entAjuste = ""; desenharEntregas(true);
+}
+async function entMarcar(id, marca, comentario) {
+  const it = entItens().find(x => x.id === id), r = Entregas.pedidoMarcar(it, marca, comentario);
+  // o entrega_marcar só existe no agente 0.9.0.14: o PC de antes passa a vez a outro que publicou a mesma entrega
+  if (!r.erro && !temAgenteV24(r.pc)) {
+    const outro = ((it && it.publicaram) || []).find(temAgenteV24);
+    if (outro) r.pc = outro; else r.erro = frasePedeV24(r.pc, "marque no Monitor geral");
+  }
+  if (r.erro) { entErro = marca === "ajuste" ? r.erro : ""; desenharEntregas(true); return avisar("appAviso", r.erro, {erro: true}); }
+  const e = entPedidos[id] = {t: Date.now(), pc: r.pc, pedido: "", marca};
+  // o ajuste fica guardado até o pedido voltar: se a página recarregar no meio, o texto não se perde
+  if (marca === "ajuste") { entAjuste = ""; e.texto = r.pedido.comentario; }
+  entEmVoo.add(id);
+  entErro = "";
+  salvarEnt(); desenharEntregas(true); desenharInicio();
+  try { e.pedido = await rpc("cel_pedir", {pc: r.pc, tipo: "acao", texto: JSON.stringify(r.pedido)}); delete entRasc[id]; }
+  catch (err) {   // não saiu: o ajuste volta para a caixa, com o texto, para tentar de novo
+    e.erroLocal = motivoRede(err);
+    if (marca === "ajuste") { entRasc[id] = {v: r.pedido.comentario, t: Date.now()}; entAjuste = id; }
+  }
+  finally { entEmVoo.delete(id); }
+  salvarEnt(); desenharEntregas(true); desenharInicio();
+  voltaJa();
+}
+function acaoEntrega(a) {
+  if (a.acao === "abrir") return entAbrir(a.id);
+  if (a.acao === "tudo") { entDetalhe = ""; return abrirTela24("entregas"); }
+  if (a.acao === "filtro") { entFiltro = a.valor; desenharEntregas(true); $("entCorpo").scrollTop = 0; return; }
+  if (a.acao === "aprovar") return entMarcar(a.id, "aprovada", "");
+  if (a.acao === "ajuste") {
+    entAjuste = a.id; entErro = "";
+    desenharEntregas(true);
+    const t = $("entCorpo").querySelector(`[data-ent-texto="${CSS.escape(a.id)}"]`);
+    if (t) { t.scrollIntoView({block: "center"}); t.focus(); }
+    return;
+  }
+  if (a.acao === "cancelar") { entAjuste = ""; entErro = ""; return desenharEntregas(true); }
+  if (a.acao === "mandar") { const t = $("entCorpo").querySelector(`[data-ent-texto="${CSS.escape(a.id)}"]`); return entMarcar(a.id, "ajuste", t ? t.value : ""); }
+  if (a.acao === "foto") {
+    const it = entItens().find(x => x.mini === a.id);
+    return abrirZoom(a.id, entAltas[a.id] || entMinis[a.id] || "", it ? it.titulo : "Prova da entrega", it && it.projeto ? it.projeto : "");
+  }
+}
+$("entregas").addEventListener("click", e => {
+  if (e.target.closest("#entVoltar")) return entVoltar();
+  if (e.target.closest("#entAtualizar")) return atualizarAgora();
+  if (e.target.closest("a")) return;
+  const a = temV24() && Entregas.acaoDe(e.target);
+  if (a) acaoEntrega(a);
+});
+$("entregas").addEventListener("input", e => {
+  const t = e.target.closest("[data-ent-texto]");
+  if (!t) return;
+  entRasc[t.dataset.entTexto] = {v: t.value, t: Date.now()};
+  clearTimeout(entMarcar.t); entMarcar.t = setTimeout(salvarEnt, 300);
+  const cont = $("entCorpo").querySelector(`[data-ent-cont="${CSS.escape(t.dataset.entTexto)}"]`);   // o contador vivo
+  if (cont) cont.outerHTML = Entregas.contadorAjuste(t.dataset.entTexto, t.value.length);
+});
+
+// ---- Meus pedidos (CONTRATO seção 4): só leitura, a lista do PC da central -------------------------------------------
+let mpFiltro = "abertos";
+const mpDados = () => temV24() ? MeusPedidos.juntar(pcs) : null;
+function blocoMeusPedidos() { return temV24() ? MeusPedidos.htmlResumo(mpDados()) : ""; }
+// De quando é a lista e quem a publicou, numa linha cinza no alto ("atualizada hoje às 18h40 · SEAZONE192 (desligado)").
+// O crítico: com o PC da central dormindo, os cards "⏳ esperando" ficavam parados sem sinal de que a lista era velha.
+function linhaFonteV24(chave) {
+  const pubs = Object.values(pcs).map(p => ({p, b: (painelDe(p) || {})[chave]})).filter(x => x.b && typeof x.b === "object");
+  if (!pubs.length) return "";
+  const mais = Math.max(...pubs.map(x => Date.parse(x.b.gerado) || 0));
+  const nomes = pubs.map(x => `${nomeCurtoPc(x.p.pc)}${online(x.p) ? "" : " (desligado)"}`).join(" + ");
+  const parado = pubs.every(x => !online(x.p));
+  return `<div class="v24-fonte${parado ? " off" : ""}">${parado ? "⏻ " : ""}${mais ? `atualizada ${esc(quandoFoi(new Date(mais).toISOString()))}` : "sem a hora"} · ${esc(nomes)}</div>`;
+}
+function desenharPedidos() {
+  if (telaV24 !== "pedidos" || !temV24()) return;
+  por($("mpCorpo"), linhaFonteV24("meus_pedidos") + MeusPedidos.htmlLista(mpDados(), mpFiltro));
+}
+$("meusPedidos").addEventListener("click", e => {
+  if (e.target.closest("#mpVoltar")) return fecharTela24();
+  if (e.target.closest("#mpAtualizar")) return atualizarAgora();
+  const a = temV24() && MeusPedidos.acaoDe(e.target);
+  if (!a) return;
+  if (a.acao === "mais") { MeusPedidos.alternar(a.id); return desenharPedidos(); }
+  if (a.acao === "filtro") { mpFiltro = a.valor; desenharPedidos(); $("mpCorpo").scrollTop = 0; }
+});
+
+// ---- Para você: o "⚡ Rodar no PC" (CONTRATO seção 5) -------------------------------------------------------------------
+// O item com um bloco de código ganha a caixa do comando (Copiar, ⚡ Rodar no <PC>, ✓ Rodei). O Rodar abre a folha com o
+// comando inteiro e o PC (o da central, ou outro ligado); só o "Rodar agora" manda {acao: "rodar_comando", chave, sha}. O
+// agente só roda o que está, igual pelo sha, num item do Para você que ele vê. O "✓ Rodei" avisa o maestro, como o
+// Monitor ("Rodei o comando: …").
+let rdPedidos = lerJson("seaninho.rd.pedidos", {});   // chave do item -> {t, pc, id, ok, erroLocal}
+let rdRodei = lerJson("seaninho.rd.rodei", {});       // chave do item -> quando avisou o maestro
+let rdFolha = null;                                   // {chave, pc, cmd, mudou, travadoAte}: a folha de confirmação aberta
+function salvarRd() {
+  const agora = Date.now(), vivo = t => agora - t < PV_GUARDA_MS;
+  rdPedidos = Object.fromEntries(Object.entries(rdPedidos).filter(([, r]) => r && vivo(r.t)));
+  rdRodei = Object.fromEntries(Object.entries(rdRodei).filter(([, t]) => vivo(t)));
+  store.set("seaninho.rd.pedidos", Object.keys(rdPedidos).length ? JSON.stringify(rdPedidos) : "");
+  store.set("seaninho.rd.rodei", Object.keys(rdRodei).length ? JSON.stringify(rdRodei) : "");
+}
+function rdItem(chaveItem) {
+  const o = orquestraDe(Object.values(pcs));
+  return (o && itensParaVoce(o).find(it => it.chave === chaveItem)) || null;
+}
+// O sinal do "⚡ Rodar no PC" que o agente publica (hoje.painel.rodar = {ligado, motivo}; corretor de 12/11): ligado só
+// com as colunas da v9 pedidas ao banco e um celular aprovado. O bancoV9 da energia NÃO serve: com a v9 no banco e o
+// agente sem as colunas dela, o botão daria sempre erro.
+function sinalRodar(p) {
+  const r = (painelDe(p) || {}).rodar;
+  return r && typeof r === "object" ? {ligado: r.ligado === true, motivo: String(r.motivo || "").trim()} : {ligado: false, motivo: ""};
+}
+// Os PCs ligados (lig), os com o agente que roda (novos) e os que podem rodar agora (podem: o sinal ligado). A folha só
+// oferece os que podem; sem nenhum, a caixa fica com o Copiar e o ✓ Rodei, e a linha diz por quê.
+function rdPcs() {
+  const lig = Object.values(pcs).filter(p => online(p) && !desligando(p));
+  const novos = lig.filter(p => Lista.compararVersao(p.versao, AGENTE_RODAR) >= 0);
+  return {lig: lig.map(p => p.pc), novos: novos.map(p => p.pc), podem: novos.filter(p => sinalRodar(p).ligado).map(p => p.pc)};
+}
+// Por que o Rodar não aparece: o motivo do agente (o da central primeiro), o agente antigo ou nenhum PC ligado.
+function rdPorQueNao(pcCentral) {
+  const {lig, novos} = rdPcs();
+  if (!lig.length) return "Nenhum PC ligado agora: rodar pelo celular volta quando um deles ligar";
+  if (!novos.length) return `Rodar pelo celular pede o agente ${AGENTE_RODAR} no PC`;
+  const ordem = [pcCentral, ...novos].filter((x, i, l) => x && novos.includes(x) && l.indexOf(x) === i);
+  const motivo = ordem.map(pc => sinalRodar(pcs[pc]).motivo).find(Boolean);
+  return motivo || "O agente ainda não disse se pode rodar pelo celular";
+}
+// A linha do pedido para o rodar.js: a do cel_pedir, ou o que a página sabe (mandando, não saiu, sem resposta).
+function rdLinha(r, chaveItem = "") {
+  if (r.erroLocal) return {id: r.id || "", pc: r.pc, estado: "erro", erro: `não saiu do celular (${r.erroLocal})`};
+  if (semResposta(r, rdEmVoo, chaveItem, "id")) return {id: "", pc: r.pc, estado: "erro", erro: "não sei se saiu do celular: confira no PC antes de rodar de novo"};
+  const p = r.id && pedidos.find(x => x.id === r.id);
+  if (p && p.estado === "entregue" && !r.ok) { r.ok = String(p.resposta || ""); salvarRd(); }
+  if (p) return p;
+  if (r.ok) return {id: r.id, pc: r.pc, estado: "entregue", resposta: r.ok};
+  if (r.id && Date.now() - r.t > 15 * 60e3) return {id: r.id, pc: r.pc, estado: "erro", erro: "o PC não respondeu em 15 min"};
+  return {id: r.id || "", pc: r.pc, estado: "novo"};
+}
+function caixaRodar(it) {
+  if (!temV24() || !it || it.slack) return "";
+  const o = orquestraDe(Object.values(pcs));
+  // (o item com senha ou chave, "segredo", com o bloco mascarado no texto: a caixa só com a frase e o ✓ Rodei; sem o
+  // bloco, o texto do agente já diz para ver no PC)
+  if (!o || !Rodar.comandoDoItem(it)) return "";
+  const {podem} = rdPcs(), r = rdPedidos[it.chave], rodei = rdRodei[it.chave];
+  const bloqueio = rede.ok === false ? "Sem internet" : "";
+  return Rodar.htmlCaixa(it, {pcCentral: o.pc, pcs: podem, pedido: r ? rdLinha(r, it.chave) : null, bloqueio,
+    ...(podem.length ? {} : {desligado: rdPorQueNao(o.pc)}), ...(rodei ? {rodei: false} : {})})
+    + (rodei ? `<div class="pv-feito">✓ Você avisou o ${esc(nomeMaestro(true))} que rodou (${hm(new Date(rodei).toISOString())})</div>` : "");
+}
+// A folha mostra o comando guardado ao abrir (rdFolha.cmd), e só ele vai no sha. O crítico viu a folha mostrar um
+// comando e o "Rodar agora" mandar o sha de outro: a chave do item com id não muda quando o texto muda, e a folha só
+// era desenhada ao abrir. Agora, a cada volta do banco com a folha aberta (rdConferirFolha), o comando que mudou
+// aparece na folha com o aviso e o "Rodar agora" fica travado por um instante.
+const RD_TRAVA_MS = 1500;
+function desenharRdFolha() {
+  const el = $("rdFolha");
+  const it = rdFolha && rdItem(rdFolha.chave);
+  if (!it || !Rodar.rodavel(it)) {
+    if (rdFolha) avisar("appAviso", `Esse item saiu do Para você: o ${nomeMaestro(true)} atualizou a lista.`, {});
+    rdFolha = null; el.innerHTML = ""; el.classList.add("hidden");
+    return;
+  }
+  if (rdFolha.cmd === undefined) rdFolha.cmd = Rodar.comandoDoItem(it);
+  const travado = Date.now() < (rdFolha.travadoAte || 0);
+  el.innerHTML = Rodar.htmlConfirmar(rdFolha.cmd, rdFolha.pc, rdPcs().podem, {mudou: rdFolha.mudou, travado});
+  el.classList.remove("hidden");
+  if (travado) { clearTimeout(rdFolha.timer); rdFolha.timer = setTimeout(() => { if (rdFolha) desenharRdFolha(); }, rdFolha.travadoAte - Date.now() + 30); }
+}
+// A cada volta do banco: o item saiu (fecha com o aviso) ou o comando dele mudou (a folha mostra o novo, avisa e trava).
+function rdConferirFolha() {
+  if (!rdFolha) return;
+  const it = rdItem(rdFolha.chave), novo = it ? Rodar.comandoDoItem(it) : "";
+  if (!it || !Rodar.rodavel(it)) return desenharRdFolha();
+  if (novo !== rdFolha.cmd) { Object.assign(rdFolha, {cmd: novo, mudou: true, travadoAte: Date.now() + RD_TRAVA_MS}); desenharRdFolha(); }
+}
+function fecharRdFolha() { if (rdFolha) clearTimeout(rdFolha.timer); rdFolha = null; $("rdFolha").innerHTML = ""; $("rdFolha").classList.add("hidden"); }
+async function rdRodar(pc) {
+  const it = rdFolha && rdItem(rdFolha.chave);
+  if (!it || !Rodar.rodavel(it)) return fecharRdFolha();
+  if (Date.now() < (rdFolha.travadoAte || 0)) return;   // o comando acabou de mudar: o toque não vale
+  // o comando do item agora tem de ser o que a folha mostra; se mudou, não manda: a folha mostra o novo e pede conferir
+  if (Rodar.comandoDoItem(it) !== rdFolha.cmd) { rdConferirFolha(); return; }
+  // o PC escolhido tem de estar com o Rodar ligado agora (o sinal pode ter desligado com a folha aberta)
+  if (!rdPcs().podem.includes(pc)) { desenharRdFolha(); return avisar("appAviso", `O ${nomeCurtoPc(pc)} não está rodando pelo celular agora: ${rdPorQueNao(pc)}.`, {erro: true}); }
+  const visto = rdFolha.cmd;
+  let ped;
+  try { ped = await Rodar.pedidoRodar(it.chave, visto); }
+  catch (e) { fecharRdFolha(); return avisar("appAviso", "Não montei o pedido: " + ((e && e.message) || e), {erro: true}); }
+  fecharRdFolha();
+  const r = rdPedidos[it.chave] = {t: Date.now(), pc, id: ""};
+  rdEmVoo.add(it.chave);
+  salvarRd(); desenharInicio();
+  try { r.id = await rpc("cel_pedir", {pc, tipo: "acao", texto: JSON.stringify(ped)}); }
+  catch (e) { r.erroLocal = motivoRede(e); }
+  finally { rdEmVoo.delete(it.chave); }
+  salvarRd(); desenharInicio();
+  voltaJa();
+}
+// O "✓ Rodei": a nota ao maestro (a "card" do quadro visual no agente que a leva; no de antes, a "respondido").
+function rdAvisarRodei(chaveItem) {
+  const o = orquestraDe(Object.values(pcs)), it = rdItem(chaveItem);
+  if (!o || !it) return;
+  // o item com senha ou chave não traz o comando (só o texto mascarado): a frase vai sem ele
+  const frase = Rodar.notaRodei(it.segredo === true ? "" : Rodar.comandoDoItem(it), it.respostas);
+  if (!frase) return;
+  const m = pcs[o.pc], k = String(chaveItem).replace(/[^0-9A-Za-z_.:/-]/g, "").slice(0, 77) || fnv(it.texto || "");
+  const nota = m && Lista.compararVersao(m.versao, AGENTE_CARD) >= 0
+    ? {tipo: "card", ref: novoId(), item: `[card pv:${k}] ${frase}`, maestro: o.pc, t: Date.now(),
+       card: {id: `pv:${k}`, acao: "responder", titulo: curtoTxt(it.titulo || it.texto, 80), texto: frase}}
+    : {tipo: "respondido", ref: novoId(), chave: chaveItem, item: curtoTxt(it.titulo || it.texto, 240), nome: nomeMaestro(), sessao: o.sessao || "",
+       pc_sessao: o.pc, resposta: frase, maestro: o.pc, t: Date.now()};
+  notasMaestro.push(nota);
+  rdRodei[chaveItem] = Date.now();
+  salvarRd(); salvarPv(); desenharInicio();
+  avisar("appAviso", `✓ O ${nomeMaestro(true)} vai saber: ${frase}`, {ok: true});
+  processarNotas().then(x => { if (x) desenharInicio(); });
+}
+async function acaoRodar(a) {
+  if (a.acao === "copiar") {
+    const it = rdItem(a.chave);
+    if (!it) return;
+    try { await navigator.clipboard.writeText(Rodar.comandoDoItem(it)); avisar("appAviso", `✓ Comando copiado: cole no ${Rodar.ondeColar(it)} do PC.`, {ok: true}); }
+    catch { avisar("appAviso", "Não consegui copiar: toque e segure o comando para copiar.", {erro: true}); }
+    return;
+  }
+  if (a.acao === "rodar") { const it = rdItem(a.chave); rdFolha = {chave: a.chave, pc: a.pc, cmd: it ? Rodar.comandoDoItem(it) : ""}; return desenharRdFolha(); }
+  if (a.acao === "rodei") return rdAvisarRodei(a.chave);
+  if (a.acao === "tudo") { Rodar.alternar(a.id); return desenharInicio(); }
+  if (a.acao === "pc" && rdFolha) { rdFolha.pc = a.pc; return desenharRdFolha(); }
+  if (a.acao === "confirmar") return rdRodar(a.pc);
+  if (a.acao === "cancelar") return fecharRdFolha();
+}
+$("rdFolha").addEventListener("click", e => { const a = temV24() && Rodar.acaoDe(e.target); if (a) acaoRodar(a); });
 
 // ---- Ligações ----------------------------------------------------------------------------------------
 document.querySelectorAll(".mic").forEach(b => { b.innerHTML = MIC; b.addEventListener("click", () => alternarMic(b)); });
@@ -5774,6 +6884,17 @@ $("tabInicio").addEventListener("click", e => {
   if (e.target.closest("a")) return;
   const at = e.target.closest("[data-atualizar]");
   if (at) return atualizarAgora();
+  if (temV24()) {   // v24: as Decisões, as Entregas, os Meus pedidos e o Rodar do Para você
+    const dc = e.target.closest("[data-dc-acao='abrir']");
+    if (dc) return abrirDecisoes(dc.dataset.dcChave || "");
+    const en = Entregas.acaoDe(e.target);
+    if (en) return acaoEntrega(en);
+    const mp = MeusPedidos.acaoDe(e.target);
+    if (mp && mp.acao === "tudo") return abrirTela24("pedidos");
+    const rd = Rodar.acaoDe(e.target);
+    if (rd) return acaoRodar(rd);
+    if (e.target.closest("[data-rd-rodar], [data-rd-rodei]")) return;   // o botão desligado (sem PC, comando grande) não faz nada
+  }
   const t = e.target.closest("[data-trocar]");
   if (t) return trocarConta(t.dataset.trocar, t);
   const pa = e.target.closest("[data-pcs-abrir]");
@@ -5794,6 +6915,9 @@ $("tabInicio").addEventListener("click", e => {
   if (sk) return sk.disabled ? null : enviarSlack(pvIndice(sk.dataset.pvSlack));
   const vai = e.target.closest("[data-pv-ir]");
   if (vai) return irParaItem(vai.dataset.pvIr);
+  const fr = e.target.closest("[data-pv-frase]");   // 11/11: a frase pronta do card abre a resposta com ela escrita
+  if (fr) { const i = pvIndice(fr.dataset.pvFrase), o = orquestraDe(Object.values(pcs)), it = o && (o.para_voce || [])[i];
+    return it ? responderParaVoce(i, (it.respostas || [])[Number(fr.dataset.n) || 0]) : null; }
   const pv = e.target.closest("[data-pv]");
   if (pv) return pv.disabled ? null : responderParaVoce(pvIndice(pv.dataset.pv));
   if (e.target.closest("[data-pv-todos]")) { paraVoceTodos = true; return desenharInicio(); }
@@ -5900,6 +7024,7 @@ $("dMais").addEventListener("click", () => {
 });
 $("usoCorpo").addEventListener("toggle", e => {   // o "Ver em tabela" do Uso de IA fica aberto (a tela se refaz a cada minuto)
   if (e.target.matches("[data-uso-tabela]")) usoTabelaAberta = e.target.open;
+  if (e.target.matches("[data-uso-como]")) usoComoAberto = e.target.open;
 }, true);
 $("hojeSaude").addEventListener("toggle", e => { if (e.target.matches("[data-linha-tempo]")) linhaTempoAberta = e.target.open; }, true);
 $("tabInicio").addEventListener("toggle", e => {
@@ -6137,8 +7262,11 @@ $("pushTeste").addEventListener("click", testarPush);
 for (const id of ["silDe", "silAte"]) $(id).innerHTML = Array.from({length: 24}, (_, h) => `<option value="${h}">${h}h</option>`).join("");
 for (const id of ["silLigado", "silDe", "silAte"]) $(id).addEventListener("change", mudarHorario);
 $("desparear").addEventListener("click", () => { if (confirm("Desconectar este celular?")) sair(); });
-addEventListener("online", () => ciclo());   // a rede voltou: atualiza já (e a fila sai)
-document.addEventListener("visibilitychange", () => { ciclo(); if (!chave) pedirCodigo(); });
+addEventListener("online", () => quererInteiro());   // a rede voltou: atualiza já, o inteiro (e a fila sai)
+document.addEventListener("visibilitychange", () => {   // v24: voltar ao app traz o inteiro na hora
+  if (document.visibilityState === "visible") quererInteiro(); else ciclo();
+  if (!chave) pedirCodigo();
+});
 
 if ("serviceWorker" in navigator) {
   const tinha = !!navigator.serviceWorker.controller;   // na 1ª instalação também troca: aí não é versão nova
@@ -6149,7 +7277,10 @@ if ("serviceWorker" in navigator) {
     });
   }).catch(() => {});
   // o toque na notificação com o app já aberto (0.8.9): o service worker avisa a página, que abre a sessão
-  navigator.serviceWorker.addEventListener("message", e => { if (e.data && e.data.tipo === "abrir") abrirPeloAviso(e.data); });
+  navigator.serviceWorker.addEventListener("message", e => {
+    if (e.data && e.data.tipo === "abrir") abrirPeloAviso(e.data);
+    else if (e.data && e.data.tipo === "mudou") avisoChegou(e.data);   // corretor de 12/11: o push que chegou com o app aberto
+  });
 }
 // A versão nova da página entra sozinha quando o app vai para o fundo (0.8.9), se não houver nada a perder: sem o
 // editor de imagem aberto, sem imagem anexada e sem mensagem com imagem esperando a rede (as de texto ficam guardadas).
@@ -6157,6 +7288,8 @@ document.addEventListener("visibilitychange", () => {
   if (document.visibilityState !== "hidden" || !appNovo || !chave) return;
   if (Marcar.aberto() || anexos.length || gravando || transcrevendo || $("tarefaTexto").value.trim()
       || !$("aiRats").classList.contains("hidden") || pvSlackEnviando() || !$("folhaFundo").classList.contains("hidden") || segurando
+      || dcConf || rdFolha   // v24: a conferência das decisões ou a folha do Rodar abertas
+      || dcEmVoo.size || entEmVoo.size || rdEmVoo.size   // v24: um envio no meio (o cel_pedir ainda não voltou)
       || locais.some(l => !l.pedidoId && !(l.fila || l.velha) || l.grande || (l.grandes || []).length || l.grupo || (l.args && l.args.audio) || l.mime)) return;
   location.reload();
 });
@@ -6166,6 +7299,13 @@ function abrirPeloAviso(d) {
   if (d.airats) return atualizar().then(abrirAiRats);
   if (d.ajustes) return atualizar().finally(() => { if (aberta) fechar(); fecharComputadores(); mostrarAba("Ajustes"); });   // 0.9.0: aparelho novo
   if (d.pcs !== undefined && d.pcs !== null && d.pcs !== false) return atualizar().finally(() => { if (aberta) fechar(); abrirComputadores(String(d.pcs)); });
+  // v24: o aviso de lote novo de decisões (e os links #entregas=1 e #pedidos=1) abrem a tela cheia
+  for (const nome of ["decisoes", "entregas", "pedidos"]) if (d[nome]) return atualizar().finally(() => {
+    if (aberta) fechar();
+    // o lote do aviso: "<PC do lote>|<id>" (o sw.js monta com o "pc" e o "lote" que o agente manda) ou só o id
+    if (nome === "decisoes" && d.lote) { const k = String(d.lote).toLowerCase(), l = dcJuntar().lotes.find(x => x.chave.toLowerCase() === k) || dcJuntar().lotes.find(x => x.id === d.lote); if (l) { dcSel = l.chave; dcRefazer = null; } }
+    abrirTela24(nome);
+  });
   if (d.pv) return atualizar().finally(() => {   // a mensagem nova do Slack no Para você
     if (aberta) fechar();
     mostrarAba("Inicio"); paraVoceTodos = true; desenharInicio();
@@ -6181,6 +7321,7 @@ addEventListener("hashchange", () => {
   else if (h.has("pcs")) { history.replaceState(null, "", location.pathname); abrirPeloAviso({pcs: h.get("pcs") || ""}); }
   else if (h.get("ajustes")) { history.replaceState(null, "", location.pathname); abrirPeloAviso({ajustes: true}); }
   else if (h.get("frente") && h.get("frente") !== frAberta) { const k = h.get("frente"); if (aberta) fechar(); abrirFrente(k); }   // 0.9.0.4
+  else { const t = telaDoHash(h); if (t && t !== telaV24) { history.replaceState(null, "", location.pathname); abrirPeloAviso({[t]: true, lote: h.get("lote") || ""}); } }   // v24
 });
 if (!CFG.url || !CFG.publica) {
   document.body.insertAdjacentHTML("beforeend", `<div class="empty">Falta o config.js (endereço do Supabase).</div>`);
@@ -6195,6 +7336,7 @@ if (!CFG.url || !CFG.publica) {
   else if (h.has("pcs")) { history.replaceState(null, "", location.pathname); abrirPeloAviso({pcs: h.get("pcs") || ""}); }
   else if (h.get("ajustes")) { history.replaceState(null, "", location.pathname); abrirPeloAviso({ajustes: true}); }
   else if (h.get("frente")) { const k = h.get("frente"); atualizar().finally(() => abrirFrente(k)); }   // 0.9.0.4: o link da frente
+  else if (telaDoHash(h)) { const t = telaDoHash(h); history.replaceState(null, "", location.pathname); abrirPeloAviso({[t]: true, lote: h.get("lote") || ""}); }   // v24
 } else {
   mostrarParear();
 }
