@@ -1046,7 +1046,77 @@ details>summary{padding:6px 0}
 .aparelho{display:flex;align-items:center;gap:10px;padding:8px 0;border-top:1px solid var(--stroke);font-size:14.5px}
 .aparelho span{flex:1}
 .aparelho .btn{width:auto;margin:0;padding:8px 14px;font-size:14px}
-@media (orientation:landscape) and (min-width:700px){#pcsCorpo{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-content:start} #pcsCorpo .pcc{margin:0}}
+/* ---- v27: a máquina de fila (a VPS): o mini-cartão do Início, o cartão e as folhas (só as cores da página) ---- */
+.pcm.maq{grid-column:1/-1;min-height:0}
+.pcm.maq .pcm-cab b{flex:none}
+.mq-sub{font-size:12px;color:var(--faint);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pcc.maq .pc-sub{margin-top:2px}
+.mq-faixa{display:flex;flex-direction:column;gap:8px;margin-top:12px;padding:12px;border-radius:14px;font-size:14.5px;line-height:1.4}
+.mq-faixa.espera{background:rgba(226,184,74,.1);border:1px solid rgba(226,184,74,.35);color:var(--gold-2)}
+.mq-faixa.erro{background:rgba(255,90,79,.1);border:1px solid rgba(255,90,79,.35);color:#ffb3ad}
+.mq-faixa.off{background:var(--glass);border:1px solid var(--stroke);color:var(--muted)}
+.mq-faixa .btn{margin-top:0;text-align:center;text-decoration:none}
+.mq-sec{margin-top:14px;padding-top:12px;border-top:1px solid var(--stroke);font-size:14px}
+.mq-sec h4{display:flex;align-items:center;gap:8px;margin:0 0 8px;font-size:13px;font-weight:650;color:var(--muted);text-transform:uppercase;letter-spacing:.4px}
+.mq-sec h4 .mq-pill{text-transform:none;letter-spacing:0}
+.mq-conta-t{color:var(--faint)}
+.mq-lin{display:flex;justify-content:space-between;gap:10px;padding:2px 0}
+.mq-lin>span{color:var(--muted)} .mq-lin b{font-weight:600;text-align:right}
+.mq-sec .espera{color:var(--gold-2)} .mq-sec .erro{color:#ffb3ad}
+.mq-ram{margin-bottom:6px} .mq-ram .barra{margin:6px 0 4px}
+.mq-ram small{display:block;font-size:13px;color:var(--muted)}
+.mq-ram .barra i.ok{background:var(--green)} .mq-ram .barra i.espera{background:var(--gold)} .mq-ram .barra i.erro{background:var(--coral)}
+.mq-fila{font-size:14.5px}
+.mq-apagado,.mq-vazio{font-size:13px;color:var(--faint);margin:4px 0 0}
+.mq-tarefa{display:flex;align-items:center;gap:10px;padding:7px 0;border-top:1px solid var(--stroke)}
+.mq-sec h4+.mq-tarefa{border-top:0;padding-top:0}
+.mq-t{flex:1;min-width:0}
+.mq-t1{display:flex;align-items:center;gap:8px;min-width:0}
+.mq-t1 b{flex:1;min-width:0;font-weight:600;font-size:14.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mq-t small{display:block;margin-top:2px;font-size:12.5px;color:var(--muted)}
+.mq-sec .mq-t small.mq-motivo{color:#ffb3ad;overflow-wrap:anywhere}
+.mq-logbt{flex:none;min-width:52px;min-height:44px;padding:0 12px;border-radius:12px;background:var(--glass-2);color:var(--gold-2);font-weight:650;font-size:14px}
+.mq-logbt:disabled{opacity:.4}
+.mq-velho{margin:12px 0 0;font-size:12.5px;color:var(--faint)}
+.mq-pill{flex:none;display:inline-flex;align-items:center;gap:5px;padding:2px 9px;border-radius:999px;font-size:12px;font-weight:650;white-space:nowrap;background:var(--glass-2);color:var(--muted)}
+.mq-pill.ok,.mq-sec .mq-pill.ok{background:rgba(72,214,128,.14);color:var(--green)}
+.mq-pill.espera,.mq-sec .mq-pill.espera{background:rgba(226,184,74,.16);color:var(--gold-2)}
+.mq-pill.anda,.mq-sec .mq-pill.anda{background:rgba(226,184,74,.16);color:var(--ink)}
+.mq-pill.anda::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--gold);animation:mq-pulso 1.4s ease-in-out infinite}
+.mq-pill.erro,.mq-sec .mq-pill.erro{background:rgba(255,90,79,.14);color:#ffb3ad}
+.mq-pill.off,.mq-sec .mq-pill.off{background:var(--glass);color:var(--faint)}
+@keyframes mq-pulso{50%{opacity:.25}}
+.mq-mais{width:100%;min-height:44px;margin-top:4px;border-radius:12px;background:var(--glass-2);font-size:14px;font-weight:600;color:var(--muted)}
+.mq-avisos{list-style:none;margin:0;padding:0;font-size:13.5px}
+.mq-avisos li{display:flex;gap:8px;padding:3px 0;line-height:1.4;overflow-wrap:anywhere}
+.mq-avisos li.apagado{color:var(--muted)} .mq-avisos li b{color:var(--ink);font-weight:600}
+.mq-bts{margin-top:14px} .mq-bts>.btn{margin-top:0}
+.mq-bts3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:8px}
+.mq-bts3 .btn{margin-top:0;padding:12px 4px;font-size:15px;min-height:44px}
+.mq-rodape{margin:10px 2px 0;font-size:12.5px;color:var(--faint);text-align:center}
+.mq-rot{display:block;margin:4px 0 2px;font-size:13px;color:var(--muted);font-weight:600}
+.folha .mq-texto{min-height:140px}
+.mq-contador{text-align:right;font-size:12.5px;color:var(--faint);margin-top:4px}
+.mq-contador.erro{color:#ffb3ad;font-weight:650}
+.mq-campos{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px}
+.mq-campo{min-width:0} .mq-campo span{display:block;margin-bottom:4px;font-size:13px;color:var(--muted);font-weight:600}
+.mq-campo .campo{min-height:44px;padding:10px 12px}
+.mq-alta small,.mq-agora small{display:block;font-size:12.5px;color:var(--faint)}
+.mq-agora span{font-size:14.5px;line-height:1.35}
+.mq-nota{margin:4px 0;padding:9px 11px;border-radius:10px;background:var(--glass);font-size:13px;color:var(--muted)}
+.mq-status:empty{display:none}
+.mq-pergunta{margin:0 0 6px;font-size:15px;color:var(--ink)}
+.folha .op.mq-op{align-items:center;gap:10px;min-height:48px}
+.mq-op-t{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mq-log-cab{display:flex;align-items:center;gap:8px;margin:0 0 8px;font-size:15px}
+.mq-log-cab b{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mq-log{margin:0;max-height:46vh;overflow:auto;padding:10px 12px;border-radius:12px;background:rgba(0,0,0,.28);border:1px solid var(--stroke);color:var(--ink);font:12.5px/1.45 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;white-space:pre-wrap;overflow-wrap:anywhere}
+.mq-onde{display:block;margin-top:4px;font-size:13px;color:var(--muted)}
+.mq-paradas{margin:6px 0 0;padding-left:18px;font-size:13px;color:var(--muted)}
+.folha .dupla .btn{min-height:44px}
+@media (prefers-reduced-motion:reduce){.mq-pill.anda::before{animation:none}}
+/* v27: deitado ou a partir de 700 px (o computador), os cartões em 2 colunas; a máquina ocupa uma */
+@media (min-width:700px){#pcsCorpo{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-content:start} #pcsCorpo .pcc{margin:0} #pcsCorpo>:not(.pcc){grid-column:1/-1}}
 @media (prefers-reduced-motion:reduce){.segurar.segura .enchendo{transition:none;background:rgba(255,255,255,.18)}}
 body.pcs-aberto #appAviso{z-index:8} body.pcs-aberto .menu-balao{z-index:9}
 /* ---- 0.9.0.4: a aba Workflows (as frentes de trabalho) e o detalhe da frente ---- */
@@ -1465,6 +1535,7 @@ body.tela24 #appAviso{z-index:8}
 <script src="lista.js"></script>
 <script src="workflows.js"></script>
 <script src="pcs.js"></script>
+<script src="maquinas.js"></script>
 <script src="volta.js"></script>
 <script src="usoia.js"></script>
 <script src="ninja.js"></script>
@@ -1497,12 +1568,14 @@ const edicoes = {};      // id do pedido -> o texto como a pessoa editou (a tela
 let sugestoesAtuais = []; // as respostas prontas da sessão aberta (o PC pede à IA quando o Claude pergunta ou termina)
 let timer = null, timerSala = null;
 let aba = "Inicio";
-const VERSAO_APP = "0.9.0.14";   // esta página (v24, a casca seaninho-v24; no contrato corrigido do agente 0.9.0.14)
+const VERSAO_APP = "0.9.0.16";   // esta página (v27, a casca seaninho-v27: a VPS no Computadores, com o agente 0.9.0.16)
 // o agente que acompanha esta página (os PCs atrás dele aparecem no painel). Corretor final de 12/11 (o cético): as
 // Decisões, as Entregas, os Meus pedidos e o Rodar só existem no agente 0.9.0.14 (o AGENTE_V24); com o 0.9.0 aqui, o
-// PC no 0.9.0.12 não aparecia como atrasado e as telas novas ficavam vazias sem dizer por quê
-const AGENTE_ATUAL = "0.9.0.14";
+// PC no 0.9.0.12 não aparecia como atrasado e as telas novas ficavam vazias sem dizer por quê. v27: o 0.9.0.16 traz a
+// VPS (e o WIN, no 0.9.0.16, deixa de tratar a linha dela como PC); as telas da v24 continuam pedindo o AGENTE_V24
+const AGENTE_ATUAL = "0.9.0.16";
 const NOVIDADES_APP = [
+  ["0.9.0.16", "A VPS no Computadores: um cartão ☁ ao lado dos PCs (e no Início), com o estado (online, precisa do seu login, sem resposta, sem notícia), a RAM, o disco, a carga, a fila (rodando, esperando, pausada), as tarefas com o custo e o tempo, e os avisos. Mandar tarefa (o texto, o modelo, o orçamento e a prioridade; o rascunho fica no celular), Ver log de uma tarefa, Pausar (com a opção de parar as que rodam) e Retomar a fila. Quando ela pede o login do Tailscale, o botão Abrir o login. A VPS não aparece no topo, no Pedir nem no microfone. Precisa do agente 0.9.0.16 nos PCs."],
   ["0.9.0.14", "Decisões no celular, como a tela do Monitor geral: um card por pergunta, as opções lado a lado com o desenho e a recomendada em dourado; arraste a opção para a direita (gostei) ou para a esquerda (não gostei), o título do card para a esquerda (nenhuma serve), ou toque em 👍 / 👎; comentário em cada card (o rascunho fica no celular), Conferir e enviar, e o andamento até a sessão receber; Refazer nas respondidas. Também as Entregas (a prova grande, ✓ Aprovar e ✎ Pedir ajuste), os Meus pedidos à sessão central e o ⚡ Rodar no PC nos itens do Para você com comando (com a folha de confirmação). O uso de IA igual ao TeamZone. As imagens leves: a miniatura só quando aparece, a grande só no toque. Precisa do agente 0.9.0.14 nos PCs."],
   ["0.9.0.4", "Workflows: uma linha por frente de trabalho (o que o maestro delegou e os workflows lançados direto), quem espera você primeiro. Em cada uma: o PC, o estado (trabalhando, esperando você, parada no limite da conta, parada sem andar, terminou), a barra do workflow (▰▰▱ 12/13 · fase · tempo), há quanto tempo sem novidade (vermelho com 20 min trabalhando sem gravar nada) e a última fala. O toque abre a frente: os agentes, os arquivos novos da pasta com miniatura (imagem e PDF abrem aqui), Abrir a pasta no PC e Mandar mensagem. O resumo também no Início. Precisa do Seaninho do celular 0.9.0.4 no PC do maestro; os arquivos e os agentes chegam com a atualização do banco."],
   ["0.9.0", "Computadores: os PCs, a saúde deles e as contas do Claude num lugar só (o bloco 💻 no Início, os PCs do topo e o ⚙ abrem a tela). Um cartão por PC: estado (ligado, em uso, sem sinal, desligado, ligado sem o Seaninho), RAM, disco, tomada ou bateria, falhas, versões, a conta com o Trocar conta, as sessões, o histórico de 7 dias e o aviso quando ele cai ou volta. O ⏻ hiberna, reinicia ou desliga: a folha diz o que se perde (sessões trabalhando, o maestro, programas abertos, alguém no PC), segure 1,5 s, e o PC conta 60 s com Cancelar aqui e lá (mexer no PC cancela); nunca força, e se um programa segurar você escolhe Deixar ligado ou Forçar. Bloquear no ⋯. Precisa do banco v9 e do agente 0.9.0 nos PCs; Ligar pelo celular e Suspender ficam para depois. Agente 0.9.0: também a sobra de entrega que ficava presa na caixa do Claude."],
@@ -1616,7 +1689,12 @@ const desligadoHa = p => agoraRede() - new Date(p.visto_em).getTime() >= 600000;
 const desligando = p => { const ped = Pcs.pedidoDe(pedidos, p.pc); return !!ped && ["escrevendo", "entregue"].includes(ped.estado)
   && JSON.parse(ped.texto || "{}").acao !== "bloquear" && Date.now() - Date.parse(ped.atualizado_em) < 180000
   && !(new Date(p.visto_em) > new Date(Date.parse(ped.atualizado_em) + 20000)); };
-const pcAtivo = () => Object.values(pcs).filter(p => online(p) && !desligando(p)).sort((a, b) => b.visto_em.localeCompare(a.visto_em))[0];
+// v27: a máquina de fila (a VPS, web/maquinas.js) chega na tabela dos PCs, mas não é PC: não tem sessões, ⏻, chip no
+// topo nem "Pedir". O comando, o microfone e o teste de aviso nunca vão para ela (logo depois de publicar, ela seria o
+// "visto mais novo"). As máquinas ficam à parte: um cartão próprio no Início e no Computadores.
+const pcsDeVerdade = () => Object.values(pcs).filter(p => !Maquinas.ehMaquina(p));
+const maquinas = () => Object.values(pcs).filter(p => Maquinas.ehMaquina(p)).sort((a, b) => a.pc.localeCompare(b.pc));
+const pcAtivo = () => pcsDeVerdade().filter(p => online(p) && !desligando(p)).sort((a, b) => b.visto_em.localeCompare(a.visto_em))[0];
 
 // ---- Desenho -----------------------------------------------------------------------------------
 const ESTADO = {perguntando: "Perguntando", trabalhando: "Trabalhando", ociosa: "Parada"};
@@ -1635,7 +1713,7 @@ function todasSessoes() {
 }
 
 function desenharPcs() {
-  const lista = Object.values(pcs).sort((a, b) => a.pc.localeCompare(b.pc));
+  const lista = pcsDeVerdade().sort((a, b) => a.pc.localeCompare(b.pc));   // v27: sem chip da máquina (ela não tem sessões)
   por($("pcs"), lista.map(p => `<button class="pc ${online(p) ? "on" : ""}" data-pcs-abrir="${esc(p.pc)}" aria-label="${esc(p.pc)}: ${
     online(p) ? "ligado" : "sem sinal"}. Abrir os Computadores"><i></i>${esc(nomeCurtoPc(p.pc))}</button>`).join(""));
   por($("pcsLista"), `<button class="btn" data-pcs-abrir="">💻 Abrir os Computadores</button>${blocoAparelhos()}`);
@@ -1685,7 +1763,7 @@ function desenharSessoes() {
   desenharFixadas(ss, filtrando, agora);
   let lista = Lista.filtrar(ss, filtros, busca, previa, agora);
   if (!filtrando) lista = lista.filter(s => !Lista.fixada(fixadas, s));
-  const varios = Object.keys(pcs).length > 1;
+  const varios = pcsDeVerdade().length > 1;
   let html;
   if (!ss.length) html = `<div class="empty">Nenhuma sessão do Claude aberta nos PCs.</div>`;
   else if (!lista.length && filtrando) html = `<div class="vazio-filtro">${busca.trim() ? `Nada encontrado para “${esc(busca.trim())}”` : "Nenhuma sessão com esse filtro"}${!Lista.semFiltro(filtros) && busca.trim() ? " com esse filtro" : ""}.
@@ -1727,7 +1805,7 @@ function desenharFiltros(c) {
   const chip = (dim, val, rot, n) => `<button class="fchip ${filtros[dim] === val ? "on" : ""}" data-f="${dim}" data-v="${esc(val)}" aria-pressed="${filtros[dim] === val}">${esc(rot)}${n != null ? ` <i>${n}</i>` : ""}</button>`;
   let h = Lista.semFiltro(filtros) ? "" : `<button class="fchip limpar" data-limpar>✕ Limpar</button>`;
   for (const [k, rot] of Lista.ESTADOS) if (c[k] || filtros.estado === k) h += chip("estado", k, rot, c[k]);
-  const lista = Object.keys(pcs).sort();
+  const lista = pcsDeVerdade().map(p => p.pc).sort();
   if (lista.length > 1 || filtros.pc) for (const pc of lista) h += chip("pc", pc, nomeCurtoPc(pc), c.porPc[pc] || 0);
   for (const g of Lista.GRUPOS) if (c.porGrupo[g] || filtros.grupo === g) h += chip("grupo", g, g === "Outras" ? "Outras pastas" : g, c.porGrupo[g] || 0);
   h += `<button class="fchip ${filtros.pasta ? "on" : ""}" data-pastas aria-haspopup="dialog">📁 ${filtros.pasta ? esc(filtros.pasta) : "Projeto"} ▾</button>`;
@@ -1756,7 +1834,7 @@ function abrirFolha(titulo, opcoes, atual, escolher) {
     `<button class="op ${v === atual ? "on" : ""}" data-op="${esc(v)}">${esc(rot)}<i>${n}${v === atual ? " ✓" : ""}</i></button>`).join("");
   $("folhaFundo").classList.remove("hidden");
 }
-function fecharFolha() { $("folhaFundo").classList.add("hidden"); folhaEscolher = null; folhaEnergia = null; pararSegurar(); }
+function fecharFolha() { $("folhaFundo").classList.add("hidden"); folhaEscolher = null; folhaEnergia = null; mqFolha = null; pararSegurar(); }
 
 // ---- Fixadas: a fileira do topo (como os favoritos), gravada no banco para valer em todo aparelho ----------
 function desenharFixadas(ss, filtrando, agora) {
@@ -1828,7 +1906,7 @@ function silencioDe(pc, id) {
 const mudo = s => silencioDe(s.pc, s.id) ? `<span class="mudo" aria-label="Avisos silenciados">🔕</span> ` : "";
 function itemSilenciar(pc, id) {
   const p = pcs[pc];
-  if (!p || !online(p) || Lista.compararVersao(p.versao, AGENTE_SILENCIO) < 0) return [];
+  if (!p || Maquinas.ehMaquina(p) || !online(p) || Lista.compararVersao(p.versao, AGENTE_SILENCIO) < 0) return [];
   return silencioDe(pc, id) ? [["🔔 Tirar o silêncio", () => silenciar(pc, id, -1)]] : [["🔕 Silenciar avisos…", () => escolherSilencio(pc, id)]];
 }
 // "Até amanhã às 8h"; de madrugada (antes das 8h), até as 8h desta manhã
@@ -1871,7 +1949,7 @@ function mudarHorario() {
 // esse, em vez de reenviar o seu para sempre.
 function sincronizarHorario(agora = false) {
   const meu = horarioDoCelular();
-  for (const p of Object.values(pcs)) {
+  for (const p of pcsDeVerdade()) {
     const doPc = ((p.hoje || {}).silencio || {}).horario;
     if (doPc && Number(doPc.mudou_em || 0) > Number(meu.mudou_em || 0) && !horarioIgual(doPc, meu)) {
       store.set("seaninho.silencio", JSON.stringify({ligado: !!doPc.ligado, de: Number(doPc.de), ate: Number(doPc.ate), mudou_em: Number(doPc.mudou_em)}));
@@ -1882,7 +1960,7 @@ function sincronizarHorario(agora = false) {
   if (!store.get("seaninho.silencio")) return 0;   // nunca mexido: vale o padrão de cada PC
   const h = horarioDoCelular();
   let n = 0;
-  for (const p of Object.values(pcs)) {
+  for (const p of pcsDeVerdade()) {
     if (!online(p) || Lista.compararVersao(p.versao, AGENTE_SILENCIO) < 0) continue;
     const doPc = ((p.hoje || {}).silencio || {}).horario;
     if (!agora && (horarioIgual(doPc, h) || Date.now() - (horarioEnviado[p.pc] || 0) < 120000)) continue;
@@ -1968,7 +2046,7 @@ const AGENTE_FECHAR = "0.8.6";
 const acoesVigiadas = new Map();   // pedido -> {ok, erro}: o que avisar quando o PC responder
 function itemFechar(pc, id) {
   const s = todasSessoes().find(x => x.id === id && x.pc === pc), p = pcs[pc];
-  const pode = s && !s.desligado && p && online(p) && Lista.compararVersao(p.versao, AGENTE_FECHAR) >= 0
+  const pode = s && !s.desligado && p && !Maquinas.ehMaquina(p) && online(p) && Lista.compararVersao(p.versao, AGENTE_FECHAR) >= 0
     && !["trabalhando", "perguntando"].includes(s.estado) && !s.permissao && !s.enquete && String(s.titulo || "").trim().toUpperCase() !== "MAESTRO";
   return pode ? [["✕ Fechar a aba no PC", () => fecharAbaNoPc(pc, id, s.titulo)]] : [];
 }
@@ -2121,7 +2199,7 @@ function desenharInicio() {
   if (!el.querySelector(".painel-topo")) el.innerHTML = `<div class="painel-topo" id="pTopo"></div>`
     + PAINEL_BLOCOS.map(b => `<div id="p-${b}"></div>`).join("");
   const agora = Date.now(), ss = todasSessoes(), c = contarSessoes(ss, agora);
-  const lista = Object.values(pcs).sort((a, b) => a.pc.localeCompare(b.pc));
+  const lista = pcsDeVerdade().sort((a, b) => a.pc.localeCompare(b.pc));   // v27: a máquina só no bloco dos Computadores
   const paineis = lista.map(painelDe);
   por($("pTopo"), rede.ok === false
     ? `<span class="err">⚠ Sem conexão${rede.em ? " desde " + hm(new Date(rede.em).toISOString()) : ""}: ${esc(rede.erro)}. Tentando de novo…</span><button data-atualizar aria-label="Atualizar agora">↻</button>`
@@ -2130,7 +2208,7 @@ function desenharInicio() {
     : rede.em ? `<span>Atualizado às ${hm(new Date(rede.em).toISOString())}${corte.inteiroEm && rede.em - corte.inteiroEm > 60000
         ? ` · painel das ${hm(new Date(corte.inteiroEm).toISOString())}` : ""}</span><button data-atualizar aria-label="Atualizar agora">↻</button>`
     : `<span><span class="spin"></span>Carregando o painel…</span>`);
-  if (!lista.length) {
+  if (!lista.length && !maquinas().length) {
     PAINEL_BLOCOS.forEach(b => por($("p-" + b), ""));
     return por($("p-sessoes"), rede.ok === null ? "" : rede.ok === false ? `<div class="empty">Sem internet: o painel aparece quando a rede voltar.</div>`
       : `<div class="empty">Nenhum PC publicou ainda. Ligue o Seaninho no celular num PC.</div>`);
@@ -2162,7 +2240,7 @@ function oQueEspera(s) {
 function blocoEsperando(ss, agora) {
   const esp = ss.filter(s => Lista.estadoDe(s, agora) === "esperando"), soltos = slackSoltos();
   if (!esp.length && !soltos.length) return "";
-  const varios = Object.keys(pcs).length > 1;
+  const varios = pcsDeVerdade().length > 1;
   const linhas = esp.map(s => `<button class="esp-item" ${s.paraVoce && s.estado !== "perguntando" && !s.permissao && !s.enquete
           ? `data-pv="${esc(s.paraVoceK)}"` : `data-abrir-pc="${esc(s.pc)}" data-abrir="${esc(s.id)}"`}>
         <span class="esp-t"><b>${esc(s.titulo)}${varios ? ` <span class="meta">· ${esc(nomeCurtoPc(s.pc))}</span>` : ""}</b><small>${esc(oQueEspera(s))}</small></span>
@@ -2897,8 +2975,8 @@ const horas = h => h >= 48 ? Math.round(h / 24) + " dias" : Math.round(h) + " h"
 // o aviso quando o PC cai ou volta. A lógica sem tela está no pcs.js (test_pcs.cjs).
 const euAprovado = () => !!(aparelhos.find(a => a.eu) || {}).energia;
 const estadoPc = (p, viz, ped) => Pcs.estado(p, {agora: agoraRede(), ped, vizinhos: viz, dispensado: energiaDispensado[p.pc] || 0});
-const podeEnergiaDe = p => Pcs.podeEnergia(p, {agora: agoraRede(), bancoV9, aprovado: euAprovado(), rede: rede.ok !== false,
-                                                ped: Pcs.pedidoDe(pedidos, p.pc)});
+const podeEnergiaDe = p => Maquinas.ehMaquina(p) ? {ok: false, motivo: "A máquina de fila não liga nem desliga pelo celular."}   // v27
+  : Pcs.podeEnergia(p, {agora: agoraRede(), bancoV9, aprovado: euAprovado(), rede: rede.ok !== false, ped: Pcs.pedidoDe(pedidos, p.pc)});
 // a contagem anda sozinha a cada segundo (o texto "Hiberna em 0:47" com o "ate" do PC)
 const dataAte = st => st.ate ? ` data-ate="${st.ate}" data-prefixo="${esc(st.texto.replace(/ \d+:\d\d$/, ""))}"` : "";
 const ligadoDesde = iso => { const d = new Date(iso); return isNaN(d) ? "" : d.toDateString() === new Date().toDateString() ? hm(iso) : `${DIA_SEMANA[d.getDay()]} ${hm(iso)}`; };
@@ -2927,7 +3005,8 @@ function faixaAparelhoNovo() {
     esc(n.map(a => a.nome || "Aparelho").join(", "))}. Ainda não pode hibernar nem desligar os PCs. Ver no ⚙ ›</button>` : "";
 }
 function blocoComputadores(lista, agora) {
-  if (!lista.length) return "";
+  const maqs = maquinas();
+  if (!lista.length && !maqs.length) return "";
   const o = orquestraDe(lista), viz = Pcs.vizinhosDe(lista, agoraRede()), falhas = Lista.falhasRecentes(pedidos, agora, 24);
   const cartoes = lista.map(p => {
     const st = estadoPc(p, viz, Pcs.pedidoDe(pedidos, p.pc)), c = (p.hoje && p.hoje.conta) || {}, ram = ramDe(p);
@@ -2941,8 +3020,10 @@ function blocoComputadores(lista, agora) {
   const parado = o && o.atualizado && agora / 1000 - o.atualizado > 45 * 60;
   const maestro = o && (o.vigia === false || parado) ? `<p class="pcm-al critico" style="margin-top:8px">🎼 ${o.vigia === false
     ? `A vigia do ${esc((Pcs.nomeNoMeio ? Pcs.nomeNoMeio(o) : "maestro"))} está desligada` : `O loop do ${esc((Pcs.nomeNoMeio ? Pcs.nomeNoMeio(o) : "maestro"))} pode ter parado`} (${esc(nomeCurtoPc(o.pc))})</p>` : "";
+  // v27: a máquina de fila depois dos PCs, na linha toda da grade
+  const maq = maqs.map(p => Maquinas.htmlResumo(Maquinas.normalizar(p), {agora: agoraRede(), pcs})).join("");
   return `<section class="bloco"><button class="bloco-cab" data-pcs-abrir=""><h3>💻 Computadores <span class="ir">Abrir ›</span></h3></button>
-    <div class="pcs-grade">${cartoes}</div>${maestro}${faixaAparelhoNovo()}</section>`;
+    <div class="pcs-grade">${cartoes}${maq}</div>${maestro}${faixaAparelhoNovo()}</section>`;
 }
 
 function abrirComputadores(foco = "") {
@@ -2962,10 +3043,11 @@ function fecharComputadores() {
 }
 function desenharComputadores() {
   if (!pcsAberto) return;
-  const agora = Date.now(), lista = Object.values(pcs).sort((a, b) => a.pc.localeCompare(b.pc)), o = orquestraDe(lista);
+  const agora = Date.now(), lista = pcsDeVerdade().sort((a, b) => a.pc.localeCompare(b.pc)), o = orquestraDe(lista);
   const ctx = {o, viz: Pcs.vizinhosDe(lista, agoraRede()), falhas: Lista.falhasRecentes(pedidos, agora, 24), ss: todasSessoes(), agora};
   por($("pcsCorpo"), (rede.ok === false ? `<div class="rede-off">⚠ Sem internet${rede.em ? " desde " + hm(new Date(rede.em).toISOString()) : ""}: os botões de energia ficam desligados até a rede voltar. O que aparece é a última leitura.</div>` : "")
     + (lista.length ? lista.map(p => cartaoPc(p, ctx)).join("") : `<div class="empty">Nenhum PC publicou ainda.</div>`)
+    + maquinas().map(cartaoMaquina).join("")   // v27: a VPS (máquina de fila), depois dos PCs
     + blocoMaestro(o, agora)
     + `<p class="note">Ligar pelo celular e Suspender ficam para uma próxima versão. A sua saúde (água, pausas) continua na aba Hoje.</p>`);
 }
@@ -3027,6 +3109,153 @@ function blocoMaestro(o, agora) {
   return `<section class="pcc"><div class="pc-topo"><span class="ico" aria-hidden="true">🎼</span><div class="nome"><b>${esc(o.nomeMaestro || "Maestro")}</b><small>no ${esc(nomeCurtoPc(o.pc))}</small></div></div>
     <div class="pc-linhas" style="margin-top:8px">vigia ${o.vigia === true ? "ligada" : o.vigia === false ? `<span class="alerta critico">desligada</span>` : "sem leitura"} · última volta ${
       o.atualizado ? ha(o.atualizado * 1000) : "?"}${parado ? ` <span class="alerta">(o loop pode ter parado)</span>` : ""}</div></section>`;
+}
+
+// ---- v27: a máquina de fila (a VPS) no Computadores (pedido do Arthur, 13/11: "quero ver o vps na seaninho" e "colocar
+// ele para rodar demandas") -----------------------------------------------------------------------------------------
+// O cartão (Maquinas.htmlCartao) é refeito a cada volta; as folhas vão na #folha, que a volta não refaz (a caixa de texto
+// não perde o que você escreve, e o rascunho fica no aparelho). O pedido: cel_pedir(pc da máquina, tipo "acao", texto =
+// o JSON do contrato), e a espera pela leve, de 2 em 2 s, até 3 min. Quem executa é o agente do PC que traz a máquina.
+const mqTodas = {};       // nome -> o "ver todas" das tarefas aberto
+let mqFolha = null;       // {modo, pc, id?, pid?, desde?}: a folha da máquina aberta (fecharFolha() zera)
+let mqRetomando = null;   // o Retomar em curso (sem folha: o aviso de baixo)
+const maquinaDe = pc => Maquinas.normalizar(pcs[pc]);
+const cartaoMaquina = p => Maquinas.htmlCartao(Maquinas.normalizar(p), {agora: agoraRede(), pcs, todas: !!mqTodas[p.pc], coordenador: "hokage"});
+function mqAbrir(html, estado) {
+  folhaEscolher = null; folhaEnergia = null; pararSegurar();
+  mqFolha = estado;
+  $("folha").innerHTML = html;
+  $("folhaFundo").classList.remove("hidden");
+}
+// A máquina responde agora (a regra do cartão)? Se não, o motivo num aviso, e nada sai do celular.
+function mqPode(pc) {
+  const m = maquinaDe(pc);
+  if (!m) { avisar("appAviso", "Essa máquina saiu da lista.", {erro: true}); return null; }
+  if (rede.ok === false) { avisar("appAviso", "Sem internet: o pedido não sai do celular agora.", {erro: true}); return null; }
+  const s = Maquinas.situacao(m, agoraRede(), pcs);
+  if (!s.responde) { avisar("appAviso", (s.faixa && s.faixa.texto) || "A máquina não está respondendo agora.", {erro: true}); return null; }
+  return m;
+}
+function acaoMaquina({acao, id, pc}) {
+  const alvo = pc || (mqFolha && mqFolha.pc) || "";
+  if (acao === "ver-todas") { mqTodas[alvo] = !mqTodas[alvo]; return desenharComputadores(); }
+  if (acao === "enviar") return mqAbrirEnviar(alvo);
+  if (acao === "log") return mqAbrirLog(alvo, "");
+  if (acao === "tarefa-log") return mqAbrirLog(alvo, id);
+  if (acao === "pausar") return mqAbrirPausar(alvo);
+  if (acao === "retomar") return mqRetomar(alvo);
+  const f = mqFolha;
+  if (!f) return;
+  if (acao === "mandar") return f.modo === "pausar" ? mqMandarPausa(f) : mqMandarTarefa(f);
+  if (acao === "escolher") return mqPedirLog(f.pc, id);
+  if (acao === "de-novo") return f.modo === "log" ? mqPedirLog(f.pc, id || f.id) : f.modo === "pausar" ? mqAbrirPausar(f.pc) : mqAbrirEnviar(f.pc);
+  if (acao === "cancelar-pedido") return mqCancelar(f);
+}
+function mqAbrirEnviar(pc) {
+  const m = mqPode(pc);
+  if (m) mqAbrir(Maquinas.htmlFolhaEnviar(m, lerJson(Maquinas.chaveRascunho(pc), {})), {modo: "enviar", pc});
+}
+function mqAbrirPausar(pc) {
+  const m = mqPode(pc);
+  if (m) mqAbrir(Maquinas.htmlFolhaPausar(m), {modo: "pausar", pc});
+}
+function mqAbrirLog(pc, id) {
+  if (id) return mqPedirLog(pc, id);
+  const m = mqPode(pc);
+  if (m) mqAbrir(Maquinas.htmlFolhaLog({m, fase: "escolher"}), {modo: "log", pc});
+}
+// Os campos da folha de Mandar tarefa; o contador, o Mandar e o rascunho a cada tecla
+function mqCamposEnviar() {
+  const orc = parseFloat(String($("mqOrc").value).replace(",", "."));
+  return {texto: $("mqTexto").value, modelo: $("mqModelo").value, orcamento: Number.isFinite(orc) ? orc : NaN, alta: $("mqAlta").checked};
+}
+function mqContar() {
+  if (!mqFolha || mqFolha.modo !== "enviar" || !$("mqTexto")) return;
+  const c = mqCamposEnviar(), n = Maquinas.letras(c.texto.trim()), conta = $("mqConta");
+  conta.textContent = `${n}/${Maquinas.TEXTO_MAX}`;
+  conta.classList.toggle("erro", n > Maquinas.TEXTO_MAX);
+  $("mqMandar").disabled = !n || n > Maquinas.TEXTO_MAX;
+  store.set(Maquinas.chaveRascunho(mqFolha.pc), c.texto.trim() ? JSON.stringify({...c, orcamento: Number.isFinite(c.orcamento) ? c.orcamento : null}) : "");
+}
+function mqStatusErro(msg) { const el = $("mqStatus"); if (el) { el.className = "mq-status status err"; el.textContent = msg; } }
+async function mqMandarTarefa(f) {
+  const m = mqPode(f.pc);
+  if (!m) return;
+  const r = Maquinas.pedido("enviar", mqCamposEnviar(), m);
+  if (!r.ok) return mqStatusErro(r.msg);
+  mqContar();   // o rascunho guardado: se não sair, a folha volta com ele
+  const lp = await mqMandar(f, m, r);
+  if (lp && lp.fase === "ok") {
+    store.set(Maquinas.chaveRascunho(f.pc), "");
+    setTimeout(() => { if (mqFolha === f) fecharFolha(); }, 2500);
+  }
+}
+async function mqMandarPausa(f) {
+  const m = mqPode(f.pc);
+  if (!m) return;
+  const r = Maquinas.pedido("pausar", {agora: !!($("mqAgora") && $("mqAgora").checked)}, m);
+  if (!r.ok) return mqStatusErro(r.msg);
+  const lp = await mqMandar(f, m, r);
+  if (lp && lp.fase === "ok") setTimeout(() => { if (mqFolha === f) fecharFolha(); }, 2500);
+}
+async function mqPedirLog(pc, id) {
+  const m = mqPode(pc);
+  if (!m) return;
+  const f = {modo: "log", pc, id};
+  const desenhar = lp => lp.fase === "ok" ? Maquinas.htmlFolhaLog({m, fase: "ok", id, resposta: lp.resposta})
+    : lp.fase === "erro" ? Maquinas.htmlFolhaLog({m, fase: "erro", id, msg: lp.msg, semResposta: lp.semResposta})
+    : Maquinas.htmlFolhaLog({m, fase: "pedindo", id, lp});
+  const r = Maquinas.pedido("log", {id, linhas: Maquinas.LINHAS_PADRAO}, m);
+  mqAbrir("", f);
+  if (!r.ok) return void ($("folha").innerHTML = desenhar({fase: "erro", msg: r.msg}));
+  await mqMandar(f, m, r, desenhar);
+}
+// Manda o pedido e espera o fim, desenhando cada fase (desenhar(lp)) enquanto a folha f estiver aberta
+async function mqMandar(f, m, r, desenhar = lp => Maquinas.htmlAndamento(m, f.modo, lp)) {
+  const pintar = lp => { if (mqFolha === f) $("folha").innerHTML = desenhar(lp); };
+  f.desde = Date.now(); f.pid = null;
+  pintar({fase: "espera", msg: `mandando à ${m.rotulo}…`});
+  try { f.pid = await rpc("cel_pedir", {pc: f.pc, tipo: "acao", titulo: r.titulo, texto: r.texto}); }
+  catch (e) { pintar({fase: "erro", msg: "Não saiu do celular: " + motivoRede(e)}); return null; }
+  voltaJa();
+  return mqEsperar(f, m, pintar, () => mqFolha === f);
+}
+// A espera do C.5: "esperando o PC pegar…", "a VPS está fazendo…", o fim; até 3 min (depois, "o pedido pode ainda sair")
+async function mqEsperar(f, m, pintar, vivo) {
+  for (;;) {
+    const lp = Maquinas.lerPedido(pedidos.find(x => x.id === f.pid), {agora: Date.now(), desde: f.desde, m});
+    pintar(lp);
+    if (lp.fase === "ok" || lp.fase === "erro") return lp;
+    await dorme(2000);
+    if (!vivo()) return null;   // a folha fechou: o pedido segue, a espera não
+    try { await olharPedido(f.pid); } catch {}
+  }
+}
+async function mqCancelar(f) {
+  if (!f.pid) return;
+  try { await rpc("cel_cancelar", {id: f.pid}); voltaJa(); }
+  catch (e) { avisar("appAviso", "Não cancelou: " + motivoRede(e), {erro: true}); }
+}
+// Retomar: sem confirmação; o andamento e o fim no aviso de baixo
+async function mqRetomar(pc) {
+  if (mqRetomando) return;
+  const m = mqPode(pc);
+  if (!m) return;
+  const r = Maquinas.pedido("retomar", {}, m);
+  if (!r.ok) return avisar("appAviso", r.msg, {erro: true});
+  const f = mqRetomando = {modo: "retomar", pc, desde: Date.now(), pid: null};
+  const pintar = lp => { if (lp.fase === "espera" || lp.fase === "anda") andamento("appAviso", `Retomando a fila da ${m.rotulo}: ${lp.msg}`, true); };
+  pintar({fase: "espera", msg: "mandando…"});
+  let lp = null;
+  try {
+    f.pid = await rpc("cel_pedir", {pc, tipo: "acao", titulo: r.titulo, texto: r.texto});
+    voltaJa();
+    lp = await mqEsperar(f, m, pintar, () => mqRetomando === f);
+  } catch (e) { lp = {fase: "erro", msg: "Não saiu do celular: " + motivoRede(e)}; }
+  mqRetomando = null;
+  andamento("appAviso", "");
+  if (lp && lp.fase === "ok") avisar("appAviso", "✓ " + lp.msg, {ok: true});
+  else if (lp) avisar("appAviso", lp.msg, {erro: true, ...(lp.semResposta ? {} : {acao: () => mqRetomar(pc)})});
 }
 
 // O aviso de que o PC caiu ou voltou: quem manda é o outro PC (agente 0.9.0); desligado por PC na preferência da conta.
@@ -3368,7 +3597,7 @@ function desenharFeed() {
     return d.toDateString() === h.toDateString() ? "Hoje" : d.toDateString() === y.toDateString() ? "Ontem"
       : d.toLocaleDateString("pt-BR", {weekday: "long", day: "numeric", month: "short"}); };
   let ultimo = "", html = "";
-  const varios = Object.keys(pcs).length > 1;
+  const varios = pcsDeVerdade().length > 1;
   for (const a of itens.slice(0, 80)) {
     const d = dia(a.quando);
     if (d !== ultimo) { html += `<h2>${esc(d)}</h2>`; ultimo = d; }
@@ -3991,7 +4220,7 @@ function desenharDetalhe(paraOFim = false) {
   if (locais.length !== antes) guardarFila();
   const base = s || vistas[aberta.id] || {id: aberta.id, pc: aberta.pc, conversa: []};
   $("dTitulo").textContent = (silencioDe(aberta.pc, aberta.id) ? "🔕 " : "") + (base.titulo || (ped.find(p => p.titulo) || {}).titulo || "Sessão");
-  const varios = Object.keys(pcs).length > 1;
+  const varios = pcsDeVerdade().length > 1;
   if (!s) {
     $("dChip").textContent = "Fechada"; $("dChip").className = "chip";
     $("dSub").textContent = "A sessão não está mais aberta no PC"; $("dSub").className = "sub";
@@ -6737,7 +6966,7 @@ function sinalRodar(p) {
 // Os PCs ligados (lig), os com o agente que roda (novos) e os que podem rodar agora (podem: o sinal ligado). A folha só
 // oferece os que podem; sem nenhum, a caixa fica com o Copiar e o ✓ Rodei, e a linha diz por quê.
 function rdPcs() {
-  const lig = Object.values(pcs).filter(p => online(p) && !desligando(p));
+  const lig = pcsDeVerdade().filter(p => online(p) && !desligando(p));
   const novos = lig.filter(p => Lista.compararVersao(p.versao, AGENTE_RODAR) >= 0);
   return {lig: lig.map(p => p.pc), novos: novos.map(p => p.pc), podem: novos.filter(p => sinalRodar(p).ligado).map(p => p.pc)};
 }
@@ -6947,6 +7176,8 @@ $("usoIa").addEventListener("click", e => {
 $("pcs").addEventListener("click", e => { const b = e.target.closest("[data-pcs-abrir]"); if (b) abrirComputadores(b.dataset.pcsAbrir); });
 $("computadores").addEventListener("click", e => {
   if (e.target.closest("#pcsFechar")) return fecharComputadores();
+  const mq = Maquinas.acaoDe(e.target);   // v27: os botões do cartão da máquina de fila
+  if (mq) return acaoMaquina(mq);
   const t = e.target.closest("[data-trocar]");
   if (t) return trocarConta(t.dataset.trocar, t);
   const fp = e.target.closest("[data-fechar-paradas]");
@@ -7077,7 +7308,15 @@ $("folhaFundo").addEventListener("click", e => {
   if (e.target.closest("[data-nf-uso]")) { fecharFolha(); return abrirUsoIa(); }
   const fm = e.target.closest("[data-fr-mostrar]");   // 0.9.0.4: o arquivo da frente que não abre no celular
   if (fm) { fecharFolha(); return abrirPastaFrente(fm.dataset.frMostrar); }
+  const mq = Maquinas.acaoDe(e.target);   // v27: as folhas da máquina de fila
+  if (mq) return acaoMaquina(mq);
   if (e.target === $("folhaFundo")) fecharFolha();
+});
+// v27: a folha de Mandar tarefa conta as letras e guarda o rascunho; o Pausar fica vermelho com "parar as que rodam"
+$("folha").addEventListener("input", e => { if (e.target.closest("#mqTexto, #mqOrc")) mqContar(); });
+$("folha").addEventListener("change", e => {
+  if (e.target.id === "mqAgora" && $("mqPausar")) $("mqPausar").classList.toggle("perigo", e.target.checked);
+  else if (e.target.closest("#mqModelo, #mqAlta, #mqOrc")) mqContar();
 });
 $("menuSessao").addEventListener("click", e => {
   const b = e.target.closest("[data-m]");

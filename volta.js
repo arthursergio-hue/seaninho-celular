@@ -86,6 +86,9 @@ const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const SEM_INTEIRO_TIPOS = ["claude", "transcrever"];
 const SEM_INTEIRO_ACOES = ["anexo", "pdf_paginas", "pdf_recorte", "pdf_original", "ler_texto", "abrir_pasta", "aviso_teste",
   "responder_enquete", "responder_permissao", "recusar_enquete", "entrega_opcao"];
+// v27, a máquina de fila: o "ver log" não muda nada que só o inteiro traz (o log vem na resposta do pedido); mandar,
+// pausar e retomar mudam o cartão (o agente republica o bloco antes do fim), e pedem o inteiro
+const SEM_INTEIRO_MODOS = {maquina: ["log"]};
 
 // O estado do corte (um por página):
 // - inteiroEm: quando saiu o último inteiro que chegou; querInteiro: quantas vezes a página pediu o inteiro (voltou ao
@@ -354,9 +357,9 @@ function acompanhar(st, id, agora) {
 function pedeInteiroNoFim(p) {
   if (!p || SEM_INTEIRO_TIPOS.includes(p.tipo)) return false;
   if (p.tipo !== "acao") return true;
-  let a = "";
-  try { a = String((JSON.parse(p.texto || "{}") || {}).acao || ""); } catch {}
-  return !SEM_INTEIRO_ACOES.includes(a);
+  let a = "", modo = "";
+  try { const t = JSON.parse(p.texto || "{}") || {}; a = String(t.acao || ""); modo = String(t.modo || ""); } catch {}
+  return !SEM_INTEIRO_ACOES.includes(a) && !(SEM_INTEIRO_MODOS[a] || []).includes(modo);
 }
 // A ação acabou: o inteiro na volta seguinte (o PC publica o hoje novo logo depois do "entregue"; o inteiro na mesma
 // volta podia trazer o hoje de antes, e a água ficava com o número velho até o inteiro dos 2 min).

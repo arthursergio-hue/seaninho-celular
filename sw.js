@@ -5,8 +5,10 @@
 // STATUS tolerante); 0.9.0.4: ele entra na casca
 // v24, o corte de tráfego (12/11): o volta.js (a leve a cada 4 s e o inteiro só quando precisa) entra na casca; o
 // CACHE continua seaninho-v24 (a v24 ainda não foi publicada); o push avisa a página aberta (ver abaixo)
-const CACHE = "seaninho-v24";
-const CASCA = ["./", "./index.html", "./config.js", "./markdown.js", "./chat.js", "./lista.js", "./workflows.js", "./pcs.js", "./volta.js", "./usoia.js", "./ninja.js", "./marcar.js", "./decisoes.js", "./entregas.js", "./pedidos.js", "./rodar.js", "./manifest.webmanifest", "./icone-180.png", "./icone-192.png"];
+// v27 (13/11, a página 0.9.0.16): a VPS no Computadores (o maquinas.js entra na casca). A v25 e a v26 são das páginas
+// que vão na frente dela (a 0.9.0.15 e as reações); na junção, fica o número seguinte ao último publicado
+const CACHE = "seaninho-v27";
+const CASCA = ["./", "./index.html", "./config.js", "./markdown.js", "./chat.js", "./lista.js", "./workflows.js", "./pcs.js", "./maquinas.js", "./volta.js", "./usoia.js", "./ninja.js", "./marcar.js", "./decisoes.js", "./entregas.js", "./pedidos.js", "./rodar.js", "./manifest.webmanifest", "./icone-180.png", "./icone-192.png"];
 
 self.addEventListener("install", e => {
   // "reload": sem o cache HTTP do GitHub Pages (10 min), que podia misturar arquivos de duas versões
