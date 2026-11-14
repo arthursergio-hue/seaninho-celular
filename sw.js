@@ -11,8 +11,14 @@
 // que vão na frente dela (a 0.9.0.15 e as reações); na junção, fica o número seguinte ao último publicado
 // v28 (13/11, a página 0.9.0.17, o trem do celular): as branches juntas numa casca só: a VPS (v27), a mensagem em
 // qualquer sessão (v25), as reações (v26), as prioridades das seções, o ninja por faixa e o ninja vivo, o uso de IA ao vivo
-const CACHE = "seaninho-v28";
-const CASCA = ["./", "./index.html", "./config.js", "./markdown.js", "./chat.js", "./reacoes.js", "./lista.js", "./prioridades.js", "./workflows.js", "./pcs.js", "./maquinas.js", "./volta.js", "./usoia.js", "./ninja.js", "./ninjavivo.js", "./marcar.js", "./decisoes.js", "./entregas.js", "./pedidos.js", "./rodar.js", "./manifest.webmanifest", "./icone-180.png", "./icone-192.png"];
+// v29 (13/11, a página 0.9.0.18): o padrão Opus da VPS (o maquinas.js e o index.html novos: Modelo opus, Esforço,
+// Ultracode e US$ 50 na folha "Mandar tarefa"), sobre o trem da v28; na junção, o número seguinte ao último publicado.
+// O trem 0.9.0.18 (14/11) junta na mesma v29 as 6 telas do Monitor no celular: cards.js e paravoce.js (1, as Entregas
+// completas), revisoes.js (2), mosaico.js (3, as Sessões em mosaico e os Meus pedidos), estoque.js (4), espaco.js e
+// sobras.js (5, o Início organizável e as sobras do chat) e chrome.js (6). Publicar a página COM a pasta ninja/ (sem ela,
+// o celular fica sem o ninja; ver o LEIA-ME).
+const CACHE = "seaninho-v29";
+const CASCA = ["./", "./index.html", "./config.js", "./markdown.js", "./chat.js", "./reacoes.js", "./lista.js", "./prioridades.js", "./workflows.js", "./estoque.js", "./pcs.js", "./maquinas.js", "./chrome.js", "./volta.js", "./espaco.js", "./sobras.js", "./usoia.js", "./ninja.js", "./ninjavivo.js", "./marcar.js", "./decisoes.js", "./cards.js", "./paravoce.js", "./entregas.js", "./pedidos.js", "./mosaico.js", "./rodar.js", "./revisoes.js", "./manifest.webmanifest", "./icone-180.png", "./icone-192.png"];
 
 self.addEventListener("install", e => {
   // "reload": sem o cache HTTP do GitHub Pages (10 min), que podia misturar arquivos de duas versões
@@ -89,6 +95,7 @@ self.addEventListener("notificationclick", e => {
   const doPc = d.tipo === "pc" || d.tipo === "seaninho_caiu";   // 0.9.0.7: o Seaninho do PC caiu: o cartão do PC
   const url = d.tipo === "ai_rats" ? "./#airats=1"   // a prévia do post do AI Rats
     : d.tipo === "decisoes" ? `./#decisoes=1${loteDoAviso(d) ? `&lote=${encodeURIComponent(loteDoAviso(d))}` : ""}`   // v24: o lote novo, já aberto
+    : d.tipo === "entregas" ? `./#entregas=1${d.entrega ? `&lote=${encodeURIComponent(d.entrega)}` : ""}`   // 13/11: a entrega nova, no detalhe
     : d.tipo === "aparelho" ? "./#ajustes=1"   // 0.9.0: aparelho novo na conta: o ⚙ (aprovar ou não)
     : doPc ? `./#pcs=${encodeURIComponent(d.pc || "")}`   // 0.9.0: o PC caiu, voltou ou vai desligar: o cartão dele
     : d.tipo === "para_voce" || d.tipo === "teste" ? "./#pv=1"   // o Para você (0.8.9)
@@ -99,7 +106,8 @@ self.addEventListener("notificationclick", e => {
       c.postMessage({tipo: "abrir", sessao: doPc ? "" : d.sessao || "", pc: d.pc || "", airats: d.tipo === "ai_rats",
                      pv: d.tipo === "para_voce" || d.tipo === "teste", ...(doPc ? {pcs: d.pc || ""} : {}),
                      ...(d.tipo === "aparelho" ? {ajustes: true, sessao: ""} : {}),
-                     ...(d.tipo === "decisoes" ? {decisoes: true, sessao: "", lote: loteDoAviso(d)} : {})});
+                     ...(d.tipo === "decisoes" ? {decisoes: true, sessao: "", lote: loteDoAviso(d)} : {}),
+                     ...(d.tipo === "entregas" ? {entregas: true, sessao: "", lote: String(d.entrega || "")} : {})});
       return c.focus();
     }
     return self.clients.openWindow(url);

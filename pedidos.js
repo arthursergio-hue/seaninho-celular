@@ -3,6 +3,10 @@
 // 🔄 em andamento · ✅ respondido · ⚠ não deu), o pedido, a hora, de onde veio e a resposta, com o "ver mais".
 // Filtro Abertos / Todos. Só leitura. Sem tela (testado no Node: test_pedidos.cjs): a lista vem pronta no
 // hoje.painel.meus_pedidos do PC da central (CONTRATO-v24 seção 4); aqui se escolhe o bloco, se conta e se monta o HTML.
+// Entrega 3 do Monitor no celular (13/11, CONTRATO-mosaico.md seção 3; test_pedidos_semana.cjs): o agente manda a
+// semana inteira (no teto de 15 KB) e a tela ganha [Hoje | Semana], o "Sem resposta" e a busca (htmlFiltros, htmlCorpo
+// e desenharEm, que nunca troca a caixa da busca embaixo do dedo); e o pedido feito pelo celular à central entra na
+// lista na hora (comOsDoCelular, pelos pedidos do banco), até a lista do PC trazer o dele (o id "cel-<pedido>").
 (function (raiz) {
 "use strict";
 
@@ -154,11 +158,15 @@ function htmlResumo(dados, op) {
 // O que um toque pede: {acao: "mais", id} (o ver mais/menos: a página chama alternar(id) e redesenha), {acao:
 // "filtro", valor} ou {acao: "tudo"} (abrir a tela cheia). null fora disso.
 function acaoDe(el) {
-  const n = el && el.closest ? el.closest("[data-mp-mais],[data-mp-filtro],[data-mp-tudo]") : null;
+  const n = el && el.closest ? el.closest("[data-mp-mais],[data-mp-filtro],[data-mp-tudo],[data-mp-periodo],[data-mp-sem],[data-mp-limpar]") : null;
   if (!n || !n.dataset) return null;
   if (n.dataset.mpMais !== undefined) return {acao: "mais", id: n.dataset.mpMais};
   if (n.dataset.mpFiltro !== undefined) return {acao: "filtro", valor: n.dataset.mpFiltro};
   if (n.dataset.mpTudo !== undefined) return {acao: "tudo"};
+  // entrega 3: [Hoje | Semana], o "Sem resposta" e o ✕ da busca
+  if (n.dataset.mpPeriodo !== undefined) return {acao: "periodo", valor: n.dataset.mpPeriodo};
+  if (n.dataset.mpSem !== undefined) return {acao: "sem"};
+  if (n.dataset.mpLimpar !== undefined) return {acao: "limpar"};
   return null;
 }
 
@@ -205,9 +213,158 @@ const CSS = `
 .mp-res-t b{font-size:14.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .mp-res-t small{font-size:12.5px;color:var(--muted)}
 .mp-ir{margin-left:auto;min-height:44px;padding:0 4px;font-size:13.5px;font-weight:600;color:var(--gold-2,#F6D77E);text-transform:none;letter-spacing:0}
+.mp-tela .mp-filtros .mp-chip{flex:1 1 auto;padding:0 10px;font-size:14px;white-space:nowrap}
+.mp-chip.mp-sem{flex-grow:1.4}
+.mp-busca{position:relative;display:flex;align-items:center;gap:6px;margin:0 0 10px;padding:0 4px 0 12px;border-radius:12px;background:rgba(255,255,255,.09)}
+.mp-busca.hidden{display:none}
+.mp-busca span{color:var(--faint);font-size:14px}
+.mp-busca input{flex:1;min-width:0;height:44px;border:0;background:none;color:var(--ink);font-size:16px;padding:0}
+.mp-busca input:focus{outline:none}
+.mp-busca:focus-within{outline:2px solid rgba(226,184,74,.55)}
+.mp-busca input::-webkit-search-cancel-button{display:none}
+.mp-limpar{flex:none;width:44px;height:44px;border-radius:50%;color:var(--muted)}
+.mp-limpar.hidden{display:none}
 `;
 
-const MeusPedidos = {ESTADOS, normalizar, juntar, contar, htmlLista, htmlResumo, alternar, aberto, acaoDe, temMais, CSS};
+// ==== Entrega 3 do Monitor no celular: Hoje | Semana, sem resposta, a busca e o pedido feito pelo celular ===========
+const PERIODOS = [["hoje", "Hoje"], ["semana", "Semana"]];
+// O estado dos filtros da tela (fica entre um desenho e outro, como o "ver mais"): {periodo, semResposta, busca}
+const filtro = {periodo: "hoje", semResposta: false, busca: ""};
+// O que o banco diz do pedido -> o estado na lista: andando é "esperando" (ainda não chegou à central), entregue é "em
+// andamento" (chegou; a resposta vem pela lista do PC), erro é "não deu".
+const DO_PEDIDO = {novo: "esperando", escrevendo: "esperando", pronto: "esperando", enviar: "esperando", enviando: "esperando",
+  entregue: "andamento", erro: "erro"};
+const semAcento = t => String(t ?? "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/\s+/g, " ").trim();
+// O pedido tem todas as palavras da busca no texto, na resposta ou em de onde veio? ("funcoes" acha "funções")
+function combina(p, busca) {
+  const termos = semAcento(busca).split(" ").filter(Boolean);
+  if (!termos.length) return true;
+  const onde = semAcento([p.texto, p.resposta, p.de].join(" "));
+  return termos.every(t => onde.includes(t));
+}
+const doPeriodo = (p, periodo, agora) => periodo === "semana" || p.quando >= inicioDoDia(agora);
+// Os itens da tela: o período, o "sem resposta" (esperando e em andamento) e a busca.
+function filtrar(itens, f, agora) {
+  const o = f || filtro;
+  return itens.filter(p => doPeriodo(p, o.periodo, agora) && (!o.semResposta || ABERTOS.includes(p.estado)) && combina(p, o.busca));
+}
+// Aplica um toque nos filtros (acaoDe): true se mudou algo.
+function aplicar(a) {
+  if (!a) return false;
+  if (a.acao === "periodo" && PERIODOS.some(([v]) => v === a.valor)) { filtro.periodo = a.valor; return true; }
+  if (a.acao === "sem") { filtro.semResposta = !filtro.semResposta; return true; }
+  if (a.acao === "limpar") { filtro.busca = ""; return true; }
+  if (a.acao === "busca") { filtro.busca = String(a.valor ?? "").slice(0, 120); return true; }
+  return false;
+}
+// Os chips: [Hoje n | Semana n] e o ☐/☑ Sem resposta n (as contas do período escolhido).
+function htmlFiltros(dados, f, op) {
+  const o = op || {}, agora = o.agora ?? Date.now(), est = f || filtro, todos = lista(dados);
+  const n = per => todos.filter(p => doPeriodo(p, per, agora)).length;
+  const abertos = todos.filter(p => doPeriodo(p, est.periodo, agora) && ABERTOS.includes(p.estado)).length;
+  return `<div class="mp-filtros" role="group" aria-label="De quando">${PERIODOS.map(([v, rot]) => {
+    const on = est.periodo === v;
+    return `<button type="button" class="mp-chip${on ? " on" : ""}" data-mp-periodo="${v}" aria-pressed="${on}">${esc(rot)} <b>${n(v)}</b></button>`;
+  }).join("")}<button type="button" class="mp-chip mp-sem${est.semResposta ? " on" : ""}" data-mp-sem aria-pressed="${!!est.semResposta}">${est.semResposta ? "☑" : "☐"} Sem resposta <b>${abertos}</b></button></div>`;
+}
+// A caixa da busca (desenhada uma vez: a página só troca o valor quando ela não está em uso).
+function htmlBusca(f) {
+  const est = f || filtro;
+  return `<div class="mp-busca"><span aria-hidden="true">🔍</span><input type="search" data-mp-busca placeholder="Buscar nos pedidos" enterkeyhint="search" autocomplete="off" aria-label="Buscar nos pedidos" value="${esc(est.busca)}"><button type="button" class="mp-limpar${est.busca ? "" : " hidden"}" data-mp-limpar aria-label="Limpar a busca">✕</button></div>`;
+}
+// O resumo do alto, do período: "3 pedidos hoje · …" ou "N pedidos na semana · …" (com o corte: "25 de 31").
+function contadorPeriodo(dados, periodo, agora) {
+  const itens = lista(dados).filter(p => doPeriodo(p, periodo, agora));
+  const c = contar({itens});
+  if (!c.total) return "";
+  const partes = [c.respondido ? `✅ ${plural(c.respondido, "respondido", "respondidos")}` : "", c.andamento ? `🔄 ${c.andamento} em andamento` : "",
+    c.esperando ? `⏳ ${c.esperando} esperando` : "", c.erro ? `⚠ ${c.erro} não deu` : ""].filter(Boolean);
+  const semana = totalSemana(dados);
+  const qtd = periodo === "semana" && semana > c.total ? `<b>${c.total}</b> de ${semana} pedidos`
+    : `<b>${c.total}</b> ${c.total === 1 ? "pedido" : "pedidos"}`;
+  return `<div class="mp-cont">${qtd} ${periodo === "semana" ? "na semana" : "hoje"}${partes.length ? " · " + partes.join(" · ") : ""}</div>`;
+}
+// O corpo (o aviso, o resumo e os cartões por dia, ou o vazio de cada caso), com os filtros da tela.
+function htmlCorpo(dados, f, op) {
+  const o = op || {}, agora = o.agora ?? Date.now(), est = f || filtro;
+  if (!dados || !Array.isArray(dados.itens)) {
+    return `<div class="mp-vazio"><b>A lista ainda não chegou.</b><p>Ela vem do PC da sessão central; aparece aqui quando ele estiver ligado.</p></div>`;
+  }
+  const todos = lista(dados), central = (dados.central || "Sessão central");
+  const aviso = dados.aviso ? `<div class="mp-aviso" role="status">ℹ ${esc(dados.aviso)}</div>` : "";
+  if (!todos.length) {
+    return `${aviso}<div class="mp-vazio"><b>Nenhum pedido nesta semana.</b><p>O que você manda à sessão central (${esc(central)}), pelo Monitor geral ou por aqui, aparece aqui com o estado e a resposta.</p></div>`;
+  }
+  const visiveis = filtrar(todos, est, agora);
+  const cont = contadorPeriodo(dados, est.periodo, agora);
+  if (!visiveis.length) {
+    const noPeriodo = todos.filter(p => doPeriodo(p, est.periodo, agora));
+    const vazio = est.busca.trim() ? `<b>Nada encontrado para “${esc(est.busca.trim())}”.</b><button type="button" class="mp-b" data-mp-limpar>Limpar a busca</button>`
+      : !noPeriodo.length ? `<b>Nenhum pedido hoje.</b><button type="button" class="mp-b" data-mp-periodo="semana">Ver a semana (${todos.length})</button>`
+      : `<b>Nenhum pedido esperando resposta 🎉</b><button type="button" class="mp-b" data-mp-sem>Mostrar todos</button>`;
+    return `${aviso}${cont}<div class="mp-vazio">${vazio}</div>`;
+  }
+  const gs = grupos(visiveis, agora).map(g => `<section class="mp-dia" aria-label="${esc(g.rotulo)}"><h4 class="mp-dia-t">${esc(g.rotulo)} <span>${g.itens.length}</span></h4>
+${g.itens.map(p => cartao(p, central)).join("")}</section>`).join("");
+  return `${aviso}${cont}<div class="mp-lista">${gs}</div>`;
+}
+// Na página: a linha de onde veio a lista, os chips, a caixa da busca e o corpo, cada um no seu lugar dentro de `raiz`
+// (o #mpCorpo). Só troca o que mudou, e a caixa da busca nunca é refeita (o teclado do iPhone não fecha a cada letra).
+function desenharEm(raiz, dados, op) {
+  if (!raiz || !raiz.ownerDocument) return;
+  const o = op || {}, doc = raiz.ownerDocument;
+  let el = raiz.querySelector(":scope > .mp-tela");
+  if (!el) {
+    raiz.innerHTML = `<div class="mp-tela"><div data-mp-parte="fonte"></div><div data-mp-parte="filtros"></div>${htmlBusca()}<div data-mp-parte="corpo"></div></div>`;
+    el = raiz.querySelector(":scope > .mp-tela");
+  }
+  const parte = (nome, h) => { const p = el.querySelector(`[data-mp-parte="${nome}"]`); if (p && p._html !== h) { p._html = h; p.innerHTML = h; } };
+  parte("fonte", o.fonte || "");
+  parte("filtros", dados && Array.isArray(dados.itens) && lista(dados).length ? htmlFiltros(dados, filtro, o) : "");
+  const caixa = el.querySelector("[data-mp-busca]");
+  el.querySelector(".mp-busca").classList.toggle("hidden", !(dados && Array.isArray(dados.itens) && lista(dados).length));
+  if (caixa && doc.activeElement !== caixa && caixa.value !== filtro.busca) caixa.value = filtro.busca;
+  const x = el.querySelector("[data-mp-limpar].mp-limpar");
+  if (x) x.classList.toggle("hidden", !filtro.busca);
+  parte("corpo", htmlCorpo(dados, filtro, o));
+}
+
+// O pedido feito pelo celular (ou pelo Monitor geral, pela nuvem) a uma sessão central, como item da lista: os do
+// banco (as últimas 24 h), da pessoa (sem a marca da orquestra), para uma das `centrais` ([{pc, sessao}]).
+function doCelular(pedidos, centrais) {
+  const cs = Array.isArray(centrais) ? centrais : [];
+  const ehCentral = p => cs.some(c => c && c.pc === p.pc && String(c.sessao || "") !== "" && String(c.sessao).toLowerCase() === String(p.sessao || "").toLowerCase());
+  return (Array.isArray(pedidos) ? pedidos : []).filter(p => p && typeof p === "object" && String(p.id || "").trim()
+      && (p.tipo || "claude") === "claude" && p.estado !== "cancelado" && !String(p.origem_sessao || "").trim()
+      && !/^orq\//i.test(String(p.mime || "")) && ehCentral(p))
+    .map(p => {
+      const n = /^imagens\/[^/]+\/(\d+)$/.exec(String(p.mime || "")), img = n ? Number(n[1]) : /^image\//.test(String(p.mime || "")) ? 1 : 0;
+      const texto = String(p.prompt || p.texto || "").trim() || (img ? (img === 1 ? "📷 Uma imagem" : `📷 ${img} imagens`) : "");
+      const estado = DO_PEDIDO[p.estado] || "esperando";
+      return {id: "cel-" + String(p.id).toLowerCase(), quando: ms(p.criado_em), texto,
+        de: p.origem_pc ? `Monitor geral (${umaLinha(p.origem_pc, 24)})` : "celular", estado,
+        resposta: estado === "erro" ? String(p.erro || "").trim() : "", doCelular: true};
+    });
+}
+// A lista do PC com os pedidos do celular que ela ainda não tem (pelo id "cel-<pedido>"). Só os feitos às centrais do PC
+// DESSA lista (o agente dele registra o pedido e a lista seguinte traz o "cel-<pedido>" com o estado de verdade): o
+// pedido à central de um PC que não publica a lista ficaria "em andamento" até sair das 24 h do banco. Sem a lista de
+// nenhum PC, nada (pelo mesmo motivo). Sem nada a juntar, o mesmo objeto (a página não redesenha à toa).
+function comOsDoCelular(dados, pedidos, centrais) {
+  const base = normalizar(dados);
+  // a central pessoal (a lista vem vazia, só com o aviso): nenhum pedido, nem os do celular, como no Monitor
+  if (!base || !base.pc || (base.aviso && !base.itens.length)) return dados;
+  const ja = new Set(base.itens.map(p => p.id.toLowerCase()));
+  const doPc = (Array.isArray(centrais) ? centrais : []).filter(c => c && c.pc === base.pc);
+  const extras = doCelular(pedidos, doPc).filter(x => !ja.has(x.id));
+  if (!extras.length) return dados;
+  return {...base, itens: [...base.itens, ...extras], total_semana: base.total_semana + extras.length};
+}
+// Abrir pelo "N abertos · ver tudo ›" do Início: a semana, só os sem resposta (o "Abertos" de antes), sem a busca.
+function abrirNosAbertos() { Object.assign(filtro, {periodo: "semana", semResposta: true, busca: ""}); }
+
+const MeusPedidos = {ESTADOS, normalizar, juntar, contar, htmlLista, htmlResumo, alternar, aberto, acaoDe, temMais, CSS,
+  PERIODOS, filtro, combina, filtrar, aplicar, htmlFiltros, htmlBusca, htmlCorpo, desenharEm, doCelular, comOsDoCelular, abrirNosAbertos};
 if (typeof module !== "undefined" && module.exports) module.exports = MeusPedidos;
 else raiz.MeusPedidos = MeusPedidos;
 })(typeof window !== "undefined" ? window : globalThis);

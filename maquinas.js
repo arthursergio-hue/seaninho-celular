@@ -4,6 +4,11 @@
 // tela (online, login, sem notícia…), o HTML do cartão e das folhas, o texto dos pedidos (tipo "acao", acao "maquina") e
 // a leitura da resposta. A página desenha e manda; testado no Node (test_maquinas.cjs).
 // Pedido do Arthur (13/11, 06h05): "quero ver o vps na seaninho" e "colocar ele para rodar demandas".
+// v29 (13/11, agente 0.9.0.18; seção "0.9.0.18" do CONTRATO-0916-maquina.md): o padrão Opus. A folha "Mandar tarefa"
+// abre com o opus, o esforço máximo, o ultracode ligado e US$ 50 (o padrão do bloco); o pedido leva o esforço e o
+// ultracode; o rascunho de antes (sem esforço) não impõe o sonnet, e o orçamento dele vai ao maior entre o que veio e o
+// padrão; com o kit que não entende, a linha do kit antigo; com o agente antigo (bloco sem "padrao"), a linha dele e o
+// menor entre o padrão novo e o teto que ele aceita, nunca o padrão antigo de US$ 2 (cético e fechamento de 13/11).
 (function (raiz) {
 "use strict";
 
@@ -21,6 +26,20 @@ const ID_RE = /^\d{4}-\d{6}-[a-z0-9-]{1,40}$/;
 const NOME_RE = /^[A-Za-z0-9][A-Za-z0-9._-]{0,39}$/;
 const LINK_RE = /^https:\/\/login\.tailscale\.com\/[A-Za-z0-9/_?=&.%-]{1,200}$/;
 const MODELO_RE = /^[a-z0-9.-]{1,30}$/;
+// v29: o padrão Opus. A ordem da tela (o padrão primeiro), os rótulos, o padrão e o orçamento embutidos (do agente
+// antigo, que não publica o "padrao", ou do bloco sem o "orcamento")
+const MODELOS = ["opus", "sonnet", "haiku"];
+const ESFORCOS = ["low", "medium", "high", "xhigh", "max"];
+const ROTULO_MODELO = {opus: "opus · Opus 5.5 (padrão)", sonnet: "sonnet · mais barato", haiku: "haiku · o mais barato"};
+const ROTULO_ESFORCO = {low: "baixo", medium: "médio", high: "alto", xhigh: "muito alto", max: "máximo"};
+const ROTULO_ULTRACODE = "Ultracode (Workflow)";
+const PADRAO = {modelo: "opus", esforco: "max", ultracode: true};
+const ORC = {min: 0.1, max: 80, padrao: 50};
+const MODELO_ANTIGO = "sonnet";   // o padrão de antes da v29: no rascunho de antes, não dá para saber se foi escolhido
+const KIT_ANTIGO = "Kit antigo: esforço e ultracode ficam no padrão do kit";
+// o agente de antes da 0.9.0.18 (bloco sem "padrao"): ele nem repassa o esforço e o ultracode, e aceita só até o teto
+// dele (US$ 20); as mesmas palavras no Monitor ({teto} como o usdLimite: 20, ou 12,50)
+const AGENTE_ANTIGO = "Agente antigo: esforço e ultracode ficam no padrão do kit; orçamento até US$ {teto}";
 // a pílula de cada estado de tarefa: [texto, cor]
 const TAREFA = {"na-fila": ["na fila", "espera"], esperando: ["esperando", "espera"], rodando: ["rodando", "anda"],
   pronto: ["pronto", "ok"], precisa: ["precisa de resposta", "espera"], falhou: ["falhou", "erro"], caiu: ["caiu", "erro"],
@@ -104,25 +123,71 @@ function normalizar(p) {
   if (!ehBloco && !ehMaquina(p)) return null;
   const nome = ehBloco ? texto(b.nome, 40) : texto(p.pc, 40) || texto((b || {}).nome, 40);
   const base = {pc: NOME_RE.test(nome) ? nome : "", vistoEm: ehBloco ? 0 : msDe(p.visto_em), versao: ehBloco ? "" : texto(p.versao, 30)};
+  const vazio = {acoes: [], modelos: [], esforcos: [], padrao: {...PADRAO}, orcamento: {...ORC}, kitEntende: null,
+    agenteAntigo: false, batida: null};
   if (!b) return {...base, carregando: true, formato: FORMATO, rotulo: rotuloDe(base.pc), estado: "", motivo: "", link: "",
-    tentado: 0, visto: 0, intervalo_s: 300, por: "", acoes: [], modelos: [], orcamento: {min: 0.1, max: 20, padrao: 2}, batida: null,
-    kit: kitDe(base.versao, null)};
+    tentado: 0, visto: 0, intervalo_s: 300, por: "", ...vazio, kit: kitDe(base.versao, null)};
   const formato = inteiro(b.formato);
   if (formato !== FORMATO) return {...base, formato, rotulo: texto(b.rotulo, 20) || rotuloDe(base.pc), estado: "erro",
     motivo: "Formato novo da máquina: atualize o app.", link: "", tentado: 0, visto: 0, intervalo_s: 300, por: texto(b.por, 40),
-    acoes: [], modelos: [], orcamento: {min: 0.1, max: 20, padrao: 2}, batida: null, kit: "", novo: true};
+    ...vazio, kit: "", novo: true};
   const estado = ESTADOS.includes(b.estado) ? b.estado : "erro";
   const link = typeof b.link === "string" && LINK_RE.test(b.link) ? b.link : "";
+  // v29: o orçamento do bloco; sem ele, 0,1 a 80 e 50. O agente antigo (o bloco sem "padrao") aceita só até 20, e o
+  // padrão dele (2) era o do sonnet sem Workflow: com o kit novo pondo o esforço máximo e o ultracode, a folha abre no
+  // menor entre o padrão novo (50) e o teto dele, nunca no padrão antigo (o kit 1.2.1 ainda sobe ao padrão dele).
+  // Cético e fechamento de 13/11
   const orc = obj(b.orcamento) ? b.orcamento : {};
-  const min = num(orc.min) ?? 0.1, max = num(orc.max) ?? 20;
-  const modelos = lista(b.modelos, 6).filter(x => typeof x === "string" && MODELO_RE.test(x));
+  const min = num(orc.min) ?? ORC.min, max = num(orc.max) ?? ORC.max;
+  const agenteAntigo = !obj(b.padrao);
+  const modelosBloco = lista(b.modelos, 6).filter(x => typeof x === "string" && MODELO_RE.test(x));
+  const esforcos = lista(b.esforcos, 8).filter(x => ESFORCOS.includes(x));
   const batida = normalizarBatida(b.batida);
   return {...base, formato, tipo: texto(b.tipo, 20), rotulo: texto(b.rotulo, 20) || rotuloDe(base.pc), estado,
     motivo: texto(b.motivo, 200) || (ESTADOS.includes(b.estado) ? "" : "Estado desconhecido da máquina."),
     link: estado === "login" ? link : "", tentado: inteiro(b.tentado) || 0, visto: inteiro(b.visto) || 0,
     intervalo_s: Math.min(3600, Math.max(60, inteiro(b.intervalo_s) || 300)), por: texto(b.por, 40),
-    acoes: lista(b.acoes, 4).filter(x => MODOS.includes(x)), modelos,
-    orcamento: {min, max, padrao: Math.min(max, Math.max(min, num(orc.padrao) ?? 2))}, batida, kit: kitDe(base.versao, batida)};
+    acoes: lista(b.acoes, 4).filter(x => MODOS.includes(x)), modelos: naOrdem(modelosBloco), esforcos,
+    padrao: padraoDe(b.padrao, modelosBloco, esforcos),
+    orcamento: {min, max, padrao: Math.min(max, Math.max(min, agenteAntigo ? ORC.padrao : num(orc.padrao) ?? ORC.padrao))},
+    kitEntende: typeof b.kit_entende === "boolean" ? b.kit_entende : null, agenteAntigo, batida, kit: kitDe(base.versao, batida)};
+}
+// v29: os modelos na ordem da tela (opus, sonnet, haiku; o agente 0.9.0.16 publicava haiku, sonnet, opus); um nome que a
+// página não conhece vai depois, na ordem que veio
+const naOrdem = ms => [...MODELOS.filter(x => ms.includes(x)), ...ms.filter(x => !MODELOS.includes(x))];
+// O padrão da folha: o "padrao" do bloco (agente 0.9.0.18) quando cabe na lista; senão, opus, max e ultracode ligado. Sem
+// o opus na lista, o primeiro dela como veio (nunca o sonnet por nome)
+function padraoDe(p, modelos, esforcos) {
+  const pd = obj(p) ? p : {}, ms = modelos.length ? modelos : MODELOS, es = esforcos.length ? esforcos : ESFORCOS;
+  return {modelo: ms.includes(pd.modelo) ? pd.modelo : ms.includes(PADRAO.modelo) ? PADRAO.modelo : ms[0],
+    esforco: es.includes(pd.esforco) ? pd.esforco : es.includes(PADRAO.esforco) ? PADRAO.esforco : es[es.length - 1],
+    ultracode: typeof pd.ultracode === "boolean" ? pd.ultracode : PADRAO.ultracode};
+}
+// O que a folha "Mandar tarefa" mostra, a partir do rascunho salvo: {modelo, esforco, ultracode, orcamento, alta}. O
+// rascunho sem "esforco" é de antes da v29 (salvo a cada tecla, com o sonnet e os US$ 2 que eram o padrão): ele não
+// impõe o sonnet (o haiku e o opus ficam: eram escolha), e o orçamento dele vai ao maior entre o que veio e o padrão do
+// bloco, limitado ao teto (o esforço e o ultracode do padrão novo custam mais; cético e fechamento de 13/11); o resto
+// que não serve cai no padrão do bloco.
+function camposDaFolha(m, rascunho = {}) {
+  const r = obj(rascunho) ? rascunho : {}, p = (m && m.padrao) || PADRAO;
+  const modelos = m && m.modelos && m.modelos.length ? m.modelos : MODELOS;
+  const esforcos = m && m.esforcos && m.esforcos.length ? m.esforcos : ESFORCOS;
+  const o = (m && m.orcamento) || ORC, antigo = !("esforco" in r);
+  const modelo = modelos.includes(r.modelo) && !(antigo && r.modelo === MODELO_ANTIGO) ? r.modelo
+    : modelos.includes(p.modelo) ? p.modelo : modelos[0];
+  const orc = num(r.orcamento) != null && r.orcamento >= o.min && r.orcamento <= o.max ? r.orcamento : null;
+  return {modelo, esforco: esforcos.includes(r.esforco) ? r.esforco : esforcos.includes(p.esforco) ? p.esforco : esforcos[esforcos.length - 1],
+    ultracode: typeof r.ultracode === "boolean" ? r.ultracode : p.ultracode !== false,
+    orcamento: orc == null ? o.padrao : antigo ? Math.min(o.max, Math.max(orc, o.padrao)) : orc,
+    alta: r.alta === true};
+}
+// A linha abaixo dos campos quando o esforço e o ultracode não chegam ao kit: o agente de antes da 0.9.0.18 (o bloco
+// sem "padrao": ele nem repassa os dois, e o orçamento vai até o teto dele) ou o kit que não anunciou (kit_entende
+// false). "" quando chegam.
+function avisoKit(m) {
+  if (!m) return "";
+  if (m.agenteAntigo) return AGENTE_ANTIGO.replace("{teto}", usdLimite((m.orcamento || ORC).max));
+  return m.kitEntende === false ? KIT_ANTIGO : "";
 }
 const rotuloDe = pc => String(pc || "máquina").split("-")[0].toUpperCase().slice(0, 20);
 const kitDe = (versao, batida) => (batida && batida.versao) || (/^kit (\S+)/.exec(versao || "") || [])[1] || "";
@@ -293,19 +358,23 @@ const titulo = (m, t) => `<div class="pega"></div><h4 class="en-titulo"><span ar
 function htmlFolhaEnviar(m, rascunho = {}) {
   const r = obj(rascunho) ? rascunho : {};
   const t = typeof r.texto === "string" ? r.texto : "", n = letras(t.trim());
-  const modelos = m.modelos.length ? m.modelos : ["sonnet"];
-  const modelo = modelos.includes(r.modelo) ? r.modelo : modelos.includes("sonnet") ? "sonnet" : modelos[0];
-  const orc = num(r.orcamento) != null && r.orcamento >= m.orcamento.min && r.orcamento <= m.orcamento.max ? r.orcamento : m.orcamento.padrao;
+  // v29: o padrão do bloco (opus, máximo, ultracode, US$ 50); o rascunho de antes não impõe o sonnet (camposDaFolha)
+  const f = camposDaFolha(m, r);
+  const modelos = m.modelos.length ? m.modelos : MODELOS, esforcos = m.esforcos.length ? m.esforcos : ESFORCOS;
+  const aviso = avisoKit(m);
   return `${titulo(m, `Mandar tarefa à ${m.rotulo}`)}
     <label class="mq-rot" for="mqTexto">A tarefa</label>
     <textarea id="mqTexto" class="pv-rasc mq-texto" rows="7" placeholder="# Título da tarefa&#10;repo: dono/nome&#10;&#10;O que fazer, e como saber que ficou pronto.">${esc(t)}</textarea>
     <div class="mq-contador ${n > TEXTO_MAX ? "erro" : ""}" id="mqConta" aria-live="polite">${n}/${TEXTO_MAX}</div>
     <p class="en-dica">A 1ª linha '# Título' vira o título; 'repo: dono/nome' faz a tarefa trabalhar num repositório.</p>
     <div class="mq-campos">
-      <label class="mq-campo"><span>Modelo</span><select id="mqModelo" class="campo">${modelos.map(x => `<option value="${esc(x)}" ${x === modelo ? "selected" : ""}>${esc(x)}</option>`).join("")}</select></label>
-      <label class="mq-campo"><span>Orçamento US$</span><input id="mqOrc" class="campo" type="number" inputmode="decimal" min="${m.orcamento.min}" max="${m.orcamento.max}" step="0.1" value="${orc}"></label>
+      <label class="mq-campo mq-largo"><span>Modelo</span><select id="mqModelo" class="campo">${modelos.map(x => `<option value="${esc(x)}" ${x === f.modelo ? "selected" : ""}>${esc(ROTULO_MODELO[x] || x)}</option>`).join("")}</select></label>
+      <label class="mq-campo"><span>Esforço</span><select id="mqEsforco" class="campo">${esforcos.map(x => `<option value="${esc(x)}" ${x === f.esforco ? "selected" : ""}>${esc(ROTULO_ESFORCO[x] || x)}</option>`).join("")}</select></label>
+      <label class="mq-campo"><span>Orçamento US$</span><input id="mqOrc" class="campo" type="number" inputmode="decimal" min="${m.orcamento.min}" max="${m.orcamento.max}" step="0.1" value="${f.orcamento}"></label>
     </div>
-    <label class="en-esperar mq-alta"><input type="checkbox" id="mqAlta" ${r.alta === true ? "checked" : ""}><span>Prioridade alta <small>passa na frente da fila</small></span></label>
+    <label class="en-esperar mq-ultra"><input type="checkbox" id="mqUltra" ${f.ultracode ? "checked" : ""}><span>${ROTULO_ULTRACODE} <small>a tarefa pode abrir agentes em paralelo</small></span></label>
+    ${aviso ? `<p class="mq-kit-antigo" id="mqKitAntigo" role="note"><span aria-hidden="true">⚠</span> ${esc(aviso)}</p>` : ""}
+    <label class="en-esperar mq-alta"><input type="checkbox" id="mqAlta" ${f.alta ? "checked" : ""}><span>Prioridade alta <small>passa na frente da fila</small></span></label>
     <p class="mq-nota">A ${esc(m.rotulo)} não publica nada: sem push, PR nem mensagem. Quem sobe é o hokage.</p>
     <div class="mq-status" id="mqStatus" aria-live="polite"></div>
     <div class="dupla"><button class="btn sec" data-nf-fechar>Cancelar</button><button class="btn" id="mqMandar" data-mq="mandar" data-mq-pc="${esc(m.pc)}" ${n && n <= TEXTO_MAX ? "" : "disabled"}>Mandar</button></div>`;
@@ -372,7 +441,8 @@ function htmlFolhaPausar(m, agora = false) {
 }
 
 // ---- o pedido (o `texto` de cel_pedir, igual ao do Monitor) ----
-// campos: enviar {texto, modelo, orcamento, alta}; log {id, linhas}; pausar {agora}; retomar {}
+// campos: enviar {texto, modelo, esforco, ultracode, orcamento, alta}; log {id, linhas}; pausar {agora}; retomar {}
+// v29: o esforço e o ultracode que não vieram vão no padrão do bloco (opus/max/ultracode); o pedido sai sempre com os dois
 function pedido(modo, campos = {}, m = null) {
   const c = obj(campos) ? campos : {};
   const acoes = m && m.acoes && m.acoes.length ? m.acoes : MODOS;
@@ -382,14 +452,20 @@ function pedido(modo, campos = {}, m = null) {
   if (modo === "enviar") {
     const tarefa = typeof c.texto === "string" ? c.texto.trim() : "";
     if (!tarefa || letras(tarefa) > TEXTO_MAX) return {ok: false, msg: `Escreva a tarefa (até ${TEXTO_MAX} letras).`};
-    const modelos = m && m.modelos && m.modelos.length ? m.modelos : ["haiku", "sonnet", "opus"];
+    const modelos = m && m.modelos && m.modelos.length ? m.modelos : MODELOS;
     if (typeof c.modelo !== "string" || !MODELO_RE.test(c.modelo) || !modelos.includes(c.modelo))
       return {ok: false, msg: `Modelo fora da lista: use ${juntarOu(modelos)}.`};
-    const o = (m && m.orcamento) || {min: 0.1, max: 20};
+    const p = (m && m.padrao) || PADRAO, esforcos = m && m.esforcos && m.esforcos.length ? m.esforcos : ESFORCOS;
+    // (só o campo que não veio vai no padrão; o nulo é recusado, como no agente)
+    const esforco = c.esforco === undefined ? p.esforco : c.esforco;
+    if (typeof esforco !== "string" || !esforcos.includes(esforco)) return {ok: false, msg: `Esforço fora da lista: use ${juntarOu(esforcos)}.`};
+    const ultracode = c.ultracode === undefined ? p.ultracode !== false : c.ultracode;
+    if (typeof ultracode !== "boolean") return {ok: false, msg: "Ultracode inválido: use ligado ou desligado."};
+    const o = (m && m.orcamento) || ORC;
     const orc = num(c.orcamento) != null ? Math.round(c.orcamento * 100) / 100 : null;
     if (orc == null || orc < o.min || orc > o.max) return {ok: false, msg: `Orçamento fora do limite: de US$ ${usdLimite(o.min)} a US$ ${usdLimite(o.max)}.`};
     if (c.alta != null && typeof c.alta !== "boolean") return {ok: false, msg: "Prioridade inválida."};
-    t = `{"acao":"maquina","modo":"enviar","texto":${JSON.stringify(tarefa)},"modelo":${JSON.stringify(c.modelo)},"orcamento":${float(orc)},"alta":${c.alta === true}}`;
+    t = `{"acao":"maquina","modo":"enviar","texto":${JSON.stringify(tarefa)},"modelo":${JSON.stringify(c.modelo)},"esforco":${JSON.stringify(esforco)},"ultracode":${ultracode},"orcamento":${float(orc)},"alta":${c.alta === true}}`;
   } else if (modo === "log") {
     if (typeof c.id !== "string" || !ID_RE.test(c.id)) return {ok: false, msg: "Tarefa inválida para o log."};
     const n = c.linhas == null ? LINHAS_PADRAO : num(c.linhas) != null ? Math.min(LINHAS_MAX, Math.max(1, Math.round(c.linhas))) : null;
@@ -452,9 +528,10 @@ function acaoDe(el) {
 const chaveRascunho = nome => `maquina-rascunho:${nome}`;
 
 const Maquinas = {FORMATO, SEM_NOTICIA_MS, PEGAR_MS, ESPERA_MS, TEXTO_MAX, LINHAS_PADRAO, LINHAS_MAX, MODOS, ID_RE, LINK_RE,
+  MODELOS, ESFORCOS, ROTULO_MODELO, ROTULO_ESFORCO, ROTULO_ULTRACODE, PADRAO, ORC, KIT_ANTIGO, AGENTE_ANTIGO,
   ehMaquina, normalizar, situacao, htmlResumo, htmlCartao, htmlFolhaEnviar, htmlFolhaLog, htmlFolhaPausar, htmlAndamento,
-  pedido, lerPedido, respostaDe, acaoDe, tarefaDoLog, tarefaDe, chaveRascunho, letras, quando, duracao, ramPct, corRam,
-  corDisco, corCarga, esc};
+  pedido, lerPedido, respostaDe, acaoDe, tarefaDoLog, tarefaDe, chaveRascunho, camposDaFolha, avisoKit, letras, quando,
+  duracao, ramPct, corRam, corDisco, corCarga, esc};
 if (typeof module !== "undefined" && module.exports) module.exports = Maquinas;
 raiz.Maquinas = Maquinas;
 })(typeof window !== "undefined" ? window : globalThis);

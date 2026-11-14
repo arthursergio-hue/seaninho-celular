@@ -138,7 +138,7 @@ const pcDe = (pcs, nome) => listaPcs(pcs).find(p => p.pc === nome) || null;
 const vistoMs = p => ms(p && p.visto_em);
 const online = (p, agora) => !!p && agora - vistoMs(p) < ONLINE_MS;
 const desligado = (p, agora) => !p || agora - vistoMs(p) >= DESLIGADO_MS;
-const agenteNovo = p => !!p && compararVersao(p.versao, AGENTE_TRABALHOS) >= 0;
+const agenteNovo = p => !!p && (compararVersao(p.versao, AGENTE_TRABALHOS) >= 0 || !!painelDe(p).automacoes);   // entrega 4 (Estoque): quem publica o hoje.painel.automacoes já recebe o Rodar
 const painelDe = p => (p && p.hoje && p.hoje.painel) || {};
 // O banco já tem a coluna trabalhos (v10)? O cel_estado novo traz o trabalhos_em em cada PC, mesmo vazio.
 const bancoV10 = pcs => listaPcs(pcs).some(p => Object.prototype.hasOwnProperty.call(p, "trabalhos_em"));

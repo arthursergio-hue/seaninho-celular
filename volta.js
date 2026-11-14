@@ -85,7 +85,7 @@ const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 // os comandos e o que vier de novo) pede o inteiro na volta seguinte ao fim.
 const SEM_INTEIRO_TIPOS = ["claude", "transcrever"];
 const SEM_INTEIRO_ACOES = ["anexo", "pdf_paginas", "pdf_recorte", "pdf_original", "ler_texto", "abrir_pasta", "aviso_teste",
-  "responder_enquete", "responder_permissao", "recusar_enquete", "entrega_opcao"];
+  "responder_enquete", "responder_permissao", "recusar_enquete", "entrega_opcao", "entrega_abrir_pc"];   // 13/11: o 🖥 No PC só abre o Explorer
 // A "reacao" fica de fora de propósito (medido no corretor de 12/11, medir_trafego_reacoes.cjs): a reação sempre muda o
 // PC dono (o "reacoes" da sessão), e o inteiro do "algum PC mudou" vem de qualquer jeito em até 2 min; o do fim, logo
 // depois do "entregue", já traz a mudança e poupa a lista do PC (com ele, ~226 KB; sem ele, ~273 KB)
@@ -341,7 +341,7 @@ function puxar(st, pcs, agora) {
 // 12/11 (reações): o aviso do ⚠️/❓ do Hokage numa mensagem sua ("reacao") não pede nada a mais: o toque abre o chat
 // da central (a conversa desce na hora) e, com ele aberto, ela já desce porque o PC mudou
 const AVISO_DE_SESSAO = ["pergunta", "terminou", "limite"];
-const AVISO_DO_HOJE = ["decisoes", "para_voce", "ai_rats", "aparelho", "pc", "seaninho_caiu"];
+const AVISO_DO_HOJE = ["decisoes", "para_voce", "ai_rats", "aparelho", "pc", "seaninho_caiu", "entregas"];   // 13/11: a entrega nova
 function avisoDoPc(st, d, agora) {
   if (!d) return "";
   if (AVISO_DE_SESSAO.includes(d.aviso) && d.pc) { forcarLista(st, d.pc, agora); return "lista"; }

@@ -1146,8 +1146,11 @@ details>summary{padding:6px 0}
 .mq-contador.erro{color:#ffb3ad;font-weight:650}
 .mq-campos{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px}
 .mq-campo{min-width:0} .mq-campo span{display:block;margin-bottom:4px;font-size:13px;color:var(--muted);font-weight:600}
+/* v29 (padrão Opus): o Modelo na linha toda (os rótulos são compridos); o Esforço e o Orçamento lado a lado */
+.mq-campo.mq-largo{grid-column:1/-1}
 .mq-campo .campo{min-height:44px;padding:10px 12px}
-.mq-alta small,.mq-agora small{display:block;font-size:12.5px;color:var(--faint)}
+.mq-alta small,.mq-agora small,.mq-ultra small{display:block;font-size:12.5px;color:var(--faint)}
+.mq-kit-antigo{margin:2px 0 4px;padding:8px 11px;border-radius:10px;background:rgba(226,184,74,.12);color:var(--gold-2);font-size:13px;line-height:1.4}
 .mq-agora span{font-size:14.5px;line-height:1.35}
 .mq-nota{margin:4px 0;padding:9px 11px;border-radius:10px;background:var(--glass);font-size:13px;color:var(--muted)}
 .mq-status:empty{display:none}
@@ -1302,6 +1305,7 @@ body.tela24 #appAviso{z-index:8}
 #dcFolha .dc-conf{width:100%}
 </style>
 <style id="estiloV24">/* o CSS dos módulos da v24 (decisoes.js, entregas.js, pedidos.js e rodar.js), posto aqui quando a página abre */</style>
+<style id="estiloRv"></style>
 </head>
 <body>
 <header>
@@ -1331,6 +1335,7 @@ body.tela24 #appAviso{z-index:8}
   <section id="tabInicio" aria-label="Início"></section>
   <section id="tabClaude" class="hidden" aria-label="Sessões">
     <div id="contasLista"></div>
+    <div id="mzTopo"></div>
     <div class="busca">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
       <input id="busca" type="search" placeholder="Buscar por título, pasta, PC ou fala" enterkeyhint="search" autocomplete="off" aria-label="Buscar sessões">
@@ -1440,6 +1445,10 @@ body.tela24 #appAviso{z-index:8}
 <div id="meusPedidos" class="hidden" role="dialog" aria-modal="true" aria-label="Meus pedidos">
   <div class="ar-topo"><button id="mpVoltar" aria-label="Fechar os Meus pedidos">‹</button><b>📝 Meus pedidos</b><button id="mpAtualizar" aria-label="Atualizar agora">↻</button></div>
   <div class="ar-corpo" id="mpCorpo"></div>
+</div>
+<div id="revisoes" class="hidden" role="dialog" aria-modal="true" aria-labelledby="rvTitulo">
+  <div class="ar-topo"><button id="rvVoltar" aria-label="Fechar as Revisões">‹</button><b id="rvTitulo">✓ Revisões</b><button id="rvAtualizar" aria-label="Atualizar agora">↻</button></div>
+  <div class="ar-corpo" id="rvCorpo"></div>
 </div>
 <div class="folha-fundo hidden" id="folhaFundo"><div class="folha" id="folha" role="dialog" aria-modal="true"></div></div>
 <div id="rdFolha" class="hidden"></div>
@@ -1582,16 +1591,24 @@ body.tela24 #appAviso{z-index:8}
 <script src="lista.js"></script>
 <script src="prioridades.js"></script>
 <script src="workflows.js"></script>
+<script src="estoque.js"></script><!-- entrega 4 (Estoque) -->
 <script src="pcs.js"></script>
 <script src="maquinas.js"></script>
+<script src="chrome.js"></script><!-- entrega 6 (Seaninho no Chrome) -->
 <script src="volta.js"></script>
+<script src="espaco.js"></script><!-- entrega 5: o Início organizável -->
+<script src="sobras.js"></script><!-- entrega 5: as sobras do chat -->
 <script src="usoia.js"></script>
 <script src="ninja.js"></script>
 <script src="ninjavivo.js"></script>
 <script src="decisoes.js"></script>
+<script src="cards.js"></script>
+<script src="paravoce.js"></script>
 <script src="entregas.js"></script>
 <script src="pedidos.js"></script>
+<script src="mosaico.js"></script>
 <script src="rodar.js"></script>
+<script src="revisoes.js"></script>
 <script src="marcar.js"></script>
 <script>
 "use strict";
@@ -1603,6 +1620,12 @@ const store = {
   set(k, v){ try { v ? localStorage.setItem(k, v) : localStorage.removeItem(k); }
     catch { try { localStorage.removeItem("seaninho.ultimo"); if (v) localStorage.setItem(k, v); } catch {} } },
 };
+// entrega 3 (CONTRATO-mosaico.md): o modo da aba Sessões e os toques do mosaico (abrir, a caixa de cada ladrilho, o toque
+// longo com o menu da sessão e o [Mosaico | Lista])
+if (window.Mosaico) Mosaico.ligar({doc: document, lista: $("sessoesLista"), topo: $("mzTopo"), store, redesenhar: () => desenharSessoes(),
+  abrir: (pc, id) => abrir(pc, id), menu: (pc, id, el) => menuDaSessao(pc, id, el), enviar: mzEnviar,
+  guardarRascunho: (pc, id, t) => store.set("seaninho.rascunho." + id, t), avisar: (msg, o) => avisar("appAviso", msg, o),
+  vibrar: () => { if (navigator.vibrate) navigator.vibrate(8); }});
 const MIC = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>';
 let chave = store.get("seaninho.chave");
 let pcs = {};            // pc -> {pc, visto_em, mudou_em, sessoes, atualizacoes}
@@ -1617,15 +1640,21 @@ const edicoes = {};      // id do pedido -> o texto como a pessoa editou (a tela
 let sugestoesAtuais = []; // as respostas prontas da sessão aberta (o PC pede à IA quando o Claude pergunta ou termina)
 let timer = null, timerSala = null;
 let aba = "Inicio";
-const VERSAO_APP = "0.9.0.17";   // esta página (v28, a casca seaninho-v28: o trem do celular, tudo junto, com o agente 0.9.0.17)
+const VERSAO_APP = "0.9.0.18";   // esta página (v29, a casca seaninho-v29: as 6 telas do Monitor e o padrão Opus da VPS, com o agente 0.9.0.18)
+// (v28, a casca seaninho-v28: o trem do celular, tudo junto, com o agente 0.9.0.17)
 // o agente que acompanha esta página (os PCs atrás dele aparecem no painel). Corretor final de 12/11 (o cético): as
 // Decisões, as Entregas, os Meus pedidos e o Rodar só existem no agente 0.9.0.14 (o AGENTE_V24); com o 0.9.0 aqui, o
 // PC no 0.9.0.12 não aparecia como atrasado e as telas novas ficavam vazias sem dizer por quê. v27: o 0.9.0.16 traz a
-// VPS (e o WIN, no 0.9.0.16, deixa de tratar a linha dela como PC); as telas da v24 continuam pedindo o AGENTE_V24
-const AGENTE_ATUAL = "0.9.0.17";   // v28: o trem (as reações, as prioridades e o uso de IA ao vivo vêm com ele)
+// VPS (e o WIN, no 0.9.0.16, deixa de tratar a linha dela como PC); as telas da v24 continuam pedindo o AGENTE_V24.
+// v28: o trem (as reações, as prioridades e o uso de IA ao vivo vêm com o 0.9.0.17).
+// v29: o 0.9.0.18 repassa o esforço e o ultracode à VPS e publica o padrão (o 0.9.0.17 e os de antes abrem a folha no
+// teto deles, US$ 20, com a linha "Agente antigo"); e é o agente das 6 telas do Monitor no celular (o 🖥 No PC e os
+// botões das Entregas, os cards das Revisões, o ✨ Sugerir e o 📁 Mostrar na pasta do chat, o bloco do Chrome).
+const AGENTE_ATUAL = "0.9.0.18";
 // 0.9.0.15 (12/11): o agente que entrega no terminal, no app do Claude e no segundo plano (o mesmo do Chat.AGENTE_QUALQUER)
 const AGENTE_QUALQUER = "0.9.0.15";
 const NOVIDADES_APP = [
+  ["0.9.0.18", "O Monitor geral inteiro no celular, além do padrão Opus da VPS. Entregas: cada entrega no card do Monitor, com o número de novas no topo, o aviso de entrega nova que abre direto nela, o 🖥 No PC (abre a pasta da entrega no Explorer do PC) e os botões extras do Monitor. ✓ Revisões: os cards do quadro visual da central numa tela própria, aberta pelo bloco ✓ Revisões do Início (priorizar, pausar, aprovar, pedir ajuste e os outros), com o Desfazer e o arrastar para os lados. Sessões em mosaico: cada sessão num ladrilho, as centrais primeiro, com a cor e o ícone delas e o quadro, uma caixa de mensagem em cada ladrilho e o toque longo com o menu (o botão Mosaico | Lista volta à lista). Meus pedidos: a semana inteira, com a resposta da central em cada pedido. Estoque, na aba Workflows: as skills e os crons dos PCs, com o uso, o Rodar agora, o Agendador, o log e o + link. Início organizável: cada bloco recolhe no ▾ ou some no ✕, e o 👁 Mostrar traz de volta; fica igual em todos os seus aparelhos. No chat, o ✨ Sugerir respostas no menu de uma fala do Claude e o 📁 Mostrar na pasta no cartão do PDF. No Início, o grupo 🌐 Seaninho no Chrome: a ponte de cada PC, o modo, o perfil e as últimas ações, só para ver. Na VPS, o Mandar tarefa abre com o Opus 5.5, o esforço máximo, o Ultracode (Workflow) ligado e US$ 50 de orçamento (até 80); o modelo, o esforço e o ultracode dá para mudar, e a folha avisa quando o kit da VPS ou o agente de um PC ainda é antigo. Precisa do agente 0.9.0.18 nos PCs."],
   ["0.9.0.17", "Tudo junto numa versão só: o ninja novo do uso de IA (um por faixa, com a animação de aparição, e o ninja vivo parado em loop e nos golpes, o mesmo do Monitor geral), a faixa AO VIVO contra a meta de hoje com o TeamZone no cantinho, as reações nas mensagens (a fileira em cima do menu, os chips e o +), as Sessões por projeto na ordem de prioridade do Monitor geral, a mensagem para qualquer sessão (VS Code, terminal, app do Claude, segundo plano e os painéis do Herdr) e a VPS no Computadores. Precisa do agente 0.9.0.17 nos PCs."],
   ["0.9.0.16", "A VPS no Computadores: um cartão ☁ ao lado dos PCs (e no Início), com o estado (online, precisa do seu login, sem resposta, sem notícia), a RAM, o disco, a carga, a fila (rodando, esperando, pausada), as tarefas com o custo e o tempo, e os avisos. Mandar tarefa (o texto, o modelo, o orçamento e a prioridade; o rascunho fica no celular), Ver log de uma tarefa, Pausar (com a opção de parar as que rodam) e Retomar a fila. Quando ela pede o login do Tailscale, o botão Abrir o login. A VPS não aparece no topo, no Pedir nem no microfone. Precisa do agente 0.9.0.16 nos PCs."],
   ["0.9.0.15", "Mensagem para qualquer sessão do Claude, não só as do VS Code: também as do terminal, do app do Claude e as de segundo plano. No VS Code ela é digitada na aba, como antes; no terminal e no app vai pelo maestro; a de segundo plano parada é retomada com a mensagem. Cada mensagem sua mostra um selo pequeno de por onde foi (⌨ digitada, 🎼 pelo maestro ou 🌙 de fundo), o 🕓 enquanto ainda não chegou e o ✓✓ quando a sessão recebeu. Se nenhum caminho alcança a sessão, o aviso diz por quê. As sessões de segundo plano aparecem na lista, no grupo Segundo plano, e abrem o chat como as outras. As fotos saem mais leves: até 1600 px em JPEG (o print de tela também); a que já é pequena, ou que ficaria maior, vai como está, e a foto virada vai de pé. A mensagem da orquestra que só vai com a sessão livre espera com ⏳, sem cair no meio do seu turno. Precisa do agente 0.9.0.15 nos PCs."],
@@ -1810,7 +1839,8 @@ function desenharSessoes() {
   // v24: o Início também conta os lotes de decisões que esperam você (os já mandados daqui não contam)
   for (const [id, n] of [["nAsk", c.esperando], ["nInicio", c.esperando + dcPendentes().length]]) { $(id).textContent = n; $(id).classList.toggle("hidden", !n); }
   por($("contasLista"), linhaContas());
-  if (gestoSessao || arrastoFixada) return;   // não refaz o que está embaixo do dedo
+  por($("mzTopo"), window.Mosaico ? Mosaico.seletor() : "");   // entrega 3: [Mosaico | Lista]
+  if (gestoSessao || arrastoFixada || (window.Mosaico && Mosaico.segurando())) return;   // não refaz o que está embaixo do dedo
   // pro-79: com a ordem dos projetos do Monitor geral (a de maior "ts" entre os PCs), a lista vai por projeto
   const prio = prioridadesAgora(), fl = filtrosEf(prio);
   desenharFiltros(c, prio, fl);
@@ -1828,13 +1858,15 @@ function desenharSessoes() {
     // 0.9.0.15: as de segundo plano (claude --bg, "fundo": true) num grupo depois das com janela, com o mesmo cartão;
     // pro-79: as com janela por projeto, na ordem de prioridade do Monitor geral (quando há)
     const fundo = lista.filter(s => s.fundo), janela = lista.filter(s => !s.fundo);
-    html = (prio ? gruposHtml(janela, prio, varios) : janela.map(s => cartaoSessao(s, varios)).join(""))
+    html = window.Mosaico && Mosaico.modo === "mosaico" ? Mosaico.html(janela, fundo, mzOp(agora, varios, prio))   // entrega 3
+      : (prio ? gruposHtml(janela, prio, varios) : janela.map(s => cartaoSessao(s, varios)).join(""))
       + (fundo.length ? `<h4 class="grupo-fundo" id="grupoFundo">🌙 Segundo plano <i>${fundo.length}</i></h4>`
         + fundo.map(s => cartaoSessao(s, varios)).join("") : "");
   }
   if (rede.ok === false) html = `<div class="rede-off" role="status">⚠ Sem internet${rede.em ? " · a lista é das " + hm(new Date(rede.em).toISOString()) : ""}. Tentando de novo…</div>` + html;
   if (c.slack && (filtros.estado === "esperando" || !filtrando))
     html = `<button class="pv-nota" data-ir-pv>💬 ${c.slack === 1 ? "1 mensagem do Slack espera" : c.slack + " mensagens do Slack esperam"} você: no Para você, no Início ›</button>` + html;
+  if (window.Mosaico && Mosaico.escrevendo($("sessoesLista"))) return;   // entrega 3: a caixa de um ladrilho em uso fica
   por($("sessoesLista"), html);
 }
 
@@ -1853,8 +1885,35 @@ function falhaDaSessao(s) {
 // vai nas variáveis do grupo (--pj, --pj-2, --pj-rgb), que os cartões herdam.
 function gruposHtml(lista, prio, varios) {
   return Prioridades.agrupar(lista, prio).map(g => `<section class="pj-grupo" style="${Prioridades.vars(g.cor)}" aria-label="${esc(Prioridades.rotulo(g))}">
-    <h3 class="pj-cab"><i class="pj-bola" aria-hidden="true"></i>${g.prioridade == null ? "" : `<b class="pj-p" title="Prioridade ${g.prioridade}">P${g.prioridade}</b>`}<span class="pj-n">${esc(g.nome)}</span><span class="pj-c" title="${g.lista.length === 1 ? "1 sessão" : g.lista.length + " sessões"}">${g.lista.length}</span></h3>
+    ${pjCab(g)}
     ${g.lista.map(s => cartaoSessao(s, varios, true)).join("")}</section>`).join("");
+}
+const pjCab = g => `<h3 class="pj-cab"><i class="pj-bola" aria-hidden="true"></i>${g.prioridade == null ? "" : `<b class="pj-p" title="Prioridade ${g.prioridade}">P${g.prioridade}</b>`}<span class="pj-n">${esc(g.nome)}</span><span class="pj-c" title="${g.lista.length === 1 ? "1 sessão" : g.lista.length + " sessões"}">${g.lista.length}</span></h3>`;
+// ---- entrega 3 do Monitor no celular: as Sessões em mosaico (web/mosaico.js; CONTRATO-mosaico.md, seção 2) -----------
+// As orquestras de cada PC: a central do maestro e o quadro dela (o agente de antes não põe o "quadro" na sessão).
+const mzExtras = () => Object.values(pcs).map(p => { const o = (painelDe(p) || {}).orquestra;
+  return o ? {pc: p.pc, sessao: Pcs.sessaoDoMaestro ? Pcs.sessaoDoMaestro(o, p.sessoes || []) : o.sessao,
+              nome: Pcs.nomeDoMaestro ? Pcs.nomeDoMaestro(o) : "", quadro: Mosaico.quadroDaOrquestra(o)} : null; }).filter(Boolean);
+// A caixa do ladrilho segue a da conversa (desenharDetalhe): PC desligado, esperando resposta, sem caminho de entrega.
+function mzEnvio(s) {
+  const p = pcs[s.pc];
+  if (s.desligado || !p || !online(p)) return {desligado: true, motivo: `${nomeCurtoPc(s.pc)} desligado`};
+  if ((s.enquete && s.enquete.aberta !== false && s.respondivel) || (s.permissao && !s.enquete && s.respondivel)) return {responder: true};
+  if (!s.entregavel) return {pode: false, motivo: Chat.motivoSemEntrega(s, p.versao, {agentePermissao: AGENTE_PERMISSAO})};
+  return {pode: true};
+}
+const mzOp = (agora, varios, prio) => ({agora, varios, estadoDe: s => Lista.estadoDe(s, agora), previa, envio: mzEnvio,
+  ha: s => s.desligado ? `desde ${quandoFoi(s.desligado)}` : ha(s.desde * 1000), extras: mzExtras(),
+  frentes: Workflows.vistaDasFrentes(Object.values(pcs), {agora: agoraRede()}).itens,
+  rascunho: s => store.get("seaninho.rascunho." + s.id), pedido: id => pedidos.find(x => x.id === id) || null,
+  grupos: prio ? l => Prioridades.agrupar(l, prio).map(g => ({cab: pjCab(g), estilo: Prioridades.vars(g.cor), rotulo: Prioridades.rotulo(g), lista: g.lista})) : null});
+// A caixa do ladrilho manda como está (sem o ✨ Melhorar) pelo caminho da caixa da conversa: o balão fica nela (🕓 ✓ ✓✓),
+// com a fila sem rede e o Tentar de novo; o ladrilho mostra o andamento.
+function mzEnviar(pc, id, texto) {
+  const s = todasSessoes().find(x => x.pc === pc && x.id === id);
+  const local = {id: idLocal(), sessao: id, de: "eu", texto, t: Math.floor(Date.now() / 1000), mini: "", grande: "", mime: ""};
+  enviarLocal(local, {pc, sessao: id, titulo: s ? s.titulo : "", texto, direto: true});
+  return local;
 }
 const prioridadesAgora = () => Prioridades.escolher(pcs);
 // Os filtros que valem agora: o de projeto só com a ordem dos projetos (sem ela, fica guardado e não filtra)
@@ -2272,7 +2331,7 @@ function previa(s) {
 // ---- Início: o painel do dia (blocos resumidos; cada um leva à aba ou à tela completa) -------------------
 // v24: as Decisões no alto quando há lote; as Entregas e os Meus pedidos depois do Para você; sem lote esperando, a
 // última respondida desce para perto deles (dcfim)
-const PAINEL_BLOCOS = ["decisoes", "airats", "esperando", "frentes", "sessoes", "paravoce", "entregas", "pedidos", "dcfim", "usoia", "computadores", "metricas", "resumos"];
+const PAINEL_BLOCOS = ["decisoes", "airats", "esperando", "frentes", "sessoes", "paravoce", "revisoes", "entregas", "pedidos", "dcfim", "usoia", "computadores", "chrome", "metricas", "resumos"];   // "revisoes": entrega 2; "chrome": entrega 6 (Seaninho no Chrome)
 const painelDe = p => (p && p.hoje && p.hoje.painel) || null;
 function motivoRede(e) {
   const m = String((e && e.message) || e || "");
@@ -2308,12 +2367,14 @@ function desenharInicio() {
   por($("p-sessoes"), blocoSessoes(c, lista));
   const escrevendo = document.activeElement && document.activeElement.matches && document.activeElement.matches("#p-paravoce textarea");
   if (!escrevendo) por($("p-paravoce"), blocoParaVoce(lista));
+  por($("p-revisoes"), blocoRevisoes());   // 13/11: ✓ Revisões (revisoes.js)
   por($("p-entregas"), blocoEntregas());   // v24
   por($("p-pedidos"), blocoMeusPedidos());
   por($("p-dcfim"), blocoDecisoesFim());
   por($("p-usoia"), blocoUsoIa());
   por($("p-metricas"), blocoMetricas(lista, paineis));
   por($("p-computadores"), blocoComputadores(lista, agora));
+  por($("p-chrome"), window.Chrome ? Chrome.bloco(lista, {agora, online}) : "");   // entrega 6: só mostra, sem botão
   por($("p-resumos"), blocoResumos(agora));
   Ninja.vigiar();
   observarMinis(el);   // v24: as miniaturas das entregas, só as que aparecem
@@ -2390,6 +2451,9 @@ function blocoParaVoce(lista) {
     <div class="rodape">${contas}${o.delegacoes_hoje || 0} ${o.delegacoes_hoje === 1 ? "delegação" : "delegações"} hoje</div></section>`;
 }
 const curtoTxt = (t, n) => (t = String(t || "")).length > n ? t.slice(0, n - 1).trimEnd() + "…" : t;
+// 13/11 (entrega 1 do Monitor no celular): cada item no card comum (paravoce.js + cards.js); a casca velha, sem eles, como era
+const cardsPv = () => typeof ParaVoce !== "undefined" && typeof Cards !== "undefined";
+const pcMaestroPv = () => (orquestraDe(Object.values(pcs)) || {}).pc || "";
 // O card do item (quadro visual): o título curto em cima, o texto inteiro no "ver mais" e as frases como botões grandes
 // (a recomendada dourada); o toque na frase abre a resposta com ela escrita, para você conferir e mandar.
 function cartaoPv(it, corpo) {
@@ -2403,6 +2467,8 @@ function frasesPv(it) {
 function itemParaVoce(it, maestro, notas, slack) {
   if (it.slack) return itemSlack(it, slack);
   const a = pvAlvo(it), r = pvRespondidos[it.chave];
+  if (cardsPv()) return ParaVoce.item(it, {alvo: a, maestro, notas, nomeMaestro: nomeMaestro(), maestroMeio: nomeMaestro(true), pcMaestro: pcMaestroPv(),
+    pcCurto: nomeCurtoPc, frases: frasesPv(it), rodar: caixaRodar(it), resposta: r ? {r, p: pedidos.find(x => x.id === r.pedido), html: estadoRespostaPv(r)} : null});
   const botao = a && a.achou
     ? `<button data-pv="${esc(it.chave)}" ${a.ligado ? "" : "disabled"} aria-label="Responder à sessão ${esc(a.nome)} sobre: ${esc(it.texto)}">${a.ligado ? "↩ Responder a " + esc(curtoTxt(a.nome, 24)) : esc(nomeCurtoPc(a.pc)) + " desligado"}</button>`
     : `<button data-pv="${esc(it.chave)}" ${maestro ? "" : "disabled"} aria-label="Responder ao ${esc(nomeMaestro())} sobre: ${esc(it.texto)}">${maestro ? "↩ Responder ao " + esc(nomeMaestro()) : esc(nomeMaestro()) + " fechado"}</button>`;
@@ -2416,6 +2482,8 @@ function itemParaVoce(it, maestro, notas, slack) {
 function itemSlack(it, bloqueio) {
   const sl = it.slack, a = pvAlvo(it), st = estadoSlack(it.chave);
   const rasc = pvRascunhos[it.chave] ? pvRascunhos[it.chave].v : (sl.rascunho || "");
+  if (cardsPv()) return ParaVoce.slack(it, {alvo: a, estado: st, hora: st.t ? hm(new Date(st.t).toISOString()) : "", rascunho: rasc, bloqueio,
+    pcMaestro: pcMaestroPv(), pcCurto: nomeCurtoPc});
   const corpo = st.fase === "ok"
     ? `<div class="pv-feito">✓ Enviado no Slack às ${hm(new Date(st.t).toISOString())}${st.link ? ` · <a href="${esc(st.link)}" target="_blank" rel="noopener">Ver a mensagem</a>` : ""}</div>`
     : `<label class="pv-rot" for="rasc-${esc(it.chave)}">Sua resposta${sl.thread_ts ? " (na thread)" : ""}</label>
@@ -3289,7 +3357,9 @@ function mqAbrirLog(pc, id) {
 // Os campos da folha de Mandar tarefa; o contador, o Mandar e o rascunho a cada tecla
 function mqCamposEnviar() {
   const orc = parseFloat(String($("mqOrc").value).replace(",", "."));
-  return {texto: $("mqTexto").value, modelo: $("mqModelo").value, orcamento: Number.isFinite(orc) ? orc : NaN, alta: $("mqAlta").checked};
+  // v29: o esforço e o ultracode também (e vão no rascunho: o rascunho com "esforco" é da folha nova)
+  return {texto: $("mqTexto").value, modelo: $("mqModelo").value, esforco: $("mqEsforco").value, ultracode: $("mqUltra").checked,
+    orcamento: Number.isFinite(orc) ? orc : NaN, alta: $("mqAlta").checked};
 }
 function mqContar() {
   if (!mqFolha || mqFolha.modo !== "enviar" || !$("mqTexto")) return;
@@ -4798,6 +4868,7 @@ function irParaCitada(botao) {
 function abrirMenuBalao(linha) {
   const m = $("dMenuBalao"), r = linha.querySelector(".bolha").getBoundingClientRect();
   m.dataset.id = linha.dataset.id;
+  if (window.Sobras) Sobras.noMenu(linha);   // entrega 5: o ✨ Sugerir respostas, só na fala do Claude (antes de medir o menu)
   m.classList.remove("hidden");
   const h = m.offsetHeight, w = m.offsetWidth;
   m.style.top = Math.max(8, Math.min(innerHeight - h - 8, r.top - h - 8 > 60 ? r.top - h - 8 : r.bottom + 8)) + "px";
@@ -5180,7 +5251,8 @@ function cartaoDoc(d, pc) {
   return `<button class="doc" data-doc="${esc(d.id)}" aria-label="Abrir ${esc(d.nome)}, ${d.paginas} páginas">
     ${d.capa ? `<img class="doc-capa" src="${esc(d.capa)}" alt="" style="--asp:${asp}">` : `<span class="doc-sem">📄</span>`}
     <span class="doc-info"><span class="doc-ico">PDF</span><span class="doc-t"><b>${esc(d.nome)}</b>
-      <small>${d.paginas} ${d.paginas === 1 ? "página" : "páginas"} · ${mb(d.tamanho || 0)}</small></span></span></button>`;
+      <small>${d.paginas} ${d.paginas === 1 ? "página" : "páginas"} · ${mb(d.tamanho || 0)}</small></span></span></button>`
+    + (window.Sobras ? Sobras.botoesDoc(d) : "");   // entrega 5: Abrir e 📁 Mostrar na pasta
 }
 const hex4 = n => n.toString(16).padStart(4, "0");
 const idPagina = (doc, n) => doc + hex4(n) + "a";
@@ -6183,6 +6255,7 @@ function barraFrHtml(b) {
 function desenharWorkflows() {
   const v = frVista(), r = v.resumo, n = Workflows.seloDasFrentes(v);
   $("nWf").textContent = n; $("nWf").classList.toggle("hidden", !n);
+  if (window.EstoqueTela) EstoqueTela.desenhar();   // entrega 4 (Estoque): a entrada na aba e a tela aberta
   if (aba !== "Workflows") return;
   const ctx = frCtx(), fx = Workflows.faixasDasFrentes(v, ctx), quando = Workflows.quandoDaLista(v.cicloEm, ctx.agora);
   por($("wfTopo"), `<div class="fr-topo"><div class="fr-topo-t"><h2>Frentes de trabalho</h2>${v.maestro
@@ -6499,6 +6572,12 @@ function mensagemFrente() {
 }
 document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") carregarTrabalhos(); });
 
+// ---- Estoque (entrega 4 do Monitor no celular, 13/11) ----
+// A tela das skills e dos crons dos PCs (web/estoque.js) cria a entrada na aba Workflows e a tela cheia, e cuida do
+// histórico (#estoque=1), do cel_trabalhos (só com ela aberta) e dos pedidos aos PCs. Aqui, só o que ela usa da página.
+window.EstoqueTela = window.Estoque ? Estoque.ligar({rpc, esperarPedido, voltaJa, motivoRede, agora: agoraRede, pcs: () => pcs,
+  pedidos: () => pedidos, rede: () => rede, aba: () => aba, ativo: () => !!chave}) : null;   // entrega 4 (Estoque)
+
 // ==== v24 (12/11): Decisões, Entregas, Meus pedidos e o "⚡ Rodar no PC" do Para você =============================
 // Pedido do Arthur (11/11): "Atualiza o do celular. Com a parte de decisões. E o que mais vc achar interessante." O que o
 // agente publica e o que a página manda está no CONTRATO-v24 (corrigido em 12/11): o índice no hoje.painel (decisoes,
@@ -6516,7 +6595,7 @@ const frasePedeV24 = (pc, onde) => `O agente do ${nomeCurtoPc(pc) || "PC"} é de
 const AGENTE_CARD = "0.9.0.11";    // o agente que leva a nota "card" (o quadro visual) à caixa do maestro
 // Com a casca velha no cache do iPhone (um arquivo de cada versão), a página não quebra: só não mostra o que é da v24.
 const temV24 = () => typeof Decisoes !== "undefined" && typeof Entregas !== "undefined" && typeof MeusPedidos !== "undefined" && typeof Rodar !== "undefined";
-$("estiloV24").textContent = [window.Decisoes, window.Entregas, window.MeusPedidos, window.Rodar, window.Reacoes].map(m => (m && m.CSS) || "").join("\n");
+$("estiloV24").textContent = [window.Cards, window.Decisoes, window.Entregas, window.MeusPedidos, window.Rodar, window.Reacoes].map(m => (m && m.CSS) || "").join("\n");
 
 // ---- as fotos e os lotes (CONTRATO seção 1): memória + aparelho ---------------------------------------------------
 // No aparelho (localStorage "sf:<id>:<tamanho>") só a miniatura pequena (até 40 KB), com teto de 2 MB (sai a mais
@@ -6625,9 +6704,9 @@ function abrirZoom(id, mini, nome, sub = "") { Marcar.ver(fotoZoom(id, mini, nom
 // ---- as telas cheias e o voltar do iPhone ----------------------------------------------------------------------------
 // Cada tela entra no histórico (#decisoes=1, #entregas=1, #pedidos=1): o voltar do iPhone (ou do navegador) fecha a tela
 // pelo popstate; o ‹ da tela tira a entrada que ela pôs. O detalhe de uma entrega é mais uma entrada (volta à lista).
-const TELAS24 = {decisoes: "decisoes", entregas: "entregas", pedidos: "meusPedidos"};
+const TELAS24 = {decisoes: "decisoes", entregas: "entregas", pedidos: "meusPedidos", revisoes: "revisoes"};
 let telaV24 = "";
-const telaDoHash = h => ["decisoes", "entregas", "pedidos"].find(t => h.get(t)) || "";
+const telaDoHash = h => ["decisoes", "entregas", "pedidos", "revisoes"].find(t => h.get(t)) || "";
 function abrirTela24(nome) {
   if (!temV24() || !TELAS24[nome]) return;
   if (telaV24 && telaV24 !== nome) esconderTela24();
@@ -6645,6 +6724,7 @@ function esconderTela24() {
   $(TELAS24[telaV24]).classList.add("hidden");
   if (telaV24 === "decisoes") { dcFecharConf(); dcSemAviso(); }
   if (telaV24 === "entregas") { entDetalhe = ""; entAjuste = ""; }
+  if (telaV24 === "revisoes" && rvTela) rvTela.fecharFolha();
   telaV24 = "";
   document.body.classList.remove("tela24");
   document.body.style.overflow = "";
@@ -6673,6 +6753,7 @@ function desenharTela24(forcar = false) {
   if (telaV24 === "decisoes") desenharDecisoes(forcar);
   else if (telaV24 === "entregas") desenharEntregas(forcar);
   else if (telaV24 === "pedidos") desenharPedidos(forcar);
+  else if (telaV24 === "revisoes") desenharRevisoes(forcar);
 }
 
 // ---- Decisões (CONTRATO seções 2 e 8) ----------------------------------------------------------------------------------
@@ -6966,11 +7047,11 @@ function entAndamentos() {
     const p = e.pedido && pedidos.find(x => x.id === e.pedido);
     if (p && p.estado === "entregue" && !e.ok) { e.ok = String(p.resposta || "").trim() || "Feito"; salvarEnt(); }
     if (e.erroLocal) out[id] = {fase: "erro", texto: `não saiu do celular (${e.erroLocal})`};
-    else if (e.ok) out[id] = {fase: "ok", texto: e.ok};
+    else if (e.ok) out[id] = {fase: "ok", texto: e.ok, marca: e.marca};
     else if (semResposta(e, entEmVoo, id)) out[id] = {fase: "erro", texto: "não sei se saiu do celular: confira e toque de novo"};
-    else if (p) out[id] = p;
+    else if (p) out[id] = {...p, marca: e.marca};
     else if (e.pedido && Date.now() - e.t > 15 * 60e3) out[id] = {fase: "erro", texto: "o PC não respondeu"};
-    else out[id] = {fase: "enviando", texto: `Pedi ao ${nomeCurtoPc(e.pc)}…`};
+    else out[id] = {fase: "enviando", texto: `Pedi ao ${nomeCurtoPc(e.pc)}…`, semId: !e.pedido};
   }
   return out;
 }
@@ -6980,14 +7061,14 @@ function desenharEntregas(forcar = false) {
   const el = $("entCorpo");
   if (!forcar && el.contains(document.activeElement) && document.activeElement.matches("textarea")) return;
   const itens = entItens(), op = {minis: entMinis, altas: entAltas, pedidos: entAndamentos(), ajuste: entAjuste, erro: entErro,
-    rascunhos: Object.fromEntries(Object.entries(entRasc).map(([k, v]) => [k, v.v])), agora: Date.now()};
+    rascunhos: Object.fromEntries(Object.entries(entRasc).map(([k, v]) => [k, v.v])), agora: Date.now(), pcs: entPcs()};
   if (entDetalhe) {
     const it = itens.find(x => x.id === entDetalhe);
     $("entTitulo").textContent = it ? it.titulo : "Entrega";
     por(el, Entregas.htmlDetalhe(it, op));
     if (it && it.mini) entBaixarAlta(it.mini);
   } else {
-    $("entTitulo").textContent = "📦 Entregas";
+    $("entTitulo").innerHTML = Entregas.htmlTitulo(itens);   // 13/11: o número de novas no topo
     por(el, linhaFonteV24("entregas") + Entregas.htmlLista(itens, entFiltro, op));
   }
   observarMinis(el);
@@ -7033,6 +7114,18 @@ async function entMarcar(id, marca, comentario) {
     const outro = ((it && it.publicaram) || []).find(temAgenteV24);
     if (outro) r.pc = outro; else r.erro = frasePedeV24(r.pc, "marque no Monitor geral");
   }
+  return entMandar(id, r, marca);
+}
+// 13/11 (entrega 1 do Monitor no celular): o 🖥 No PC (o Explorer no PC da entrega) e os botões extras do PC que publicou
+const entPcs = () => Object.fromEntries(Object.values(pcs).map(p => [p.pc, {versao: p.versao, ligado: online(p),
+  rodar: (painelDe(p) || {}).rodar || null}]));   // revisão do PR #36: o sinal do celular aprovado (o mesmo do ⚡ Rodar no PC)
+const entNoPc = id => entMandar(id, Entregas.pedidoAbrirPc(entItens().find(x => x.id === id), entPcs()));
+const entBotao = (id, chave) => entMandar(id, Entregas.pedidoBotao(entItens().find(x => x.id === id), chave, entPcs()));
+// O pedido ao PC: o andamento fica na linha da ação do cartão; o ajuste que não saiu volta para a caixa, com o texto.
+async function entMandar(id, r, marca = "") {
+  // 2ª revisão do PR #36: o 🖥 No PC e o botão extra nunca vão com o PC desligado (rodariam quando ele ligasse)
+  if (!r.erro && r.pedido && /^entrega_(abrir_pc|botao)$/.test(r.pedido.acao) && r.ligado === false)
+    r = {erro: `O ${nomeCurtoPc(r.pc)} está desligado: toque de novo quando ele ligar.`};
   if (r.erro) { entErro = marca === "ajuste" ? r.erro : ""; desenharEntregas(true); return avisar("appAviso", r.erro, {erro: true}); }
   const e = entPedidos[id] = {t: Date.now(), pc: r.pc, pedido: "", marca};
   // o ajuste fica guardado até o pedido voltar: se a página recarregar no meio, o texto não se perde
@@ -7040,7 +7133,7 @@ async function entMarcar(id, marca, comentario) {
   entEmVoo.add(id);
   entErro = "";
   salvarEnt(); desenharEntregas(true); desenharInicio();
-  try { e.pedido = await rpc("cel_pedir", {pc: r.pc, tipo: "acao", texto: JSON.stringify(r.pedido)}); delete entRasc[id]; }
+  try { e.pedido = await rpc("cel_pedir", {pc: r.pc, tipo: "acao", texto: JSON.stringify(r.pedido)}); if (marca) delete entRasc[id]; }
   catch (err) {   // não saiu: o ajuste volta para a caixa, com o texto, para tentar de novo
     e.erroLocal = motivoRede(err);
     if (marca === "ajuste") { entRasc[id] = {v: r.pedido.comentario, t: Date.now()}; entAjuste = id; }
@@ -7054,6 +7147,9 @@ function acaoEntrega(a) {
   if (a.acao === "tudo") { entDetalhe = ""; return abrirTela24("entregas"); }
   if (a.acao === "filtro") { entFiltro = a.valor; desenharEntregas(true); $("entCorpo").scrollTop = 0; return; }
   if (a.acao === "aprovar") return entMarcar(a.id, "aprovada", "");
+  if (a.acao === "nova") return entMarcar(a.id, "nova", "");   // 13/11: o ↺ Voltar para nova do detalhe
+  if (a.acao === "nopc") return entNoPc(a.id);
+  if (a.acao === "botao") return entBotao(a.id, a.chave);
   if (a.acao === "ajuste") {
     entAjuste = a.id; entErro = "";
     desenharEntregas(true);
@@ -7065,7 +7161,10 @@ function acaoEntrega(a) {
   if (a.acao === "mandar") { const t = $("entCorpo").querySelector(`[data-ent-texto="${CSS.escape(a.id)}"]`); return entMarcar(a.id, "ajuste", t ? t.value : ""); }
   if (a.acao === "foto") {
     const it = entItens().find(x => x.mini === a.id);
-    return abrirZoom(a.id, entAltas[a.id] || entMinis[a.id] || "", it ? it.titulo : "Prova da entrega", it && it.projeto ? it.projeto : "");
+    // 13/11: o ✓ Aprovar e o ✎ Ajuste dentro do visor (o Ajuste fecha o visor e abre a caixa no detalhe)
+    const faz = {aprovar: () => { Marcar.fecharVisor(); entMarcar(it.id, "aprovada", ""); }, ajuste: () => { Marcar.fecharVisor(); acaoEntrega({acao: "ajuste", id: it.id}); }};
+    return Marcar.ver({...fotoZoom(a.id, entAltas[a.id] || entMinis[a.id] || "", it ? it.titulo : "Prova da entrega", it && it.projeto ? it.projeto : ""),
+      extra: Entregas.extrasDoVisor(it).map(x => ({rotulo: x.rotulo, acao: faz[x.acao]})).filter(x => x.acao)});
   }
 }
 $("entregas").addEventListener("click", e => {
@@ -7086,7 +7185,9 @@ $("entregas").addEventListener("input", e => {
 
 // ---- Meus pedidos (CONTRATO seção 4): só leitura, a lista do PC da central -------------------------------------------
 let mpFiltro = "abertos";
-const mpDados = () => temV24() ? MeusPedidos.juntar(pcs) : null;
+// entrega 3: com os pedidos que saíram do celular para uma central e que a lista do PC ainda não trouxe
+const mpDados = () => !temV24() ? null : MeusPedidos.comOsDoCelular && window.Mosaico
+  ? MeusPedidos.comOsDoCelular(MeusPedidos.juntar(pcs), pedidos, Mosaico.centrais(todasSessoes(), mzExtras())) : MeusPedidos.juntar(pcs);
 function blocoMeusPedidos() { return temV24() ? MeusPedidos.htmlResumo(mpDados()) : ""; }
 // De quando é a lista e quem a publicou, numa linha cinza no alto ("atualizada hoje às 18h40 · SEAZONE192 (desligado)").
 // O crítico: com o PC da central dormindo, os cards "⏳ esperando" ficavam parados sem sinal de que a lista era velha.
@@ -7100,6 +7201,7 @@ function linhaFonteV24(chave) {
 }
 function desenharPedidos() {
   if (telaV24 !== "pedidos" || !temV24()) return;
+  if (MeusPedidos.desenharEm) return MeusPedidos.desenharEm($("mpCorpo"), mpDados(), {fonte: linhaFonteV24("meus_pedidos")});   // entrega 3
   por($("mpCorpo"), linhaFonteV24("meus_pedidos") + MeusPedidos.htmlLista(mpDados(), mpFiltro));
 }
 $("meusPedidos").addEventListener("click", e => {
@@ -7109,7 +7211,38 @@ $("meusPedidos").addEventListener("click", e => {
   if (!a) return;
   if (a.acao === "mais") { MeusPedidos.alternar(a.id); return desenharPedidos(); }
   if (a.acao === "filtro") { mpFiltro = a.valor; desenharPedidos(); $("mpCorpo").scrollTop = 0; }
+  if (MeusPedidos.aplicar && MeusPedidos.aplicar(a)) { desenharPedidos(); $("mpCorpo").scrollTop = 0; }   // entrega 3: Hoje, Semana…
 });
+$("meusPedidos").addEventListener("input", e => {   // entrega 3: a busca
+  if (e.target.matches("[data-mp-busca]") && MeusPedidos.aplicar && MeusPedidos.aplicar({acao: "busca", valor: e.target.value})) desenharPedidos();
+});
+
+// ---- ✓ Revisões (13/11, entrega 2 do Monitor no celular): os cards do quadro da central, em revisoes.js -----------------
+// O módulo guarda o estado (o filtro, as ações com o Desfazer e a fila sem internet) e manda a nota "card" ao PC do
+// maestro; daqui vão só as funções da página. Sem o revisoes.js (a casca velha no cache), o bloco e a tela não aparecem.
+const temRv = () => temV24() && typeof Revisoes !== "undefined";
+const rvMaestro = () => { const o = orquestraDe(Object.values(pcs)), p = o && pcs[o.pc];
+  return o ? {pc: o.pc, versao: p ? p.versao : "", ligado: !!p && online(p)} : null; };
+const rvTela = typeof Revisoes === "undefined" ? null : Revisoes.criarTela({
+  corpo: () => $("rvCorpo"), store, rpc, novoId, agora: () => Date.now(), maestro: rvMaestro,
+  revisoes: () => { const m = rvMaestro(), pn = m && painelDe(pcs[m.pc]); return pn && pn.revisoes ? pn.revisoes : null; },
+  paraVoce: () => { const o = orquestraDe(Object.values(pcs)); return o ? itensParaVoce(o) : []; },
+  decisoes: () => temV24() ? dcPendentes().map(l => ({chave: l.chave, lote: l.id, titulo: l.titulo, n: l.n, pc: l.pc, desde: l.criado})) : [],
+  pedido: id => pedidos.find(x => x.id === id) || null, abrirDecisoes,
+  avisar: (msg, o) => avisar("appAviso", msg, {...(o || {}), passa: true}),   // o Desfazer some com o prazo dele
+  nomes: () => ({maestro: nomeMaestro(), maestroMeio: nomeMaestro(true)}), compararVersao: Lista.compararVersao,
+  pedirInteiro: () => voltaJa(), aoMudar: () => desenharInicio()});
+const blocoRevisoes = () => temRv() && rvTela ? rvTela.resumo() : "";
+function desenharRevisoes(forcar = false) {
+  if (telaV24 !== "revisoes" || !temRv() || !rvTela) return;
+  rvTela.desenhar(forcar);
+}
+$("revisoes").addEventListener("click", e => {
+  if (e.target.closest("#rvVoltar")) return fecharTela24();
+  if (e.target.closest("#rvAtualizar")) return atualizarAgora();
+});
+$("estiloRv").textContent = typeof Revisoes === "undefined" ? "" : Revisoes.CSS;
+if (rvTela) rvTela.processar();   // o que ficou na fila do aparelho (sem internet) sai ao abrir o app
 
 // ---- Para você: o "⚡ Rodar no PC" (CONTRATO seção 5) -------------------------------------------------------------------
 // O item com um bloco de código ganha a caixa do comando (Copiar, ⚡ Rodar no <PC>, ✓ Rodei). O Rodar abre a folha com o
@@ -7290,10 +7423,11 @@ $("tabInicio").addEventListener("click", e => {
   if (temV24()) {   // v24: as Decisões, as Entregas, os Meus pedidos e o Rodar do Para você
     const dc = e.target.closest("[data-dc-acao='abrir']");
     if (dc) return abrirDecisoes(dc.dataset.dcChave || "");
+    if (e.target.closest("[data-rv-abrir]")) return abrirTela24("revisoes");   // 13/11: ✓ Revisões
     const en = Entregas.acaoDe(e.target);
     if (en) return acaoEntrega(en);
     const mp = MeusPedidos.acaoDe(e.target);
-    if (mp && mp.acao === "tudo") return abrirTela24("pedidos");
+    if (mp && mp.acao === "tudo") { if (MeusPedidos.abrirNosAbertos) MeusPedidos.abrirNosAbertos(); return abrirTela24("pedidos"); }   // entrega 3
     const rd = Rodar.acaoDe(e.target);
     if (rd) return acaoRodar(rd);
     if (e.target.closest("[data-rd-rodar], [data-rd-rodei]")) return;   // o botão desligado (sem PC, comando grande) não faz nada
@@ -7490,7 +7624,7 @@ $("folhaFundo").addEventListener("click", e => {
 $("folha").addEventListener("input", e => { if (e.target.closest("#mqTexto, #mqOrc")) mqContar(); });
 $("folha").addEventListener("change", e => {
   if (e.target.id === "mqAgora" && $("mqPausar")) $("mqPausar").classList.toggle("perigo", e.target.checked);
-  else if (e.target.closest("#mqModelo, #mqAlta, #mqOrc")) mqContar();
+  else if (e.target.closest("#mqModelo, #mqEsforco, #mqUltra, #mqAlta, #mqOrc")) mqContar();
 });
 $("menuSessao").addEventListener("click", e => {
   const b = e.target.closest("[data-m]");
@@ -7707,6 +7841,15 @@ if ("serviceWorker" in navigator) {
     else if (e.data && e.data.tipo === "mudou") avisoChegou(e.data);   // corretor de 12/11: o push que chegou com o app aberto
   });
 }
+// ---- entrega 5 do Monitor no celular: o Início organizável (web/espaco.js) e as sobras do chat (web/sobras.js) ---------
+// Antes do hashchange e do abrirPeloAviso: o Para você escondido aparece quando um link leva a ele.
+const espacoTela = window.Espaco ? Espaco.ligar({raiz: () => $("tabInicio"), blocos: () => PAINEL_BLOCOS, conta: () => prefs.espaco,
+  contaLida: () => !!corte.inteiroEm, agora: agoraBanco, rpc, store, avisar: (msg, o) => avisar("appAviso", msg, o),
+  abrirFolha: html => { folhaEscolher = null; $("folha").innerHTML = html; $("folhaFundo").classList.remove("hidden"); }}) : null;
+if (window.Sobras) Sobras.ligar({aberta: () => aberta, linha: id => linhasNaTela.get(id), conversa: () => (sessaoAberta() || {}).conversa || [],
+  pcLigado: pc => !!(pcs[pc] && online(pcs[pc])), pcCurto: nomeCurtoPc, rpc, esperarPedido, responder: responderA,
+  avisar: (msg, o) => avisar("dAviso", msg, {...o, ...chatAviso()}), foto: () => Marcar.atualFoto(), avisoVisor: Marcar.avisoVisor, blobDe: Marcar.blobDe});
+
 // A versão nova da página entra sozinha quando o app vai para o fundo (0.8.9), se não houver nada a perder: sem o
 // editor de imagem aberto, sem imagem anexada e sem mensagem com imagem esperando a rede (as de texto ficam guardadas).
 document.addEventListener("visibilitychange", () => {
@@ -7721,14 +7864,16 @@ document.addEventListener("visibilitychange", () => {
 const pvSlackEnviando = () => Object.keys(pvSlack).some(k => estadoSlack(k).fase === "enviando");
 function abrirPeloAviso(d) {
   if (!chave) return;
+  if (window.EstoqueTela && EstoqueTela.aberta()) EstoqueTela.soltar();   // o trem 0.9.0.18: o destino nunca por baixo do Estoque
   if (d.airats) return atualizar().then(abrirAiRats);
   if (d.ajustes) return atualizar().finally(() => { if (aberta) fechar(); fecharComputadores(); mostrarAba("Ajustes"); });   // 0.9.0: aparelho novo
   if (d.pcs !== undefined && d.pcs !== null && d.pcs !== false) return atualizar().finally(() => { if (aberta) fechar(); abrirComputadores(String(d.pcs)); });
   // v24: o aviso de lote novo de decisões (e os links #entregas=1 e #pedidos=1) abrem a tela cheia
-  for (const nome of ["decisoes", "entregas", "pedidos"]) if (d[nome]) return atualizar().finally(() => {
+  for (const nome of ["decisoes", "entregas", "pedidos", "revisoes"]) if (d[nome]) return atualizar().finally(() => {
     if (aberta) fechar();
     // o lote do aviso: "<PC do lote>|<id>" (o sw.js monta com o "pc" e o "lote" que o agente manda) ou só o id
     if (nome === "decisoes" && d.lote) { const k = String(d.lote).toLowerCase(), l = dcJuntar().lotes.find(x => x.chave.toLowerCase() === k) || dcJuntar().lotes.find(x => x.id === d.lote); if (l) { dcSel = l.chave; dcRefazer = null; } }
+    if (nome === "entregas" && d.lote && entItens().some(x => x.id === String(d.lote))) return entAbrir(String(d.lote));   // 13/11: a entrega do aviso
     abrirTela24(nome);
   });
   if (d.pv) return atualizar().finally(() => {   // a mensagem nova do Slack no Para você
