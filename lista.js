@@ -42,13 +42,15 @@ function combina(s, busca, previa) {
   return termos.every(t => onde.includes(t));
 }
 
-const semFiltro = f => !f || !(f.estado || f.pc || f.grupo || f.pasta);
+const semFiltro = f => !f || !(f.estado || f.pc || f.grupo || f.pasta || f.projeto);
 
-// As sessões que passam nos filtros (um valor por dimensão; vazio = qualquer um) e na busca.
-function filtrar(ss, f, busca, previaDe, agoraMs) {
+// As sessões que passam nos filtros (um valor por dimensão; vazio = qualquer um) e na busca. pro-79: `projetoDe(s)` dá
+// a chave do projeto da sessão (Prioridades.chaveDe) para o filtro "projeto"; sem ele, esse filtro não vale.
+function filtrar(ss, f, busca, previaDe, agoraMs, projetoDe) {
   f = f || {};
   return ss.filter(s => (!f.estado || estadoDe(s, agoraMs) === f.estado) && (!f.pc || s.pc === f.pc)
     && (!f.grupo || grupoDe(s.cwd) === f.grupo) && (!f.pasta || s.pasta === f.pasta)
+    && (!f.projeto || !projetoDe || projetoDe(s) === f.projeto)
     && combina(s, busca, previaDe ? previaDe(s) : ""));
 }
 

@@ -5,10 +5,14 @@
 // STATUS tolerante); 0.9.0.4: ele entra na casca
 // v24, o corte de tráfego (12/11): o volta.js (a leve a cada 4 s e o inteiro só quando precisa) entra na casca; o
 // CACHE continua seaninho-v24 (a v24 ainda não foi publicada); o push avisa a página aberta (ver abaixo)
+// v25 (12/11, a página 0.9.0.15): a mensagem em qualquer sessão (terminal, app do Claude e segundo plano), o selo de por
+// onde foi e o grupo Segundo plano. A v24 chegou a ser preparada, mas a página é outra: a casca nova não mistura as duas
 // v27 (13/11, a página 0.9.0.16): a VPS no Computadores (o maquinas.js entra na casca). A v25 e a v26 são das páginas
 // que vão na frente dela (a 0.9.0.15 e as reações); na junção, fica o número seguinte ao último publicado
-const CACHE = "seaninho-v27";
-const CASCA = ["./", "./index.html", "./config.js", "./markdown.js", "./chat.js", "./lista.js", "./workflows.js", "./pcs.js", "./maquinas.js", "./volta.js", "./usoia.js", "./ninja.js", "./marcar.js", "./decisoes.js", "./entregas.js", "./pedidos.js", "./rodar.js", "./manifest.webmanifest", "./icone-180.png", "./icone-192.png"];
+// v28 (13/11, a página 0.9.0.17, o trem do celular): as branches juntas numa casca só: a VPS (v27), a mensagem em
+// qualquer sessão (v25), as reações (v26), as prioridades das seções, o ninja por faixa e o ninja vivo, o uso de IA ao vivo
+const CACHE = "seaninho-v28";
+const CASCA = ["./", "./index.html", "./config.js", "./markdown.js", "./chat.js", "./reacoes.js", "./lista.js", "./prioridades.js", "./workflows.js", "./pcs.js", "./maquinas.js", "./volta.js", "./usoia.js", "./ninja.js", "./ninjavivo.js", "./marcar.js", "./decisoes.js", "./entregas.js", "./pedidos.js", "./rodar.js", "./manifest.webmanifest", "./icone-180.png", "./icone-192.png"];
 
 self.addEventListener("install", e => {
   // "reload": sem o cache HTTP do GitHub Pages (10 min), que podia misturar arquivos de duas versões
@@ -21,12 +25,26 @@ self.addEventListener("activate", e => {
   self.clients.claim();
 });
 
+// 12/11, o ninja por faixa: as imagens e as animações dele (ninja/*.webp) não mudam sem a casca nova (o CACHE muda e o
+// activate apaga a velha): a cópia guardada primeiro, pelo nome, e a rede só na primeira vez de cada uma. Nunca no banco.
+// pro-72: o ninja vivo (o ninjavivo.js na casca; as folhas ninja/*-vivo-*.webp e o ninja/ninja-vivo.json pelo nome).
+const NINJA = /\/ninja\/[a-z0-9-]+\.(webp|json)$/;
+async function doNinja(req) {
+  const cache = await caches.open(CACHE);
+  const guardada = await cache.match(req, {ignoreSearch: true});
+  if (guardada) return guardada;
+  const r = await fetch(req);
+  if (r.ok && r.type === "basic") await cache.put(req, r.clone()).catch(() => {});
+  return r;
+}
+
 // A página (navegação): a rede, se responder em até 2,5 s (a versão nova entra logo); senão, a cópia guardada na hora,
 // e a rede atualiza a cópia por trás (0.8.9: com rede ruim, o app abria só quando a rede desistia). Os scripts e o
 // resto: a rede primeiro (até 8 s) e a cópia só sem rede, para uma página nova não rodar com um script velho. Só
 // guarda resposta boa (antes, um 404 ou 5xx podia virar a cópia). O Supabase nunca passa por aqui.
 self.addEventListener("fetch", e => {
   if (e.request.method !== "GET" || new URL(e.request.url).origin !== location.origin) return;
+  if (NINJA.test(new URL(e.request.url).pathname)) { e.respondWith(doNinja(e.request)); return; }
   e.respondWith((async () => {
     const cache = await caches.open(CACHE);
     const guardada = await cache.match(e.request, {ignoreSearch: true});

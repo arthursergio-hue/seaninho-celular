@@ -17,6 +17,7 @@
 "use strict";
 
 const AGENTE_TRABALHOS = "0.9.1.1";   // o agente que publica a lista (e, no PC do maestro, leva o "Rodar agora")
+const AGENTE_QUALQUER = "0.9.0.15";   // o que entrega no terminal, no app e no segundo plano (o mesmo da página e do chat.js)
 const ONLINE_MS = 150000;             // o mesmo online() da página
 const DESLIGADO_MS = 600000;          // e o desligadoHa: depois disso, os itens do PC ficam congelados
 const PRAZO_PERTO_MS = 15 * 60000;    // o prazo fica âmbar a 15 min
@@ -735,7 +736,9 @@ function abrirResultado(it, {pcs = [], sessoes = [], agora = Date.now(), rede = 
 }
 
 // Responder (pergunta 55 a): direto à sessão dona, como no chat e no Para você; na delegação, o maestro fica sabendo
-// pelo "respondido" (avisarMaestro). Terminal, sessão fechada e segundo plano: pelo maestro, numa próxima versão.
+// pelo "respondido" (avisarMaestro). Sessão fechada: pelo maestro, numa próxima versão. 0.9.0.15: terminal, app do
+// Claude e segundo plano entram (o agente 0.9.0.15 manda pelo maestro ou de fundo); sem caminho, o porquê dele
+// (motivo_entrega); com o agente de antes no PC da sessão, fora do VS Code, o aviso é atualizar.
 function responder(it, {pcs = [], sessoes = [], agora = Date.now(), rede = true} = {}) {
   if (it.tipo === "espera") {
     const o = maestroDe(pcs), pm = o && pcDe(pcs, o.pc);
@@ -748,7 +751,14 @@ function responder(it, {pcs = [], sessoes = [], agora = Date.now(), rede = true}
   if (semRede(rede)) return {...base, ok: false, motivo: "Sem internet"};
   if (!online(p, agora)) return {...base, ok: false, motivo: foraDoAr(p, it.pc, agora)};
   if (!s) return {...base, ok: false, motivo: "A sessão foi fechada: responder pelo maestro chega numa próxima versão"};
-  if (s.onde && s.onde !== "VS Code") return {...base, ok: false, motivo: `A sessão está no ${s.onde}: responder pelo maestro chega numa próxima versão`};
+  if (s.onde && s.onde !== "VS Code" && !s.entregavel) {
+    const pcS = pcDe(pcs, s.pc) || p;
+    if (!pcS || compararVersao(pcS.versao, AGENTE_QUALQUER) < 0)
+      return {...base, ok: false, motivo: `A sessão está no ${s.onde}: o ${nomeCurtoPc(s.pc || it.pc) || "PC"} precisa do Seaninho do celular ${AGENTE_QUALQUER} para entregar nela`};
+    // a pergunta com opções e a permissão que o PC responde daqui (respondivel) vão pelos botões do chat, sem a caixa
+    if (!(s.respondivel && (s.enquete || s.permissao)))
+      return {...base, ok: false, motivo: txt(s.motivo_entrega, 200) || `A sessão está no ${s.onde} e agora nenhum caminho chega até ela`};
+  }
   return {...base, ok: true, motivo: ""};
 }
 

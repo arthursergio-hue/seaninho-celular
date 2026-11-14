@@ -3,13 +3,53 @@
 // decide os sinais de cada mensagem minha, no combinado com o Monitor geral do Seaninho Pro (29/10):
 //   🕓 mandando (o celular ainda não falou com o banco) · ✓ enviado (o pedido existe) · ✓✓ entregue (o agente pôs na
 //   aba) · ✓✓ azul (a sessão começou a responder) · ⚠ erro, com o motivo numa linha embaixo do balão.
+// 0.9.0.15: e o selo de por onde foi (⌨ digitada, 🎼 pelo maestro, 🌙 de fundo), com o 🕓 enquanto está com o maestro.
 (function (raiz) {
 "use strict";
 
-const SINAL = {mandando: "🕓", enviado: "✓", entregue: "✓✓", lido: "✓✓", erro: "⚠", esperando: "⏳"};
+// 0.9.0.15: "fila" = o relógio da mensagem que vai pelo maestro e ainda não chegou à sessão (na caixa dele, ou ele entregando)
+const SINAL = {mandando: "🕓", enviado: "✓", entregue: "✓✓", lido: "✓✓", erro: "⚠", esperando: "⏳", fila: "🕓"};
 const ESPERANDO = "Esperando: ";   // o "erro" do pedido que o PC ainda vai tentar de novo (0.8.7): não é erro
 const NAO_SABE = "Isso ainda não dá";   // o agente antigo responde assim a uma ação que não conhece
 const JANELA_CASAR = 300;               // s: a mensagem da conversa pode ter hora um pouco antes do pedido (relógios)
+
+// ---- 0.9.0.15 (12/11): o celular entrega em qualquer sessão (CONTRATO-0915.md) ----------------------------------
+// Pedido do Arthur pelo celular: "A Seaninho celular poder mandar mensagem em qualquer lugar. Vc code, terminal, app…".
+// O agente 0.9.0.15 escolhe o caminho: digitada na aba (VS Code), pelo maestro (terminal e app do Claude) ou de fundo
+// (a de segundo plano parada é retomada com a mensagem). Na sessão vem "entregavel" e, sem caminho, "motivo_entrega".
+// O balão meu leva um selo pequeno de por onde foi, tirado do começo da resposta do pedido.
+const AGENTE_QUALQUER = "0.9.0.15";
+const SELO = {digitada: "⌨ digitada", maestro: "🎼 pelo maestro", fundo: "🌙 de fundo"};
+const PELO_MAESTRO = /^Pelo maestro\b/i, DE_FUNDO = /^De fundo\b/i;
+// "Pelo maestro: …" e "De fundo: …" são os caminhos novos. O plano B ("Pelo plano B: …") e a caixa da orquestra também
+// não foram digitados: foram pela caixa de quem repassa, como o maestro (o contrato os punha em "digitada"; aqui o selo
+// diz por onde a mensagem foi de verdade). O resto ("Entregue.", "Na fila: …", vazio) foi digitado na aba.
+function viaDaResposta(resposta) {
+  const r = String(resposta || "").trim();
+  if (PELO_MAESTRO.test(r) || /^(Entregue pelo|Pelo) plano B|caixa da orquestra/i.test(r)) return "maestro";
+  return DE_FUNDO.test(r) ? "fundo" : "digitada";
+}
+// O caminho de um pedido que deu erro ou espera, quando o texto diz ("O maestro não conseguiu entregar: …", "Esperando:
+// a sessão de fundo está trabalhando…"); "" quando não diz (o selo não aparece: não se sabe por onde ia).
+function viaDoErro(erro) {
+  const e = String(erro || "");
+  return /^O maestro não conseguiu entregar/i.test(e) ? "maestro" : /sessão de fundo|^De fundo/i.test(e) ? "fundo" : "";
+}
+// Por que não dá para mandar daqui (a caixa some e o aviso diz isso), ou "" quando dá. `versaoPc`: o agente do PC da
+// sessão. O 0.9.0.15+ diz na sessão (motivo_entrega); o de antes só entregava no VS Code: fora dele, o aviso é atualizar.
+function motivoSemEntrega(s, versaoPc, {nomePc = "", agentePermissao = "0.8.1"} = {}) {
+  if (!s || s.entregavel) return "";
+  const pc = nomePc || s.pc || "PC";
+  if (versaoMin(versaoPc, AGENTE_QUALQUER)) {
+    if (s.motivo_entrega) return String(s.motivo_entrega);
+  } else if (s.onde && s.onde !== "VS Code")
+    return `Para entregar no terminal, no app do Claude e no segundo plano, o ${pc} precisa do Seaninho no celular ${AGENTE_QUALQUER} (esta está no ${s.onde}).`;
+  // sem o porquê do agente: os de sempre da aba do VS Code
+  return s.enquete ? "A pergunta com opções desta sessão ainda só se responde no PC."
+    : s.permissao ? `Para responder a permissão daqui, o ${pc} precisa do Seaninho no celular ${agentePermissao}.`
+    : s.onde && s.onde !== "VS Code" ? "Agora não há caminho para entregar nesta sessão: mande pelo PC."
+    : "A sessão está esperando uma permissão: isso ainda só se responde no PC.";
+}
 
 // Como a entrega compara (entrega.linha_unica + _cmp): sem emoji fora do plano básico, sem invisíveis, espaços juntos.
 function normalizar(t) {
@@ -17,14 +57,15 @@ function normalizar(t) {
     .replace(/\s+/g, " ").trim();
 }
 
+// 0.9.0.15: até 4 partes (antes 3: "0.9.0.14" passava por "0.9.0.15", e a página achava que o agente velho entregava)
 function versao(v) {
-  const n = (String(v ?? "").match(/\d+/g) || []).slice(0, 3).map(Number);
-  while (n.length < 3) n.push(0);
+  const n = (String(v ?? "").match(/\d+/g) || []).slice(0, 4).map(Number);
+  while (n.length < 4) n.push(0);
   return n;
 }
 function versaoMin(v, minimo) {
   const a = versao(v), b = versao(minimo);
-  for (let i = 0; i < 3; i++) if (a[i] !== b[i]) return a[i] > b[i];
+  for (let i = 0; i < 4; i++) if (a[i] !== b[i]) return a[i] > b[i];
   return true;
 }
 
@@ -113,21 +154,33 @@ function pelaCaixa(resposta) {
   return `Entregue pela caixa da orquestra${porque ? ` (${porque})` : ""}: chega ao maestro como aviso, não como mensagem sua.`;
 }
 
-// O estado de um pedido meu, do jeito do chat: {sinal, texto, erro, nota}. sinal null = não vira balão.
+// O estado de um pedido meu, do jeito do chat: {sinal, texto, erro, nota, obs, via}. sinal null = não vira balão.
+// via (0.9.0.15): por onde a mensagem foi ("digitada", "maestro", "fundo"; "" sem saber), só nas mensagens (não nas
+// respostas de enquete e de permissão, que são botões apertados no PC).
 function estadoDoPedido(p, enquete) {
   const resp = respostaDeEnquete(p), perm = respostaDePermissao(p);
   const texto = resp ? textoResposta(resp, enquete) : perm ? textoPermissao(perm) : (p.prompt || p.texto || "");
+  const msg = !resp && !perm;
   switch (p.estado) {
     case "novo": case "escrevendo":
       return {sinal: "enviado", texto: resp || perm ? texto : p.texto, nota: resp || perm ? "" : "O Seaninho está escrevendo o texto…"};
     case "pronto": return {sinal: null, texto};   // a prévia para conferir aparece em cima da caixa
     case "enviar": case "enviando":
       if (String(p.erro || "").startsWith(ESPERANDO))   // o PC espera a causa sumir (rascunho na caixa, alguém no PC)
-        return {sinal: "esperando", texto, erro: p.erro.slice(ESPERANDO.length), rascunho: /rascunho/i.test(p.erro)};
+        return {sinal: "esperando", texto, erro: p.erro.slice(ESPERANDO.length), rascunho: /rascunho/i.test(p.erro),
+                via: msg ? viaDoErro(p.erro.slice(ESPERANDO.length)) : ""};   // 0.9.0.15: a de fundo que trabalha
       return {sinal: "enviado", texto};
     case "entregue":
       if (String(p.resposta || "").startsWith(NAO_SABE)) return {sinal: "erro", texto, erro: p.resposta};
-      return {sinal: "entregue", texto,   // "Apertei “Yes” no PC." / "Respondida pelo plano B: …"
+      // 0.9.0.15: pelo maestro e de fundo, o andamento vem na resposta (CONTRATO-0915, seção 4). O ✓✓ só quando a
+      // sessão recebeu ("… ✓ a sessão recebeu."); na caixa do maestro, ou com ele entregando, o relógio (ainda não
+      // chegou); entregue à sessão ou retomada, o ✓ (saiu, falta a sessão mostrar). A obs é a resposta, como no plano B.
+      if (msg && (PELO_MAESTRO.test(p.resposta || "") || DE_FUNDO.test(p.resposta || ""))) {
+        const r = String(p.resposta).trim();
+        return {sinal: /✓/.test(r) ? "entregue" : /na fila|entregando/i.test(r) ? "fila" : "enviado", texto, obs: r,
+                via: viaDaResposta(r)};
+      }
+      return {sinal: "entregue", texto, via: msg ? viaDaResposta(p.resposta) : "",   // "Apertei “Yes” no PC." / "Respondida pelo plano B: …"
               obs: perm || (resp && p.resposta && p.resposta !== "Respondida.") ? String(p.resposta || "")
                 // 0.8.9: digitada com a sessão trabalhando (entra quando ela terminar o passo), ou pela caixa da orquestra
                 : /^Na fila/.test(p.resposta || "") ? "Na fila da sessão: entra quando ela terminar o passo atual."
@@ -136,7 +189,7 @@ function estadoDoPedido(p, enquete) {
                 // "Pelo plano B: …" desde a revisão, "Entregue pelo plano B: …" no agente de antes)
                 : /^(Entregue pelo|Pelo) plano B/.test(p.resposta || "") ? String(p.resposta)
                 : ""};
-    case "erro": return {sinal: "erro", texto, erro: p.erro || "Não foi."};
+    case "erro": return {sinal: "erro", texto, erro: p.erro || "Não foi.", via: msg ? viaDoErro(p.erro) : ""};
     default: return {sinal: null, texto};         // cancelado
   }
 }
@@ -144,8 +197,8 @@ function estadoDoPedido(p, enquete) {
 // Erro do PC em que nada foi escrito nem enviado ("Nada foi escrito", "não escrevi nada", "Nada foi enviado"), num
 // texto sem imagem nem áudio: o toque no erro manda o mesmo texto de novo.
 const NADA_SAIU = /nada foi (escrito|enviado)|não escrevi nada/i;
-function reenviavel(p) {
-  return p.estado === "erro" && (p.tipo || "claude") === "claude" && !p.mime && !p.audio && NADA_SAIU.test(String(p.erro || ""));
+function reenviavel(p) {   // 0.9.0.15: o mime "orq/…" da orquestra não é anexo
+  return p.estado === "erro" && (p.tipo || "claude") === "claude" && !temAnexo(p.mime) && !p.audio && NADA_SAIU.test(String(p.erro || ""));
 }
 
 // Os pedidos meus desta sessão (claude e respostas de enquete), mais velhos primeiro.
@@ -172,11 +225,20 @@ function montar(s, pedidos, locais, agora) {
   for (const m of conversa) if (m.enquete) enquetes[m.enquete.id] = m.enquete;
   if (s.enquete) enquetes[s.enquete.id] = s.enquete;
   const casados = new Set(), soltos = [];
+  // 0.9.0.15 (CONTRATO-0915, 8.3): o recado da orquestra que o maestro repassou ("🎼 Orquestra [orq:<id8>]: …") fica
+  // "sessao" na conversa, com o "orq": é o próprio pedido, sem balão meu em dobro; e o id interno não aparece
+  for (const m of conversa)
+    if (m.de === "sessao" && m.orq) m.texto = String(m.texto || "").replace(MARCA_ORQ, "🎼 Orquestra: ");
   for (const p of pedidosDaSessao(pedidos, s.id)) {
     const resp = respostaDeEnquete(p), perm = respostaDePermissao(p);
+    const id8 = String(p.id || "").slice(0, 8).toLowerCase();
+    const recado = !resp && !perm && id8.length === 8
+      && conversa.find(m => m.de === "sessao" && String(m.orq || "").toLowerCase() === id8 && !casados.has(m.id));
+    if (recado) { casados.add(recado.id); recado.pedido = p.id; continue; }
     const est = estadoDoPedido(p, resp && enquetes[resp.id]);
     if (!est.sinal) continue;
     const criado = epoca(p.criado_em);
+    const orq = !resp && !perm && daOrquestra(p.mime);   // corretor de 12/11: a orquestra nunca é balão meu
     let alvo = null;
     if (resp) alvo = conversa.find(m => m.de === "eu" && m.resposta_a === resp.id && !casados.has(m.id));
     else if (!perm && (est.sinal !== "enviado" || p.estado !== "novo")) {
@@ -184,18 +246,35 @@ function montar(s, pedidos, locais, agora) {
       alvo = procura && conversa.find(m => m.de === "eu" && !casados.has(m.id) && (!m.t || m.t >= criado - JANELA_CASAR)
         && mesmaMensagem(m.texto, procura));
     }
+    if (alvo && orq) {   // digitado no VS Code (entrou como fala na conversa): a linha da orquestra, com o texto de lá
+      casados.add(alvo.id);
+      Object.assign(alvo, linhaDaOrquestra({}, {sinal: "", texto: alvo.texto}), {pedido: p.id, mime: p.mime || ""});
+      continue;
+    }
+    if (orq) {
+      soltos.push(linhaDaOrquestra({id: "p:" + p.id, t: criado, pedido: p.id, mime: p.mime || "", estado: p.estado}, est));
+      continue;
+    }
     if (alvo) {
       casados.add(alvo.id);
       alvo.pedido = p.id;
       alvo.mime = p.mime || "";
+      // 0.9.0.15: o selo de por onde foi. Vale o da conversa (o recado do maestro vem com "via"), senão o do pedido
+      // (a de fundo entra como fala comum; a digitada também). Sem resposta ainda (o pedido em "enviar"), sem selo: o
+      // caminho só se sabe quando o PC responde. A resposta de enquete e de permissão não tem selo.
+      alvo.via = SELO[alvo.via] ? alvo.via : est.via || "";
       continue;   // está na conversa: entregue com certeza (o sinal sai do "visto" dela)
     }
     soltos.push({id: "p:" + p.id, de: "eu", texto: est.texto, t: criado, pedido: p.id, mime: p.mime || "",
                  sinal: est.sinal, erro: est.erro || "", nota: est.nota || "", obs: est.obs || "",
                  resposta_a: resp ? resp.id : "", permissao_a: perm ? perm.id : "", reenviar: reenviavel(p),
-                 estado: p.estado, rascunho: !!est.rascunho, tipoPedido: p.tipo || "claude"});
+                 estado: p.estado, rascunho: !!est.rascunho, tipoPedido: p.tipo || "claude", via: est.via || ""});
   }
-  for (const m of conversa) if (m.de === "eu" && !m.sinal) m.sinal = m.visto === "lido" ? "lido" : "entregue";
+  for (const m of conversa) {
+    if (m.de !== "eu") continue;
+    if (!m.sinal) m.sinal = m.visto === "lido" ? "lido" : "entregue";
+    if (m.via && !SELO[m.via]) m.via = "";   // só os três selos conhecidos
+  }
   // os soltos entram na ordem do tempo, depois das mensagens da conversa da mesma hora
   let linhas = conversa;
   for (const x of [...soltos, ...(locais || [])]) {
@@ -295,11 +374,120 @@ async function imagensDosItens(itens) {
 }
 const imagemDosItens = async itens => (await imagensDosItens(itens))[0] || null;
 
+// 0.9.0.15 (CONTRATO-0915, 8.1): o pedido da orquestra (o vigia, os crons, o maestro pelo orq.py) vem marcado no mime
+// ("orq/so-livre" ou "orq/fila"). Não é anexo: nunca vira clipe, miniatura, chip de imagem nem "Mandar de novo" com
+// imagem (o agente 0.9.0.15 também o trata como "sem anexo").
+const daOrquestra = mime => /^orq\//i.test(String(mime || ""));
+const MARCA_ORQ = /^🎼 Orquestra \[orq:[0-9A-Za-z_-]{1,40}\]:\s*/;   // o começo do recado repassado pelo maestro (8.3)
+const temAnexo = mime => !!String(mime || "") && !daOrquestra(mime);
+// Corretor de 12/11 (o crítico): o pedido da orquestra no chat não é mensagem MINHA. Enquanto espera a sessão ficar
+// livre (até 30 min), no erro e quando foi digitado no VS Code, ele aparecia como balão meu, com "Tentar de novo" e
+// "Editar", que o mandavam de novo como pedido do Arthur (sem a marca e sem a trava "só livre"). Agora é uma linha de
+// outra sessão ("↪ 🎼 orquestra: …"), com o andamento na frente e sem nenhum botão.
+const NOME_ORQ = "🎼 orquestra";
+const CABECA_ORQ = /^\s*(?:🎼\s*)?Orquestra(?:\s*\(([^()]{1,60})\))?\s*:\s*/;   // o mesmo começo do entregar.py
+const ICONE_ORQ = {esperando: "⏳ ", fila: "🕓 ", enviado: "🕓 ", entregue: "✓ ", erro: "⚠ "};
+function corpoDaOrquestra(texto) {   // o texto sem o "🎼 Orquestra (<quem>):" do começo; o quem fica entre parênteses
+  const t = String(texto || ""), m = CABECA_ORQ.exec(t);
+  if (!m) return t.trim();
+  const resto = t.slice(m[0].length).trim(), quem = String(m[1] || "").trim();
+  return quem && resto ? `(${quem}) ${resto}` : resto;
+}
+function linhaDaOrquestra(base, est) {   // a linha do pedido da orquestra, no lugar do balão meu
+  const detalhe = (est.sinal === "erro" || est.sinal === "esperando") && est.erro ? ` — ${est.erro}` : "";
+  return {...base, de: "sessao", nome: NOME_ORQ, orqPedido: true, sinal: est.sinal,
+          texto: (ICONE_ORQ[est.sinal] || "") + corpoDaOrquestra(est.texto) + detalhe};
+}
+
 // Quantas imagens o pedido leva: "image/jpeg" é uma (no próprio pedido); "imagens/<grupo>/<n>" são n, cada uma num
-// pedido acao "anexo" à parte (0.8.2).
+// pedido acao "anexo" à parte (0.8.2). O da orquestra ("orq/…"), nenhuma.
 function nImagens(mime) {
+  if (!temAnexo(mime)) return 0;
   const m = /^imagens\/[^/]+\/(\d+)$/.exec(String(mime || ""));
   return m ? Number(m[1]) : ehImagem(mime) || /^salva\//.test(String(mime || "")) ? 1 : 0;
+}
+
+// ---- 0.9.0.15 (CONTRATO-0915, 8.5 C): a foto reduzida antes do cel_pedir -------------------------------------------
+// O que fez a "atenção" do SEAZONE192 em 12/11: 9 fotos de 172–417 KB, ~3,8 MB em base64 no cel_pedir. A página manda
+// o lado maior até 1600 px, em JPEG de qualidade 0,8 (o print de tela em PNG vira JPEG); a foto já pequena (até 1600 px
+// e 200 KB), ou a que ficaria maior reduzida, vai como está. Como está só vai o que o PC guarda (jpeg, png e webp: o
+// IMAGENS do agente.py); o GIF, o HEIC e o resto viram JPEG (o PC recusaria o GIF: "chegou quebrado"). A foto com a
+// orientação no EXIF (virada) vai desenhada já de pé, nunca como está: o PC e o Claude podem não ler o EXIF.
+const FOTO_LADO = 1600, FOTO_QUALIDADE = 0.8;
+const FOTO_PEQUENA = 200 * 1024;      // bytes: até isso (e 1600 px) a foto já é pequena; recomprimir perde nitidez à toa
+const FOTO_MAX = 1050000;             // bytes: ~1,4 MB em base64, o teto de sempre da imagem do celular
+const PC_GUARDA = ["image/jpeg", "image/png", "image/webp"];
+
+// O tipo de verdade pelo começo do arquivo (o "type" do arquivo pode mentir: o iPhone às vezes chama HEIC de jpeg).
+function tipoDosBytes(b) {
+  const u = b || [], ini = (...xs) => xs.every((x, i) => u[i] === x);
+  const asc = (de, n) => String.fromCharCode(...Array.from({length: n}, (_, i) => u[de + i] || 0));
+  if (ini(0xFF, 0xD8, 0xFF)) return "image/jpeg";
+  if (ini(0x89, 0x50, 0x4E, 0x47)) return "image/png";
+  if (asc(0, 4) === "RIFF" && asc(8, 4) === "WEBP") return "image/webp";
+  if (asc(0, 4) === "GIF8") return "image/gif";
+  return "";
+}
+
+// A orientação do EXIF (1 a 8; 1 = de pé, também sem EXIF) de um JPEG (segmento APP1) ou de um WEBP (pedaço EXIF).
+function orientacaoTiff(u, ini, fim) {
+  if (fim - ini < 8) return 1;
+  const le = u[ini] === 0x49 && u[ini + 1] === 0x49;
+  if (!le && !(u[ini] === 0x4D && u[ini + 1] === 0x4D)) return 1;
+  const n16 = p => p + 1 < fim ? (le ? u[p] | u[p + 1] << 8 : u[p] << 8 | u[p + 1]) : 0;
+  const n32 = p => p + 3 < fim ? (le ? (u[p] | u[p + 1] << 8 | u[p + 2] << 16) + u[p + 3] * 0x1000000
+                                     : u[p] * 0x1000000 + (u[p + 1] << 16 | u[p + 2] << 8 | u[p + 3])) : 0;
+  const ifd = ini + n32(ini + 4), total = n16(ifd);
+  for (let i = 0; i < total; i++) {
+    const e = ifd + 2 + i * 12;
+    if (e + 12 > fim) break;
+    if (n16(e) === 0x0112) { const v = n16(e + 8); return v >= 1 && v <= 8 ? v : 1; }
+  }
+  return 1;
+}
+function orientacaoExif(b) {
+  const u = b || [], tipo = tipoDosBytes(u);
+  const exif = p => u[p] === 0x45 && u[p + 1] === 0x78 && u[p + 2] === 0x69 && u[p + 3] === 0x66 && !u[p + 4] && !u[p + 5];
+  if (tipo === "image/jpeg") {
+    for (let p = 2; p + 4 < u.length;) {
+      if (u[p] !== 0xFF) return 1;
+      if (u[p + 1] === 0xFF) { p++; continue; }   // byte de enchimento entre os segmentos
+      const marca = u[p + 1], tam = u[p + 2] << 8 | u[p + 3];
+      if (marca === 0xD8 || marca >= 0xD0 && marca <= 0xD7 || marca === 0x01) { p += 2; continue; }
+      if (marca === 0xDA || marca === 0xD9 || tam < 2) return 1;   // começou a imagem: sem EXIF antes
+      if (marca === 0xE1 && exif(p + 4)) return orientacaoTiff(u, p + 10, Math.min(u.length, p + 2 + tam));
+      p += 2 + tam;
+    }
+    return 1;
+  }
+  if (tipo === "image/webp") {
+    for (let p = 12; p + 8 <= u.length;) {
+      const nome = String.fromCharCode(u[p], u[p + 1], u[p + 2], u[p + 3]);
+      const tam = (u[p + 4] | u[p + 5] << 8 | u[p + 6] << 16) + u[p + 7] * 0x1000000;
+      if (nome === "EXIF") { const d = p + 8 + (exif(p + 8) ? 6 : 0); return orientacaoTiff(u, d, Math.min(u.length, p + 8 + tam)); }
+      p += 8 + tam + (tam & 1);
+    }
+  }
+  return 1;
+}
+
+// O tamanho reduzido (o lado maior até `lado`; a menor nunca é ampliada).
+function ladoReduzido(w, h, lado = FOTO_LADO) {
+  const k = Math.min(1, lado / Math.max(w || 1, h || 1));
+  return {w: Math.max(1, Math.round((w || 1) * k)), h: Math.max(1, Math.round((h || 1) * k))};
+}
+// Os bytes de um base64 (sem o cabeçalho data:).
+const bytesDoBase64 = b64 => { const s = String(b64 || "").replace(/\s/g, ""); return Math.max(0, Math.floor(s.length * 3 / 4) - (s.endsWith("==") ? 2 : s.endsWith("=") ? 1 : 0)); };
+
+// Como a foto escolhida vai: o = {tipo (tipoDosBytes), bytes, w, h (já de pé), orientacao}; reduzida = os bytes do JPEG
+// reduzido, quando já se sabe (0: não deu para reduzir). "original" (como está), "reduzida" ou, sem a reduzida, "comparar"
+// (a página reduz e pergunta de novo).
+function comoVaiAFoto(o, reduzida) {
+  if (!PC_GUARDA.includes(o.tipo) || (o.orientacao || 1) > 1 || Math.max(o.w || 0, o.h || 0) > FOTO_LADO
+      || !(o.bytes > 0) || o.bytes > FOTO_MAX) return "reduzida";
+  if (o.tipo !== "image/png" && o.bytes <= FOTO_PEQUENA) return "original";       // a foto já pequena
+  if (reduzida === undefined || reduzida === null) return "comparar";
+  return reduzida > 0 && reduzida < o.bytes ? "reduzida" : "original";             // reduzida ficaria maior: como está
 }
 
 // ---- Responder a uma mensagem (0.8.3, arrastar o balão para o lado como no WhatsApp) -------------------------
@@ -339,8 +527,11 @@ function mover(lista, i, j) {
 }
 
 const Chat = {SINAL, normalizar, versaoMin, montar, estadoDoPedido, pelaCaixa, pedidosDaSessao, respostaDeEnquete, textoResposta,
+  AGENTE_QUALQUER, SELO, viaDaResposta, viaDoErro, motivoSemEntrega,
   ESPERANDO, respostaDePermissao, traduzirBotao, botoesPermissao, textoPermissao, reenviavel, MAX_IMAGENS, imagensDaColagem, imagensDosItens,
   nImagens, mover, citacao, comCitacao, separarCitacao, acharCitada,
+  daOrquestra, temAnexo, corpoDaOrquestra, NOME_ORQ, FOTO_LADO, FOTO_QUALIDADE, FOTO_PEQUENA, FOTO_MAX, PC_GUARDA, tipoDosBytes, orientacaoExif,
+  ladoReduzido, bytesDoBase64, comoVaiAFoto,
   rotuloDia, marcacao, escolhidas, completas, acaoResponder, conversaDe, imagemDaColagem, imagemDosItens, esc};
 if (typeof module !== "undefined" && module.exports) module.exports = Chat;
 else raiz.Chat = Chat;

@@ -6,6 +6,9 @@
 // dois PCs conta uma vez; a Organização pela média das máquinas do último dia com sessão, com o `umaCasa`) e a faixa pela
 // regra do ninja.js. A banda P0–P100 do coletor saiu da manchete (era outra escala, que não existe no TeamZone). Sem
 // tela (testado no Node: test_usoia.cjs, com os casos do faixa_casos.json).
+// pro-67 (12/11, o Arthur: "Eu quero saber ao vivo em que faixa eu estou. Não a que o Teamzone está contando"): a manchete
+// é a faixa AO VIVO (os números de agora contra a régua de hoje, faixaAoVivo); o TeamZone vira a linha pequena de baixo
+// (linhaTeamZone), no lugar do "Se parar agora".
 (function (raiz) {
 "use strict";
 
@@ -361,6 +364,128 @@ function escolherConjunto(candidatos) {
 // Quando a "próxima atualização" entra no TeamZone: a janela (17h a 17h) fecha às 17h e o TeamZone importa aos :35.
 const quandoEntra = janela => Date.parse(`${janela}T17:35:00-03:00`);
 
+// ---- a faixa AO VIVO (pro-67, 12/11) ------------------------------------------------------------------------------
+// O Arthur (12/11): "Eu quero saber ao vivo em que faixa eu estou. Não a que o Teamzone está contando ... Você tem que
+// dizer aqui, hoje, agora, nesse exato momento, você está na faixa roxa." A faixa de agora é a dos números de agora (o
+// oficial mais o que ainda não entrou nele: os valores da camada "próxima atualização") contra a meta de HOJE.
+// pro-73 (12/11, 14h5x: "Qual a faixa correta que estou agora?"): a meta de hoje é a que conta o dia de hoje (os dias da
+// camada "próxima": a janela aberta é o dia de hoje), a mesma das metas de cada critério; contra a régua de ontem (os
+// dias fechados), a faixa subia de manhã e caía às 17h sem nada mudar. 921 no TeamZone + 187 a entrar = 1.108 contra os
+// 1.211 da Roxa (dia 6): faltam 103, e agora é Azul. A conta do `faixa_agora` do uso_ia_faixa.py do Pro (pro-73).
+
+// O que falta, critério por critério, para os `valores` baterem a faixa `alvo` e as de baixo (como o classificarFaixa
+// cobra) com `dias` fechados: {critério: quanto falta}, só os que faltam, na ordem do TeamZone. {} quando já batem, sem
+// régua, sem alvo (abaixo da Branca) ou sem os dias (o `faltam_para_ficar` do Pro).
+function faltamParaFicar(valores, faixas, alvo, dias) {
+  const R = N(), FX = R.FAIXAS_TIME;
+  if (!faixas || typeof faixas !== "object" || !FX.includes(alvo) || !num(dias)) return {};
+  const v = R.valoresDosFatores(valores), falta = {};
+  for (const f of FX.slice(0, FX.indexOf(alvo) + 1)) {
+    for (const [m, n] of Object.entries(faixas[f] || {})) {
+      if (!(m in v) || !num(n)) continue;
+      const d = R.metaToDate(n, m, dias) - v[m];
+      if (d > 0) falta[m] = Math.max(falta[m] || 0, R.limpo(d));
+    }
+  }
+  return Object.fromEntries(R.METRICAS_TIME.filter(m => m in falta).map(m => [m, falta[m]]));
+}
+
+// Os números de agora: os da camada "próxima atualização" (o oficial mais o que ainda não entrou); sem ela, os do oficial.
+// Um volume nunca fica abaixo do oficial: o conjunto pode ter sido somado sobre uma leitura do TeamZone mais velha que a
+// que chegou depois (o TeamZone nunca fica acima de agora). A organização, a da camada (a média das máquinas de agora),
+// menos quando a leitura do TeamZone é mais nova que a medida (`oficialMaisNovo`).
+function valoresDeAgora(oficialValores, proximaValores, oficialMaisNovo = false) {
+  const R = N(), of = oficialValores ? R.valoresDosFatores(oficialValores) : null;
+  if (!proximaValores) return of || R.valoresDosFatores({});
+  const px = R.valoresDosFatores(proximaValores);
+  if (!of) return px;
+  const out = Object.fromEntries(VOLUMES.map(m => [m, Math.max(of[m], px[m])]));
+  out.organizacao = oficialMaisNovo ? of.organizacao : px.organizacao;
+  return out;
+}
+
+// A faixa AO VIVO: os números de agora (`valores`) com a régua e os `dias` (pro-73: os de hoje, os da leitura que leva a
+// janela aberta), mais a leitura que vem (`imp`: a faixa
+// que a próxima importação do TeamZone vai mostrar com esses números, no formato do faixaDaSemana, com {dias, quando,
+// retrato}). O formato do faixaDaSemana, mais "valores", "ao_vivo" (false no dia 0 e sem régua: sem faixa, como antes) e
+// "na_importacao": {faixa, proxima, dias, sem_faixa, quando, retrato, fica (a leitura mostra a faixa de agora, ou mais),
+// faltam_para_ficar (na régua da leitura, o que falta para ficar na faixa de agora: {} quando fica)} (o `faixa_agora`
+// do Pro, pro-67).
+function faixaAoVivo(valores, regua, dias, semana, imp = null, banda = "") {
+  const R = N(), FX = R.FAIXAS_TIME, v = R.valoresDosFatores(valores);
+  const out = R.faixaDaSemana(v, regua, dias, semana, banda, dias === 0);
+  const i = imp && typeof imp === "object" ? imp : {}, pxSem = !imp || !!i.sem_faixa;
+  const fica = out.sem_faixa || (!pxSem && FX.indexOf(i.faixa) >= FX.indexOf(out.faixa));
+  const faixas = regua ? regua.faixas || regua : null;
+  const paraFicar = fica || out.faixa === null ? {} : faltamParaFicar(v, faixas, out.faixa, num(i.dias) ? i.dias : null);
+  return {...out, valores: v, ao_vivo: !out.sem_faixa,
+    na_importacao: {faixa: FX.includes(i.faixa) ? i.faixa : null, proxima: FX.includes(i.proxima) ? i.proxima : null,
+      dias: num(i.dias) ? i.dias : null, sem_faixa: pxSem, quando: num(i.quando) ? i.quando : null, retrato: !!i.retrato,
+      fica, faltam_para_ficar: paraFicar}};
+}
+
+// As horas da linha do TeamZone, no fuso do programa (−03:00 fixo) e do jeito da página ("18h35", "17h"):
+const DIA_SEMANA = ["dom", "seg", "ter", "qua", "qui", "sex", "sáb"];
+const horaCurta = ms => { const s = N().emSP(ms); return `${s.hora}h${s.minuto ? String(s.minuto).padStart(2, "0") : ""}`; };
+const distanciaEmDias = (ms, agora) => Math.round((Date.parse(`${N().emSP(ms).dia}T12:00:00Z`) - Date.parse(`${N().emSP(agora).dia}T12:00:00Z`)) / 864e5);
+// a hora com o dia, para a hora velha não parecer de hoje: "18h35" (hoje), "ontem 18h35", "amanhã 9h40", "seg 18h" (até
+// uma semana) ou "30/10 17h10" (o quandoCurto do Pro)
+function quandoCurto(ms, agora) {
+  const R = N(), t = R.instante(agora), x = R.instante(ms);
+  if (t === null || x === null) return "";
+  const d = distanciaEmDias(x, t), h = horaCurta(x), dia = R.emSP(x).dia;
+  if (d === 0) return h;
+  if (d === -1) return `ontem ${h}`;
+  if (d === 1) return `amanhã ${h}`;
+  return Math.abs(d) < 7 ? `${DIA_SEMANA[new Date(`${dia}T12:00:00Z`).getUTCDay()]} ${h}` : `${diaBr(dia)} ${h}`;
+}
+// o dia da leitura do TeamZone: "hoje 17h35" ou o dia da semana ("sex 17h35", "sáb 17h05") (o nomeDoDia do Pro)
+function diaDaLeitura(ms, agora) {
+  const R = N(), t = R.instante(agora), x = R.instante(ms);
+  if (t === null || x === null) return "";
+  const dia = R.emSP(x).dia;
+  return `${distanciaEmDias(x, t) === 0 ? "hoje" : DIA_SEMANA[new Date(`${dia}T12:00:00Z`).getUTCDay()]} ${horaCurta(x)}`;
+}
+
+// pro-73: o próximo relatório do TeamZone, na hora do último (o atualizado_em, o selo: 18h35): "às 18h35" (o de hoje
+// ainda não saiu), "amanhã às 18h35" (o de hoje já saiu, ou a hora dele já passou); depois da sexta em que a semana
+// fecha, o retrato de sábado ("retrato amanhã às 17h05"). {texto, quando, retrato}; null sem a hora ou com o retrato já
+// lido (o proximoRelatorio do geral_uso.js do Pro).
+function proximoRelatorio(b, agora) {
+  const R = N(), t = R.instante(agora), tz = b && b.teamzone;
+  if (t === null || !tz || !num(tz.atualizado_em) || tz.fechada) return null;
+  const at = R.emSP(tz.atualizado_em), ag = R.emSP(t), hoje = ag.dia;
+  const saiu = at.dia >= hoje || ag.hora * 60 + ag.minuto >= at.hora * 60 + at.minuto;
+  let dia = saiu ? R.somarDias(hoje, 1) : hoje, h = at.hora, mi = at.minuto, retrato = false;
+  if (b.fecha_em && dia > b.fecha_em) { dia = R.somarDias(b.fecha_em, 1); h = 17; mi = 5; retrato = true; }
+  if (dia < hoje) dia = hoje;  // sábado depois das 17h05, sem o retrato lido: ainda o de hoje
+  const quando = Date.parse(`${dia}T${String(h).padStart(2, "0")}:${String(mi).padStart(2, "0")}:00-03:00`);
+  const hh = horaCurta(quando);
+  const q = dia === hoje ? `às ${hh}` : dia === R.somarDias(hoje, 1) ? `amanhã às ${hh}`
+    : `${DIA_SEMANA[new Date(`${dia}T12:00:00Z`).getUTCDay()]} ${diaBr(dia)} às ${hh}`;
+  return {texto: `${retrato ? "retrato" : "próximo relatório"} ${q}`, quando, retrato};
+}
+
+// A linha pequena do TeamZone embaixo da faixa ao vivo, em texto (pro-73: o cantinho do Pro, cantoTeamZone). `b`: o
+// painel ou a semana que fecha (p.fechando), com a manchete ao vivo, o `no_teamzone` (a faixa que o TeamZone mostra, ou
+// null sem leitura) e o `teamzone` (a hora da atualização):
+//  - "No TeamZone: Azul · próximo relatório às 18h35 · a semana fecha em 13/11" (na semana que fecha, sem o "fecha em" e
+//    com o "retrato amanhã às 17h05");
+//  - sem leitura: "Sem leitura do TeamZone nesta semana: a soma dos computadores".
+// "" sem a faixa ao vivo (o dia 0, sem régua).
+function linhaTeamZone(b, agora) {
+  const R = N(), t = R.instante(agora), m = b && b.manchete;
+  if (!m || !m.ao_vivo || t === null) return "";
+  const tz = b.no_teamzone;
+  if (!tz) return "Sem leitura do TeamZone nesta semana: a soma dos computadores";
+  const partes = [`No TeamZone: ${tz.sem_faixa ? "sem faixa ainda" : tz.faixa || "abaixo da Branca"}`];
+  const rel = proximoRelatorio(b, t);
+  if (rel) partes.push(rel.texto);
+  // o painel da semana em curso tem a chave "fechando"; o cartão da que fecha, não
+  if (b.fecha_em && Object.prototype.hasOwnProperty.call(b, "fechando")) partes.push(`a semana fecha em ${diaBr(b.fecha_em)}`);
+  return partes.join(" · ");
+}
+
 // A faixa de uma camada com a régua: o oficial (com o relógio de agora) ou valores soltos com os dias dados.
 function camadaOficial(oficial, regua, agora) {
   const f = N().faixaDoOficial(oficial, regua, agora);
@@ -383,8 +508,11 @@ function camadaProxima(valores, regua, semana, fechaEm, janela, agora, extra = {
 // `lista`: um item por PC, como a página monta ({pc, ligado, visto, valores, semana, gerado, regua, bandas, banda?,
 // janelas?, enviados?, conjunto (o painel.uso_ia_conjunto), oficial (o painel.uso_ia_oficial), ...}).
 // Devolve null sem nada para mostrar; senão {semana, numero, fecha_em, inicio, fim, dias, origem ("conjunto" | "pcs"),
-// base ("oficial" | "estimativa"), regua, manchete, valores, teamzone, proxima, pcs, maquinas, medido, fora, fechando,
-// conferencia, avisos, ninja}.
+// base ("oficial" | "estimativa"), regua, manchete, valores, no_teamzone, teamzone, proxima, pcs, maquinas, medido, fora,
+// fechando, conferencia, avisos, ninja}. pro-67: a manchete é a faixa AO VIVO (faixaAoVivo: "ao_vivo", "na_importacao")
+// e `valores`, os números de agora; `no_teamzone` é a faixa que o TeamZone mostra (o oficial com os dias de agora, com os
+// valores dele; null sem leitura) e `proxima`, a camada "se parar agora" de antes. A semana que fecha vem igual
+// (fechando.manchete ao vivo, com 7 dias, e fechando.no_teamzone).
 function painel(lista, agora, {maquinasPadrao = MAQUINAS_PADRAO} = {}) {
   const R = N(), t = R.instante(agora);
   if (t === null) return null;
@@ -483,6 +611,23 @@ function painel(lista, agora, {maquinasPadrao = MAQUINAS_PADRAO} = {}) {
   if (diasAgora === 0 && regua.regua && !manchete.primeiro_dia) manchete = {...manchete, faixa: null, proxima: null, metas: {}, faltam: {},
     atingidos: 0, total: 0, dias: 0, primeiro_dia: true, sem_faixa: true, motivo: R.MOTIVO_PRIMEIRO_DIA};
 
+  // pro-67: a faixa AO VIVO vira a manchete (o nome, a próxima, a régua, os critérios, o ninja e a animação): os números
+  // de agora (o oficial mais o que ainda não entrou: a camada "próxima") contra a régua de hoje. O TeamZone fica em
+  // `no_teamzone` (a faixa dele com os dias de agora, como antes era a manchete) e a leitura que vem, em
+  // `manchete.na_importacao`: a das 17h35 que leva a janela aberta (das 17h00 às 17h45, a de hoje), pelo relógio de agora
+  // e com os números de agora. No dia 0 e sem régua, sem faixa nas duas: a manchete de antes, sem a camada.
+  const noTeamzone = oficial ? manchete : null;
+  const tOficial = oficial ? R.instante(oficial.atualizado_em) : null;
+  const valoresAgora = proxima ? valoresDeAgora(oficial && oficial.valores, proxima.valores, tOficial !== null && num(medido) && tOficial > medido)
+    : oficial ? noTeamzone.valores : valores;
+  const abertaAgora = R.janelaDoMomento(t);
+  const janelaDaLeitura = importacaoDeHoje(t, abertaAgora, tOficial) ? R.somarDias(abertaAgora, -1) : abertaAgora;
+  const leitura = camadaProxima(valoresAgora, regua.regua, semana, fechaEm, janelaDaLeitura, t);
+  // pro-73: a meta de hoje (os dias da leitura que leva a janela de hoje); no dia 0, sem faixa
+  const diasVivo = diasAgora === 0 || !leitura || !num(leitura.dias) ? diasAgora : leitura.dias;
+  const vivo = faixaAoVivo(valoresAgora, regua.regua, diasVivo, semana, leitura, bandaDoColetor);
+  if (vivo.ao_vivo) { manchete = vivo; valores = vivo.valores; } else manchete = {...manchete, ao_vivo: false};
+
   // a semana que fecha (de sexta 17h a sábado 17h, o dia 0 da nova): o oficial dela (o que o TeamZone mostra, como no
   // Pro, em que o oficial vence a projeção); sem ele, o conjunto dela ou os PCs. A "próxima atualização" do conjunto
   // fica só como a projeção ("se o que falta entrar até sábado 17h"), nunca com o selo do TeamZone.
@@ -493,7 +638,7 @@ function painel(lista, agora, {maquinasPadrao = MAQUINAS_PADRAO} = {}) {
     const of = [cf && cf.conjunto.oficial, ...itens.map(u => u.oficial)].filter(o => oficialValido(o, anterior.rotulo))
       .sort((a, b) => R.instante(b.atualizado_em) - R.instante(a.atualizado_em))[0] || null;
     const rf = R.reguaDaSemana(anterior.rotulo, {oficial: of, conjunto: cf && cf.conjunto, coletor: reguaColetor});
-    let mf = null, bf = "estimativa", pcsF = [], projecao = null;
+    let mf = null, bf = "estimativa", pcsF = [], projecao = null, bandaF = "";
     const paF = cf && cf.conjunto.proxima_atualizacao && cf.conjunto.proxima_atualizacao.valores ? cf.conjunto.proxima_atualizacao : null;
     const daProjecao = () => ({...R.faixaDaSemana(paF.valores, rf.regua, 7, anterior.rotulo), valores: R.valoresDosFatores(paF.valores),
       base: paF.base || "estimativa", fora_do_oficial: paF.fora_do_oficial || null});
@@ -513,16 +658,29 @@ function painel(lista, agora, {maquinasPadrao = MAQUINAS_PADRAO} = {}) {
       if (daAnterior.length) {
         const s = somar(daAnterior);
         pcsF = daAnterior.map(u => u.pc);
-        mf = {...R.faixaDaSemana(s.valores, rf.regua, 7, anterior.rotulo, daAnterior.map(u => u.banda).filter(Boolean)[0] || ""), valores: R.valoresDosFatores(s.valores)};
+        bandaF = daAnterior.map(u => u.banda).filter(Boolean)[0] || "";
+        mf = {...R.faixaDaSemana(s.valores, rf.regua, 7, anterior.rotulo, bandaF), valores: R.valoresDosFatores(s.valores)};
       }
     }
-    if (mf) fechando = {semana: anterior.rotulo, numero: anterior.rotulo.split("-W")[1], fecha_em: anterior.fecha_em, manchete: mf,
-      base: bf, teamzone: of ? {atualizado_em: R.instante(of.atualizado_em), maquinas: of.maquinas} : null, pcs: pcsF, regua: rf,
-      projecao: projecao && (projecao.faixa !== mf.faixa || JSON.stringify(projecao.faltam) !== JSON.stringify(mf.faltam)) ? projecao : null,
-      retrato: R.corteDaSemana(anterior.fecha_em) + 5 * 60000};
+    if (mf) {
+      // pro-67: a semana que fecha também ao vivo, com os 7 dias: o oficial dela mais o que falta entrar até o retrato de
+      // sábado 17h05 (a leitura que vem, com os mesmos 7 dias); o TeamZone dela em `no_teamzone`
+      const retrato = R.corteDaSemana(anterior.fecha_em) + 5 * 60000;
+      const tOfF = of ? R.instante(of.atualizado_em) : null, medidoF = paF ? medidoMinimo(cf.conjunto) : null;
+      const agoraF = paF ? valoresDeAgora(of && of.valores, paF.valores, tOfF !== null && num(medidoF) && medidoF > 0 && tOfF > medidoF)
+        : R.valoresDosFatores(mf.valores);
+      const vivoF = faixaAoVivo(agoraF, rf.regua, 7, anterior.rotulo,
+        {...R.faixaDaSemana(agoraF, rf.regua, 7, anterior.rotulo, bandaF), dias: 7, quando: retrato, retrato: true}, bandaF);
+      fechando = {semana: anterior.rotulo, numero: anterior.rotulo.split("-W")[1], fecha_em: anterior.fecha_em,
+        manchete: vivoF.ao_vivo ? vivoF : {...mf, ao_vivo: false}, no_teamzone: of ? mf : null,
+        base: bf, teamzone: of ? {atualizado_em: R.instante(of.atualizado_em), maquinas: of.maquinas, fechada: !!of.fechada} : null, pcs: pcsF, regua: rf,
+        projecao: projecao && (projecao.faixa !== mf.faixa || JSON.stringify(projecao.faltam) !== JSON.stringify(mf.faltam)) ? projecao : null,
+        retrato};
+    }
   }
 
-  // o ninja veste a faixa da semana; no dia 0 (sem faixa ainda, com ou sem a régua nova), a da semana que fecha
+  // o ninja veste a faixa da manchete (pro-67: a AO VIVO, e a animação de aparição toca quando ela sobe); no dia 0 (sem
+  // faixa ainda, com ou sem a régua nova), a da semana que fecha, também ao vivo
   const iDe = f => f ? R.FAIXAS_TIME.indexOf(f) + 1 : 0;
   const ninja = manchete.faixa ? {faixa: manchete.faixa, semana, i: iDe(manchete.faixa), fechou: false}
     : (manchete.primeiro_dia || diasAgora === 0) && fechando && fechando.manchete.faixa
@@ -548,8 +706,9 @@ function painel(lista, agora, {maquinasPadrao = MAQUINAS_PADRAO} = {}) {
   const parcial = base === "estimativa" && !c && (pcs.length < maquinas || semJanelas.length > 0);
   return {semana, numero: semana.split("-W")[1], fecha_em: fechaEm, inicio: R.fimDaSemana(anterior.fecha_em),
     fim: R.fimDaSemana(fechaEm), dias: diasAgora, origem: c ? "conjunto" : "pcs", base, parcial, regua, manchete, valores,
+    no_teamzone: noTeamzone,
     teamzone: oficial ? {atualizado_em: R.instante(oficial.atualizado_em), maquinas: num(oficial.maquinas) ? oficial.maquinas : null,
-      lido_em: R.instante(oficial.lido_em)} : null,
+      lido_em: R.instante(oficial.lido_em), fechada: !!oficial.fechada} : null,
     proxima, pcs, visto: pa && pa.pcs && typeof pa.pcs === "object" && !Array.isArray(pa.pcs) ? pa.pcs : {}, maquinas, medido, fora, fechando,
     conferencia: c && c.conferencia && typeof c.conferencia === "object" ? c.conferencia : null, avisos, ninja};
 }
@@ -681,7 +840,9 @@ const UsoIa = {ORDEM, CRITERIOS, ROTULO, UNIDADE, ESTIMADAS, ESTADOS, VOLUMES, D
   VIRADA_MS, MAQUINAS_PADRAO, organizacaoComoTeamzone, descontarRepetidas, tarefasSemRepetidas, somarDia, somarComoTeamzone,
   situacao, importacaoDeHoje, linhasDaSemana, linhasDaMedia,
   linhasDoPc, somaDiaria, daSemana, somar, cobertos, medidoMinimo, escolherConjunto, painel, faltasTxt, bate, banda, ritmo,
-  porDia, semanas, montar, erros, formatar, curto};
+  porDia, semanas, montar, erros, formatar, curto,
+  // pro-67: a faixa AO VIVO e a linha do TeamZone
+  faltamParaFicar, valoresDeAgora, faixaAoVivo, linhaTeamZone, proximoRelatorio, quandoCurto, diaDaLeitura};
 if (typeof module !== "undefined" && module.exports) module.exports = UsoIa;
 else raiz.UsoIa = UsoIa;
 })(typeof window !== "undefined" ? window : globalThis);

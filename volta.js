@@ -86,6 +86,9 @@ const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const SEM_INTEIRO_TIPOS = ["claude", "transcrever"];
 const SEM_INTEIRO_ACOES = ["anexo", "pdf_paginas", "pdf_recorte", "pdf_original", "ler_texto", "abrir_pasta", "aviso_teste",
   "responder_enquete", "responder_permissao", "recusar_enquete", "entrega_opcao"];
+// A "reacao" fica de fora de propósito (medido no corretor de 12/11, medir_trafego_reacoes.cjs): a reação sempre muda o
+// PC dono (o "reacoes" da sessão), e o inteiro do "algum PC mudou" vem de qualquer jeito em até 2 min; o do fim, logo
+// depois do "entregue", já traz a mudança e poupa a lista do PC (com ele, ~226 KB; sem ele, ~273 KB)
 // v27, a máquina de fila: o "ver log" não muda nada que só o inteiro traz (o log vem na resposta do pedido); mandar,
 // pausar e retomar mudam o cartão (o agente republica o bloco antes do fim), e pedem o inteiro
 const SEM_INTEIRO_MODOS = {maquina: ["log"]};
@@ -335,6 +338,8 @@ function puxar(st, pcs, agora) {
 // O aviso que o PC mandou ao celular (o push) com o app aberto: a sessão que pergunta, terminou ou parou no limite pede
 // a lista daquele PC já (o "Esperando você" e o número da aba em ~4 s, e não na lista seguinte); o de decisões, do Para
 // você, do AI Rats, de aparelho novo e do PC que caiu ou voltou, o inteiro (o que mudou está no hoje). Devolve o que fez.
+// 12/11 (reações): o aviso do ⚠️/❓ do Hokage numa mensagem sua ("reacao") não pede nada a mais: o toque abre o chat
+// da central (a conversa desce na hora) e, com ele aberto, ela já desce porque o PC mudou
 const AVISO_DE_SESSAO = ["pergunta", "terminou", "limite"];
 const AVISO_DO_HOJE = ["decisoes", "para_voce", "ai_rats", "aparelho", "pc", "seaninho_caiu"];
 function avisoDoPc(st, d, agora) {

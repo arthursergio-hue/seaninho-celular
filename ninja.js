@@ -3,6 +3,8 @@
 // vez que a seção entra na tela; quando a faixa sobe, a faixa nova amarra numa comemoração. Só SVG e CSS, sem
 // biblioteca. O desenho e as contas rodam sem tela (testados no Node: test_ninja.cjs, com os casos do faixa_casos.json);
 // vigiar a tela e tocar a animação, só no navegador.
+// 12/11: o ninja é a imagem da faixa do Monitor geral do Pro (web/ninja/, por personagem: feminino, o padrão, ou
+// masculino) e, quando a faixa sobe, a animação de aparição dela; o desenho SVG fica de reserva (test_ninja_imagem.cjs).
 (function (raiz) {
 "use strict";
 
@@ -439,6 +441,55 @@ function svg(faixa, {dorme = false} = {}) {
 </svg>`;
 }
 
+// ---- o ninja em imagem (12/11, o Arthur: "Atualiza o ninja do celular também, conforme o do monitor que fizemos") ---
+// O mesmo ninja por faixa do Monitor geral do Seaninho Pro (pro-65): o corpo inteiro da faixa, no personagem escolhido no
+// PC ("Personagem do uso de IA", o personagem.json do Pro; feminino é o padrão), e a animação de aparição quando a faixa
+// sobe. As imagens são arquivos da página (web/ninja/, feitos pelo gerar_ninja_web.py), que o sw.js guarda pelo nome na
+// primeira vez: nada de imagem no banco. O personagem chega no uso_ia de cada PC ("personagem", uma palavra, só quando o
+// PC tem o personagem.json). A imagem fica por cima do céu do SVG; o corpo desenhado continua por baixo, de reserva: aparece até
+// a imagem carregar e no lugar dela quando o arquivo não carrega. Sem faixa e dormindo, só o desenho.
+const PERSONAGENS = ["feminino", "masculino"], PERSONAGEM_PADRAO = "feminino", PASTA_IMG = "ninja/";
+const personagemDe = v => { const p = semAcento(v); return PERSONAGENS.includes(p) ? p : PERSONAGEM_PADRAO; };
+let PERS = PERSONAGEM_PADRAO;
+// O personagem dos desenhos: muda com `p`; sem argumento, só diz qual é.
+function personagem(p) { if (p !== undefined) PERS = personagemDe(p); return PERS; }
+// O personagem que os PCs publicam (os itens do uso de IA: {pc, ligado, personagem}): o de um PC ligado primeiro e, entre
+// eles, o primeiro pelo nome (os dois PCs com escolhas diferentes não trocam o ninja a cada volta); nenhum diz: o padrão.
+function personagemDosPcs(lista) {
+  const com = (lista || []).filter(u => u && PERSONAGENS.includes(semAcento(u.personagem)));
+  com.sort((a, b) => (b.ligado === true) - (a.ligado === true) || String(a.pc || "").localeCompare(String(b.pc || "")));
+  return com.length ? semAcento(com[0].personagem) : PERSONAGEM_PADRAO;
+}
+const arquivo = (p, tipo, chave) => `${PASTA_IMG}${personagemDe(p)}-${tipo}-${chave}.webp`;
+const FALHOU = new Set(), CARREGOU = new Set();
+// A imagem do corpo da faixa no personagem ("" sem faixa ou se o arquivo já falhou nesta página: fica o SVG).
+function imagemDe(faixa, p = PERS) {
+  const f = faixaDe(faixa);
+  const u = f ? arquivo(p, "corpo", f.chave) : "";
+  return u && !FALHOU.has(u) ? u : "";
+}
+// A animação de aparição da faixa no personagem ("" sem faixa).
+const animacaoDe = (faixa, p = PERS) => { const f = faixaDe(faixa); return f ? arquivo(p, "anima", f.chave) : ""; };
+
+// A duração de um WebP animado, lida do próprio arquivo (a soma dos quadros ANMF; o ANIM diz quantas voltas):
+// {ms, quadros, loop} ou null (não é WebP, não é animado, cortado). Assim a animação regravada não pede tabela nova.
+function duracaoWebp(buf) {
+  const b = buf instanceof Uint8Array ? buf : buf && typeof buf.byteLength === "number" ? new Uint8Array(buf) : null;
+  if (!b || b.length < 20) return null;
+  const quatro = i => String.fromCharCode(b[i], b[i + 1], b[i + 2], b[i + 3]);
+  const u24 = i => b[i] | b[i + 1] << 8 | b[i + 2] << 16;
+  if (quatro(0) !== "RIFF" || quatro(8) !== "WEBP") return null;
+  let i = 12, ms = 0, quadros = 0, loop = null;
+  while (i + 8 <= b.length) {
+    const tipo = quatro(i), n = (u24(i + 4) | b[i + 7] << 24) >>> 0, dado = i + 8;
+    if (dado + n > b.length) break;
+    if (tipo === "ANIM" && n >= 6) loop = b[dado + 4] | b[dado + 5] << 8;
+    if (tipo === "ANMF" && n >= 16) { ms += u24(dado + 12); quadros++; }
+    i = dado + n + (n & 1);
+  }
+  return quadros ? {ms, quadros, loop} : null;
+}
+
 // ---- a tela: o palco do ninja num lugar ("bloco", "tela", "folha"), que anima quando entra na tela -----------------
 // Cada lugar tem um modo: "espera" (fora da tela: o ninja some, para surgir no puff quando aparecer), "entra" (o puff),
 // "festa" (o puff e a faixa nova amarrando) e "parado". O painel redesenha o HTML a cada atualização: o modo fica aqui, e
@@ -451,9 +502,13 @@ const lugarDe = lugar => estado[lugar] || (estado[lugar] = {modo: reduzir() ? "p
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"}[c]));
 
 // O HTML do palco. festa = {titulo, sub} quando a faixa subiu; aoVer = o que fazer quando o ninja for visto de verdade
-// (a página guarda a faixa vista).
-function palco(lugar, faixa, {festa = null, dorme = false, aoVer = null, tamanho = 84} = {}) {
+// (a página guarda a faixa vista); personagem = o do ninja em imagem (o padrão é o do `personagem()`).
+// 12/11: com faixa, a imagem do personagem vem antes do SVG (posicionada, ela fica por cima do céu); "carregou" (já
+// carregada nesta página) esconde o corpo desenhado; "anima" (a animação de aparição tocando) esconde a imagem parada.
+function palco(lugar, faixa, {festa = null, dorme = false, aoVer = null, tamanho = 84, personagem: quem = PERS} = {}) {
   const s = lugarDe(lugar), f = dorme ? null : faixaDe(faixa);
+  const img = f ? imagemDe(faixa, quem) : "";
+  s.anima = img ? animacaoDe(faixa, quem) : "";
   s.aoVer = aoVer;
   if (festa && !s.festa && !s.festejou) {
     s.festa = festa;
@@ -464,7 +519,72 @@ function palco(lugar, faixa, {festa = null, dorme = false, aoVer = null, tamanho
   const pilula = s.festa && (modo === "festa" || modo === "espera" || reduzir())
     ? `<span class="np-festa"><b>${esc(s.festa.titulo)}</b>${s.festa.sub ? `<small>${esc(s.festa.sub)}</small>` : ""}</span>` : "";
   const claro = f && (f.chave === "branca" || f.chave === "amarela");
-  return `<span class="ninja-palco${classes}${f ? "" : " sem-faixa"}" data-ninja="${esc(lugar)}" style="--np:${tamanho}px${f ? `;--fx:${f.cor};--fx-txt:${claro ? "#0B1E3F" : "#FFFFFF"}` : ""}">${svg(faixa, {dorme})}${pilula}</span>`;
+  const foto = img ? `<img class="nj-img fx-${f.chave}${CARREGOU.has(img) ? " carregou" : ""}${s.animando ? " anima" : ""}" src="${esc(img)}" width="192" height="192" alt="" aria-hidden="true" draggable="false">` : "";
+  return `<span class="ninja-palco${classes}${f ? "" : " sem-faixa"}" data-ninja="${esc(lugar)}" style="--np:${tamanho}px${f ? `;--fx:${f.cor};--fx-txt:${claro ? "#0B1E3F" : "#FFFFFF"}` : ""}">${foto}${svg(faixa, {dorme})}${pilula}</span>`;
+}
+
+// ---- a animação de aparição (a faixa subiu), 12/11 -------------------------------------------------------------
+// Como no Monitor geral (geral_ninja_imagem.js): o WebP animado da faixa tem o dobro do ninja (224 px, o corpo no
+// quadrado do meio) e termina no corpo parado. Toca uma vez por cima de tudo (fixo, sem receber toque), seguindo o ninja
+// enquanto a página rola, e sai no último quadro; enquanto toca, a imagem parada se esconde. O arquivo vem da página (o
+// sw.js guarda pelo nome: da segunda vez, nem rede) e vira um arquivo novo a cada vez (blob), para tocar do começo. A
+// duração sai do próprio WebP. Sem o arquivo, se ele não abre ou demora mais que ANIMA_ESPERA_MS: só a troca (a pílula
+// "Faixa nova!" e os brilhos de sempre). Com o "reduzir movimento", nunca toca (verParado).
+const ANIMA_ESPERA_MS = 4000;   // o puff e o céu vazio esperam no máximo isso (a 1ª vez baixa até ~0,8 MB)
+const msDaAnimacao = d => Math.max(800, Math.min(4000, d && Number.isFinite(d.ms) && d.ms > 0 ? d.ms : 2500));
+let tocando = null;   // {lugar, fim}: a que está tocando
+function marcarAnima(lugar, sim) {
+  lugarDe(lugar).animando = sim;
+  const el = typeof document !== "undefined" ? noDoc(lugar) : null, img = el && el.querySelector(".nj-img");
+  if (img) img.classList.toggle("anima", sim);
+}
+function pararAnima(lugar) { if (tocando && (lugar === undefined || tocando.lugar === lugar)) tocando.fim(); }
+function tocar(lugar) {
+  const s = lugarDe(lugar), url = s.anima;
+  if (!url || reduzir() || typeof fetch !== "function" || typeof document === "undefined" || !document.body
+      || typeof URL === "undefined" || typeof URL.createObjectURL !== "function" || !raiz.Image) return Promise.resolve(false);
+  pararAnima();
+  let vivo = true, raf = 0, blob = "", el = null, timer = 0, desiste = 0;
+  const fim = () => {
+    if (!vivo) return;
+    vivo = false;
+    clearTimeout(timer); clearTimeout(desiste);
+    if (raf && raiz.cancelAnimationFrame) raiz.cancelAnimationFrame(raf);
+    if (el) el.remove();
+    if (blob) URL.revokeObjectURL(blob);
+    if (tocando && tocando.fim === fim) tocando = null;
+    marcarAnima(lugar, false);
+  };
+  tocando = {lugar, fim};
+  marcarAnima(lugar, true);
+  desiste = setTimeout(() => { if (!el) fim(); }, ANIMA_ESPERA_MS);   // rede lenta: só a troca
+  const alvo = () => { const p = noDoc(lugar); return p && (p.querySelector(".nj-img") || p); };
+  return fetch(url).then(r => r.ok ? r.arrayBuffer() : Promise.reject(new Error(`HTTP ${r.status}`))).then(buf => {
+    const d = vivo ? duracaoWebp(buf) : null;
+    if (!d) throw new Error("não é um WebP animado");
+    blob = URL.createObjectURL(new Blob([buf], {type: "image/webp"}));
+    const img = new raiz.Image();
+    img.className = "nj-anima";
+    img.alt = "";
+    img.setAttribute("aria-hidden", "true");
+    img.src = blob;
+    return (img.decode ? img.decode() : Promise.resolve()).then(() => {
+      if (!vivo || !alvo()) { fim(); return false; }
+      const pos = () => {
+        const a = alvo();
+        if (!a) return;
+        const r = a.getBoundingClientRect(), t = Math.round(r.width * 2);
+        img.style.cssText = `left:${Math.round(r.left + r.width / 2 - t / 2)}px;top:${Math.round(r.top + r.height / 2 - t / 2)}px;width:${t}px;height:${t}px`;
+      };
+      const laco = () => { if (vivo) { pos(); raf = raiz.requestAnimationFrame ? raiz.requestAnimationFrame(laco) : 0; } };
+      el = img;
+      pos();
+      document.body.appendChild(img);
+      laco();
+      timer = setTimeout(fim, msDaAnimacao(d));
+      return true;
+    });
+  }).catch(() => { fim(); return false; });
 }
 
 function aplicar(el, s) {
@@ -485,10 +605,12 @@ function comecar(lugar) {
   const el = noDoc(lugar);
   if (el) aplicar(el, s);
   if (s.aoVer) try { s.aoVer(); } catch (e) { /* guardar a faixa vista não pode travar a animação */ }
+  if (festa && s.anima) tocar(lugar);   // 12/11: a faixa subiu e o ninja é a imagem: a animação de aparição, uma vez
   s.timer = setTimeout(() => { s.modo = "parado"; s.festa = null; const e = noDoc(lugar); if (e) aplicar(e, s); }, DUR[s.modo]);
 }
 function armar(lugar) {
   const s = lugarDe(lugar);
+  if (s.animando) pararAnima(lugar);   // saiu da tela (ou o app saiu da frente) no meio da animação: ela para
   if (reduzir() || s.modo === "espera") return;
   clearTimeout(s.timer);
   if (s.modo === "festa") s.festa = null;   // já foi vista: não festeja de novo
@@ -544,12 +666,38 @@ function acordar() {
 }
 if (typeof document !== "undefined") document.addEventListener("visibilitychange", acordar);
 
+// 12/11: a imagem do ninja carregou (as próximas da mesma faixa já nascem com o corpo desenhado escondido) ou não
+// carregou (o arquivo fica marcado nesta página e o lugar dela volta a ser o desenho SVG, que estava por baixo).
+function carregou(img) {
+  const u = img && img.getAttribute ? img.getAttribute("src") : "";
+  if (!u) return false;
+  CARREGOU.add(u);
+  img.classList.add("carregou");
+  return true;
+}
+function falhou(img) {
+  const u = img && img.getAttribute ? img.getAttribute("src") : "";
+  if (!u) return false;
+  FALHOU.add(u);
+  CARREGOU.delete(u);
+  img.remove();
+  return true;
+}
+const ehNinja = t => !!(t && t.classList && t.classList.contains("nj-img"));
+if (typeof document !== "undefined" && document.addEventListener) {
+  document.addEventListener("load", e => { if (ehNinja(e.target)) carregou(e.target); }, true);
+  document.addEventListener("error", e => { if (ehNinja(e.target)) falhou(e.target); }, true);
+}
+
 const Ninja = {FAIXAS, ORDEM_FAIXAS, FAIXAS_TIME, METRICAS_TIME, WHITE, PORTAO_DA_BANDA_ATE, PRIMEIRA_SEMANA_DA_TABELA,
   MOTIVO_PRIMEIRO_DIA, MOTIVO_SEM_REGUA, AVISO_SEM_PAINEL, SELO_PAGINA, SELO_CODIGO, REGUAS_DO_PAINEL,
   faixaDe, rotulo, instante, emSP, num, limpo, somarDias, rotuloIso, semanaDoPrograma, sextaDoRotulo, semanaDaData, janelaDoMomento,
   fimDaSemana, corteDaSemana, diasFechados, metaToDate, tetoDaBanda, temPortaoDaBanda, tetoDaSemana, classificarFaixa,
   valoresDosFatores, faixaDaSemana, faixaDoOficial, conferirLeitura, farol, reguaDasLinhas, linhasDasFaixas, faixasDaRegua,
-  reguaDaSemana, umaCasa, subiu, guardar, svg, palco, vigiar, estado, DUR};
+  reguaDaSemana, umaCasa, subiu, guardar, svg, palco, vigiar, estado, DUR,
+  // 12/11: o ninja em imagem, por personagem, e a animação de aparição
+  PERSONAGENS, PERSONAGEM_PADRAO, PASTA_IMG, personagem, personagemDe, personagemDosPcs, imagemDe, animacaoDe, duracaoWebp,
+  msDaAnimacao, tocar, carregou, falhou, ANIMA_ESPERA_MS};
 if (typeof module !== "undefined" && module.exports) module.exports = Ninja;
 else raiz.Ninja = Ninja;
 })(typeof window !== "undefined" ? window : globalThis);

@@ -262,7 +262,9 @@ body.md-ver-cartoes .md-tab .md-seg [data-tab-modo="tabela"],body.md-ver-tabela 
 .sinal{font-style:normal;margin-left:4px;font-size:12.5px;letter-spacing:-.32em;color:rgba(244,246,251,.6)}
 .sinal.lido{color:#53BDEB}
 .sinal.erro{color:#FF6B60;letter-spacing:0}
-.sinal.mandando{letter-spacing:0;font-size:11px}
+.sinal.mandando,.sinal.fila{letter-spacing:0;font-size:11px}
+/* 0.9.0.15: o selo de por onde a mensagem foi (⌨ digitada, 🎼 pelo maestro, 🌙 de fundo), pequeno, antes da hora */
+.selo{margin-right:6px;font-size:10.5px;color:rgba(244,246,251,.55);letter-spacing:0}
 .erro-linha{margin:3px 2px 0 auto;max-width:85%;font-size:12.5px;color:#ffb3ad;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:right}
 .erro-linha.aberta{white-space:normal}
 .erro-linha.esperando{color:var(--gold-2)}
@@ -608,6 +610,18 @@ button.bloco-cab{display:block;width:100%;text-align:left}
 .uso-piso{margin:8px 0 2px;padding:8px 11px;border-radius:12px;border:1px solid rgba(226,184,74,.45);background:rgba(226,184,74,.08);
   color:#FBE7B4;font-size:13px;line-height:1.4}
 .uso-fecha .uf-proj{color:#C3D3EE}
+/* pro-67 (12/11): a faixa AO VIVO: o selo "agora" com o ponto verde que pulsa e, embaixo, a linha pequena do TeamZone
+   (no lugar do quadro "Se parar agora"; pro-73: "No TeamZone: Azul · próximo relatório às 18h35"), com o cinto da faixa
+   que o TeamZone mostra */
+.uso-selo.vivo{display:inline-flex;align-items:center;gap:6px;color:#8FEBB4}
+.vivo-ponto{flex:none;width:8px;height:8px;border-radius:50%;background:var(--green);animation:vivo-pulsa 1.8s ease-out infinite}
+@keyframes vivo-pulsa{0%{box-shadow:0 0 0 0 rgba(72,214,128,.6)}70%{box-shadow:0 0 0 7px rgba(72,214,128,0)}100%{box-shadow:0 0 0 0 rgba(72,214,128,0)}}
+@media (prefers-reduced-motion:reduce){.vivo-ponto{animation:none}}
+.uso-tz{display:flex;align-items:flex-start;gap:8px;margin:8px 0 2px;font-size:12.5px;line-height:1.4;color:var(--muted);text-align:left}
+.uso-tz .fx-cinto{width:18px;height:7px;margin-top:5px}
+.uso-tz .ic{flex:none;width:18px;text-align:center;color:var(--faint)}
+.uso-tz.aviso{padding:7px 10px;border-radius:12px;border:1px solid rgba(226,184,74,.4);background:rgba(226,184,74,.08);color:#FBE7B4}
+.uso-fecha .uso-tz{margin:4px 0 0}
 .uso-diag{margin-top:10px;font-size:12.5px;color:var(--faint)}
 .uso-diag summary{display:inline-flex;align-items:center;min-height:44px;padding:0 12px;border-radius:999px;background:var(--glass);
   border:1px solid var(--stroke);cursor:pointer;list-style:none}
@@ -731,6 +745,19 @@ button.bloco-cab{display:block;width:100%;text-align:left}
   .ninja-palco .nj-fumaca,.ninja-palco .nj-brilhos{display:none!important}
   .ninja-palco .np-festa{opacity:1}
 }
+/* 12/11: o ninja em imagem (o do Monitor geral do Pro, por faixa e personagem; ninja.js): por cima do céu do SVG, o
+   corpo desenhado por baixo de reserva (some quando a imagem carrega). Surge no mesmo puff; na Preta (escuro) e na
+   Branca (claro), um contorno para não sumir no fundo. A animação de aparição fica por cima de tudo (fixa, sem toque). */
+.ninja-palco .nj-img{position:absolute;left:0;bottom:5%;width:100%;height:auto;aspect-ratio:1/1;object-fit:contain;pointer-events:none;
+  user-select:none;-webkit-user-select:none;-webkit-user-drag:none;-webkit-touch-callout:none;filter:drop-shadow(0 2px 2px rgba(0,0,0,.35))}
+.nj-img.carregou~.nj .nj-corpo,.nj-img.anima~.nj .nj-corpo{visibility:hidden}
+.ninja-palco .nj-img.anima{visibility:hidden}
+.ninja-palco.espera .nj-img{opacity:0}
+.ninja-palco.entra .nj-img{transform-origin:50% 96%;animation:nj-surge .62s cubic-bezier(.3,1.5,.5,1) .16s both}
+.ninja-palco .nj-img.fx-preta{filter:drop-shadow(0 0 1.2px rgba(248,231,174,.8)) drop-shadow(0 2px 2px rgba(0,0,0,.35))}
+@media (prefers-color-scheme:light){.ninja-palco .nj-img.fx-branca{filter:drop-shadow(0 0 1.2px rgba(11,30,63,.7)) drop-shadow(0 2px 2px rgba(0,0,0,.25))}}
+.nj-anima{position:fixed;z-index:9000;pointer-events:none;left:-9999px;top:0}
+@media (prefers-reduced-motion:reduce){.ninja-palco.espera .nj-img{opacity:1}.nj-anima{display:none}}
 /* o ninja no bloco do Início, no topo da tela do uso e na folha do toque */
 .uso-ninja{display:flex;align-items:center;gap:12px;margin:2px 0 6px}
 .ninja-btn{flex:none;padding:0;border-radius:18px}
@@ -745,7 +772,8 @@ button.bloco-cab{display:block;width:100%;text-align:left}
 .fx-cinto{flex:none;display:inline-block;width:24px;height:9px;border-radius:3px;
   background:linear-gradient(90deg,var(--fx) 0 58%,#C0392B 58% 62%,#111 62% 84%,#C0392B 84% 88%,var(--fx) 88%);box-shadow:0 0 0 1px rgba(255,255,255,.28)}
 .fx-cinto.vazio{background:none;box-shadow:none;border:1.5px dashed rgba(255,255,255,.45)}
-.uso-heroi{display:flex;align-items:center;gap:14px}
+.uso-heroi{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.uso-heroi>.uso-tz{flex:1 1 100%;margin:0}
 .uso-heroi .un-txt{gap:4px}
 .us .fx-mini[style]{box-shadow:inset 0 -3px 0 var(--fx)}
 .faixas7{display:flex;gap:4px;margin:3px 0 1px}
@@ -766,6 +794,7 @@ button.bloco-cab{display:block;width:100%;text-align:left}
 .nf-escada .ne b{flex:1;color:var(--ink);font-weight:600} .nf-escada .ne i{font-style:normal;font-size:12.5px}
 .nf-escada .ne.aqui{background:rgba(226,184,74,.14);box-shadow:inset 0 0 0 1px rgba(226,184,74,.45)} .nf-escada .ne.aqui i{color:var(--gold-2);font-weight:650}
 .nf-nota{align-self:stretch;text-align:left;margin:10px 2px 0;font-size:12.5px;line-height:1.4;color:var(--faint)}
+.nf .uso-tz{align-self:stretch;margin:8px 2px 0}
 /* o "ver como conta" da régua: a explicação longa recolhida (o rodapé fica de uma linha) */
 .uso-como{align-self:stretch;text-align:left;font-size:12.5px;line-height:1.4;color:var(--faint)}
 .uso-como summary{min-height:44px;display:flex;align-items:center;color:var(--gold);cursor:pointer;list-style:none}
@@ -828,6 +857,9 @@ button.bloco-cab{display:block;width:100%;text-align:left}
 .fchip.limpar{background:none;border:1px solid var(--stroke-2)}
 .fx-titulo{display:flex;align-items:center;font-size:12px;font-weight:600;color:var(--faint);margin:4px 2px 8px;text-transform:uppercase;letter-spacing:.5px}
 .fx-titulo small{margin-left:auto;text-transform:none;letter-spacing:0;font-weight:500}
+/* 0.9.0.15: o grupo das sessões de segundo plano na lista (o título no jeito do das Fixadas) */
+.grupo-fundo{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:var(--faint);margin:18px 2px 8px;text-transform:uppercase;letter-spacing:.5px}
+.grupo-fundo i{font-style:normal;font-weight:500;letter-spacing:0}
 .fx-fila{display:flex;gap:8px;overflow-x:auto;margin:0 -16px 14px;padding:4px 16px 4px;scrollbar-width:none}
 .fx{flex:none;width:78px;display:flex;flex-direction:column;align-items:center;gap:5px;text-align:center;-webkit-user-select:none;user-select:none;
   -webkit-touch-callout:none;transition:transform .15s}
@@ -855,6 +887,20 @@ button.bloco-cab{display:block;width:100%;text-align:left}
 .sl.pronto .sl-acao{background:var(--gold);color:var(--navy)}
 .card .pino{font-size:13px}
 .vazio-filtro{text-align:center;padding:30px 10px;color:var(--muted)}
+/* pro-79: as sessões por projeto, na ordem de prioridade do Monitor geral (prioridades.js). O cabeçalho do grupo com o
+   degradê na cor do projeto, como as seções dos Cartões do Monitor; a barrinha da cor à esquerda de cada sessão. Quem
+   te espera mantém a borda dourada. */
+.pj-grupo{margin:0 0 14px}
+.pj-cab{display:flex;align-items:center;gap:8px;min-height:38px;margin:0 0 8px;padding:7px 12px;border-radius:12px;font-size:14.5px;font-weight:650;
+  color:var(--pj-2);background:linear-gradient(90deg,rgba(var(--pj-rgb),.32),rgba(var(--pj-rgb),.08) 70%,transparent);border:1px solid rgba(var(--pj-rgb),.32)}
+.pj-cab .pj-n{min-width:0;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pj-p,.pj-c{flex:none;min-width:24px;height:21px;padding:0 7px;border-radius:10px;display:inline-grid;place-items:center;font-size:12px;font-weight:700;color:#0B1E3F;background:var(--pj)}
+.pj-bola{flex:none;display:inline-block;width:11px;height:11px;border-radius:50%;background:var(--pj);box-shadow:0 0 0 3px rgba(var(--pj-rgb),.22)}
+.sl .card.sessao.pj{box-shadow:inset 4px 0 0 rgba(var(--pj-rgb),.9)}
+.sl .card.sessao.pj:not(.ask){border-color:rgba(var(--pj-rgb),.26);background:linear-gradient(135deg,rgba(var(--pj-rgb),.13),rgba(var(--pj-rgb),.02) 60%),#11264c}
+.folha .op .pj-op{display:flex;align-items:center;gap:9px;min-width:0}
+.folha .op .pj-op small{flex:none;font-size:12px;font-weight:700;color:var(--pj-2)}
+.fchip .pj-bola{width:9px;height:9px;margin-right:2px;vertical-align:0}
 .vazio-filtro .btn{max-width:220px;margin:14px auto 0;padding:10px}
 .cc{border-radius:14px;background:var(--glass);border:1px solid var(--stroke);margin-bottom:8px;overflow:hidden}
 .bloco .cc{background:rgba(0,0,0,.18)}
@@ -1532,13 +1578,16 @@ body.tela24 #appAviso{z-index:8}
 <script src="config.js"></script>
 <script src="markdown.js"></script>
 <script src="chat.js"></script>
+<script src="reacoes.js"></script>
 <script src="lista.js"></script>
+<script src="prioridades.js"></script>
 <script src="workflows.js"></script>
 <script src="pcs.js"></script>
 <script src="maquinas.js"></script>
 <script src="volta.js"></script>
 <script src="usoia.js"></script>
 <script src="ninja.js"></script>
+<script src="ninjavivo.js"></script>
 <script src="decisoes.js"></script>
 <script src="entregas.js"></script>
 <script src="pedidos.js"></script>
@@ -1568,15 +1617,19 @@ const edicoes = {};      // id do pedido -> o texto como a pessoa editou (a tela
 let sugestoesAtuais = []; // as respostas prontas da sessão aberta (o PC pede à IA quando o Claude pergunta ou termina)
 let timer = null, timerSala = null;
 let aba = "Inicio";
-const VERSAO_APP = "0.9.0.16";   // esta página (v27, a casca seaninho-v27: a VPS no Computadores, com o agente 0.9.0.16)
+const VERSAO_APP = "0.9.0.17";   // esta página (v28, a casca seaninho-v28: o trem do celular, tudo junto, com o agente 0.9.0.17)
 // o agente que acompanha esta página (os PCs atrás dele aparecem no painel). Corretor final de 12/11 (o cético): as
 // Decisões, as Entregas, os Meus pedidos e o Rodar só existem no agente 0.9.0.14 (o AGENTE_V24); com o 0.9.0 aqui, o
 // PC no 0.9.0.12 não aparecia como atrasado e as telas novas ficavam vazias sem dizer por quê. v27: o 0.9.0.16 traz a
 // VPS (e o WIN, no 0.9.0.16, deixa de tratar a linha dela como PC); as telas da v24 continuam pedindo o AGENTE_V24
-const AGENTE_ATUAL = "0.9.0.16";
+const AGENTE_ATUAL = "0.9.0.17";   // v28: o trem (as reações, as prioridades e o uso de IA ao vivo vêm com ele)
+// 0.9.0.15 (12/11): o agente que entrega no terminal, no app do Claude e no segundo plano (o mesmo do Chat.AGENTE_QUALQUER)
+const AGENTE_QUALQUER = "0.9.0.15";
 const NOVIDADES_APP = [
+  ["0.9.0.17", "Tudo junto numa versão só: o ninja novo do uso de IA (um por faixa, com a animação de aparição, e o ninja vivo parado em loop e nos golpes, o mesmo do Monitor geral), a faixa AO VIVO contra a meta de hoje com o TeamZone no cantinho, as reações nas mensagens (a fileira em cima do menu, os chips e o +), as Sessões por projeto na ordem de prioridade do Monitor geral, a mensagem para qualquer sessão (VS Code, terminal, app do Claude, segundo plano e os painéis do Herdr) e a VPS no Computadores. Precisa do agente 0.9.0.17 nos PCs."],
   ["0.9.0.16", "A VPS no Computadores: um cartão ☁ ao lado dos PCs (e no Início), com o estado (online, precisa do seu login, sem resposta, sem notícia), a RAM, o disco, a carga, a fila (rodando, esperando, pausada), as tarefas com o custo e o tempo, e os avisos. Mandar tarefa (o texto, o modelo, o orçamento e a prioridade; o rascunho fica no celular), Ver log de uma tarefa, Pausar (com a opção de parar as que rodam) e Retomar a fila. Quando ela pede o login do Tailscale, o botão Abrir o login. A VPS não aparece no topo, no Pedir nem no microfone. Precisa do agente 0.9.0.16 nos PCs."],
-  ["0.9.0.14", "Decisões no celular, como a tela do Monitor geral: um card por pergunta, as opções lado a lado com o desenho e a recomendada em dourado; arraste a opção para a direita (gostei) ou para a esquerda (não gostei), o título do card para a esquerda (nenhuma serve), ou toque em 👍 / 👎; comentário em cada card (o rascunho fica no celular), Conferir e enviar, e o andamento até a sessão receber; Refazer nas respondidas. Também as Entregas (a prova grande, ✓ Aprovar e ✎ Pedir ajuste), os Meus pedidos à sessão central e o ⚡ Rodar no PC nos itens do Para você com comando (com a folha de confirmação). O uso de IA igual ao TeamZone. As imagens leves: a miniatura só quando aparece, a grande só no toque. Precisa do agente 0.9.0.14 nos PCs."],
+  ["0.9.0.15", "Mensagem para qualquer sessão do Claude, não só as do VS Code: também as do terminal, do app do Claude e as de segundo plano. No VS Code ela é digitada na aba, como antes; no terminal e no app vai pelo maestro; a de segundo plano parada é retomada com a mensagem. Cada mensagem sua mostra um selo pequeno de por onde foi (⌨ digitada, 🎼 pelo maestro ou 🌙 de fundo), o 🕓 enquanto ainda não chegou e o ✓✓ quando a sessão recebeu. Se nenhum caminho alcança a sessão, o aviso diz por quê. As sessões de segundo plano aparecem na lista, no grupo Segundo plano, e abrem o chat como as outras. As fotos saem mais leves: até 1600 px em JPEG (o print de tela também); a que já é pequena, ou que ficaria maior, vai como está, e a foto virada vai de pé. A mensagem da orquestra que só vai com a sessão livre espera com ⏳, sem cair no meio do seu turno. Precisa do agente 0.9.0.15 nos PCs."],
+  ["0.9.0.14", "Decisões no celular, como a tela do Monitor geral: um card por pergunta, as opções lado a lado com o desenho e a recomendada em dourado; arraste a opção para a direita (gostei) ou para a esquerda (não gostei), o título do card para a esquerda (nenhuma serve), ou toque em 👍 / 👎; comentário em cada card (o rascunho fica no celular), Conferir e enviar, e o andamento até a sessão receber; Refazer nas respondidas. Também as Entregas (a prova grande, ✓ Aprovar e ✎ Pedir ajuste), os Meus pedidos à sessão central e o ⚡ Rodar no PC nos itens do Para você com comando (com a folha de confirmação). O uso de IA igual ao TeamZone. As imagens leves: a miniatura só quando aparece, a grande só no toque. E as Sessões por projeto, na ordem de prioridade do Monitor geral: quando você arrasta as seções no Monitor (P0 é a do alto), a lista segue a mesma ordem, com um cabeçalho na cor de cada projeto (P0 · Trancoso · 2) e a barrinha da cor em cada sessão; o 📁 Projeto lista os projetos nessa ordem, com a bolinha da cor; a sessão que não é de nenhum projeto fica em Outras, no fim (sem a ordem no Monitor, a lista fica como antes). Precisa do agente 0.9.0.14 nos PCs."],
   ["0.9.0.4", "Workflows: uma linha por frente de trabalho (o que o maestro delegou e os workflows lançados direto), quem espera você primeiro. Em cada uma: o PC, o estado (trabalhando, esperando você, parada no limite da conta, parada sem andar, terminou), a barra do workflow (▰▰▱ 12/13 · fase · tempo), há quanto tempo sem novidade (vermelho com 20 min trabalhando sem gravar nada) e a última fala. O toque abre a frente: os agentes, os arquivos novos da pasta com miniatura (imagem e PDF abrem aqui), Abrir a pasta no PC e Mandar mensagem. O resumo também no Início. Precisa do Seaninho do celular 0.9.0.4 no PC do maestro; os arquivos e os agentes chegam com a atualização do banco."],
   ["0.9.0", "Computadores: os PCs, a saúde deles e as contas do Claude num lugar só (o bloco 💻 no Início, os PCs do topo e o ⚙ abrem a tela). Um cartão por PC: estado (ligado, em uso, sem sinal, desligado, ligado sem o Seaninho), RAM, disco, tomada ou bateria, falhas, versões, a conta com o Trocar conta, as sessões, o histórico de 7 dias e o aviso quando ele cai ou volta. O ⏻ hiberna, reinicia ou desliga: a folha diz o que se perde (sessões trabalhando, o maestro, programas abertos, alguém no PC), segure 1,5 s, e o PC conta 60 s com Cancelar aqui e lá (mexer no PC cancela); nunca força, e se um programa segurar você escolhe Deixar ligado ou Forçar. Bloquear no ⋯. Precisa do banco v9 e do agente 0.9.0 nos PCs; Ligar pelo celular e Suspender ficam para depois. Agente 0.9.0: também a sobra de entrega que ficava presa na caixa do Claude."],
   ["0.8.12", "O maestro fica sabendo de cada sessão fechada: quando o Seaninho sugere fechar uma parada (RAM do PC acima de 90%) e quando você fecha uma aba pelo celular, vai uma linha para a caixa dele (dos dois PCs). Ele responde: \"fechei\" (o Início mostra que o maestro fechou) ou \"mantive\" (o motivo aparece junto da sugestão, também na lista do Fechar as N paradas). O que a própria orquestra fecha não volta para ela. Agente 0.8.12: também usa a régua da semana do servidor no uso de IA, quando o coletor a tiver, e registra melhor quando a entrega não consegue pôr o cursor."],
@@ -1758,18 +1811,27 @@ function desenharSessoes() {
   for (const [id, n] of [["nAsk", c.esperando], ["nInicio", c.esperando + dcPendentes().length]]) { $(id).textContent = n; $(id).classList.toggle("hidden", !n); }
   por($("contasLista"), linhaContas());
   if (gestoSessao || arrastoFixada) return;   // não refaz o que está embaixo do dedo
-  desenharFiltros(c);
-  const filtrando = !Lista.semFiltro(filtros) || !!busca.trim();
+  // pro-79: com a ordem dos projetos do Monitor geral (a de maior "ts" entre os PCs), a lista vai por projeto
+  const prio = prioridadesAgora(), fl = filtrosEf(prio);
+  desenharFiltros(c, prio, fl);
+  const filtrando = !Lista.semFiltro(fl) || !!busca.trim();
   desenharFixadas(ss, filtrando, agora);
-  let lista = Lista.filtrar(ss, filtros, busca, previa, agora);
+  let lista = Lista.filtrar(ss, fl, busca, previa, agora, prio ? s => Prioridades.chaveDe(s, prio) : null);
   if (!filtrando) lista = lista.filter(s => !Lista.fixada(fixadas, s));
   const varios = pcsDeVerdade().length > 1;
   let html;
   if (!ss.length) html = `<div class="empty">Nenhuma sessão do Claude aberta nos PCs.</div>`;
-  else if (!lista.length && filtrando) html = `<div class="vazio-filtro">${busca.trim() ? `Nada encontrado para “${esc(busca.trim())}”` : "Nenhuma sessão com esse filtro"}${!Lista.semFiltro(filtros) && busca.trim() ? " com esse filtro" : ""}.
-      <button class="btn sec" data-limpar-tudo>Limpar ${busca.trim() && !Lista.semFiltro(filtros) ? "busca e filtros" : busca.trim() ? "a busca" : "os filtros"}</button></div>`;
+  else if (!lista.length && filtrando) html = `<div class="vazio-filtro">${busca.trim() ? `Nada encontrado para “${esc(busca.trim())}”` : "Nenhuma sessão com esse filtro"}${!Lista.semFiltro(fl) && busca.trim() ? " com esse filtro" : ""}.
+      <button class="btn sec" data-limpar-tudo>Limpar ${busca.trim() && !Lista.semFiltro(fl) ? "busca e filtros" : busca.trim() ? "a busca" : "os filtros"}</button></div>`;
   else if (!lista.length) html = `<p class="note">Todas as sessões abertas estão fixadas acima.</p>`;
-  else html = lista.map(s => cartaoSessao(s, varios)).join("");
+  else {
+    // 0.9.0.15: as de segundo plano (claude --bg, "fundo": true) num grupo depois das com janela, com o mesmo cartão;
+    // pro-79: as com janela por projeto, na ordem de prioridade do Monitor geral (quando há)
+    const fundo = lista.filter(s => s.fundo), janela = lista.filter(s => !s.fundo);
+    html = (prio ? gruposHtml(janela, prio, varios) : janela.map(s => cartaoSessao(s, varios)).join(""))
+      + (fundo.length ? `<h4 class="grupo-fundo" id="grupoFundo">🌙 Segundo plano <i>${fundo.length}</i></h4>`
+        + fundo.map(s => cartaoSessao(s, varios)).join("") : "");
+  }
   if (rede.ok === false) html = `<div class="rede-off" role="status">⚠ Sem internet${rede.em ? " · a lista é das " + hm(new Date(rede.em).toISOString()) : ""}. Tentando de novo…</div>` + html;
   if (c.slack && (filtros.estado === "esperando" || !filtrando))
     html = `<button class="pv-nota" data-ir-pv>💬 ${c.slack === 1 ? "1 mensagem do Slack espera" : c.slack + " mensagens do Slack esperam"} você: no Para você, no Início ›</button>` + html;
@@ -1787,10 +1849,20 @@ function falhaDaSessao(s) {
     .sort((a, b) => String(b.criado_em).localeCompare(String(a.criado_em)))[0];
   return p ? {texto: p.texto || p.prompt} : locais.find(l => l.sessao === s.id && l.sinal === "erro") || null;
 }
-function cartaoSessao(s, varios) {
+// pro-79: os grupos por projeto, na ordem de prioridade ("Outras" no fim); dentro de cada um, a ordem de sempre. A cor
+// vai nas variáveis do grupo (--pj, --pj-2, --pj-rgb), que os cartões herdam.
+function gruposHtml(lista, prio, varios) {
+  return Prioridades.agrupar(lista, prio).map(g => `<section class="pj-grupo" style="${Prioridades.vars(g.cor)}" aria-label="${esc(Prioridades.rotulo(g))}">
+    <h3 class="pj-cab"><i class="pj-bola" aria-hidden="true"></i>${g.prioridade == null ? "" : `<b class="pj-p" title="Prioridade ${g.prioridade}">P${g.prioridade}</b>`}<span class="pj-n">${esc(g.nome)}</span><span class="pj-c" title="${g.lista.length === 1 ? "1 sessão" : g.lista.length + " sessões"}">${g.lista.length}</span></h3>
+    ${g.lista.map(s => cartaoSessao(s, varios, true)).join("")}</section>`).join("");
+}
+const prioridadesAgora = () => Prioridades.escolher(pcs);
+// Os filtros que valem agora: o de projeto só com a ordem dos projetos (sem ela, fica guardado e não filtra)
+const filtrosEf = prio => prio || !filtros.projeto ? filtros : Object.fromEntries(Object.entries(filtros).filter(([k]) => k !== "projeto"));
+function cartaoSessao(s, varios, pj) {
   const fixa = Lista.fixada(fixadas, s);
   return `<div class="sl" data-pc="${esc(s.pc)}" data-id="${esc(s.id)}"><div class="sl-acao">${fixa ? "Desafixar" : "📌 Fixar"}</div>
-    <button class="card sessao ${s.desligado ? "off" : s.estado === "perguntando" || s.paraVoce ? "ask" : ""}" data-pc="${esc(s.pc)}" data-id="${esc(s.id)}">
+    <button class="card sessao ${s.desligado ? "off" : s.estado === "perguntando" || s.paraVoce ? "ask" : ""}${pj ? " pj" : ""}" data-pc="${esc(s.pc)}" data-id="${esc(s.id)}">
       <div class="row"><div class="title">${fixa ? `<span class="pino" aria-label="Fixada">📌</span> ` : ""}${mudo(s)}${esc(s.titulo)}</div>${s.desligado
         ? `<span class="chip desligado">PC desligado</span>` : `<span class="chip ${esc(s.estado)}">${ESTADO[s.estado] || esc(s.estado)}</span>`}</div>
       <div class="meta">${esc(s.pasta)}${varios ? " · " + esc(s.pc) : ""} · ${s.desligado ? `${esc(nomeCurtoPc(s.pc))} desligado desde ${esc(quandoFoi(s.desligado))}` : ha(s.desde * 1000)}</div>
@@ -1801,25 +1873,38 @@ function cartaoSessao(s, varios) {
     </button></div>`;
 }
 
-function desenharFiltros(c) {
+function desenharFiltros(c, prio = prioridadesAgora(), fl = filtrosEf(prio)) {
+  const filtros = fl;   // (o de projeto só conta com a ordem dos projetos)
   const chip = (dim, val, rot, n) => `<button class="fchip ${filtros[dim] === val ? "on" : ""}" data-f="${dim}" data-v="${esc(val)}" aria-pressed="${filtros[dim] === val}">${esc(rot)}${n != null ? ` <i>${n}</i>` : ""}</button>`;
   let h = Lista.semFiltro(filtros) ? "" : `<button class="fchip limpar" data-limpar>✕ Limpar</button>`;
   for (const [k, rot] of Lista.ESTADOS) if (c[k] || filtros.estado === k) h += chip("estado", k, rot, c[k]);
   const lista = pcsDeVerdade().map(p => p.pc).sort();
   if (lista.length > 1 || filtros.pc) for (const pc of lista) h += chip("pc", pc, nomeCurtoPc(pc), c.porPc[pc] || 0);
   for (const g of Lista.GRUPOS) if (c.porGrupo[g] || filtros.grupo === g) h += chip("grupo", g, g === "Outras" ? "Outras pastas" : g, c.porGrupo[g] || 0);
-  h += `<button class="fchip ${filtros.pasta ? "on" : ""}" data-pastas aria-haspopup="dialog">📁 ${filtros.pasta ? esc(filtros.pasta) : "Projeto"} ▾</button>`;
+  // pro-79: com a ordem dos projetos, o 📁 escolhe o projeto (com a bolinha da cor); sem ela, a pasta, como antes
+  const pj = prio && filtros.projeto ? Prioridades.infoDe(filtros.projeto, prio) : null;
+  const rot = pj ? pj.nome : prio && filtros.projeto ? filtros.projeto.replace(/^pasta-/, "") : filtros.pasta || "Projeto";
+  h += `<button class="fchip ${filtros.pasta || filtros.projeto ? "on" : ""}" data-pastas aria-haspopup="dialog">${pj
+    ? `<i class="pj-bola" style="${Prioridades.vars(pj.cor)}" aria-hidden="true"></i>` : "📁"} ${esc(rot)} ▾</button>`;
   por($("filtros"), h);
 }
 
 function mudarFiltro(dim, val) {
   filtros = {...filtros, [dim]: filtros[dim] === val ? "" : val};
+  if (filtros[dim] && (dim === "projeto" || dim === "pasta")) delete filtros[dim === "projeto" ? "pasta" : "projeto"];   // um dos dois
   for (const k of Object.keys(filtros)) if (!filtros[k]) delete filtros[k];
   store.set("seaninho.filtros", Lista.semFiltro(filtros) ? "" : JSON.stringify(filtros));
   desenharSessoes();
 }
 
 function escolherPasta() {
+  const prio = prioridadesAgora();
+  if (prio) {   // pro-79: os projetos na ordem de prioridade do Monitor geral, com a bolinha da cor ("Outras" no fim)
+    const ss = todasSessoes(), grupos = Prioridades.agrupar(ss, prio);
+    return abrirFolha("Projeto · na ordem de prioridade", [["", "Todos os projetos", ss.length],
+      ...grupos.map(g => [g.chave, g.nome, g.lista.length, g.cor, g.prioridade])], filtros.projeto || "",
+      v => mudarFiltro("projeto", v || filtros.projeto || ""));
+  }
   const c = Lista.contar(todasSessoes(), Date.now());
   const pastas = Object.entries(c.porPasta).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
   abrirFolha("Projeto (pasta)", [["", "Todos os projetos", c.total], ...pastas.map(([p, n]) => [p, p, n])], filtros.pasta || "",
@@ -1830,8 +1915,10 @@ function escolherPasta() {
 let folhaEscolher = null;
 function abrirFolha(titulo, opcoes, atual, escolher) {
   folhaEscolher = escolher;
-  $("folha").innerHTML = `<div class="pega"></div><h4>${esc(titulo)}</h4>` + opcoes.map(([v, rot, n]) =>
-    `<button class="op ${v === atual ? "on" : ""}" data-op="${esc(v)}">${esc(rot)}<i>${n}${v === atual ? " ✓" : ""}</i></button>`).join("");
+  // (pro-79: a opção com cor leva a bolinha e a prioridade: [valor, rótulo, n, cor, prioridade])
+  $("folha").innerHTML = `<div class="pega"></div><h4>${esc(titulo)}</h4>` + opcoes.map(([v, rot, n, cor, p]) =>
+    `<button class="op ${v === atual ? "on" : ""}" data-op="${esc(v)}">${cor ? `<span class="pj-op" style="${Prioridades.vars(cor)}"><i class="pj-bola" aria-hidden="true"></i>${
+      p == null ? "" : `<small>P${p}</small>`}${esc(rot)}</span>` : esc(rot)}<i>${n}${v === atual ? " ✓" : ""}</i></button>`).join("");
   $("folhaFundo").classList.remove("hidden");
 }
 function fecharFolha() { $("folhaFundo").classList.add("hidden"); folhaEscolher = null; folhaEnergia = null; mqFolha = null; pararSegurar(); }
@@ -1979,7 +2066,8 @@ function ramDe(p) {
 }
 function paradasParaFechar(pc) {
   const o = orquestraDe(Object.values(pcs)), agora = Date.now();
-  return todasSessoes().filter(s => s.pc === pc && !s.desligado && s.estado === "ociosa" && !s.permissao && !s.enquete
+  // 0.9.0.15: a de segundo plano não tem aba para fechar
+  return todasSessoes().filter(s => s.pc === pc && !s.desligado && !s.fundo && s.estado === "ociosa" && !s.permissao && !s.enquete
     && agora - (s.desde || 0) * 1000 > 120000 && String(s.titulo || "").trim().toUpperCase() !== "MAESTRO" && !(o && o.sessao === s.id));
 }
 // 0.8.12 (pedido do Arthur pelo maestro em 02/11): cada sugestão de fechar e cada aba fechada pelo celular vão para a
@@ -2046,7 +2134,7 @@ const AGENTE_FECHAR = "0.8.6";
 const acoesVigiadas = new Map();   // pedido -> {ok, erro}: o que avisar quando o PC responder
 function itemFechar(pc, id) {
   const s = todasSessoes().find(x => x.id === id && x.pc === pc), p = pcs[pc];
-  const pode = s && !s.desligado && p && !Maquinas.ehMaquina(p) && online(p) && Lista.compararVersao(p.versao, AGENTE_FECHAR) >= 0
+  const pode = s && !s.desligado && !s.fundo && p && !Maquinas.ehMaquina(p) && online(p) && Lista.compararVersao(p.versao, AGENTE_FECHAR) >= 0   // 0.9.0.15: sem aba
     && !["trabalhando", "perguntando"].includes(s.estado) && !s.permissao && !s.enquete && String(s.titulo || "").trim().toUpperCase() !== "MAESTRO";
   return pode ? [["✕ Fechar a aba no PC", () => fecharAbaNoPc(pc, id, s.titulo)]] : [];
 }
@@ -2579,12 +2667,15 @@ async function processarNotas() {
 const novoId = () => (crypto.randomUUID ? crypto.randomUUID() : [...crypto.getRandomValues(new Uint8Array(16))]
   .map(b => b.toString(16).padStart(2, "0")).join("")).toLowerCase();
 
-// ---- Uso de IA da semana (0.8.7; v24, 12/11: igual ao TeamZone) ----------------------------------------------------
+// ---- Uso de IA da semana (0.8.7; v24, 12/11: igual ao TeamZone; pro-67, 12/11: a faixa AO VIVO) --------------------
 // Até a v23 a página dava "Branca" quando o TeamZone dava "Azul": somava só os PCs do banco, aplicava o portão da banda
-// (que acabou na W44) e tirava as faixas de uma fórmula sobre a régua do coletor. Agora a manchete é a do TeamZone: o
-// conjunto que o PC publica (painel.uso_ia_conjunto: o oficial lido no TeamZone, a régua da semana e a "próxima
-// atualização"), recalculado com os dias fechados de AGORA (UsoIa.painel, usoia.js). Sem ele, o plano B pelos PCs, com o
-// selo "estimativa". A banda P0–P100 do coletor saiu da tela (é outra escala, que o TeamZone não tem).
+// (que acabou na W44) e tirava as faixas de uma fórmula sobre a régua do coletor. Na v24 a manchete passou a ser a do
+// TeamZone: o conjunto que o PC publica (painel.uso_ia_conjunto: o oficial lido no TeamZone, a régua da semana e a
+// "próxima atualização"), recalculado com os dias fechados de AGORA (UsoIa.painel, usoia.js). Sem ele, o plano B pelos
+// PCs, com o selo "estimativa". A banda P0–P100 do coletor saiu da tela (é outra escala, que o TeamZone não tem).
+// pro-67 (o Arthur: "Eu quero saber ao vivo em que faixa eu estou. Não a que o Teamzone está contando"): a manchete é a
+// faixa AO VIVO, o TeamZone mais o que ainda não entrou contra a régua de hoje ("Faixa Roxa · agora"), e o TeamZone vira a
+// linha pequena de baixo (linhaTz), no lugar do "Se parar agora".
 const usosDosPcs = () => Object.values(pcs).map(p => {
   const pn = painelDe(p) || {}, obj = x => x && typeof x === "object" && !Array.isArray(x) ? x : null;
   return {...(pn.uso_ia || {}), pc: p.pc, ligado: online(p), visto: p.visto_em,
@@ -2661,13 +2752,16 @@ function avisosDoPainel(p) {
 }
 
 // ---- o ninja da faixa (ninja.js) ---------------------------------------------------------------------------------
-// O ninja veste a faixa da manchete (a do conjunto, a do TeamZone); no dia 0 da semana nova (sexta 17h a sábado 17h,
-// sem faixa ainda), a da semana que fecha. Surge num puff toda vez que a seção aparece e, quando a faixa sobe, a nova
-// amarra. A última faixa vista fica no aparelho, para saber se subiu.
+// O ninja veste a faixa da manchete, que é a faixa AO VIVO (pro-67, 12/11: os números de agora contra a régua de hoje, e
+// não a que o TeamZone ainda mostra); no dia 0 da semana nova (sexta 17h a sábado 17h, sem faixa ainda), a da semana
+// que fecha, também ao vivo. Surge num puff toda vez que a seção aparece e, quando a faixa AO VIVO sobe, a nova amarra
+// (a animação de aparição). A última faixa vista fica no aparelho, para saber se subiu.
 const NINJA_VISTO = "seaninho.ninja.faixa";   // 0.8.11: o índice é o das 7 faixas
 function lerVistoNinja() { try { return JSON.parse(store.get(NINJA_VISTO) || "null"); } catch { return null; } }
 function palcoNinja(lugar, p, tamanho) {
   if (!p) return Ninja.palco(lugar, null, {dorme: true, tamanho});
+  // 12/11: o ninja em imagem, no personagem que o PC publica no uso_ia ("Personagem do uso de IA"; feminino é o padrão)
+  Ninja.personagem(Ninja.personagemDosPcs(usosDosPcs()));
   const n = p.ninja, festa = Ninja.subiu(lerVistoNinja(), n.semana, n.i) ? {titulo: "Faixa nova!"} : null;
   return Ninja.palco(lugar, n.faixa, {festa, tamanho,
     aoVer: () => store.set(NINJA_VISTO, JSON.stringify(Ninja.guardar(lerVistoNinja(), n.semana, n.i)))});
@@ -2682,11 +2776,31 @@ const fileiraFaixas = (faixa, proxima) => { const i = faixa ? Ninja.FAIXAS_TIME.
   return `<span class="faixas7" role="img" aria-label="${esc(Ninja.rotulo(faixa))}${proxima ? `; próxima ${esc(proxima)}` : ""}">${Ninja.FAIXAS_TIME.map((f, j) =>
     `<i${corDaFaixa(f)} class="${f === faixa ? "aqui" : f === proxima ? "prox" : j < i ? "feita" : ""}" title="Faixa ${esc(f)}"></i>`).join("")}</span>`; };
 
-// ---- a manchete: a faixa, o selo (TeamZone 18h35 ou estimativa), a próxima e o que falta -------------------------
+// ---- a manchete: a faixa, o selo (agora; sem a faixa ao vivo, TeamZone 18h35 ou estimativa), a próxima e o que falta -
 const tituloFaixa = (p, m = p.manchete) => m.faixa ? `Faixa ${m.faixa}${p.parcial && m === p.manchete && m.proxima ? " ou acima" : ""}`
   : m.primeiro_dia || (m === p.manchete && p.dias === 0) ? `Semana ${p.numero} começou` : m.sem_regua ? "Sem régua da semana" : "Ainda sem faixa";
-const seloUso = p => p.base === "oficial" && p.teamzone ? `TeamZone ${horaTz(p.teamzone.atualizado_em)}`
-  : `estimativa · ${p.pcs.length} de ${p.maquinas} ${p.maquinas === 1 ? "máquina" : "máquinas"}`;
+// pro-67 (o Arthur, 12/11: "Você tem que dizer aqui, hoje, agora, nesse exato momento, você está na faixa roxa"): com a
+// faixa ao vivo, o selo é "agora" (com a leitura do TeamZone) ou "agora · estimativa · 2 de 3 máquinas" (sem ela); a hora
+// do TeamZone vai na linha dele, embaixo. `b`: o painel ou a semana que fecha (que não tem as máquinas: "estimativa").
+function seloUso(b) {
+  const tz = b.base === "oficial" && b.teamzone ? `TeamZone ${horaTz(b.teamzone.atualizado_em)}`
+    : !b.pcs || !b.maquinas ? "estimativa" : `estimativa · ${b.pcs.length} de ${b.maquinas} ${b.maquinas === 1 ? "máquina" : "máquinas"}`;
+  if (!b.manchete || !b.manchete.ao_vivo) return tz;
+  return b.base === "oficial" && b.teamzone ? "agora" : `agora · ${tz}`;
+}
+// o selo em HTML: com a faixa ao vivo, o ponto verde que pulsa
+const seloHtml = b => { const vivo = !!(b.manchete && b.manchete.ao_vivo);
+  return `<span class="un-sub uso-selo${vivo ? " vivo" : ""}">${vivo ? `<i class="vivo-ponto" aria-hidden="true"></i>` : ""}${esc(seloUso(b))}</span>`; };
+// A linha pequena do TeamZone embaixo da faixa ao vivo (UsoIa.linhaTeamZone; pro-73, o cantinho do Pro): "No TeamZone:
+// Azul · próximo relatório às 18h35 · a semana fecha em 13/11", ou "Sem leitura do TeamZone nesta semana: a soma dos
+// computadores". Ela substitui o quadro "Se parar agora". O cinto é o da faixa que o TeamZone mostra (≈ sem leitura).
+function linhaTz(b) {
+  const txt = UsoIa.linhaTeamZone(b, agoraBanco());
+  if (!txt) return "";
+  const imp = b.manchete.na_importacao || {}, aviso = !imp.fica && Object.keys(imp.faltam_para_ficar || {}).length > 0;
+  const ic = b.no_teamzone ? cintoNinja(b.no_teamzone.faixa) : `<span class="ic" aria-hidden="true">≈</span>`;
+  return `<p class="uso-tz${aviso ? " aviso" : ""}">${ic}<span>${esc(txt)}.</span></p>`;
+}
 function proximaTxt(m, p = null) {
   if (m.primeiro_dia || m.sem_regua) return esc(m.motivo);
   if (!m.proxima) return m.faixa ? "<b>Faixa máxima.</b>" : "";
@@ -2700,7 +2814,8 @@ function pisoUso(p) {
   const nomes = p.pcs.map(nomeCurtoPc).join(" + ") || "nenhum PC";
   return `<p class="uso-piso">⚠ Sem a leitura do TeamZone: a conta soma só ${esc(nomes)} (${p.pcs.length} de ${p.maquinas} máquinas). A faixa do TeamZone pode ser maior.</p>`;
 }
-// A linha "se parar agora": o que o TeamZone vai mostrar na atualização que leva a janela de hoje (17h a 17h).
+// A linha "se parar agora": o que o TeamZone vai mostrar na atualização que leva a janela de hoje (17h a 17h). pro-67:
+// só sem a faixa ao vivo (com ela, a linha do TeamZone toma o lugar: linhaTz).
 function linhaProxima(p) {
   const q = p.proxima, m = p.manchete;
   if (!q || m.primeiro_dia || (!q.faixa && !q.proxima && !q.sem_regua)) return "";
@@ -2726,16 +2841,19 @@ function somandoTxt(p) {
   const fora = p.fora.map(f => `${nomeCurtoPc(f.pc)}: ${f.ligado === false && f.motivo !== "sem o coletor" ? `desligado desde ${quandoFoi(f.visto)}` : f.motivo}`);
   return `${nomes ? `Somando ${esc(nomes)} (${p.pcs.length} de ${p.maquinas} máquinas do TeamZone)` : "Sem PC na soma"}${vistos.length ? ` · ${esc(vistos.join(" · "))}` : ""}${fora.length ? `<br>${esc(fora.join(" · "))}` : ""}`;
 }
-// A semana que fecha (dia 0 da nova): a faixa final dela, com a hora do retrato de sábado.
+// A semana que fecha (dia 0 da nova): a faixa final dela, com a hora do retrato de sábado. pro-67: ao vivo (o TeamZone
+// dela mais o que falta entrar, 7 dias), com o selo "agora" e a linha do TeamZone ("muda no retrato de sáb 17h05") no
+// lugar da projeção; no Início (curto), a linha só quando há a leitura do TeamZone.
 function blocoFechando(p, curto = false) {
   const f = p.fechando;
   if (!f) return "";
-  const m = f.manchete, selo = f.base === "oficial" && f.teamzone ? `TeamZone ${horaTz(f.teamzone.atualizado_em)}` : "estimativa";
-  const falta = m.proxima ? UsoIa.faltasTxt(m.faltam) : "", pj = f.projecao;
+  const m = f.manchete, selo = seloUso(f);
+  const falta = m.proxima ? UsoIa.faltasTxt(m.faltam) : "", pj = m.ao_vivo ? null : f.projecao;
   const proj = pj ? `<small class="uf-proj">se o que falta entrar até ${esc(horaTz(f.retrato - 5 * 60000))}: ${cintoNinja(pj.faixa)}${esc(pj.faixa ? `Faixa ${pj.faixa}` : "sem faixa")}${!curto && pj.proxima && UsoIa.faltasTxt(pj.faltam) ? ` · ${esc(UsoIa.faltasTxt(pj.faltam))} para a ${esc(pj.proxima)}` : ""} (projeção)</small>` : "";
+  const tz = m.ao_vivo && (f.no_teamzone || !curto) ? linhaTz(f) : "";
   return `<div class="uso-fecha"><span class="uf-t">Semana ${esc(f.numero)} · fechando</span>
     <span class="un-fx">${cintoNinja(m.faixa)}${esc(m.faixa ? `Faixa ${m.faixa}` : m.sem_regua ? "Sem régua" : "Sem faixa")}</span>
-    <small>${esc(selo)} · o retrato sai ${esc(horaTz(f.retrato))}${!curto && falta ? ` · para a ${esc(m.proxima)}, ${esc(falta)}` : ""}</small>${proj}</div>`;
+    <small>${esc(selo)} · o retrato sai ${esc(horaTz(f.retrato))}${!curto && falta ? ` · para a ${esc(m.proxima)}, ${esc(falta)}` : ""}</small>${proj}${tz}</div>`;
 }
 
 // ---- o bloco do Início --------------------------------------------------------------------------------------------
@@ -2751,9 +2869,9 @@ function blocoUsoIa() {
   const m = p.manchete, rotuloNinja = p.ninja.fechou ? `Faixa ${p.ninja.faixa} (semana ${numSemana(p.ninja.semana)}, que fecha)` : tituloFaixa(p);
   return `<section class="bloco"><button class="bloco-cab" data-uso><h3>📊 Uso de IA · semana ${esc(p.numero)} <span class="ir">Abrir ›</span></h3></button>
     ${linhaNinja(p, `<button class="un-txt" data-uso aria-label="${esc(tituloFaixa(p))}${m.proxima ? ", próxima " + esc(m.proxima) : ""}; ${esc(seloUso(p))}">
-      <span class="un-fx">${cintoNinja(m.faixa)}${esc(tituloFaixa(p))}</span><span class="un-sub uso-selo">${esc(seloUso(p))}</span>
+      <span class="un-fx">${cintoNinja(m.faixa)}${esc(tituloFaixa(p))}</span>${seloHtml(p)}
       <span class="un-prox">${proximaTxt(m, p)}</span></button>`, rotuloNinja)}
-    ${pisoUso(p)}${blocoFechando(p, true)}${chipsUso(p)}${linhaProxima(p)}
+    ${m.ao_vivo ? linhaTz(p) : ""}${pisoUso(p)}${blocoFechando(p, true)}${chipsUso(p)}${m.ao_vivo ? "" : linhaProxima(p)}
     ${errosUso(r, lista)}<div class="rodape">${somandoTxt(p)}</div></section>`;
 }
 
@@ -2842,19 +2960,20 @@ function desenharUsoIa() {
   const m = p.manchete, fmtData = ms => { const s = Ninja.emSP(ms), d = new Date(`${s.dia}T12:00:00Z`); return `${DIA_SEMANA[d.getUTCDay()]} ${s.dia.slice(8, 10)}/${s.dia.slice(5, 7)}`; };
   const heroi = `<section class="bloco uso-heroi"><button class="ninja-btn" data-ninja-ver aria-label="${esc(tituloFaixa(p))}: toque para ver a próxima faixa e o que falta">${palcoNinja("tela", p, 124)}</button>
     <div class="un-txt"><span class="un-fx grande">${cintoNinja(m.faixa)}${esc(tituloFaixa(p))}</span>
-      <span class="un-sub uso-selo">${esc(seloUso(p))}</span>
+      ${seloHtml(p)}
       <span class="un-prox">${proximaTxt(m, p)}</span>${fileiraFaixas(m.faixa, m.proxima)}
-      <span class="un-dica">Toque no ninja para ver o que falta</span></div></section>`;
+      <span class="un-dica">Toque no ninja para ver o que falta</span></div>${m.ao_vivo ? linhaTz(p) : ""}</section>`;
   const avisos = errosUso(r, lista);
   // na semana que fecha (dia 0, com ou sem a régua da nova), a régua mostrada é a dela; a da semana nova ainda não pede nada
   const daRegua = p.fechando && p.dias === 0 ? {p: {...p, regua: p.fechando.regua}, valores: p.fechando.manchete.valores || {}, dias: 7, m: p.fechando.manchete, titulo: `semana ${p.fechando.numero} inteira`}
     // sem o oficial, a manchete conta com os dias da próxima atualização: a régua mostra as metas desses dias (as de
     // hoje dariam outro "faltam" na mesma tela)
-    : Number.isFinite(m.dias) && m.dias > p.dias ? {p, valores: p.valores, dias: m.dias, m, titulo: `meta da próxima atualização · dia ${m.dias} de 7`}
+    // (pro-73: com a faixa ao vivo, é a meta de hoje, a que conta o dia de hoje)
+    : Number.isFinite(m.dias) && m.dias > p.dias ? {p, valores: p.valores, dias: m.dias, m, titulo: `${m.ao_vivo ? "meta de hoje" : "meta da próxima atualização"} · dia ${m.dias} de 7`}
     : {p, valores: p.valores, dias: p.dias, m, titulo: `meta até hoje · dia ${p.dias} de 7`};
   por($("usoCorpo"), `${avisos ? `<section class="bloco">${avisos}</section>` : ""}${heroi}
     <section class="bloco"><h3>Semana ${esc(p.numero)} <span class="n3">${esc(fmtData(p.inicio))} a ${esc(fmtData(p.fim))}, 17h</span></h3>
-      ${pisoUso(p)}${chipsUso(p)}${linhaProxima(p)}${blocoFechando(p)}
+      ${pisoUso(p)}${chipsUso(p)}${m.ao_vivo ? "" : linhaProxima(p)}${blocoFechando(p)}
       ${p.dias === 0 ? `<p class="uso-virada-nota">🗓 A semana ${esc(p.numero)} começou ${esc(quandoFoi(new Date(p.inicio).toISOString()))}: ${m.primeiro_dia
         ? "as faixas aparecem no sábado, às 17h" : "o TeamZone ainda não gravou a régua dela, e as faixas aparecem quando ela chegar"}. Não é erro.</p>` : ""}
       <div class="rodape">${somandoTxt(p)}</div>${avisosDoPainel(p)}</section>
@@ -2892,12 +3011,13 @@ function abrirNinja() {
       const est = x === m.faixa ? "você está aqui" : x === m.proxima ? "próxima" : Ninja.FAIXAS_TIME.indexOf(x) < i ? "✓" : "";
       return `<div class="ne${x === m.faixa ? " aqui" : ""}">${cintoNinja(x)}<b>Faixa ${esc(x)}</b><i>${est}</i></div>`;
     }).join("") + `<div class="ne${m.faixa ? "" : " aqui"}">${cintoNinja(null)}<b>Ainda sem faixa</b><i>${m.faixa ? "" : "você está aqui"}</i></div>`;
-    const selo = f ? (f.base === "oficial" && f.teamzone ? `TeamZone ${horaTz(f.teamzone.atualizado_em)}` : "estimativa") : seloUso(p);
+    const selo = seloUso(f || p);
     $("folha").innerHTML = `<div class="pega"></div><div class="nf">${palcoNinja("folha", p, 150)}
       <span class="un-fx">${cintoNinja(m.faixa)}${esc(f ? `Faixa ${m.faixa}` : tituloFaixa(p))}</span>
       <span class="un-sub">Semana ${esc(semana)} · ${f ? "fechando (7 de 7 dias)" : `dia ${dias} de 7`} · ${esc(selo)}</span>
       <span class="nf-prox">${m.proxima ? `Próxima: ${cintoNinja(m.proxima)}<b>Faixa ${esc(m.proxima)}</b>` : proximaTxt(m)}</span>
-      ${linhas ? `<h4>${m.proxima ? `${f ? "Faltaram" : "Faltam"} ${m.total - m.atingidos} de ${m.total} critérios para a ${esc(m.proxima)}` : "As metas da Preta"}${f ? "" : Number.isFinite(m.dias) && m.dias > p.dias ? " (meta da próxima atualização)" : " (meta até hoje)"}</h4>
+      ${m.ao_vivo ? linhaTz(f || p) : ""}
+      ${linhas ? `<h4>${m.proxima ? `${f ? "Faltaram" : "Faltam"} ${m.total - m.atingidos} de ${m.total} critérios para a ${esc(m.proxima)}` : "As metas da Preta"}${f ? "" : Number.isFinite(m.dias) && m.dias > p.dias ? (m.ao_vivo ? " (meta de hoje)" : " (meta da próxima atualização)") : " (meta até hoje)"}</h4>
         <div class="nf-lista">${linhas}</div>` : ""}
       ${f ? `<p class="nf-nota">A semana ${esc(p.numero)} começou ${esc(quandoFoi(new Date(p.inicio).toISOString()))}: as faixas dela aparecem no sábado, às 17h. Até lá, o ninja veste a faixa da ${esc(f.numero)}.</p>` : ""}
       <h4>As faixas</h4><div class="nf-escada">${escada}</div>
@@ -3079,8 +3199,10 @@ function cartaoPc(p, {o, viz, falhas, ss, agora}) {
   ].join("");
   const minhas = ss.filter(s => s.pc === pc && !s.desligado);
   const trab = minhas.filter(s => s.estado === "trabalhando").length, esp = minhas.filter(s => Lista.estadoDe(s, agora) === "esperando").length;
+  const fundo = minhas.filter(s => s.fundo).length;   // 0.9.0.15: as de segundo plano também vêm na lista
   const sessoes = `<button class="pc-ses" data-pcs-sessoes="${esc(pc)}"><span>💬 ${minhas.length ? plural(minhas.length, "sessão", "sessões")
-    : desligadoHa(p) ? "Sessões guardadas (PC desligado)" : "Nenhuma sessão aberta"}${trab ? ` · ${trab} trabalhando` : ""}${esp ? ` · ${esp} esperando você` : ""}</span><span class="ir">Ver ›</span></button>`;
+    : desligadoHa(p) ? "Sessões guardadas (PC desligado)" : "Nenhuma sessão aberta"}${trab ? ` · ${trab} trabalhando` : ""}${esp ? ` · ${esp} esperando você` : ""}${
+    fundo ? ` · ${fundo} em segundo plano` : ""}</span><span class="ir">Ver ›</span></button>`;
   const conta = p.hoje && p.hoje.conta && p.hoje.conta.email ? `<div class="pc-sec pc-cc"><h4>Conta do Claude</h4>${contaCartao(p, false)}</div>` : "";
   const lig = Pcs.podeLigar(p), placa = (e.placas || []).find(x => x && x.tipo === "cabo");
   const falta = e.notebook === false
@@ -4112,7 +4234,9 @@ const AGENTE_PERMISSAO = "0.8.1";   // o que responde o pedido de permissão (e 
 const CLIPE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5l-8.6 8.6a5.5 5.5 0 0 1-7.8-7.8l9.2-9.2a3.7 3.7 0 0 1 5.2 5.2l-9.2 9.2a1.8 1.8 0 0 1-2.6-2.6l8.5-8.5"/></svg>';
 const SETA = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M3.4 20.4l17.5-7.5a1 1 0 0 0 0-1.8L3.4 3.6a.9.9 0 0 0-1.3 1L4 11l9 1-9 1-1.9 6.4a.9.9 0 0 0 1.3 1z"/></svg>';
 const NOME_SINAL = {mandando: "mandando", enviado: "enviado", entregue: "entregue", lido: "a sessão respondeu", erro: "não foi",
-                    esperando: "esperando para entrar"};
+                    esperando: "esperando para entrar", fila: "com o maestro: ainda não chegou à sessão"};
+// 0.9.0.15: o selo de por onde a mensagem foi, no rodapé do balão (Chat.SELO), e a frase inteira para o leitor de tela
+const NOME_SELO = {digitada: "digitada na aba do PC", maestro: "entregue pelo maestro", fundo: "retomada de fundo com a mensagem"};
 // As mensagens com erro que saíram do chat (Tentar de novo, Editar, Apagar), lembradas no aparelho por 3 dias: depois
 // de recarregar, o balão velho não volta.
 let ocultos = lerJson("seaninho.ocultos", {});
@@ -4167,6 +4291,9 @@ function guardarMiniatura(id, urls) {   // as imagens mandadas daqui aparecem no
 }
 
 const agenteNovo = (pc, minimo = AGENTE_CHAT) => !!(pcs[pc] && Chat.versaoMin(pcs[pc].versao, minimo));
+// A pergunta com opções e a permissão que o PC não responde daqui (respondivel falso). 0.9.0.15: a sessão do terminal,
+// do app e de segundo plano também recebe mensagem (pelo maestro ou de fundo), mas a mensagem não aperta o quadro dela
+const soNoPc = s => `Esta só se responde no PC${s.onde && s.onde !== "VS Code" ? ` (a sessão está no ${s.onde})` : ""}.`;
 const dentro = el => !!(document.activeElement && el.contains(document.activeElement) && document.activeElement !== el);
 const escrevendoEm = el => dentro(el) && /^(INPUT|TEXTAREA)$/.test(document.activeElement.tagName);
 const horaDe = t => t ? new Date(t * 1000).toLocaleTimeString("pt-BR", {hour: "2-digit", minute: "2-digit"}) : "";
@@ -4242,10 +4369,9 @@ function desenharDetalhe(paraOFim = false) {
   if (!s) motivo = "A sessão não está mais aberta no PC.";
   else if (!ligado) envioBloqueado = `O ${nomeCurtoPc(s.pc)} está desligado (visto ${ha(new Date(pcs[s.pc] ? pcs[s.pc].visto_em : 0).getTime())}). Pode escrever: a mensagem fica na caixa até ele ligar.`;
   else if (enquete || respondePerm) motivo = "";
-  else if (!s.entregavel) motivo = s.onde !== "VS Code" ? `Por enquanto só entrego em sessões do VS Code (esta está no ${s.onde}).`
-    : s.enquete ? "A pergunta com opções desta sessão ainda só se responde no PC."
-    : permissao ? `Para responder a permissão daqui, o ${s.pc} precisa do Seaninho no celular ${AGENTE_PERMISSAO}.`
-    : "A sessão está esperando uma permissão: isso ainda só se responde no PC.";
+  // 0.9.0.15: não existe mais "só entrego no VS Code". Com o agente 0.9.0.15 no PC da sessão vale o "entregavel" dele
+  // e, sem caminho, o porquê que ele dá (motivo_entrega); com o de antes, fora do VS Code, o aviso é atualizar o PC.
+  else if (!s.entregavel) motivo = Chat.motivoSemEntrega(s, (pcs[s.pc] || {}).versao, {agentePermissao: AGENTE_PERMISSAO});
   const rascunho = ped.find(p => p.estado === "pronto" && (p.tipo || "claude") === "claude");
   if (!escrevendoEm($("dRascunho"))) $("dRascunho").innerHTML = rascunho ? desenharRascunho(rascunho) : "";
   $("dCompor").classList.toggle("hidden", !!motivo || !!rascunho || !!enquete || respondePerm);
@@ -4288,14 +4414,17 @@ function desenharMensagens(s, paraOFim = false, forcar = false) {
   const caixa = $("dMsgs");
   if (escrevendoEm(caixa) && !forcar) return;   // escrevendo a "Outra resposta" da enquete: não refaz por baixo
   // 0.8.9: com o dedo num balão (arrastar para responder, toque longo) ou um menu aberto, espera a próxima volta
-  if (!forcar && !paraOFim && (gestoBalao || !$("dMenuBalao").classList.contains("hidden") || !$("tabMenu").classList.contains("hidden"))) return;
+  if (!forcar && !paraOFim && (gestoBalao || !$("dMenuBalao").classList.contains("hidden") || !$("tabMenu").classList.contains("hidden")
+      || (window.Reacoes && Reacoes.aberto()))) return;   // 12/11: a fileira solta, a grade do "+" ou a hora do chip abertas
   const meus = locais.filter(l => l.sessao === s.id);
   const linhas = Chat.montar(s, pedidos.filter(p => !reenviados.has(p.id) && !ocultos[p.id]), meus, Date.now());
+  if (window.Reacoes) Reacoes.preparar(s, linhas);   // 12/11: as reações de cada balão (a lista do PC e as minhas andando)
   const viva = sessaoAberta();
   if (viva && viva.id === s.id && viva.permissao && !viva.enquete)   // o pedido de permissão que espera: no fim
     linhas.push({tipo: "msg", id: "perm:" + viva.permissao.id, de: "claude", texto: "", t: viva.permissao.t || 0, permissao: viva.permissao});
   fotosNaTela.clear(); linhasNaTela.clear(); docsNaTela.clear();
-  const html = linhas.map((l, i) => desenharLinha(l, linhas[i - 1], s)).join("")
+  // 12/11: as reações enfeitam cada balão já desenhado (o ☺ dentro da bolha, os chips e o porquê embaixo dela)
+  const html = linhas.map((l, i) => { const h = desenharLinha(l, linhas[i - 1], s); return window.Reacoes ? Reacoes.enfeitar(h, l) : h; }).join("")
     || `<div class="empty">Nada na conversa ainda.</div>`;
   if (grandesFaltam.size) buscarGrandes();
   if (nitidasFaltam.size) carregarNitidas();
@@ -4386,21 +4515,26 @@ function carregarNitidas() {
     });
   }
 }
+// 0.9.0.15 (CONTRATO-0915, 8.5 C): a foto com "ref" é a que eu mandei daqui (celular-anexos no PC); o celular mostra a
+// original dele, guardada no envio, e não baixa nada. O agente 0.9.0.15 nem sobe mais a média e a alta dela; se este
+// aparelho não tem a original (outro celular, dados limpos), poucas tentativas no banco (o agente de antes ainda sobe) e,
+// sem nada, a prévia que veio com a conversa, sem o "não veio".
+const TENTATIVAS_REF = 3, ESPERA_FOTO_MS = window.__esperaFotoMs || 3000;
 async function baixarNitida(f) {
   const minha = f.ref && refs[f.ref] ? await Marcar.Grandes.ler(refs[f.ref]) : "";
   if (minha) return minha;
   const guardada = await Marcar.Grandes.ler(`foto:${f.id}`);
   if (guardada) return guardada;
-  for (let i = 0; i < 20; i++) {
+  for (let i = 0, n = f.ref ? TENTATIVAS_REF : 20; i < n; i++) {
     const r = await rpc("cel_foto", {id: f.id, tamanho: "media"});
     if (r && r.dados) {
       const url = `data:${r.mime || "image/jpeg"};base64,${r.dados}`;
       Marcar.Grandes.guardar(`foto:${f.id}`, url);
       return url;
     }
-    await new Promise(ok => setTimeout(ok, 3000));
+    await new Promise(ok => setTimeout(ok, ESPERA_FOTO_MS));
   }
-  return "";
+  return f.ref && f.src ? f.src : "";   // a minha, que não está neste aparelho: a prévia (o PC não sobe outra)
 }
 // A de tela cheia e do editor (até 2560 px).
 const altasPedidas = new Map();   // id -> a promessa (um pedido por foto, mesmo com vários toques)
@@ -4413,15 +4547,16 @@ async function buscarAlta(f) {
   if (minha) return minha;
   const guardada = await Marcar.Grandes.ler(`foto:${f.id}:alta`);
   if (guardada) return guardada;
-  for (let i = 0; i < 8; i++) {   // 0.8.9: antes, uma vez só (e o editor caía na prévia de 120 px, borrada)
+  for (let i = 0, n = f.ref ? TENTATIVAS_REF : 8; i < n; i++) {   // 0.8.9: antes, uma vez só (e o editor caía na prévia de 120 px, borrada)
     const r = await rpc("cel_foto", {id: f.id, tamanho: "alta"});
     if (r && r.dados) {
       const url = `data:${r.mime || "image/jpeg"};base64,${r.dados}`;
       Marcar.Grandes.guardar(`foto:${f.id}:alta`, url);
       return url;
     }
-    await new Promise(ok => setTimeout(ok, 2000));
+    await new Promise(ok => setTimeout(ok, ESPERA_FOTO_MS * 2 / 3));
   }
+  if (f.ref && (nitidasDados.get(f.id) || f.src)) return nitidasDados.get(f.id) || f.src;   // a minha, fora deste aparelho
   throw new Error("ainda não chegou ao banco");
 }
 
@@ -4488,11 +4623,12 @@ function desenharLinha(l, ant, s) {
   if (l.nota) corpo += `<div class="nota"><span class="spin"></span>${esc(l.nota)}</div>`;
   if (l.obs) corpo += `<div class="nota obs">${esc(l.obs)}</div>`;
   const sinal = eu && l.sinal ? `<i class="sinal ${l.sinal}" title="${NOME_SINAL[l.sinal]}" aria-label="${NOME_SINAL[l.sinal]}">${Chat.SINAL[l.sinal]}</i>` : "";
+  const selo = eu && Chat.SELO[l.via] ? `<span class="selo ${l.via}" title="${NOME_SELO[l.via]}" aria-label="${NOME_SELO[l.via]}">${Chat.SELO[l.via]}</span>` : "";
   const erro = eu && (l.sinal === "erro" || l.sinal === "esperando")
     ? `<button class="erro-linha ${l.sinal}" data-erro="${esc(l.id)}" aria-label="Ver o motivo inteiro">${l.sinal === "esperando" ? "⏳ " : "⚠ Não entregue: "}${esc(l.erro)}</button>${acoesDaMsg(l)}`
     : eu && l.fila ? acoesDaMsg(l) : "";
   return `<div class="linha-msg ${eu ? "eu" : "ele"}${seguida ? " seguida" : ""}" data-id="${esc(l.id)}">${icone}`
-    + `<div class="bolha${l.enquete ? " enq" : ""}${!eu && !l.texto && !l.enquete ? " so-foto" : ""}">${corpo}<span class="hora">${horaDe(l.t)}${sinal}</span></div>${erro}</div>`;
+    + `<div class="bolha${l.enquete ? " enq" : ""}${!eu && !l.texto && !l.enquete ? " so-foto" : ""}">${corpo}<span class="hora">${selo}${horaDe(l.t)}${sinal}</span></div>${erro}</div>`;
 }
 
 // ---- Enquete (a pergunta com opções do Claude) ------------------------------------------------------------
@@ -4525,7 +4661,7 @@ function desenharEnquete(enq, s) {
   if (pendente) {
     if (pode) h += `<button class="btn" data-responder="${esc(enq.id)}"${Chat.completas(enq, marcadas) ? "" : " disabled"}>Responder</button>`;
     else if (enviando) h += `<div class="enq-status"><span class="spin"></span>Respondendo na aba do PC…</div>`;
-    else if (!s.respondivel) h += `<div class="enq-status">Esta só se responde no PC (a sessão não está no VS Code).</div>`;
+    else if (!s.respondivel) h += `<div class="enq-status">${esc(soNoPc(s))}</div>`;
     else if (!agenteNovo(s.pc)) h += `<div class="enq-status">Para responder daqui, o ${esc(s.pc)} precisa do Seaninho no celular ${AGENTE_CHAT}.</div>`;
     else h += `<div class="enq-status">O PC parece desligado.</div>`;
     if (!enviando && erro && erro.estado === "erro") h += `<div class="enq-status err">⚠ ${esc(erro.erro)}</div>`;
@@ -4598,7 +4734,7 @@ function desenharPermissao(perm, s) {
       placeholder="${perm.plano ? "O que mudar no plano (opcional)" : "Recado para o Claude (opcional)"}" enterkeyhint="done">`;
     h += botoes.filter(b => b.escolha === "nao").map(botao).join("");
   } else if (enviando) h += `<div class="enq-status"><span class="spin"></span>Respondendo na aba do PC…</div>`;
-  else if (!s.respondivel) h += `<div class="enq-status">Esta só se responde no PC (a sessão não está no VS Code).</div>`;
+  else if (!s.respondivel) h += `<div class="enq-status">${esc(soNoPc(s))}</div>`;
   else if (!agenteNovo(s.pc, AGENTE_PERMISSAO)) h += `<div class="enq-status">Para responder daqui, o ${esc(s.pc)} precisa do Seaninho no celular ${AGENTE_PERMISSAO}.</div>`;
   else h += `<div class="enq-status">O PC parece desligado.</div>`;
   const ultimo = pedidos.find(p => { const a = Chat.respostaDePermissao(p, s.id); return a && a.id === perm.id; });   // o mais novo
@@ -4666,6 +4802,7 @@ function abrirMenuBalao(linha) {
   const h = m.offsetHeight, w = m.offsetWidth;
   m.style.top = Math.max(8, Math.min(innerHeight - h - 8, r.top - h - 8 > 60 ? r.top - h - 8 : r.bottom + 8)) + "px";
   m.style.left = Math.max(8, Math.min(innerWidth - w - 8, linha.classList.contains("eu") ? r.right - w : r.left)) + "px";
+  if (window.Reacoes) Reacoes.noMenu(linha, m);   // 12/11: a fileira 👍 👎 ❤️ … em cima do menu (e o menu no lugar dela)
   if (navigator.vibrate) navigator.vibrate(8);
 }
 function fecharMenuBalao() { $("dMenuBalao").classList.add("hidden"); }
@@ -4734,7 +4871,7 @@ function enviarVarias(corpo, ims, pv = null) {
   const grupo = (crypto.randomUUID ? crypto.randomUUID() : [...crypto.getRandomValues(new Uint8Array(16))]
     .map(b => b.toString(16).padStart(2, "0")).join("")).toLowerCase();
   const local = {id: idLocal(), sessao: aberta.id, de: "eu", texto: corpo, t: Math.floor(Date.now() / 1000),
-                 minis: ims.map(im => im.mini), grandes: ims.map(im => "data:image/jpeg;base64," + im.b64),
+                 minis: ims.map(im => im.mini), grandes: ims.map(urlAnexo),
                  mime: `imagens/${grupo}/${n}`, grupo, subidas: ims.map(() => ""), pv};
   const args = {pc: aberta.pc, sessao: aberta.id, titulo: s ? s.titulo : "", texto: corpo, direto: !melhorar, mime: local.mime};
   return subirVarias(local, ims, args);
@@ -4781,7 +4918,7 @@ function enviarMensagem(corpo, im, pv = null) {
     return enviarLocal(local, {pc: aberta.pc, sessao: aberta.id, titulo: s ? s.titulo : "", texto: corpo, direto: !melhorar, ...r.args});
   }
   const local = {id: idLocal(), sessao: aberta.id, de: "eu", texto: corpo, t: Math.floor(Date.now() / 1000),
-                 mini: im ? im.mini : "", grande: im ? "data:image/jpeg;base64," + im.b64 : "", mime: im ? im.mime : "", pv};
+                 mini: im ? im.mini : "", grande: im ? urlAnexo(im) : "", mime: im ? im.mime : "", pv};
   return enviarLocal(local, {pc: aberta.pc, sessao: aberta.id, titulo: s ? s.titulo : "", texto: corpo, direto: !melhorar,
                              ...(im ? {audio: im.b64, mime: im.mime} : {})});
 }
@@ -4790,9 +4927,11 @@ function enviarMensagem(corpo, im, pv = null) {
 // Com erro: Tentar de novo, Editar, Copiar e Apagar. Esperando (o PC tenta de novo sozinho quando a causa some):
 // Tentar agora e, com um rascunho do Arthur na caixa do PC, Juntar e enviar e Mandar pelo maestro.
 // 0.8.9: o erro diz se a mensagem pode ter chegado (aí o "Mandar de novo" pergunta antes, para não chegar duas vezes) ou
-// se tentar de novo não adianta (texto grande demais, sessão fora do VS Code): aí não há o botão.
+// se tentar de novo não adianta (texto grande demais, sessão fora do VS Code no agente de antes): aí não há o botão.
 const PODE_TER_SAIDO = /mandei, mas|confira (no pc )?antes de mandar de novo|ficou (escrito )?na caixa|pode ter (saído|chegado)/i;
-const NAO_ADIANTA = /grande demais|só entrego em sess|texto vazio/i;
+// 0.9.0.15: o "só entrego em sessões do VS Code" fica para o agente de antes; no novo, não adianta quando a sessão está
+// no modo sem permissões com o maestro no automático ("… Mande pelo PC.") ou quando o modo dela não se vê
+const NAO_ADIANTA = /grande demais|só entrego em sess|texto vazio|mande pelo PC|não consegui ver o modo/i;
 function acoesDaMsg(l) {
   const minha = l.tipoPedido === "claude" || (!l.pedido && (l.reenviar || l.fila));
   if (!minha || l.resposta_a || l.permissao_a) return "";
@@ -4861,6 +5000,7 @@ async function acaoMsg(acao, l) {
 let reusoEditar = null;
 async function reusoDoPedido(p) {
   const mime = String((p && p.mime) || "");
+  if (!Chat.temAnexo(mime)) return {mime: "", args: {}};   // 0.9.0.15: o "orq/…" da orquestra não é imagem (vai só o texto)
   if (mime.startsWith("imagens/") || mime.startsWith("salva/")) return {mime, args: {mime}};
   if (mime.startsWith("image/") || mime === "application/pdf") {
     const grande = mime.startsWith("image/") ? await Marcar.Grandes.ler(p.id).catch(() => "") : "";
@@ -5280,20 +5420,53 @@ function carregarImagem(arquivo) {
     img.src = url;
   });
 }
+// A imagem (Image) já vem de pé: o navegador aplica a orientação do EXIF no Image e no drawImage (o canvas sai sem EXIF).
 function reduzir(img, lado, qualidade) {   // img: a foto (Image) ou a imagem marcada (canvas)
-  const w = img.naturalWidth || img.width, h = img.naturalHeight || img.height;
-  const k = Math.min(1, lado / Math.max(w, h));
+  const {w, h} = Chat.ladoReduzido(img.naturalWidth || img.width, img.naturalHeight || img.height, lado);
   const c = document.createElement("canvas");
-  c.width = Math.max(1, Math.round(w * k)); c.height = Math.max(1, Math.round(h * k));
-  c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
+  c.width = w; c.height = h;
+  const g = c.getContext("2d");
+  g.fillStyle = "#fff"; g.fillRect(0, 0, w, h);   // 0.9.0.15: o fundo transparente do PNG vira branco, não preto
+  g.drawImage(img, 0, 0, w, h);
   return c.toDataURL("image/jpeg", qualidade).split(",")[1] || "";
 }
-function imagemDe(img) {   // 1600 px em JPEG (menor, se passar de ~1 MB) e a miniatura do balão
-  let b64 = "", lado = 1600, q = 0.82;
+function imagemDe(img) {   // 1600 px em JPEG de qualidade 0,8 (menor, se passar de ~1 MB) e a miniatura do balão
+  let b64 = "", lado = Chat.FOTO_LADO, q = Chat.FOTO_QUALIDADE;
   for (let i = 0; i < 4; i++) { b64 = reduzir(img, lado, q); if (b64.length < 1400000) break; lado = Math.round(lado * 0.8); q -= 0.1; }
   if (!b64 || b64.length >= 1900000) throw new Error("a imagem ficou grande demais.");
   return {b64, mime: "image/jpeg", mini: "data:image/jpeg;base64," + reduzir(img, 480, 0.7)};
 }
+// 0.9.0.15 (CONTRATO-0915, 8.5 C): a foto escolhida, colada ou da câmera, do jeito mais leve que o PC abre. Reduzida
+// (1600 px, JPEG 0,8; o print em PNG vira JPEG), ou como está quando já é pequena ou quando reduzir deixaria maior
+// (Chat.comoVaiAFoto). Do arquivo grande só se lê o começo (o tipo e o EXIF): ele nunca vai como está.
+const CABECA_FOTO = 256 * 1024;
+const lerBytes = blob => new Promise((ok, falha) => {
+  const r = new FileReader();
+  r.onload = () => ok(new Uint8Array(r.result));
+  r.onerror = () => falha(r.error || new Error("leitura"));
+  r.readAsArrayBuffer(blob);
+});
+function base64DosBytes(u) {
+  let s = "";
+  for (let i = 0; i < u.length; i += 0x8000) s += String.fromCharCode.apply(null, u.subarray(i, i + 0x8000));
+  return btoa(s);
+}
+async function imagemDoArquivo(arquivo) {
+  const tamanho = arquivo.size || 0, inteiro = tamanho > 0 && tamanho <= Chat.FOTO_MAX;
+  const [img, bytes] = await Promise.all([carregarImagem(arquivo),
+    lerBytes(inteiro ? arquivo : arquivo.slice(0, CABECA_FOTO)).catch(() => new Uint8Array(0))]);
+  const o = {tipo: Chat.tipoDosBytes(bytes), bytes: inteiro && bytes.length === tamanho ? tamanho : 0,
+             w: img.naturalWidth || img.width, h: img.naturalHeight || img.height, orientacao: Chat.orientacaoExif(bytes)};
+  let como = Chat.comoVaiAFoto(o), red = null;
+  if (como !== "original") {
+    try { red = imagemDe(img); } catch (e) { if (como === "reduzida") throw e; }
+    if (como === "comparar") como = Chat.comoVaiAFoto(o, red ? Chat.bytesDoBase64(red.b64) : 0);
+  }
+  if (como === "reduzida" && red) return red;
+  return {b64: base64DosBytes(bytes), mime: o.tipo, mini: "data:image/jpeg;base64," + reduzir(img, 480, 0.7), comoEsta: true};
+}
+// A imagem do anexo como data URL (a que vai como está pode ser PNG ou WEBP).
+const urlAnexo = a => `data:${a.mime || "image/jpeg"};base64,${a.b64}`;
 // ---- As imagens que vão junto (até 10): a fileira de prévias ---------------------------------------------------
 // Com o agente de antes do 0.8.2, uma só (a nova troca a que estava, como era).
 async function adicionarImagens(arquivos) {
@@ -5309,7 +5482,7 @@ async function adicionarImagens(arquivos) {
   }
   let falhas = 0;
   for (const arquivo of lista) {
-    try { anexos.push({...imagemDe(await carregarImagem(arquivo)), id: "a" + (++nAnexo)}); }
+    try { anexos.push({...await imagemDoArquivo(arquivo), id: "a" + (++nAnexo)}); }
     catch { falhas++; }
   }
   desenharAnexos(); ajustarCaixa();
@@ -5343,7 +5516,7 @@ function desenharAnexos() {
 // Tocar na prévia abre o visor (passa pelas outras e tem o Marcar); o ✏️ abre direto o editor, que volta com "Pronto".
 function verAnexo(i) {
   const n = anexos.length;
-  Marcar.ver({lista: anexos.map((a, j) => ({src: "data:image/jpeg;base64," + a.b64, nome: `Imagem ${j + 1} de ${n}`, arquivo: "foto",
+  Marcar.ver({lista: anexos.map((a, j) => ({src: urlAnexo(a), nome: `Imagem ${j + 1} de ${n}`, arquivo: "foto",
                                              sub: "Ainda não mandada", anexo: a.id})),
               indice: i, aoMarcar: f => marcarAnexo(anexos.findIndex(a => a.id === f.anexo))});
 }
@@ -5351,7 +5524,7 @@ function marcarAnexo(i) {
   const a = anexos[i];
   if (!a) return;
   Marcar.fecharVisor();
-  Marcar.editar({src: "data:image/jpeg;base64," + a.b64, nome: "foto", legenda: $("texto").value,
+  Marcar.editar({src: urlAnexo(a), nome: "foto", legenda: $("texto").value,
     aoSair: legenda => { if (!aberta) return; $("texto").value = legenda; store.set("seaninho.rascunho." + aberta.id, legenda); ajustarCaixa(); },
     aoConcluir: async tela => {
       const j = anexos.findIndex(x => x.id === a.id);
@@ -5667,6 +5840,7 @@ async function desenharTudo(voltou) {
   guardarUltimo();
   drenarFila();
   vigiarAcoes();
+  if (window.Reacoes) Reacoes.volta();   // 12/11: as minhas reações: o fim do pedido, a lista do PC e a fila sem rede
   sincronizarHorario();
   renovarPush();
   if (voltou && aberta) avisar("dAviso", "Conectado de novo.", {ok: true, passa: true});
@@ -6342,7 +6516,7 @@ const frasePedeV24 = (pc, onde) => `O agente do ${nomeCurtoPc(pc) || "PC"} é de
 const AGENTE_CARD = "0.9.0.11";    // o agente que leva a nota "card" (o quadro visual) à caixa do maestro
 // Com a casca velha no cache do iPhone (um arquivo de cada versão), a página não quebra: só não mostra o que é da v24.
 const temV24 = () => typeof Decisoes !== "undefined" && typeof Entregas !== "undefined" && typeof MeusPedidos !== "undefined" && typeof Rodar !== "undefined";
-$("estiloV24").textContent = [window.Decisoes, window.Entregas, window.MeusPedidos, window.Rodar].map(m => (m && m.CSS) || "").join("\n");
+$("estiloV24").textContent = [window.Decisoes, window.Entregas, window.MeusPedidos, window.Rodar, window.Reacoes].map(m => (m && m.CSS) || "").join("\n");
 
 // ---- as fotos e os lotes (CONTRATO seção 1): memória + aparelho ---------------------------------------------------
 // No aparelho (localStorage "sf:<id>:<tamanho>") só a miniatura pequena (até 40 KB), com teto de 2 MB (sai a mais
@@ -7395,6 +7569,18 @@ $("dMsgs").addEventListener("pointerdown", pegarBalao);
 $("dMsgs").addEventListener("pointermove", moverBalao);
 $("dMsgs").addEventListener("pointerup", soltarBalao);
 $("dMsgs").addEventListener("pointercancel", soltarBalao);
+// 12/11 (CONTRATO-reacoes.md): as reações. O módulo põe a fileira dentro do menu do toque longo e cuida dos chips, do
+// "+", do clique direito e do ☺ no PC; a página só diz onde estão as coisas.
+if (window.Reacoes) Reacoes.ligar({doc: document, win: window, menu: $("dMenuBalao"), msgs: $("dMsgs"), rpc, store,
+  avisar: (msg, o) => avisar("dAviso", msg, {...o, ...chatAviso()}), redesenhar: () => { if (aberta) desenharDetalhe(); },
+  pedidos: () => pedidos, online: () => rede.ok !== false, abrirMenu: abrirMenuBalao, fecharMenu: fecharMenuBalao,
+  maestro: () => { const o = orquestraDe(Object.values(pcs)); return o ? {pc: o.pc, sessao: o.sessao} : null; },
+  // corretor de 12/11 (5.4): a central de cada PC (o maestro do WIN também é central), pela orquestra que cada um publica
+  centrais: () => Object.values(pcs).map(p => { const o = (painelDe(p) || {}).orquestra;
+    return o ? {pc: p.pc, sessao: Pcs.sessaoDoMaestro ? Pcs.sessaoDoMaestro(o, p.sessoes || []) : o.sessao,
+                nome: Pcs.nomeDoMaestro ? Pcs.nomeDoMaestro(o) : ""} : null; }).filter(Boolean),
+  sessao: (pc, id) => todasSessoes().find(x => x.pc === pc && String(x.id).toLowerCase() === String(id).toLowerCase()) || null,
+  vibrar: () => { if (navigator.vibrate) navigator.vibrate(8); }});
 $("dCitando").addEventListener("click", e => { if (e.target.closest("[data-cancelar-cita]")) naoCitar(); });
 $("dMenuBalao").addEventListener("click", async e => {
   const b = e.target.closest("[data-menu]"), id = $("dMenuBalao").dataset.id;
