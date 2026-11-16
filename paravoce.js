@@ -36,7 +36,8 @@ function tipoDe(it, alvo, temComando, nomeMaestro) {
 // O item de uma sessão ou do maestro. c: {alvo, maestro (a sessão do maestro está aberta: dá para responder), notas
 // (o ✓ Resolvido avisa o maestro), nomeMaestro ("Hokage"), maestroMeio (o nome no meio da frase: "maestro" ou
 // "Hokage"), pcMaestro, pcCurto(pc) (o nomeCurtoPc da página), frases (o HTML das frases prontas), rodar (o HTML da
-// caixa do comando), resposta: {r, p, html: a frase de sempre (estadoRespostaPv)} ou null}.
+// caixa do comando), resposta: {r, p, html: a frase de sempre (estadoRespostaPv)} ou null, pcItem (14/11: o PC do item,
+// o Rodar.pcDoItem: o chip mostra o mesmo PC para onde vai o ⚡)}.
 function item(it, c) {
   const o = c || {}, a = o.alvo || null, k = esc(it.chave), curtoPc = o.pcCurto || (x => String(x || ""));
   const nomeM = o.nomeMaestro || "Maestro", meio = o.maestroMeio || "maestro";
@@ -49,7 +50,7 @@ function item(it, c) {
   const texto = `${de}<div class="pv-t">${esc(it.texto)}</div>`;
   const t = tipoDe(it, a, !!o.rodar, nomeM), res = o.resposta;
   return C().card({cor: "ouro", icone: t.icone, titulo: it.titulo || t.rotulo, tituloInteiro: it.titulo || `${t.rotulo}: ${it.texto || ""}`,
-    pc: a ? a.pc : o.pcMaestro || "", tag: "div", classe: `pv-item pv-card${it.alta ? " alta" : ""}`, attrs: {"data-pv-item": it.chave},
+    pc: o.pcItem || (a ? a.pc : o.pcMaestro || ""), tag: "div", classe: `pv-item pv-card${it.alta ? " alta" : ""}`, attrs: {"data-pv-item": it.chave},
     // com o título do quadro, o texto inteiro fica no "ver mais" (como antes); sem ele, à vista
     corpo: (it.titulo ? `<details class="pv-mais-t"><summary>ver mais</summary>${texto}</details>` : texto) + (o.frases || "") + (o.rodar || "")
       + `<div class="card-acoes">${botao}${ok}${link}</div>`,

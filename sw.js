@@ -17,7 +17,10 @@
 // completas), revisoes.js (2), mosaico.js (3, as Sessões em mosaico e os Meus pedidos), estoque.js (4), espaco.js e
 // sobras.js (5, o Início organizável e as sobras do chat) e chrome.js (6). Publicar a página COM a pasta ninja/ (sem ela,
 // o celular fica sem o ninja; ver o LEIA-ME).
-const CACHE = "seaninho-v29";
+// v30 (16/11, a página 0.9.0.19): o ⚡ Rodar no PC com o comando de administrador (PR #37: o rodar.js, o paravoce.js e o
+// index.html novos; a frase "Precisa de administrador: só no PC" no lugar do ⚡, a recusa do Windows com a frase e o fim
+// da saída, o PC do item, as letras bidi e os espaços raros barrados). Nenhum arquivo novo na casca: a CASCA é a da v29.
+const CACHE = "seaninho-v30";
 const CASCA = ["./", "./index.html", "./config.js", "./markdown.js", "./chat.js", "./reacoes.js", "./lista.js", "./prioridades.js", "./workflows.js", "./estoque.js", "./pcs.js", "./maquinas.js", "./chrome.js", "./volta.js", "./espaco.js", "./sobras.js", "./usoia.js", "./ninja.js", "./ninjavivo.js", "./marcar.js", "./decisoes.js", "./cards.js", "./paravoce.js", "./entregas.js", "./pedidos.js", "./mosaico.js", "./rodar.js", "./revisoes.js", "./manifest.webmanifest", "./icone-180.png", "./icone-192.png"];
 
 self.addEventListener("install", e => {

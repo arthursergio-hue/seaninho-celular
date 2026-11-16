@@ -1640,8 +1640,8 @@ const edicoes = {};      // id do pedido -> o texto como a pessoa editou (a tela
 let sugestoesAtuais = []; // as respostas prontas da sessão aberta (o PC pede à IA quando o Claude pergunta ou termina)
 let timer = null, timerSala = null;
 let aba = "Inicio";
-const VERSAO_APP = "0.9.0.18";   // esta página (v29, a casca seaninho-v29: as 6 telas do Monitor e o padrão Opus da VPS, com o agente 0.9.0.18)
-// (v28, a casca seaninho-v28: o trem do celular, tudo junto, com o agente 0.9.0.17)
+const VERSAO_APP = "0.9.0.19";   // esta página (v30, a casca seaninho-v30: o ⚡ Rodar no PC com o comando de administrador, com o agente 0.9.0.19)
+// (v29, a casca seaninho-v29: as 6 telas do Monitor e o padrão Opus da VPS, com o agente 0.9.0.18; v28: o trem do celular, com o 0.9.0.17)
 // o agente que acompanha esta página (os PCs atrás dele aparecem no painel). Corretor final de 12/11 (o cético): as
 // Decisões, as Entregas, os Meus pedidos e o Rodar só existem no agente 0.9.0.14 (o AGENTE_V24); com o 0.9.0 aqui, o
 // PC no 0.9.0.12 não aparecia como atrasado e as telas novas ficavam vazias sem dizer por quê. v27: o 0.9.0.16 traz a
@@ -1650,10 +1650,14 @@ const VERSAO_APP = "0.9.0.18";   // esta página (v29, a casca seaninho-v29: as 
 // v29: o 0.9.0.18 repassa o esforço e o ultracode à VPS e publica o padrão (o 0.9.0.17 e os de antes abrem a folha no
 // teto deles, US$ 20, com a linha "Agente antigo"); e é o agente das 6 telas do Monitor no celular (o 🖥 No PC e os
 // botões das Entregas, os cards das Revisões, o ✨ Sugerir e o 📁 Mostrar na pasta do chat, o bloco do Chrome).
-const AGENTE_ATUAL = "0.9.0.18";
+// v30 (16/11): o 0.9.0.19 é o agente do ⚡ Rodar no PC com o comando de administrador (PR #37): reconhece a lista curta
+// com a frase "Precisa de administrador: só no PC", devolve a recusa do Windows com a frase e o fim da saída, publica o
+// PC do item e recusa as letras bidi e os espaços raros. O 0.9.0.18 roda o comando de administrador e devolve o erro cru.
+const AGENTE_ATUAL = "0.9.0.19";
 // 0.9.0.15 (12/11): o agente que entrega no terminal, no app do Claude e no segundo plano (o mesmo do Chat.AGENTE_QUALQUER)
 const AGENTE_QUALQUER = "0.9.0.15";
 const NOVIDADES_APP = [
+  ["0.9.0.19", "⚡ Rodar no PC: o comando que só roda como administrador fica com o Copiar e a frase \"Precisa de administrador: só no PC\" no lugar do ⚡ (a lista curta: o Defender, a política de execução da máquina, o HKLM, os serviços, o firewall, o bcdedit, os recursos do Windows, o -Verb RunAs, o msiexec e os instaladores). Quando o Windows recusa um comando por falta de administrador, o resultado traz a frase em destaque e, embaixo, o fim do que ele escreveu. O ⚡ e o Rodar de novo abrem no PC do item, não no da central. O Get-MpPreference sem as exclusões roda; o winget também. O comando com letras invisíveis que mudam a ordem do texto na tela, ou com espaços fora do comum, não roda pelo celular (fica o Copiar). Precisa do agente 0.9.0.19 nos PCs."],
   ["0.9.0.18", "O Monitor geral inteiro no celular, além do padrão Opus da VPS. Entregas: cada entrega no card do Monitor, com o número de novas no topo, o aviso de entrega nova que abre direto nela, o 🖥 No PC (abre a pasta da entrega no Explorer do PC) e os botões extras do Monitor. ✓ Revisões: os cards do quadro visual da central numa tela própria, aberta pelo bloco ✓ Revisões do Início (priorizar, pausar, aprovar, pedir ajuste e os outros), com o Desfazer e o arrastar para os lados. Sessões em mosaico: cada sessão num ladrilho, as centrais primeiro, com a cor e o ícone delas e o quadro, uma caixa de mensagem em cada ladrilho e o toque longo com o menu (o botão Mosaico | Lista volta à lista). Meus pedidos: a semana inteira, com a resposta da central em cada pedido. Estoque, na aba Workflows: as skills e os crons dos PCs, com o uso, o Rodar agora, o Agendador, o log e o + link. Início organizável: cada bloco recolhe no ▾ ou some no ✕, e o 👁 Mostrar traz de volta; fica igual em todos os seus aparelhos. No chat, o ✨ Sugerir respostas no menu de uma fala do Claude e o 📁 Mostrar na pasta no cartão do PDF. No Início, o grupo 🌐 Seaninho no Chrome: a ponte de cada PC, o modo, o perfil e as últimas ações, só para ver. Na VPS, o Mandar tarefa abre com o Opus 5.5, o esforço máximo, o Ultracode (Workflow) ligado e US$ 50 de orçamento (até 80); o modelo, o esforço e o ultracode dá para mudar, e a folha avisa quando o kit da VPS ou o agente de um PC ainda é antigo. Precisa do agente 0.9.0.18 nos PCs."],
   ["0.9.0.17", "Tudo junto numa versão só: o ninja novo do uso de IA (um por faixa, com a animação de aparição, e o ninja vivo parado em loop e nos golpes, o mesmo do Monitor geral), a faixa AO VIVO contra a meta de hoje com o TeamZone no cantinho, as reações nas mensagens (a fileira em cima do menu, os chips e o +), as Sessões por projeto na ordem de prioridade do Monitor geral, a mensagem para qualquer sessão (VS Code, terminal, app do Claude, segundo plano e os painéis do Herdr) e a VPS no Computadores. Precisa do agente 0.9.0.17 nos PCs."],
   ["0.9.0.16", "A VPS no Computadores: um cartão ☁ ao lado dos PCs (e no Início), com o estado (online, precisa do seu login, sem resposta, sem notícia), a RAM, o disco, a carga, a fila (rodando, esperando, pausada), as tarefas com o custo e o tempo, e os avisos. Mandar tarefa (o texto, o modelo, o orçamento e a prioridade; o rascunho fica no celular), Ver log de uma tarefa, Pausar (com a opção de parar as que rodam) e Retomar a fila. Quando ela pede o login do Tailscale, o botão Abrir o login. A VPS não aparece no topo, no Pedir nem no microfone. Precisa do agente 0.9.0.16 nos PCs."],
@@ -2468,7 +2472,8 @@ function itemParaVoce(it, maestro, notas, slack) {
   if (it.slack) return itemSlack(it, slack);
   const a = pvAlvo(it), r = pvRespondidos[it.chave];
   if (cardsPv()) return ParaVoce.item(it, {alvo: a, maestro, notas, nomeMaestro: nomeMaestro(), maestroMeio: nomeMaestro(true), pcMaestro: pcMaestroPv(),
-    pcCurto: nomeCurtoPc, frases: frasesPv(it), rodar: caixaRodar(it), resposta: r ? {r, p: pedidos.find(x => x.id === r.pedido), html: estadoRespostaPv(r)} : null});
+    pcCurto: nomeCurtoPc, frases: frasesPv(it), rodar: caixaRodar(it), resposta: r ? {r, p: pedidos.find(x => x.id === r.pedido), html: estadoRespostaPv(r)} : null,
+    pcItem: rdPcDoItem(it)});   // 14/11: o chip do PC é o do item (o mesmo do ⚡)
   const botao = a && a.achou
     ? `<button data-pv="${esc(it.chave)}" ${a.ligado ? "" : "disabled"} aria-label="Responder à sessão ${esc(a.nome)} sobre: ${esc(it.texto)}">${a.ligado ? "↩ Responder a " + esc(curtoTxt(a.nome, 24)) : esc(nomeCurtoPc(a.pc)) + " desligado"}</button>`
     : `<button data-pv="${esc(it.chave)}" ${maestro ? "" : "disabled"} aria-label="Responder ao ${esc(nomeMaestro())} sobre: ${esc(it.texto)}">${maestro ? "↩ Responder ao " + esc(nomeMaestro()) : esc(nomeMaestro()) + " fechado"}</button>`;
@@ -7246,9 +7251,10 @@ if (rvTela) rvTela.processar();   // o que ficou na fila do aparelho (sem intern
 
 // ---- Para você: o "⚡ Rodar no PC" (CONTRATO seção 5) -------------------------------------------------------------------
 // O item com um bloco de código ganha a caixa do comando (Copiar, ⚡ Rodar no <PC>, ✓ Rodei). O Rodar abre a folha com o
-// comando inteiro e o PC (o da central, ou outro ligado); só o "Rodar agora" manda {acao: "rodar_comando", chave, sha}. O
-// agente só roda o que está, igual pelo sha, num item do Para você que ele vê. O "✓ Rodei" avisa o maestro, como o
-// Monitor ("Rodei o comando: …").
+// comando inteiro e o PC (14/11: o do item, quando ele tem; senão o da central, ou outro ligado); só o "Rodar agora"
+// manda {acao: "rodar_comando", chave, sha}. O agente só roda o que está, igual pelo sha, num item do Para você que ele
+// vê. O comando que só roda como administrador fica com o Copiar e a frase no lugar do ⚡. O "✓ Rodei" avisa o maestro,
+// como o Monitor ("Rodei o comando: …").
 let rdPedidos = lerJson("seaninho.rd.pedidos", {});   // chave do item -> {t, pc, id, ok, erroLocal}
 let rdRodei = lerJson("seaninho.rd.rodei", {});       // chave do item -> quando avisou o maestro
 let rdFolha = null;                                   // {chave, pc, cmd, mudou, travadoAte}: a folha de confirmação aberta
@@ -7297,16 +7303,36 @@ function rdLinha(r, chaveItem = "") {
   if (r.id && Date.now() - r.t > 15 * 60e3) return {id: r.id, pc: r.pc, estado: "erro", erro: "o PC não respondeu em 15 min"};
   return {id: r.id || "", pc: r.pc, estado: "novo"};
 }
+// 14/11: o PC do item (o "pc" que o maestro pôs ou o da sessão que perguntou, pelo nome da lista de PCs): o ⚡ e o
+// "Rodar de novo" vão para ele, e a folha abre nele. Antes, a folha abria no PC da central (o SEAZONE192) com um item do
+// WIN, e o comando rodava no PC errado. Com o rodar.js de antes no cache do iPhone (a casca troca um arquivo por vez),
+// fica como era, sem quebrar.
+function rdConhecidos() { return pcsDeVerdade().map(p => p.pc); }
+function rdPcDoItem(it) {
+  // revisão do PR #37: sem o rodar.js (não carregou), o Para você desenha como antes (o temV24 também confere o Rodar)
+  if (typeof Rodar === "undefined" || !Rodar.pcDoItem) return "";
+  const pc = Rodar.pcDoItem(it, rdConhecidos());
+  // a máquina de fila (a VPS) não roda o ⚡ (não é um PC com o agente): o item de uma tarefa de lá fica com o padrão
+  const maquina = pc && Object.values(pcs).some(p => typeof Maquinas !== "undefined" && Maquinas.ehMaquina(p) && String(p.pc).toLowerCase() === pc.toLowerCase());
+  return maquina ? "" : pc;
+}
+// Por que o PC do item não roda pelo celular estando ligado ("" se pode, ou se está desligado: aí a folha diz isso).
+function rdPorQueNaoPc(pc) {
+  const p = pcsDeVerdade().find(x => x.pc === pc);
+  if (!p || !online(p) || desligando(p) || rdPcs().podem.includes(pc)) return "";
+  if (Lista.compararVersao(p.versao, AGENTE_RODAR) < 0) return `rodar pelo celular pede o agente ${AGENTE_RODAR} no ${nomeCurtoPc(pc)}`;
+  return sinalRodar(p).motivo || "o agente ainda não disse se pode rodar pelo celular";
+}
 function caixaRodar(it) {
   if (!temV24() || !it || it.slack) return "";
   const o = orquestraDe(Object.values(pcs));
   // (o item com senha ou chave, "segredo", com o bloco mascarado no texto: a caixa só com a frase e o ✓ Rodei; sem o
   // bloco, o texto do agente já diz para ver no PC)
   if (!o || !Rodar.comandoDoItem(it)) return "";
-  const {podem} = rdPcs(), r = rdPedidos[it.chave], rodei = rdRodei[it.chave];
+  const {lig, podem} = rdPcs(), r = rdPedidos[it.chave], rodei = rdRodei[it.chave], pcItem = rdPcDoItem(it);
   const bloqueio = rede.ok === false ? "Sem internet" : "";
-  return Rodar.htmlCaixa(it, {pcCentral: o.pc, pcs: podem, pedido: r ? rdLinha(r, it.chave) : null, bloqueio,
-    ...(podem.length ? {} : {desligado: rdPorQueNao(o.pc)}), ...(rodei ? {rodei: false} : {})})
+  return Rodar.htmlCaixa(it, {pcCentral: o.pc, pcs: podem, online: lig, conhecidos: rdConhecidos(), pcItem, pedido: r ? rdLinha(r, it.chave) : null, bloqueio,
+    ...(podem.length ? {} : {desligado: rdPorQueNao(pcItem || o.pc)}), ...(rodei ? {rodei: false} : {})})
     + (rodei ? `<div class="pv-feito">✓ Você avisou o ${esc(nomeMaestro(true))} que rodou (${hm(new Date(rodei).toISOString())})</div>` : "");
 }
 // A folha mostra o comando guardado ao abrir (rdFolha.cmd), e só ele vai no sha. O crítico viu a folha mostrar um
@@ -7323,17 +7349,24 @@ function desenharRdFolha() {
     return;
   }
   if (rdFolha.cmd === undefined) rdFolha.cmd = Rodar.comandoDoItem(it);
-  const travado = Date.now() < (rdFolha.travadoAte || 0);
-  el.innerHTML = Rodar.htmlConfirmar(rdFolha.cmd, rdFolha.pc, rdPcs().podem, {mudou: rdFolha.mudou, travado});
+  const travado = Date.now() < (rdFolha.travadoAte || 0), pcItem = rdPcDoItem(it);
+  rdFolha.estadoPcs = rdEstadoPcs(pcItem);
+  el.innerHTML = Rodar.htmlConfirmar(rdFolha.cmd, rdFolha.pc, rdPcs().podem,
+    {mudou: rdFolha.mudou, travado, pcItem, semRodar: pcItem ? rdPorQueNaoPc(pcItem) : ""});
   el.classList.remove("hidden");
   if (travado) { clearTimeout(rdFolha.timer); rdFolha.timer = setTimeout(() => { if (rdFolha) desenharRdFolha(); }, rdFolha.travadoAte - Date.now() + 30); }
 }
+// 14/11: o que a folha mostra dos PCs (os que podem rodar e o porquê do PC do item): mudou, a folha se refaz.
+// revisão do PR #37: e o próprio PC do item (o maestro pôs ou trocou o "pc" com a folha aberta: aparece o aviso)
+function rdEstadoPcs(pcItem) { return rdPcs().podem.join("|") + "#" + pcItem + "#" + (pcItem ? rdPorQueNaoPc(pcItem) : ""); }
 // A cada volta do banco: o item saiu (fecha com o aviso) ou o comando dele mudou (a folha mostra o novo, avisa e trava).
+// 14/11: e um PC ligou ou desligou com a folha aberta (o PC do item desligado aparece na hora, com o aviso).
 function rdConferirFolha() {
   if (!rdFolha) return;
   const it = rdItem(rdFolha.chave), novo = it ? Rodar.comandoDoItem(it) : "";
   if (!it || !Rodar.rodavel(it)) return desenharRdFolha();
-  if (novo !== rdFolha.cmd) { Object.assign(rdFolha, {cmd: novo, mudou: true, travadoAte: Date.now() + RD_TRAVA_MS}); desenharRdFolha(); }
+  if (novo !== rdFolha.cmd) { Object.assign(rdFolha, {cmd: novo, mudou: true, travadoAte: Date.now() + RD_TRAVA_MS}); return desenharRdFolha(); }
+  if (rdEstadoPcs(rdPcDoItem(it)) !== rdFolha.estadoPcs) desenharRdFolha();
 }
 function fecharRdFolha() { if (rdFolha) clearTimeout(rdFolha.timer); rdFolha = null; $("rdFolha").innerHTML = ""; $("rdFolha").classList.add("hidden"); }
 async function rdRodar(pc) {
@@ -7342,6 +7375,11 @@ async function rdRodar(pc) {
   if (Date.now() < (rdFolha.travadoAte || 0)) return;   // o comando acabou de mudar: o toque não vale
   // o comando do item agora tem de ser o que a folha mostra; se mudou, não manda: a folha mostra o novo e pede conferir
   if (Rodar.comandoDoItem(it) !== rdFolha.cmd) { rdConferirFolha(); return; }
+  // 14/11: o comando que só roda como administrador não vai (a folha já apaga o "Rodar agora"; o agente também recusa)
+  if (Rodar.precisaAdmin && Rodar.precisaAdmin(rdFolha.cmd)) {
+    desenharRdFolha();
+    return avisar("appAviso", `${Rodar.PRECISA_ADMIN}: copie o comando e cole no PowerShell aberto como administrador.`, {erro: true});
+  }
   // o PC escolhido tem de estar com o Rodar ligado agora (o sinal pode ter desligado com a folha aberta)
   if (!rdPcs().podem.includes(pc)) { desenharRdFolha(); return avisar("appAviso", `O ${nomeCurtoPc(pc)} não está rodando pelo celular agora: ${rdPorQueNao(pc)}.`, {erro: true}); }
   const visto = rdFolha.cmd;

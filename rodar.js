@@ -59,13 +59,73 @@ function linguagemDoItem(it) {
 }
 // Dá para mandar o PC rodar (no PowerShell)? Só o bloco sem etiqueta ou de PowerShell, e nunca o item com senha ou
 // chave ("segredo": o agente manda sem o comando, com o texto mascarado, e também não roda; corretor de 12/11).
-const rodavel = it => !(it && it.segredo === true) && RODAVEIS.includes(linguagemDoItem(it));
+// revisão do PR #37: as letras invisíveis que trocam a ordem do texto na tela (os controles bidi) fazem a folha mostrar
+// outra coisa do que o PowerShell roda: o comando com uma delas não roda pelo celular (o _BIDI do agente, a mesma classe),
+// e a caixa as mostra à vista (⟨U+2067⟩); o Copiar leva o comando como está
+const BIDI = /[\u061c\u200e\u200f\u202a-\u202e\u2066-\u2069]/;
+// os céticos de 16/11: o PowerShell lê o U+2003 (e os outros espaços Unicode, o \v, o \f e o U+0085) como separador, e a
+// lista de administrador só conhece o espaço, o \t e o U+00A0: o comando com um desses também não roda pelo celular (a
+// mesma classe do rodar_pc._ESPACO_RARO; a caixa os mostra à vista, como o bidi)
+const ESPACOS_RAROS = /[\u000b\u000c\u0085\u1680\u2000-\u200a\u2028\u2029\u202f\u205f\u3000]/;
+const verBidi = s => String(s).replace(new RegExp(`${BIDI.source}|${ESPACOS_RAROS.source}`, "g"), c => `⟨U+${c.charCodeAt(0).toString(16).toUpperCase().padStart(4, "0")}⟩`);
+const rodavel = it => !(it && it.segredo === true) && RODAVEIS.includes(linguagemDoItem(it)) && !BIDI.test(it ? comandoDoItem(it) : "")
+  && !ESPACOS_RAROS.test(it ? comandoDoItem(it) : "");
 // A frase do item com senha ou chave (a mesma do agente, rodar_pc.COM_SEGREDO).
 const COM_SEGREDO = "Esse comando tem uma senha ou chave: ele não vai ao celular. Copie e rode no PC";
 // O nome do terminal para o título e o aviso do Copiar ("PowerShell", "Git Bash", "JSON" …).
 function ondeColar(it) {
   const l = linguagemDoItem(it);
   return RODAVEIS.includes(l) ? "PowerShell" : NOME_LINGUAGEM[l] || l;
+}
+
+// ==== O comando que só roda como administrador (14/11) ================================================================
+// O primeiro uso do ⚡: o "Add-MpPreference -ExclusionPath …" rodou e deu HRESULT 0xc0000142, saída 1. O agente roda sem
+// elevação: o comando da lista curta fica com o Copiar e esta frase no lugar do ⚡, e o agente recusa com a mesma frase
+// (rodar_pc.PRECISA_ADMIN) se o pedido chegar assim mesmo. As mesmas expressões do agente (rodar_pc.COMANDOS_ADMIN),
+// conferidas nos dois com o rodar-admin-casos.json: sem maiúsculas, o ".exe" opcional onde é o mesmo programa, o
+// Set-ExecutionPolicy sem -Scope (o padrão é LocalMachine), o Registry::HKEY_LOCAL_MACHINE, o Add-WindowsFeature (o
+// apelido do Install-WindowsFeature) e o -Verb RunAs (o aviso do UAC abriria na tela do PC e ficaria esperando). Sem \s
+// nem \b (o do JavaScript e o do Python não pegam as mesmas letras) e sem lookbehind (o Safari antigo não tem).
+// 16/11 (ajustes do hokage na revisão do PR #37): o Get-MpPreference sem a palavra Exclusion roda (só lê); com "Exclusion"
+// em qualquer parte do comando continua de administrador (o Defender só mostra as exclusões a ele); o Add-, Set- e
+// Remove-MpPreference sempre. O winget fica de fora (roda, e o Windows responde o que for). E entram o msiexec com um
+// verbo de instalar, desinstalar, reparar, atualizar ou instalação administrativa (/i, /x, /f…, /a, /p, /j…, /update,
+// /uninstall, /package, com barra ou hífen; não o "msiexec /?" nem o "msiexec" sozinho), o arquivo .msi invocado (o
+// primeiro item do comando, o & ou o Start-Process / Invoke-Item) e o .exe de instalador chamado para rodar (setup ou
+// install no nome do arquivo, não na pasta): pedem o UAC. O "setup" num echo e o "install" do pip, npm, winget e choco
+// não são um .exe de instalador.
+// Os céticos de 16/11 (a revisão dos ajustes), igual no agente (rodar_pc.py, o comentário acima do COMANDOS_ADMIN): a regra
+// do msiexec / instalador pega a indireção por variável, splatting e cano (o verbo, o .msi, o .exe de instalador e o
+// abridor em qualquer parte do texto, em qualquer ordem, por lookaheads a partir do começo), inclusive o cmd /c, o explorer
+// e o Invoke-Expression como abridores; e não pega o msiexec que é só o nome de um processo (Stop-Process -Name msiexec
+// -Force, taskkill /IM msiexec.exe /F), nem o -Force / -File do PowerShell como o verbo /f… do msiexec.
+const PRECISA_ADMIN = "Precisa de administrador: só no PC";
+const ADMIN = [
+  ["*-MpPreference (Get só com Exclusion)", /(?:(?:^|[^A-Za-z0-9_-])(?!get-)[a-z]+-mppreference(?![A-Za-z0-9_-])|(?:^|[^A-Za-z0-9_-])get-mppreference(?![A-Za-z0-9_-])[\s\S]*exclusion|exclusion[\s\S]*(?:^|[^A-Za-z0-9_-])get-mppreference(?![A-Za-z0-9_-]))/i],
+  ["Set-ExecutionPolicy -Scope LocalMachine", /(?:^|[^A-Za-z0-9_-])set-executionpolicy(?![A-Za-z0-9_-])(?:(?:[^;|\r\n}`]|`(?:\r\n|[\s\S]))*?[ \t\u00a0:'"]localmachine(?![A-Za-z0-9_-])|(?!(?:[^;|\r\n}`]|`(?:\r\n|[\s\S]))*[ \t\u00a0:'"](?:currentuser|process)(?![A-Za-z0-9_-])))/i],
+  ["HKLM:", /(?:^|[^A-Za-z0-9_-])(?:hklm:|registry::hkey_local_machine(?![A-Za-z0-9_-]))/i],
+  ["sc.exe config/create", /(?:^|[^A-Za-z0-9_-])sc\.exe['"]?[ \t\u00a0]+(?:\\\\[^ \t\u00a0\\]+[ \t\u00a0]+)?(?:config|create)(?![A-Za-z0-9_-])/i],
+  ["netsh advfirewall", /(?:^|[^A-Za-z0-9_-])netsh(?:\.exe)?[ \t\u00a0]+advfirewall(?![A-Za-z0-9_-])/i],
+  ["bcdedit", /(?:^|[^A-Za-z0-9_-])bcdedit(?:\.exe)?(?![A-Za-z0-9_-])/i],
+  ["Enable-WindowsOptionalFeature", /(?:^|[^A-Za-z0-9_-])enable-windowsoptionalfeature(?![A-Za-z0-9_-])/i],
+  ["Install-WindowsFeature", /(?:^|[^A-Za-z0-9_-])(?:install|add)-windowsfeature(?![A-Za-z0-9_-])/i],
+  ["-Verb RunAs", /(?:^|[^A-Za-z0-9_-])runas(?:user)?(?![A-Za-z0-9_-])/i],
+  ["msiexec / instalador", /(?:^(?=[\s\S]*?(?:(?:^|[;|\r\n{(&])[ \t\u00a0]*|(?:^|[^A-Za-z0-9_-])(?:start-process|invoke-item|saps|start|ii)(?![A-Za-z0-9_-])(?:[^;|\r\n}`]|`(?:\r\n|[\s\S]))*?[ \t\u00a0(,=]|(?:^|[^A-Za-z0-9_-])cmd(?:\.exe)?(?![A-Za-z0-9_-])(?:[^;|\r\n}`]|`(?:\r\n|[\s\S]))*?[ \t\u00a0][/-][ck][ \t\u00a0]+)['"]?(?:[^ \t\u00a0;|'"\r\n]*[\\/])?msiexec(?:\.exe)?['"]?(?![A-Za-z0-9_-]))(?=[\s\S]*?[ \t\u00a0'"(,=][/-](?:i|x|f[poedcaumsv]*|a|p|j[um]?|update|uninstall|package)(?![A-Za-z0-9_-]))|^(?=[\s\S]*?(?:^|[^A-Za-z0-9_-])msiexec(?:\.exe)?(?![A-Za-z0-9_-]))(?=[\s\S]*?(?:(?:^|[^A-Za-z0-9_$.-])(?:start-process|invoke-item|invoke-expression|saps|start|ii|iex|explorer(?:\.exe)?)(?![A-Za-z0-9_-])|&|(?:^|[^A-Za-z0-9_-])cmd(?:\.exe)?(?![A-Za-z0-9_-])(?:[^;|\r\n}`]|`(?:\r\n|[\s\S]))*?[ \t\u00a0][/-][ck][ \t\u00a0]+))(?=[\s\S]*?[ \t\u00a0'"(,=][/-](?:i|x|f[poedcaumsv]*|a|p|j[um]?|update|uninstall|package)(?![A-Za-z0-9_-]))|(?:^|[;|\r\n{(&])[ \t\u00a0]*(?:(?:[^ \t\u00a0;|'"\r\n]*\.msi(?![A-Za-z0-9_.-])|'[^'\r\n]*\.msi'|"[^"\r\n]*\.msi")|(?:(?:[^ \t\u00a0;|'"\r\n]*[\\/])?[^ \t\u00a0;|'"\r\n\\/]*(?:setup|install)[^ \t\u00a0;|'"\r\n\\/]*\.exe(?![A-Za-z0-9_.-])|'(?:[^'\r\n]*[\\/])?[^'\r\n\\/]*(?:setup|install)[^'\r\n\\/]*\.exe'|"(?:[^"\r\n]*[\\/])?[^"\r\n\\/]*(?:setup|install)[^"\r\n\\/]*\.exe"))|^(?=[\s\S]*?(?:(?:^|[^A-Za-z0-9_$.-])(?:start-process|invoke-item|invoke-expression|saps|start|ii|iex|explorer(?:\.exe)?)(?![A-Za-z0-9_-])|&|(?:^|[^A-Za-z0-9_-])cmd(?:\.exe)?(?![A-Za-z0-9_-])(?:[^;|\r\n}`]|`(?:\r\n|[\s\S]))*?[ \t\u00a0][/-][ck][ \t\u00a0]+))(?=[\s\S]*?(?:(?:[^ \t\u00a0;|'"\r\n]*\.msi(?![A-Za-z0-9_.-])|'[^'\r\n]*\.msi'|"[^"\r\n]*\.msi")|(?:(?:[^ \t\u00a0;|'"\r\n]*[\\/])?[^ \t\u00a0;|'"\r\n\\/]*(?:setup|install)[^ \t\u00a0;|'"\r\n\\/]*\.exe(?![A-Za-z0-9_.-])|'(?:[^'\r\n]*[\\/])?[^'\r\n\\/]*(?:setup|install)[^'\r\n\\/]*\.exe'|"(?:[^"\r\n]*[\\/])?[^"\r\n\\/]*(?:setup|install)[^"\r\n\\/]*\.exe"))))/i],
+];
+// O nome da regra que o comando casa ("" se nenhuma) e se ele só roda como administrador.
+function regraDeAdmin(comando) {
+  const t = String(comando ?? ""), r = ADMIN.find(([, rx]) => rx.test(t));
+  return r ? r[0] : "";
+}
+const precisaAdmin = comando => !!regraDeAdmin(comando);
+// 16/11 (ajuste do hokage): o Windows recusou por falta de administrador? O agente põe a frase na PRIMEIRA linha da saída
+// do resultado e, embaixo, o fim do que o Windows escreveu (antes, só a frase: o item antigo, com a saída igual à frase,
+// continua valendo). O que fica embaixo da frase: a saída sem ela.
+const primeiraLinha = s => { const t = String(s ?? ""), q = t.indexOf("\n"); return (q < 0 ? t : t.slice(0, q)).trim(); };
+const recusaDeAdmin = saida => primeiraLinha(saida) === PRECISA_ADMIN;
+function semAFrase(saida) {
+  const t = String(saida ?? ""), q = t.indexOf("\n");
+  return recusaDeAdmin(t) ? (q < 0 ? "" : t.slice(q + 1)) : t;
 }
 
 // ==== O sha256 (hex, UTF-8, sem espaços nas pontas) ===================================================================
@@ -139,6 +199,36 @@ function pcPadrao(pcCentral, ligados) {
   const l = ligados || [];
   return pcCentral && l.includes(pcCentral) ? pcCentral : l[0] || String(pcCentral || "");
 }
+// O nome curto do PC ("WIN"), ou o inteiro quando outro PC da lista encurta igual (revisão do PR #37: o PC do item
+// "WIN-EAD6OD66GE8" ao lado do WIN-EAD6OD66GE7 ligado não podem aparecer os dois como "WIN" na folha).
+function nomeSemIgual(x, nomes) {
+  const s = String(x || ""), k = nomeCurto(s);
+  return (nomes || []).some(y => String(y) !== s && nomeCurto(y) === k) ? s : k;
+}
+// Os nomes de todos os PCs (ligados ou não) da lista de nomes, da lista {pc} ou do objeto de PCs da página.
+function nomesDe(pcs) {
+  const out = [];
+  for (const p of Array.isArray(pcs) ? pcs : Object.values(pcs || {})) {
+    const n = typeof p === "string" ? p : p && p.pc ? String(p.pc) : "";
+    if (n && !out.includes(n)) out.push(n);
+  }
+  return out;
+}
+// 14/11: o PC do item ("" sem): o "pc" que o maestro pôs no item ou, sem ele, o da sessão que perguntou
+// (responder_para.pc; o "pc" do item no ciclo do maestro vira esse campo no quadro). O ⚡ abriu a folha no PC da central
+// (o SEAZONE192) com um item do WIN, e o comando rodou no PC errado. O nome volta como está na lista de PCs conhecidos
+// (sem diferença de maiúsculas, ou pelo nome curto, "WIN", quando só um PC tem esse nome curto); fora da lista, como veio.
+function pcDoItem(it, conhecidos) {
+  if (!it || typeof it !== "object") return "";
+  const rp = it.responder_para && typeof it.responder_para === "object" ? it.responder_para : null;
+  const bruto = [it.pc, rp && rp.pc].map(v => (typeof v === "string" ? v.trim().slice(0, 60) : "")).find(Boolean) || "";
+  if (!bruto) return "";
+  const nomes = nomesDe(conhecidos), b = bruto.toLowerCase();
+  const igual = nomes.find(n => n.toLowerCase() === b);
+  if (igual) return igual;
+  const curtos = nomes.filter(n => nomeCurto(n).toLowerCase() === b);
+  return curtos.length === 1 ? curtos[0] : bruto;
+}
 
 // ==== O pedido, a nota e o resultado ==================================================================================
 // O pedido do "Rodar agora" (uma Promise: o sha256 é assíncrono no navegador).
@@ -192,13 +282,18 @@ function htmlResultado(p, op) {
     return `<div class="rd-res erro" role="status">⚠ Não rodou: ${esc(String(p.erro || "").trim() || "o PC não conseguiu")}</div>`;
   }
   if (p.estado !== "entregue") return "";
-  const r = lerResultado(p.resposta), saida = r.saida.replace(/\s+$/, ""), id = String(p.id || "");
+  const r = lerResultado(p.resposta), id = String(p.id || "");
+  // 16/11: a recusa do Windows por falta de administrador: a frase (a 1ª linha) em destaque e, embaixo, o fim do que o
+  // Windows escreveu, com o "ver tudo" de sempre; o item antigo (só a frase) fica sem o "(sem saída)"
+  // (os céticos de 16/11: só com o código diferente de zero, como o agente escreve a recusa)
+  const admin = r.codigo !== 0 && recusaDeAdmin(r.saida), saida = (admin ? semAFrase(r.saida) : r.saida).replace(/\s+$/, "");
   const ok = r.codigo === null || r.codigo === 0;
   const cab = r.codigo === null ? `✓ Rodou no ${esc(onde)}` : r.codigo === 0 ? `✓ Rodou no ${esc(onde)} · saída 0` : `⚠ Terminou com erro no ${esc(onde)} · saída ${r.codigo}`;
   const longa = saida.split("\n").length > LINHAS_CURTAS || saida.length > LETRAS_CURTAS;
   const tudo = abertos.has(id), mostra = !longa || tudo ? saida : fimDa(saida);
   return `<div class="rd-res ${ok ? "ok" : "erro"}" role="status"><div class="rd-res-t">${cab}</div>
-    ${saida ? `<pre class="rd-saida">${longa && !tudo ? "…\n" : ""}${esc(mostra)}</pre>` : `<div class="rd-sem">(sem saída)</div>`}
+    ${admin ? `<div class="rd-res-adm">${esc(PRECISA_ADMIN)}</div>` : ""}
+    ${saida ? `<pre class="rd-saida">${longa && !tudo ? "…\n" : ""}${esc(mostra)}</pre>` : admin ? "" : `<div class="rd-sem">(sem saída)</div>`}
     ${longa && id ? `<button type="button" class="rd-tudo" data-rd-tudo="${esc(id)}" aria-expanded="${tudo}">${tudo ? "ver menos ▴" : "ver tudo ▾"}</button>` : ""}</div>`;
 }
 
@@ -208,7 +303,14 @@ const jaRodou = it => ((it && it.respostas) || []).some(f => /^\s*(?:j[áa]\s+)?
 // op: {pcCentral, pcs (os PCs que podem rodar: os da página ou a lista), agora, pedido (a linha do cel_pedir do último
 // Rodar deste item), bloqueio (o motivo de o botão ficar apagado agora, ex.: sem internet), desligado (o "motivo" do
 // sinal do agente, hoje.painel.rodar: sem nenhum PC com o Rodar ligado, a caixa fica só com o Copiar e o ✓ Rodei, e
-// esta linha diz por quê; corretor de 12/11: o botão que só daria erro não aparece), rodei: false (sem o ✓ Rodei)}.
+// esta linha diz por quê; corretor de 12/11: o botão que só daria erro não aparece), rodei: false (sem o ✓ Rodei),
+// conhecidos (14/11: os nomes de todos os PCs, ligados ou não, para achar o PC do item), pcItem (o PC do item que a
+// página já resolveu: vale mais que o daqui; "" = o item fica sem PC) e online (os PCs ligados agora, rodando ou não
+// pelo celular)}.
+// 14/11: o item com PC (pcDoItem) leva o ⚡, e o "Rodar de novo", para o PC dele, nunca para outro sozinho. Com o PC do
+// item fora (e outro PC que roda), o botão continua, com "(desligado)" quando ele está desligado: a folha diz por quê e
+// deixa escolher outro PC, com o aviso. O comando que só roda como administrador (precisaAdmin) fica com o Copiar e a
+// frase PRECISA_ADMIN no lugar do ⚡.
 function htmlCaixa(it, op) {
   const o = op || {};
   if (!it || it.slack || it.pessoal) return "";
@@ -224,57 +326,99 @@ function htmlCaixa(it, op) {
   }
   const cmd = comandoDoItem(it);
   if (!cmd) return "";
-  const ligados = pcsLigados(o.pcs, o.agora), alvo = pcPadrao(o.pcCentral, ligados);
-  const onde = ondeColar(it), desligado = rodavel(it) && o.desligado ? String(o.desligado) : "";
+  // o PC do item: o que a página já resolveu (op.pcItem, "" = sem PC), ou daqui, pelos nomes que ela mandou
+  const ligados = pcsLigados(o.pcs, o.agora), nomes = [...nomesDe(o.pcs), ...nomesDe(o.conhecidos)];
+  const pcItem = typeof o.pcItem === "string" ? o.pcItem.trim() : pcDoItem(it, nomes);
+  const alvo = pcItem || pcPadrao(o.pcCentral, ligados), curto = nomeSemIgual(alvo, [...nomes, ...ligados]);
   const p0 = o.pedido && typeof o.pedido === "object" ? o.pedido : null;
+  // revisão do PR #37: o Windows já recusou por falta de administrador (a frase na 1ª linha da saída; 16/11: com o fim da
+  // saída embaixo): fica como o comando da lista, só no PC (o "Rodar de novo" daria o mesmo erro), e o ✓ Rodei volta para
+  // quem rodou lá como administrador
+  // (os céticos de 16/11: só com o código diferente de zero, como o agente: um comando que escreveu a frase e saiu com 0 não é
+  // a recusa)
+  const pediuAdmin = !!p0 && p0.estado === "entregue" && lerResultado(p0.resposta).codigo !== 0 && recusaDeAdmin(lerResultado(p0.resposta).saida);
+  const onde = ondeColar(it), admin = rodavel(it) && (precisaAdmin(cmd) || pediuAdmin);
+  const desligado = rodavel(it) && !admin && o.desligado ? String(o.desligado) : "";
+  if (admin) {   // 14/11: só como administrador: o Copiar, a frase no lugar do ⚡ e o ✓ Rodei de quem rodou no PC
+    const rodei1 = p0 && p0.estado === "entregue" && !pediuAdmin ? "" : rodeiB();
+    return `<div class="rd-caixa admin" data-rd-item="${esc(chave)}">
+  <div class="rd-tit">📋 PowerShell como administrador: copie e cole</div>
+  <div class="rd-cod"><div class="rd-cod-bar"><span>PowerShell (administrador)</span><button type="button" class="rd-copiar" data-rd-copiar="${esc(chave)}" aria-label="Copiar o comando">Copiar</button></div><pre class="rd-pre"><code>${verBidi(esc(cmd))}</code></pre></div>
+  <div class="rd-acoes rd-acoes-admin"><button type="button" class="rd-b ouro rd-admin" data-rd-admin="${esc(chave)}" disabled>${esc(PRECISA_ADMIN)}</button>${rodei1}</div>${p0 ? htmlResultado(p0, {pc: p0.pc || alvo}) : ""}
+</div>`;
+  }
   if (!rodavel(it) || desligado) {   // ```bash, ```json… ou o Rodar desligado: o Copiar e o ✓ Rodei de quem rodou à mão
     const rodei1 = p0 && p0.estado === "entregue" ? "" : rodeiB();
     return `<div class="rd-caixa" data-rd-item="${esc(chave)}">
   <div class="rd-tit">📋 ${esc(onde)}: copie e cole</div>
-  <div class="rd-cod"><div class="rd-cod-bar"><span>${esc(onde)}</span><button type="button" class="rd-copiar" data-rd-copiar="${esc(chave)}" aria-label="Copiar o comando">Copiar</button></div><pre class="rd-pre"><code>${esc(cmd)}</code></pre></div>
+  <div class="rd-cod"><div class="rd-cod-bar"><span>${esc(onde)}</span><button type="button" class="rd-copiar" data-rd-copiar="${esc(chave)}" aria-label="Copiar o comando">Copiar</button></div><pre class="rd-pre"><code>${verBidi(esc(cmd))}</code></pre></div>
   ${rodei1 ? `<div class="rd-acoes">${rodei1}</div>` : ""}${desligado ? `<p class="rd-pq" data-rd-porque><span aria-hidden="true">⚡</span> ${esc(desligado.replace(/[.\s]+$/, ""))}.</p>` : ""}${desligado && p0 ? htmlResultado(p0, {pc: p0.pc || alvo}) : ""}
 </div>`;
   }
   const p = p0;
   const andando = !!(p && EM_CURSO.includes(p.estado));
+  // o PC do item fora do Rodar, com outro PC que roda: o botão abre a folha, que diz por quê e deixa escolher outro
+  const itemFora = !!pcItem && !ligados.includes(pcItem) && ligados.length > 0;
   const motivo = o.bloqueio ? String(o.bloqueio)
     : !chave ? "Sem a chave do item"
     : cortadoDoItem(it) ? "Comando grande demais: copie e cole"
     : !alvo ? "Nenhum PC ligado"
-    : !ligados.includes(alvo) ? `${nomeCurto(alvo)} desligado` : "";
+    : !ligados.includes(alvo) && !itemFora ? `${curto} desligado` : "";
   const feito = p && p.estado === "entregue";
-  const rotulo = `⚡ Rodar ${feito ? "de novo " : ""}no ${esc(nomeCurto(alvo))}`;
-  const rodar = `<button type="button" class="rd-b ouro" data-rd-rodar="${esc(chave)}" data-rd-alvo="${esc(alvo)}"${motivo || andando ? " disabled" : ""}>${motivo ? esc(motivo) : rotulo}</button>`;
+  const ligadoAgora = Array.isArray(o.online) && o.online.map(String).includes(pcItem);
+  // o PC do item desligado: "(desligado)" no lugar do "de novo", e o botão numa linha só dele (o ✓ Rodei desce: os dois
+  // não cabem lado a lado a 390 px)
+  // (revisão do PR #37: sem o online, o index.html de antes não disse se ele está ligado: sem o "(desligado)")
+  const desl = itemFora && Array.isArray(o.online) && !ligadoAgora;
+  const rotulo = `⚡ Rodar ${feito && !desl ? "de novo " : ""}no ${esc(curto)}${desl ? " (desligado)" : ""}`;
+  const rodar = `<button type="button" class="rd-b ouro${desl ? " rd-cheio" : ""}" data-rd-rodar="${esc(chave)}" data-rd-alvo="${esc(alvo)}"${motivo || andando ? " disabled" : ""}>${motivo ? esc(motivo) : rotulo}</button>`;
   const rodei = o.rodei === false || jaRodou(it) || feito ? "" : `<button type="button" class="rd-b" data-rd-rodei="${esc(chave)}">✓ Rodei</button>`;
   return `<div class="rd-caixa" data-rd-item="${esc(chave)}">
   <div class="rd-tit">⚡ Rodar no PC: copie e cole no PowerShell</div>
-  <div class="rd-cod"><div class="rd-cod-bar"><span>PowerShell</span><button type="button" class="rd-copiar" data-rd-copiar="${esc(chave)}" aria-label="Copiar o comando">Copiar</button></div><pre class="rd-pre"><code>${esc(cmd)}</code></pre></div>
-  <div class="rd-acoes">${rodar}${rodei}</div>${p ? htmlResultado(p, {pc: p.pc || alvo}) : ""}
+  <div class="rd-cod"><div class="rd-cod-bar"><span>PowerShell</span><button type="button" class="rd-copiar" data-rd-copiar="${esc(chave)}" aria-label="Copiar o comando">Copiar</button></div><pre class="rd-pre"><code>${verBidi(esc(cmd))}</code></pre></div>
+  <div class="rd-acoes${desl ? " rd-acoes-quebra" : ""}">${rodar}${rodei}</div>${p ? htmlResultado(p, {pc: p.pc || alvo}) : ""}
 </div>`;
 }
 
 // A folha de confirmação: o comando inteiro, o PC (com a troca para outro PC ligado), "Rodar agora" e "Cancelar". O
 // toque fora da folha também cancela. Só o "Rodar agora" com um PC ligado escolhido manda.
 // op: {mudou: true} quando o comando do item mudou com a folha aberta (a folha mostra o novo, avisa e trava o "Rodar
-// agora" por um instante: o toque que já vinha não roda o que a pessoa não viu).
+// agora" por um instante: o toque que já vinha não roda o que a pessoa não viu); pcItem (14/11: o PC do item, pcDoItem):
+// fica sempre entre os PCs da folha e, fora do Rodar, a folha diz por quê ("desligado", ou semRodar: o motivo de ele não
+// rodar pelo celular estando ligado); com outro PC escolhido, o aviso de que o item é de lá. O comando que só roda como
+// administrador não roda: o "Rodar agora" fica apagado, com a frase.
 function htmlConfirmar(comando, pc, pcsLigadosLista, op) {
+  const o = op || {};
   const cmd = String(comando ?? "").trim(), lig = (pcsLigadosLista || []).map(String).filter(Boolean);
-  const escolhido = String(pc || ""), mudou = !!(op && op.mudou), ok = !!cmd && !!escolhido && lig.includes(escolhido) && !(op && op.travado);
+  const escolhido = String(pc || ""), mudou = !!o.mudou, pcItem = String(o.pcItem || "").trim();
+  const admin = !!cmd && precisaAdmin(cmd), semRodar = String(o.semRodar || "").trim().replace(/[.\s]+$/, "");
+  const ok = !!cmd && !!escolhido && lig.includes(escolhido) && !o.travado && !admin;
   const opcoes = [...lig];
   if (escolhido && !opcoes.includes(escolhido)) opcoes.unshift(escolhido);
+  if (pcItem && !opcoes.includes(pcItem)) opcoes.unshift(pcItem);   // o PC do item sempre à vista, mesmo fora
+  const nome = x => nomeSemIgual(x, opcoes);   // revisão do PR #37: o nome inteiro quando dois encurtam igual
   const chips = opcoes.map(x => {
-    const on = x === escolhido, liga = lig.includes(x);
-    return `<button type="button" role="radio" aria-checked="${on}" class="rd-pc${on ? " on" : ""}" data-rd-pc="${esc(x)}"${liga ? "" : " disabled"} title="${esc(x)}">${on ? "● " : ""}${esc(nomeCurto(x))}${liga ? "" : " (desligado)"}</button>`;
+    const on = x === escolhido, liga = lig.includes(x), fora = x === pcItem && semRodar ? " (não roda agora)" : " (desligado)";
+    return `<button type="button" role="radio" aria-checked="${on}" class="rd-pc${on ? " on" : ""}" data-rd-pc="${esc(x)}"${liga ? "" : " disabled"} title="${esc(x)}">${on ? "● " : ""}${esc(nome(x))}${liga ? "" : fora}</button>`;
   }).join("");
-  const aviso = !cmd ? "Sem comando para rodar." : !lig.length ? "Nenhum PC ligado agora: copie o comando e cole no PowerShell."
-    : !lig.includes(escolhido) ? `O ${esc(nomeCurto(escolhido) || "PC")} está desligado: escolha um PC ligado.`
-    : mudou ? "⚠ O comando mudou no PC: confira de novo o que está acima antes de rodar." : "";
+  const c = x => esc(nome(x) || "PC");
+  const avisos = [];
+  if (!cmd) avisos.push("Sem comando para rodar.");
+  else if (admin) avisos.push(`${esc(PRECISA_ADMIN)}: copie o comando e cole no PowerShell aberto como administrador.`);
+  else if (pcItem && escolhido === pcItem && !lig.includes(pcItem)) {
+    avisos.push(semRodar ? `O ${c(pcItem)}, o PC deste item, não roda pelo celular agora: ${esc(semRodar)}.`
+      : `O ${c(pcItem)}, o PC deste item, está desligado agora: rode quando ele ligar${lig.length ? " (ou escolha outro PC, se o comando servir nele)" : ", ou copie o comando e cole no PowerShell dele"}.`);
+  } else if (!lig.length) avisos.push("Nenhum PC ligado agora: copie o comando e cole no PowerShell.");
+  else if (!lig.includes(escolhido)) avisos.push(`O ${c(escolhido)} está desligado: escolha um PC ligado.`);
+  else if (pcItem && escolhido !== pcItem) avisos.push(`⚠ Este item é do ${c(pcItem)}: no ${c(escolhido)}, o comando pode dar erro.`);
+  if (cmd && mudou) avisos.push("⚠ O comando mudou no PC: confira de novo o que está acima antes de rodar.");
+  const aviso = avisos.join("<br>");
   return `<div class="rd-fundo" data-rd-fundo>
   <div class="rd-folha" role="dialog" aria-modal="true" aria-labelledby="rd-f-t" data-rd-folha>
     <div class="rd-pega" aria-hidden="true"></div>
-    <h4 class="rd-f-t" id="rd-f-t">⚡ Rodar no ${esc(nomeCurto(escolhido) || "PC")}</h4>
+    <h4 class="rd-f-t" id="rd-f-t">⚡ Rodar no ${esc(nome(escolhido) || "PC")}</h4>
     <p class="rd-frase">O PC roda isto agora, escondido, e devolve a saída.</p>
-    <pre class="rd-f-cmd"><code>${esc(cmd)}</code></pre>
+    <pre class="rd-f-cmd"><code>${verBidi(esc(cmd))}</code></pre>
     ${opcoes.length ? `<div class="rd-f-rot" id="rd-f-pcs">Em qual PC</div><div class="rd-pcs" role="radiogroup" aria-labelledby="rd-f-pcs">${chips}</div>` : ""}
     ${aviso ? `<div class="rd-aviso" role="alert">${aviso}</div>` : ""}
     <div class="rd-f-acoes"><button type="button" class="rd-b" data-rd-cancelar>Cancelar</button><button type="button" class="rd-b ouro" data-rd-confirmar="${esc(escolhido)}"${ok ? "" : " disabled"}>Rodar agora</button></div>
@@ -312,12 +456,16 @@ const CSS = `
 .rd-b.ouro{background:var(--gold);border-color:var(--gold);color:var(--navy)}
 .rd-b[disabled]{opacity:.5}
 .rd-b.ouro[disabled]{background:var(--glass-2);border-color:var(--stroke);color:var(--muted);opacity:1}
+.rd-acoes-admin,.rd-acoes-quebra{flex-wrap:wrap}
+.rd-b.rd-cheio{flex:1 1 100%}
+.rd-b.rd-admin{flex:1 1 100%;white-space:normal;line-height:1.25;padding:6px 12px;text-overflow:clip}
 .rd-res{margin-top:8px;padding:9px 11px;border-radius:12px;font-size:13.5px;background:var(--glass);border:1px solid var(--stroke);color:var(--muted)}
 .rd-res.anda{display:flex;align-items:center;gap:8px}
 .rd-res.ok{background:rgba(72,214,128,.07);border-color:rgba(72,214,128,.25)}
 .rd-res.ok .rd-res-t{color:#86E8AE;font-weight:650}
 .rd-res.erro{background:rgba(255,90,79,.09);border-color:rgba(255,90,79,.32);color:#FFA49C}
 .rd-res.erro .rd-res-t{font-weight:650}
+.rd-res-adm{margin-top:4px;font-weight:650;color:var(--gold-2,#F6D77E)}
 .rd-saida{margin:6px 0 0;max-height:46vh;overflow:auto;padding:8px 10px;border-radius:8px;background:rgba(0,0,0,.3);font:12.5px/1.4 ui-monospace,Menlo,Consolas,monospace;color:var(--ink);white-space:pre-wrap;overflow-wrap:anywhere}
 .rd-sem{margin-top:4px;font-size:12.5px;color:var(--muted)}
 .rd-tudo{display:block;min-height:44px;padding:0 2px;color:var(--gold-2,#F6D77E);font-size:14px;font-weight:650}
@@ -328,7 +476,7 @@ const CSS = `
 .rd-pega{width:38px;height:5px;border-radius:999px;background:var(--stroke-2,rgba(255,255,255,.18));margin:2px auto 10px}
 .rd-f-t{margin:0;font-size:18px;font-weight:700}
 .rd-frase{margin:4px 0 10px;font-size:14px;color:var(--muted)}
-.rd-f-cmd{margin:0;max-height:38vh;overflow:auto;padding:10px 12px;border-radius:10px;background:rgba(0,0,0,.35);border:1px solid var(--stroke);font:13.5px/1.45 ui-monospace,Menlo,Consolas,monospace;color:var(--ink);white-space:pre-wrap;overflow-wrap:anywhere}
+.rd-f-cmd{margin:0;padding:10px 12px;border-radius:10px;background:rgba(0,0,0,.35);border:1px solid var(--stroke);font:13.5px/1.45 ui-monospace,Menlo,Consolas,monospace;color:var(--ink);white-space:pre-wrap;overflow-wrap:anywhere}
 .rd-f-rot{margin:12px 0 6px;font-size:12.5px;font-weight:650;color:var(--muted)}
 .rd-pcs{display:flex;gap:8px;flex-wrap:wrap}
 .rd-pc{min-height:44px;padding:0 16px;border-radius:999px;background:var(--glass);border:1px solid var(--stroke);color:var(--muted);font-size:15px;font-weight:650}
@@ -340,7 +488,9 @@ const CSS = `
 `;
 
 const Rodar = {COMANDO_MAX, RODAVEIS, COM_SEGREDO, comandoDe, comandoDoItem, linguagemDe, linguagemDoItem, rodavel, ondeColar, cortado, sha256, sha256Puro, pcsLigados, pcPadrao, pedidoRodar,
-  notaRodei, lerResultado, htmlCaixa, htmlConfirmar, htmlResultado, alternar, acaoDe, CSS};
+  notaRodei, lerResultado, htmlCaixa, htmlConfirmar, htmlResultado, alternar, acaoDe, CSS,
+  PRECISA_ADMIN, ADMIN, regraDeAdmin, precisaAdmin, nomesDe, pcDoItem, BIDI, nomeSemIgual,   // 14/11
+  recusaDeAdmin, semAFrase, ESPACOS_RAROS};   // 16/11
 if (typeof module !== "undefined" && module.exports) module.exports = Rodar;
 else raiz.Rodar = Rodar;
 })(typeof window !== "undefined" ? window : globalThis);
