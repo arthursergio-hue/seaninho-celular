@@ -1627,6 +1627,7 @@ body.tela24 #appAviso{z-index:8}
 <script src="pcs.js"></script>
 <script src="maquinas.js"></script>
 <script src="chrome.js"></script><!-- entrega 6 (Seaninho no Chrome) -->
+<script src="cartoes-dia.js"></script>
 <script src="volta.js"></script>
 <script src="espaco.js"></script><!-- entrega 5: o Início organizável -->
 <script src="sobras.js"></script><!-- entrega 5: as sobras do chat -->
@@ -1675,7 +1676,8 @@ let sugestoesAtuais = []; // as respostas prontas da sessão aberta (o PC pede �
 let ordemPedida = [], arrastoSecao = null, ordemEsperada = null;   // (e a ordem que a tela mostra com eles)
 let timer = null, timerSala = null;
 let aba = "Inicio";
-const VERSAO_APP = "0.9.0.20";   // esta página (v31, a casca seaninho-v31: a central e as decisões entre os 2 PCs pela rede local, o aviso da rede no cartão do PC (PR #39) e a prioridade mudada pelo celular (PR #40), com o agente 0.9.0.20; sobre a v30 publicada em 16/11)
+const VERSAO_APP = "0.9.0.21";   // esta página (v32, a casca seaninho-v32: os cartões do dia do Monitor geral no Início (PR #34), que nascem recolhidos, com o resumo no cabeçalho e a escolha lembrada no aparelho (PR #41), com o agente 0.9.0.21; sobre a v31 publicada em 16/11)
+// (v31, a casca seaninho-v31: a central e as decisões entre os 2 PCs pela rede local, o aviso da rede no cartão do PC (PR #39) e a prioridade mudada pelo celular (PR #40), com o agente 0.9.0.20)
 // (v30, a casca seaninho-v30: o ⚡ Rodar no PC com o comando de administrador, com o agente 0.9.0.19)
 // (v29, a casca seaninho-v29: as 6 telas do Monitor e o padrão Opus da VPS, com o agente 0.9.0.18; v28: o trem do celular, com o 0.9.0.17)
 // o agente que acompanha esta página (os PCs atrás dele aparecem no painel). Corretor final de 12/11 (o cético): as
@@ -1693,10 +1695,15 @@ const VERSAO_APP = "0.9.0.20";   // esta página (v31, a casca seaninho-v31: a c
 // central boa da rede, o Rodar com a cópia da rede, o aviso da rede no hoje.painel.rede_local) e da ordem das seções
 // mudada pelo celular (PR #40: o pedido prioridades_mover e a marca "prioridades_mover" no painel). Com o 0.9.0.19, o
 // cartão do PC fica sem o aviso da rede e a folha da prioridade fica cinza, com o porquê.
-const AGENTE_ATUAL = "0.9.0.20";
+// v32 (16/11): o 0.9.0.21 é o agente dos cartões do dia do Monitor geral (PR #34: o cartoes_dia.py publica os grupos
+// da pasta cartoes-externos do PC em hoje.painel.cartoes_externos, sem os botões, e o pessoal só para o celular, nunca
+// pela rede local). Com o 0.9.0.20, o campo não vem e o bloco 🗂 Cartões do dia não aparece, sem estrago. O recolhido,
+// com a escolha lembrada (PR #41), é só da página (o cartoes-dia.js).
+const AGENTE_ATUAL = "0.9.0.21";
 // 0.9.0.15 (12/11): o agente que entrega no terminal, no app do Claude e no segundo plano (o mesmo do Chat.AGENTE_QUALQUER)
 const AGENTE_QUALQUER = "0.9.0.15";
 const NOVIDADES_APP = [
+  ["0.9.0.21", "Cartões do dia no Início: os mesmos cartões que o Monitor geral mostra no PC, com o mesmo ícone, estado e linha, no bloco 🗂 Cartões do dia. Cada grupo nasce recolhido, com o resumo no cabeçalho (quantos cartões e, se houver, quantos em ⚠ atenção e em ✖ erro); um toque abre, outro fecha, e a escolha fica lembrada neste aparelho. O grupo pessoal aparece com o 🔒, só no seu celular, e nunca vai ao outro PC. Com mais de um PC, cada grupo diz de qual PC é; o grupo de um PC fora do ar, ou com os dados vencidos, fica cinza, com a hora dos dados. Os cartões vêm sem botões: o que roda no PC continua no Monitor geral. O bloco recolhe no ▾ ou some no ✕, como os outros do Início. Precisa do agente 0.9.0.21 nos PCs."],
   ["0.9.0.20", "Os dois PCs se enxergam melhor: o Para você do outro PC não some mais quando a rede local falha por alguns segundos (fica a última cópia boa que ela trouxe), as decisões do outro PC não param mais de chegar caladas, o ⚡ Rodar no PC de um item do outro PC usa a última cópia boa que a rede trouxe (e, sem ela, diz por quê), e o cartão de cada PC, no Início e em Computadores, avisa quando o Para você ou as decisões dele não chegam ao outro PC, e por quê (a ponte de cópias antiga, o agente do celular parado, sem rede local). Nas Sessões, toque no P0, P1… do cabeçalho de um projeto para subir, descer ou escolher a posição na prioridade, ou segure o cabeçalho para arrastar a seção; a ordem nova vale também no Monitor geral. As fixadas ganharam ▲ Subir e ▼ Descer, e segurar não abre mais a seleção de texto do iPhone. A ponte de cópias nova vai junto nos dois PCs. Precisa do agente 0.9.0.20 nos PCs."],
   ["0.9.0.19", "⚡ Rodar no PC: o comando que só roda como administrador fica com o Copiar e a frase \"Precisa de administrador: só no PC\" no lugar do ⚡ (a lista curta: o Defender, a política de execução da máquina, o HKLM, os serviços, o firewall, o bcdedit, os recursos do Windows, o -Verb RunAs, o msiexec e os instaladores). Quando o Windows recusa um comando por falta de administrador, o resultado traz a frase em destaque e, embaixo, o fim do que ele escreveu. O ⚡ e o Rodar de novo abrem no PC do item, não no da central. O Get-MpPreference sem as exclusões roda; o winget também. O comando com letras invisíveis que mudam a ordem do texto na tela, ou com espaços fora do comum, não roda pelo celular (fica o Copiar). Precisa do agente 0.9.0.19 nos PCs."],
   ["0.9.0.18", "O Monitor geral inteiro no celular, além do padrão Opus da VPS. Entregas: cada entrega no card do Monitor, com o número de novas no topo, o aviso de entrega nova que abre direto nela, o 🖥 No PC (abre a pasta da entrega no Explorer do PC) e os botões extras do Monitor. ✓ Revisões: os cards do quadro visual da central numa tela própria, aberta pelo bloco ✓ Revisões do Início (priorizar, pausar, aprovar, pedir ajuste e os outros), com o Desfazer e o arrastar para os lados. Sessões em mosaico: cada sessão num ladrilho, as centrais primeiro, com a cor e o ícone delas e o quadro, uma caixa de mensagem em cada ladrilho e o toque longo com o menu (o botão Mosaico | Lista volta à lista). Meus pedidos: a semana inteira, com a resposta da central em cada pedido. Estoque, na aba Workflows: as skills e os crons dos PCs, com o uso, o Rodar agora, o Agendador, o log e o + link. Início organizável: cada bloco recolhe no ▾ ou some no ✕, e o 👁 Mostrar traz de volta; fica igual em todos os seus aparelhos. No chat, o ✨ Sugerir respostas no menu de uma fala do Claude e o 📁 Mostrar na pasta no cartão do PDF. No Início, o grupo 🌐 Seaninho no Chrome: a ponte de cada PC, o modo, o perfil e as últimas ações, só para ver. Na VPS, o Mandar tarefa abre com o Opus 5.5, o esforço máximo, o Ultracode (Workflow) ligado e US$ 50 de orçamento (até 80); o modelo, o esforço e o ultracode dá para mudar, e a folha avisa quando o kit da VPS ou o agente de um PC ainda é antigo. Precisa do agente 0.9.0.18 nos PCs."],
@@ -2606,7 +2613,7 @@ function previa(s) {
 // ---- Início: o painel do dia (blocos resumidos; cada um leva à aba ou à tela completa) -------------------
 // v24: as Decisões no alto quando há lote; as Entregas e os Meus pedidos depois do Para você; sem lote esperando, a
 // última respondida desce para perto deles (dcfim)
-const PAINEL_BLOCOS = ["decisoes", "airats", "esperando", "frentes", "sessoes", "paravoce", "revisoes", "entregas", "pedidos", "dcfim", "usoia", "computadores", "chrome", "metricas", "resumos"];   // "revisoes": entrega 2; "chrome": entrega 6 (Seaninho no Chrome)
+const PAINEL_BLOCOS = ["decisoes", "airats", "esperando", "frentes", "cartoes", "sessoes", "paravoce", "revisoes", "entregas", "pedidos", "dcfim", "usoia", "computadores", "chrome", "metricas", "resumos"];   // "cartoes": os cartões do dia (cartoes-dia.js); "revisoes": entrega 2; "chrome": entrega 6 (Seaninho no Chrome)
 const painelDe = p => (p && p.hoje && p.hoje.painel) || null;
 function motivoRede(e) {
   const m = String((e && e.message) || e || "");
@@ -2639,6 +2646,7 @@ function desenharInicio() {
   por($("p-airats"), blocoAiRats());
   por($("p-esperando"), blocoEsperando(ss, agora));
   por($("p-frentes"), blocoFrentes(lista));   // 0.9.0.4
+  por($("p-cartoes"), window.CartoesDia ? CartoesDia.htmlBloco(lista, {agora, nomePc: nomeCurtoPc, online}) : "");   // cartões do dia (cartoes-dia.js; o PC fora do ar, cinza)
   por($("p-sessoes"), blocoSessoes(c, lista));
   const escrevendo = document.activeElement && document.activeElement.matches && document.activeElement.matches("#p-paravoce textarea");
   if (!escrevendo) por($("p-paravoce"), blocoParaVoce(lista));

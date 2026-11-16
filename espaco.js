@@ -27,6 +27,7 @@ const ROTULOS = {
   pedidos: "📝 Meus pedidos", usoia: "📊 Uso de IA", computadores: "💻 Computadores", metricas: "📈 Hoje no Claude",
   resumos: "📋 As outras abas",
   chrome: "🌐 Seaninho no Chrome",   // o trem 0.9.0.18: o grupo da entrega 6 (chrome.js) também na folha "Mostrar na tela"
+  cartoes: "🗂 Cartões do dia",      // 16/11 (PR #34): o bloco do cartoes-dia.js, com nome no ▾, no ✕ e na folha
 };
 const NOME = /^[a-z0-9_-]{1,30}$/;
 const MAX = 40;                              // nomes por lista (o banco aceita até 20 KB e a lista da conta tem 1 item)
