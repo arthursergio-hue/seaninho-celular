@@ -20,7 +20,8 @@
 // v30 (16/11, a página 0.9.0.19): o ⚡ Rodar no PC com o comando de administrador (PR #37: o rodar.js, o paravoce.js e o
 // index.html novos; a frase "Precisa de administrador: só no PC" no lugar do ⚡, a recusa do Windows com a frase e o fim
 // da saída, o PC do item, as letras bidi e os espaços raros barrados). Nenhum arquivo novo na casca: a CASCA é a da v29.
-const CACHE = "seaninho-v30";
+// v31 (16/11, PR #39): o pcs.js (Pcs.avisosDaRede) e o index.html (o aviso da rede no cartão do PC do Início), sobre a v30 publicada em 16/11
+const CACHE = "seaninho-v31";
 const CASCA = ["./", "./index.html", "./config.js", "./markdown.js", "./chat.js", "./reacoes.js", "./lista.js", "./prioridades.js", "./workflows.js", "./estoque.js", "./pcs.js", "./maquinas.js", "./chrome.js", "./volta.js", "./espaco.js", "./sobras.js", "./usoia.js", "./ninja.js", "./ninjavivo.js", "./marcar.js", "./decisoes.js", "./cards.js", "./paravoce.js", "./entregas.js", "./pedidos.js", "./mosaico.js", "./rodar.js", "./revisoes.js", "./manifest.webmanifest", "./icone-180.png", "./icone-192.png"];
 
 self.addEventListener("install", e => {

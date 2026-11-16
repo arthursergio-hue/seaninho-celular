@@ -855,14 +855,16 @@ button.bloco-cab{display:block;width:100%;text-align:left}
 .fchip i{font-style:normal;opacity:.7;font-weight:500}
 .fchip.on{background:var(--gold);color:var(--navy)}
 .fchip.limpar{background:none;border:1px solid var(--stroke-2)}
-.fx-titulo{display:flex;align-items:center;font-size:12px;font-weight:600;color:var(--faint);margin:4px 2px 8px;text-transform:uppercase;letter-spacing:.5px}
+.fx-titulo{display:flex;align-items:center;font-size:12px;font-weight:600;color:var(--faint);margin:4px 2px 8px;text-transform:uppercase;letter-spacing:.5px;
+  -webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 .fx-titulo small{margin-left:auto;text-transform:none;letter-spacing:0;font-weight:500}
 /* 0.9.0.15: o grupo das sessões de segundo plano na lista (o título no jeito do das Fixadas) */
 .grupo-fundo{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:var(--faint);margin:18px 2px 8px;text-transform:uppercase;letter-spacing:.5px}
 .grupo-fundo i{font-style:normal;font-weight:500;letter-spacing:0}
-.fx-fila{display:flex;gap:8px;overflow-x:auto;margin:0 -16px 14px;padding:4px 16px 4px;scrollbar-width:none}
+.fx-fila{display:flex;gap:8px;overflow-x:auto;margin:0 -16px 14px;padding:4px 16px 4px;scrollbar-width:none;-webkit-user-select:none;user-select:none;
+  -webkit-touch-callout:none}
 .fx{flex:none;width:78px;display:flex;flex-direction:column;align-items:center;gap:5px;text-align:center;-webkit-user-select:none;user-select:none;
-  -webkit-touch-callout:none;transition:transform .15s}
+  -webkit-touch-callout:none;-webkit-user-drag:none;touch-action:manipulation;transition:transform .15s}
 .fx-av{position:relative;width:56px;height:56px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(140deg,#2A4F8C,#173463);
   border:1px solid var(--stroke-2);font-weight:700;font-size:18px;color:var(--ink)}
 .fx-av .pino{position:absolute;left:-3px;top:-3px;font-size:13px}
@@ -880,7 +882,8 @@ button.bloco-cab{display:block;width:100%;text-align:left}
 .fx.fechada{opacity:.45}
 .fx.arrastando{transform:scale(1.1);z-index:2;transition:none}
 .sl{position:relative;margin:0 0 10px;border-radius:16px;overflow:hidden}
-.sl .card{margin:0;position:relative;z-index:1;touch-action:pan-y;transition:transform .2s;background:#11264c}
+.sl .card{margin:0;position:relative;z-index:1;touch-action:pan-y;transition:transform .2s;background:#11264c;
+  -webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 .sl .card.arrastando{transition:none}
 .sl-acao{position:absolute;inset:0;display:flex;align-items:center;justify-content:flex-end;padding:0 20px;background:#3D6FD6;color:#fff;
   font-weight:650;font-size:14.5px;border-radius:16px}
@@ -900,6 +903,35 @@ button.bloco-cab{display:block;width:100%;text-align:left}
 .sl .card.sessao.pj:not(.ask){border-color:rgba(var(--pj-rgb),.26);background:linear-gradient(135deg,rgba(var(--pj-rgb),.13),rgba(var(--pj-rgb),.02) 60%),#11264c}
 .folha .op .pj-op{display:flex;align-items:center;gap:9px;min-width:0}
 .folha .op .pj-op small{flex:none;font-size:12px;font-weight:700;color:var(--pj-2)}
+/* 16/11 (o Arthur, pelo iPhone: "segure para mover não funciona: ele abre essa seleção de texto"): o cabeçalho da seção
+   pega com o toque longo e o "P<n>" abre a folha da prioridade. No que se arrasta (o cabeçalho, as fixadas, o cartão), sem
+   a seleção de texto e sem o menu Copiar/Pesquisar do iOS; antes do toque longo, o dedo rola a lista (pan-y). O resto da
+   página continua com o texto selecionável. */
+.pj-cab{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;touch-action:pan-y;transition:transform .2s ease-out}
+.pj-cab.pj-segurando{transform:scale(.985)}
+button.pj-p{position:relative;display:inline-flex;align-items:center;justify-content:center;gap:4px;border:0;font-family:inherit;line-height:1;
+  cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+button.pj-p::before{content:"";position:absolute;inset:-12px -9px}   /* o toque pega num alvo de 44 px */
+button.pj-p::after{content:"";border-left:3.5px solid transparent;border-right:3.5px solid transparent;border-top:4.5px solid currentColor;opacity:.75}
+button.pj-p:active{filter:brightness(1.15)}
+.pj-cab.pj-indo .pj-p{animation:pj-pisca 1.1s ease-in-out infinite}
+@keyframes pj-pisca{50%{opacity:.45}}
+/* com a seção na mão, a lista fica só com os cabeçalhos: a ordem inteira cabe na tela (a seção vai com as sessões dela);
+   as outras abrem espaço e o buraco tracejado mostra onde ela cai */
+#sessoesLista.pj-ordenando .pj-grupo>:not(.pj-cab){display:none}
+#sessoesLista.pj-ordenando .pj-cab{margin-bottom:0}
+.pj-grupo.pj-pegou{border-radius:12px;outline:2px dashed rgba(226,184,74,.6);outline-offset:-2px}
+.pj-grupo.pj-pegou .pj-cab{visibility:hidden}
+.pj-fantasma{position:fixed;z-index:9;margin:0;pointer-events:none;transform:scale(1.03);background-color:#152B55;
+  box-shadow:0 14px 30px rgba(0,0,0,.6),0 0 0 2px var(--gold)}
+body.pj-arrastando,body.pj-arrastando *{-webkit-user-select:none;user-select:none}
+.folha .pj-f-tit{display:flex;align-items:center;gap:9px;color:var(--ink);font-size:16px}
+.folha .pj-f-tit small{margin-left:auto;font-size:13px;font-weight:700;color:var(--pj-2)}
+.folha .pj-setas{display:flex;gap:10px;margin:6px 0 8px}
+.folha .pj-setas .btn{flex:1;margin:0;min-height:48px;padding:12px}
+.folha .pj-f-nota{margin:0 0 4px;font-size:13px;line-height:1.35;color:var(--faint)}
+.folha .pj-f-nota.aviso{color:var(--gold-2)}
+.folha .op:disabled{opacity:.45}
 .fchip .pj-bola{width:9px;height:9px;margin-right:2px;vertical-align:0}
 .vazio-filtro .btn{max-width:220px;margin:14px auto 0;padding:10px}
 .cc{border-radius:14px;background:var(--glass);border:1px solid var(--stroke);margin-bottom:8px;overflow:hidden}
@@ -1638,9 +1670,13 @@ let aberta = null;       // {pc, id} da sessão aberta no detalhe
 let melhorar = store.get("seaninho.melhorar") !== "nao";
 const edicoes = {};      // id do pedido -> o texto como a pessoa editou (a tela se refaz a cada 4 s)
 let sugestoesAtuais = []; // as respostas prontas da sessão aberta (o PC pede à IA quando o Claude pergunta ou termina)
+// 16/11: a prioridade das seções mudada aqui: os movimentos que o PC ainda não publicou ([{chave, para, base, pc, …}]) e
+// a seção na mão (o toque longo no cabeçalho). Aqui no alto: a lista e o cabeçalho os leem em qualquer desenho.
+let ordemPedida = [], arrastoSecao = null, ordemEsperada = null;   // (e a ordem que a tela mostra com eles)
 let timer = null, timerSala = null;
 let aba = "Inicio";
-const VERSAO_APP = "0.9.0.19";   // esta página (v30, a casca seaninho-v30: o ⚡ Rodar no PC com o comando de administrador, com o agente 0.9.0.19)
+const VERSAO_APP = "0.9.0.20";   // esta página (v31, a casca seaninho-v31: a central e as decisões entre os 2 PCs pela rede local, o aviso da rede no cartão do PC (PR #39) e a prioridade mudada pelo celular (PR #40), com o agente 0.9.0.20; sobre a v30 publicada em 16/11)
+// (v30, a casca seaninho-v30: o ⚡ Rodar no PC com o comando de administrador, com o agente 0.9.0.19)
 // (v29, a casca seaninho-v29: as 6 telas do Monitor e o padrão Opus da VPS, com o agente 0.9.0.18; v28: o trem do celular, com o 0.9.0.17)
 // o agente que acompanha esta página (os PCs atrás dele aparecem no painel). Corretor final de 12/11 (o cético): as
 // Decisões, as Entregas, os Meus pedidos e o Rodar só existem no agente 0.9.0.14 (o AGENTE_V24); com o 0.9.0 aqui, o
@@ -1653,10 +1689,15 @@ const VERSAO_APP = "0.9.0.19";   // esta página (v30, a casca seaninho-v30: o �
 // v30 (16/11): o 0.9.0.19 é o agente do ⚡ Rodar no PC com o comando de administrador (PR #37): reconhece a lista curta
 // com a frase "Precisa de administrador: só no PC", devolve a recusa do Windows com a frase e o fim da saída, publica o
 // PC do item e recusa as letras bidi e os espaços raros. O 0.9.0.18 roda o comando de administrador e devolve o erro cru.
-const AGENTE_ATUAL = "0.9.0.19";
+// v31 (16/11): o 0.9.0.20 é o agente da central e das decisões entre os 2 PCs pela rede local x nuvem (PR #39: a última
+// central boa da rede, o Rodar com a cópia da rede, o aviso da rede no hoje.painel.rede_local) e da ordem das seções
+// mudada pelo celular (PR #40: o pedido prioridades_mover e a marca "prioridades_mover" no painel). Com o 0.9.0.19, o
+// cartão do PC fica sem o aviso da rede e a folha da prioridade fica cinza, com o porquê.
+const AGENTE_ATUAL = "0.9.0.20";
 // 0.9.0.15 (12/11): o agente que entrega no terminal, no app do Claude e no segundo plano (o mesmo do Chat.AGENTE_QUALQUER)
 const AGENTE_QUALQUER = "0.9.0.15";
 const NOVIDADES_APP = [
+  ["0.9.0.20", "Os dois PCs se enxergam melhor: o Para você do outro PC não some mais quando a rede local falha por alguns segundos (fica a última cópia boa que ela trouxe), as decisões do outro PC não param mais de chegar caladas, o ⚡ Rodar no PC de um item do outro PC usa a última cópia boa que a rede trouxe (e, sem ela, diz por quê), e o cartão de cada PC, no Início e em Computadores, avisa quando o Para você ou as decisões dele não chegam ao outro PC, e por quê (a ponte de cópias antiga, o agente do celular parado, sem rede local). Nas Sessões, toque no P0, P1… do cabeçalho de um projeto para subir, descer ou escolher a posição na prioridade, ou segure o cabeçalho para arrastar a seção; a ordem nova vale também no Monitor geral. As fixadas ganharam ▲ Subir e ▼ Descer, e segurar não abre mais a seleção de texto do iPhone. A ponte de cópias nova vai junto nos dois PCs. Precisa do agente 0.9.0.20 nos PCs."],
   ["0.9.0.19", "⚡ Rodar no PC: o comando que só roda como administrador fica com o Copiar e a frase \"Precisa de administrador: só no PC\" no lugar do ⚡ (a lista curta: o Defender, a política de execução da máquina, o HKLM, os serviços, o firewall, o bcdedit, os recursos do Windows, o -Verb RunAs, o msiexec e os instaladores). Quando o Windows recusa um comando por falta de administrador, o resultado traz a frase em destaque e, embaixo, o fim do que ele escreveu. O ⚡ e o Rodar de novo abrem no PC do item, não no da central. O Get-MpPreference sem as exclusões roda; o winget também. O comando com letras invisíveis que mudam a ordem do texto na tela, ou com espaços fora do comum, não roda pelo celular (fica o Copiar). Precisa do agente 0.9.0.19 nos PCs."],
   ["0.9.0.18", "O Monitor geral inteiro no celular, além do padrão Opus da VPS. Entregas: cada entrega no card do Monitor, com o número de novas no topo, o aviso de entrega nova que abre direto nela, o 🖥 No PC (abre a pasta da entrega no Explorer do PC) e os botões extras do Monitor. ✓ Revisões: os cards do quadro visual da central numa tela própria, aberta pelo bloco ✓ Revisões do Início (priorizar, pausar, aprovar, pedir ajuste e os outros), com o Desfazer e o arrastar para os lados. Sessões em mosaico: cada sessão num ladrilho, as centrais primeiro, com a cor e o ícone delas e o quadro, uma caixa de mensagem em cada ladrilho e o toque longo com o menu (o botão Mosaico | Lista volta à lista). Meus pedidos: a semana inteira, com a resposta da central em cada pedido. Estoque, na aba Workflows: as skills e os crons dos PCs, com o uso, o Rodar agora, o Agendador, o log e o + link. Início organizável: cada bloco recolhe no ▾ ou some no ✕, e o 👁 Mostrar traz de volta; fica igual em todos os seus aparelhos. No chat, o ✨ Sugerir respostas no menu de uma fala do Claude e o 📁 Mostrar na pasta no cartão do PDF. No Início, o grupo 🌐 Seaninho no Chrome: a ponte de cada PC, o modo, o perfil e as últimas ações, só para ver. Na VPS, o Mandar tarefa abre com o Opus 5.5, o esforço máximo, o Ultracode (Workflow) ligado e US$ 50 de orçamento (até 80); o modelo, o esforço e o ultracode dá para mudar, e a folha avisa quando o kit da VPS ou o agente de um PC ainda é antigo. Precisa do agente 0.9.0.18 nos PCs."],
   ["0.9.0.17", "Tudo junto numa versão só: o ninja novo do uso de IA (um por faixa, com a animação de aparição, e o ninja vivo parado em loop e nos golpes, o mesmo do Monitor geral), a faixa AO VIVO contra a meta de hoje com o TeamZone no cantinho, as reações nas mensagens (a fileira em cima do menu, os chips e o +), as Sessões por projeto na ordem de prioridade do Monitor geral, a mensagem para qualquer sessão (VS Code, terminal, app do Claude, segundo plano e os painéis do Herdr) e a VPS no Computadores. Precisa do agente 0.9.0.17 nos PCs."],
@@ -1844,7 +1885,7 @@ function desenharSessoes() {
   for (const [id, n] of [["nAsk", c.esperando], ["nInicio", c.esperando + dcPendentes().length]]) { $(id).textContent = n; $(id).classList.toggle("hidden", !n); }
   por($("contasLista"), linhaContas());
   por($("mzTopo"), window.Mosaico ? Mosaico.seletor() : "");   // entrega 3: [Mosaico | Lista]
-  if (gestoSessao || arrastoFixada || (window.Mosaico && Mosaico.segurando())) return;   // não refaz o que está embaixo do dedo
+  if (gestoSessao || arrastoFixada || arrastoSecao || (window.Mosaico && Mosaico.segurando())) return;   // não refaz o que está embaixo do dedo
   // pro-79: com a ordem dos projetos do Monitor geral (a de maior "ts" entre os PCs), a lista vai por projeto
   const prio = prioridadesAgora(), fl = filtrosEf(prio);
   desenharFiltros(c, prio, fl);
@@ -1892,7 +1933,10 @@ function gruposHtml(lista, prio, varios) {
     ${pjCab(g)}
     ${g.lista.map(s => cartaoSessao(s, varios, true)).join("")}</section>`).join("");
 }
-const pjCab = g => `<h3 class="pj-cab"><i class="pj-bola" aria-hidden="true"></i>${g.prioridade == null ? "" : `<b class="pj-p" title="Prioridade ${g.prioridade}">P${g.prioridade}</b>`}<span class="pj-n">${esc(g.nome)}</span><span class="pj-c" title="${g.lista.length === 1 ? "1 sessão" : g.lista.length + " sessões"}">${g.lista.length}</span></h3>`;
+// 16/11: a seção com prioridade (as "Outras" não têm) leva a chave (o toque longo no cabeçalho pega a seção) e o "P<n>"
+// vira botão (abre a folha da prioridade: ▲ Subir, ▼ Descer e a lista P0…Pn); piscando, o PC ainda não fez o pedido
+const pjCab = g => `<h3 class="pj-cab${g.prioridade != null && ordemPedida.some(m => m.chave === g.chave) ? " pj-indo" : ""}"${g.prioridade == null ? "" : ` data-pj="${esc(g.chave)}"`}><i class="pj-bola" aria-hidden="true"></i>${g.prioridade == null ? ""
+  : `<button type="button" class="pj-p" data-pj-p="${esc(g.chave)}" title="Prioridade ${g.prioridade}: toque para mudar" aria-haspopup="dialog" aria-label="P${g.prioridade}: mudar a prioridade de ${esc(g.nome)}">P${g.prioridade}</button>`}<span class="pj-n">${esc(g.nome)}</span><span class="pj-c" title="${g.lista.length === 1 ? "1 sessão" : g.lista.length + " sessões"}">${g.lista.length}</span></h3>`;
 // ---- entrega 3 do Monitor no celular: as Sessões em mosaico (web/mosaico.js; CONTRATO-mosaico.md, seção 2) -----------
 // As orquestras de cada PC: a central do maestro e o quadro dela (o agente de antes não põe o "quadro" na sessão).
 const mzExtras = () => Object.values(pcs).map(p => { const o = (painelDe(p) || {}).orquestra;
@@ -1919,7 +1963,8 @@ function mzEnviar(pc, id, texto) {
   enviarLocal(local, {pc, sessao: id, titulo: s ? s.titulo : "", texto, direto: true});
   return local;
 }
-const prioridadesAgora = () => Prioridades.escolher(pcs);
+// 16/11: com os movimentos pedidos ao PC que ele ainda não publicou por cima (mudarPrioridade), como o agente vai fazer
+const prioridadesAgora = () => Prioridades.aplicar(Prioridades.escolher(pcs), ordemPedida);
 // Os filtros que valem agora: o de projeto só com a ordem dos projetos (sem ela, fica guardado e não filtra)
 const filtrosEf = prio => prio || !filtros.projeto ? filtros : Object.fromEntries(Object.entries(filtros).filter(([k]) => k !== "projeto"));
 function cartaoSessao(s, varios, pj) {
@@ -2222,6 +2267,7 @@ function vigiarAcoes() {
     const p = pedidos.find(x => x.id === id);
     if (!p || !["entregue", "erro"].includes(p.estado)) continue;
     acoesVigiadas.delete(id);
+    if (v.fim) v.fim(p);   // 16/11: a prioridade pedida (sai da lista com o erro; com o entregue, espera a ordem publicada)
     if (v.grupo) {   // o "Fechar as N paradas": um aviso só, no fim
       const g = v.grupo;
       g.feitos++;
@@ -2240,8 +2286,10 @@ function menuDaFixada(i, ancora) {
   const reabre = !viva && !!f.cwd && pcs[f.pc] && online(pcs[f.pc]) && Lista.compararVersao(pcs[f.pc].versao, AGENTE_FECHAR) >= 0;
   abrirMenu([...(viva ? [["💬 Abrir a conversa", () => abrir(f.pc, f.id)], ...itemSilenciar(f.pc, f.id), ...itemFechar(f.pc, f.id)]
                       : reabre ? [["↻ Reabrir no PC", () => reabrirNoPc(f)]] : []),
-             ...(i > 0 ? [["◀ Mover para a esquerda", () => salvarFixadas(Lista.moverFixada(fixadas, i, i - 1))]] : []),
-             ...(i < fixadas.length - 1 ? [["Mover para a direita ▶", () => salvarFixadas(Lista.moverFixada(fixadas, i, i + 1))]] : []),
+             // 16/11: subir e descer como a prioridade das seções (na fileira, a primeira é a da esquerda); o mesmo caminho do
+             // arrastar (salvarFixadas: a preferência "fixadas" no banco, que vale em todo aparelho)
+             ...(i > 0 ? [["▲ Subir (para a esquerda)", () => salvarFixadas(Lista.moverFixada(fixadas, i, i - 1))]] : []),
+             ...(i < fixadas.length - 1 ? [["▼ Descer (para a direita)", () => salvarFixadas(Lista.moverFixada(fixadas, i, i + 1))]] : []),
              ["Desafixar", () => alternarFixada(f.pc, f.id)]], ancora);
 }
 
@@ -2284,7 +2332,9 @@ function soltarSessao(e) {
   else desenharSessoes();
 }
 
-// Fixadas: toque abre; segurar abre o menu; segurar e arrastar para o lado muda a ordem.
+// Fixadas: toque abre; segurar abre o menu; segurar e arrastar para o lado muda a ordem. 16/11: o toque longo é o
+// TOQUE_LONGO_MS (antes 450 ms, perto demais do toque longo do próprio iOS, que seleciona o texto).
+const TOQUE_LONGO_MS = 350;
 function pegarFixada(e) {
   const el = e.target.closest(".fx");
   if (!el || (e.button || 0) > 0) return;
@@ -2294,7 +2344,7 @@ function pegarFixada(e) {
     a.modo = "segurar"; el.classList.add("arrastando");
     try { el.setPointerCapture(a.id); } catch {}
     menuDaFixada(a.i, el);
-  }, 450);
+  }, TOQUE_LONGO_MS);
 }
 function moverFixada(e) {
   const a = arrastoFixada;
@@ -2317,6 +2367,227 @@ function soltarFixada(e) {
     if (j !== a.i) return salvarFixadas(Lista.moverFixada(fixadas, a.i, j));
   }
   desenharSessoes();
+}
+
+// ---- 16/11: a prioridade das seções pelo celular (o Arthur, pelo iPhone: "Queria uma solução para eu poder alterar a
+// prioridade") --------------------------------------------------------------------------------------------------------
+// Dois jeitos, os dois pelo caminho do arrastar do Monitor geral (o prioridades.json do PC; ver Prioridades.ACAO):
+// - o toque no "P<n>" da seção abre a folha: ▲ Subir, ▼ Descer e a lista P0…Pn;
+// - segurar o cabeçalho (TOQUE_LONGO_MS) pega a seção: a lista fica só com os cabeçalhos (a ordem inteira cabe na tela),
+//   uma cópia do cabeçalho segue o dedo e as outras abrem espaço (o buraco tracejado é onde ela cai); soltar muda a ordem.
+//   Antes do toque longo, o dedo que anda rola a lista (o cabeçalho tem touch-action: pan-y); depois, o touchmove não
+//   passivo segura a rolagem (no iPhone, é o que impede o Safari de rolar por baixo) e a lista rola sozinha perto do alto
+//   e do pé da tela.
+// O pedido vai ao PC que publicou a ordem que a página mostra (Prioridades.alvo). Até ele publicar a ordem nova, a lista
+// mostra o movimento por cima (prioridadesAgora) e o "P<n>" pisca; com erro, a lista volta e o aviso diz por quê. Vários
+// movimentos seguidos aparecem na hora, mas os pedidos vão um de cada vez (enviarOrdem): o agente tem duas linhas de
+// escrever, e dois juntos podiam ser feitos fora de ordem (cada um diz "para o índice N", sobre o que o anterior deixou).
+const ORDEM_ESPERA_MS = 120000, ORDEM_PUBLICAR_MS = 60000;
+function motivoSemOrdem(a) {
+  const quem = a.pcs.map(nomeCurtoPc).join(" e "), varios = a.pcs.length > 1;
+  if (a.motivo === "desligado") return `${varios ? "Os PCs" : "O " + quem} de onde vem a ordem${varios ? ` (${quem}) estão desligados` : " está desligado"}: a prioridade muda quando ${varios ? "um deles ligar" : "ele ligar"}.`;
+  if (a.motivo === "agente") return `O agente do ${quem} ainda não muda a prioridade pelo celular: precisa do agente novo nos PCs.`;
+  return "Nenhum PC publica a ordem dos projetos agora.";
+}
+async function mudarPrioridade(chave, para) {
+  const pub = Prioridades.escolher(pcs), prio = Prioridades.aplicar(pub, ordemPedida);
+  const de = prio ? prio.itens.findIndex(x => x.chave === chave) : -1;
+  if (de < 0 || para == null || para === de) return desenharSessoes();
+  const a = Prioridades.alvo(pcs, pub, online);
+  if (!a.pc) { desenharSessoes(); return avisar("appAviso", motivoSemOrdem(a), {erro: true}); }
+  const m = {chave, para, nome: prio.itens[de].nome, pc: a.pc, base: 0, enviado: 0, pedido: null, feito: 0};
+  ordemPedida.push(m);
+  ordemEsperada = prioridadesAgora().itens.map(x => x.chave);
+  desenharSessoes();
+  avisar("appAviso", `${m.nome}: de P${de} para P${para}. Mudando no ${nomeCurtoPc(a.pc)}…`, {});
+  enviarOrdem();
+}
+// O primeiro movimento que o PC ainda não fez vai, se nenhum está indo; o seguinte sai quando ele responder
+async function enviarOrdem() {
+  const m = ordemPedida.find(x => !x.feito);
+  if (!m || m.enviado) return;
+  const pub = Prioridades.escolher(pcs);
+  m.enviado = Date.now(); m.base = pub ? pub.ts : 0;
+  try {
+    m.pedido = await rpc("cel_pedir", {pc: m.pc, tipo: "acao", texto: JSON.stringify({acao: Prioridades.ACAO, chave: m.chave, para: m.para, base: m.base})});
+    acoesVigiadas.set(m.pedido, {ok: `${m.nome} agora é P${m.para}, no Monitor geral também.`, erro: `Não mudou a prioridade de ${m.nome}`,
+      fim: p => { if (p.estado !== "entregue") return desistirDaOrdem(m); m.feito = Date.now(); enviarOrdem(); }});
+    voltaJa();
+  } catch (e) {
+    desistirDaOrdem(m);
+    avisar("appAviso", "A prioridade não saiu do celular: " + motivoRede(e), {erro: true, acao: () => mudarPrioridade(m.chave, m.para), rotulo: "Tentar de novo"});
+  }
+}
+// O movimento que não deu sai, e os que esperavam a vez depois dele também (foram feitos em cima dele): a lista volta
+function desistirDaOrdem(m) {
+  const i = ordemPedida.indexOf(m);
+  if (i < 0) return;
+  ordemPedida = ordemPedida.slice(0, i);
+  ordemEsperada = ordemPedida.length ? prioridadesAgora().itens.map(x => x.chave) : null;
+  desenharSessoes();
+}
+// A cada volta: os movimentos saem quando a ordem publicada fica igual à que a tela mostra (o PC já fez todos; a "ts"
+// mais nova não basta: com dois toques seguidos, a publicação do primeiro chega antes do segundo e a lista piscaria a
+// ordem de antes), ou quando o PC já fez todos e aplicá-los de novo sobre a publicada não muda nada (outro PC mudou a
+// ordem no mesmo minuto e o PC aplicou por cima dela: a tela já mostra a publicada, e o "P<n>" não pisca à toa), ou
+// ORDEM_PUBLICAR_MS depois que o PC fez o último (vale a publicada). O que o PC não fez em ORDEM_ESPERA_MS sai com o
+// aviso, e os que esperavam a vez depois dele também.
+function vigiarOrdem() {
+  if (!ordemPedida.length) return;
+  const pub = Prioridades.escolher(pcs), agora = Date.now(), n = ordemPedida.length;
+  const chaves = p => p.itens.map(x => x.chave).join("\n");
+  if (pub && ordemEsperada && chaves(pub) === ordemEsperada.join("\n")) ordemPedida = [];
+  else if (pub && ordemPedida.every(m => m.feito) && chaves(Prioridades.aplicar(pub, ordemPedida)) === chaves(pub)) ordemPedida = [];
+  const parado = ordemPedida.find(m => !m.feito && m.enviado && agora - m.enviado > ORDEM_ESPERA_MS);
+  if (parado) {
+    avisar("appAviso", `O ${nomeCurtoPc(parado.pc)} não mudou a prioridade em 2 min: a lista volta à ordem do Monitor geral.`, {erro: true});
+    ordemPedida = ordemPedida.slice(0, ordemPedida.indexOf(parado));
+  }
+  if (ordemPedida.length && ordemPedida.every(m => m.feito) && agora - Math.max(...ordemPedida.map(m => m.feito)) > ORDEM_PUBLICAR_MS) ordemPedida = [];
+  if (ordemPedida.length !== n) {
+    ordemEsperada = ordemPedida.length ? prioridadesAgora().itens.map(x => x.chave) : null;
+    desenharSessoes();
+  }
+}
+// A folha do "P<n>": ▲ Subir e ▼ Descer (uma posição na ordem inteira do Monitor) e a lista P0…Pn (com as seções sem
+// sessão agora, que o Monitor também tem). Sem PC que faça, tudo cinza e o porquê.
+function abrirPrioridade(chave) {
+  const pub = Prioridades.escolher(pcs), prio = Prioridades.aplicar(pub, ordemPedida), n = {};
+  for (const g of Prioridades.agrupar(todasSessoes(), prio)) n[g.chave] = g.lista.length;
+  const f = Prioridades.folha(prio, chave, n);
+  if (!f) return;
+  const a = Prioridades.alvo(pcs, pub, online), pode = !!a.pc;
+  const seta = (v, rot, para) => `<button type="button" class="btn sec" data-op="${v}"${pode && para != null ? "" : " disabled"}>${rot}</button>`;
+  $("folha").innerHTML = `<div class="pega"></div>
+    <h4 class="pj-f-tit" style="${Prioridades.vars(f.cor)}"><i class="pj-bola" aria-hidden="true"></i><span>Prioridade de <b>${esc(f.nome)}</b></span><small>P${f.atual}</small></h4>
+    <div class="pj-setas">${seta("subir", "▲ Subir", f.subir)}${seta("descer", "▼ Descer", f.descer)}</div>
+    <p class="pj-f-nota${pode ? "" : " aviso"}">${pode ? `Muda também no Monitor geral (pelo ${esc(nomeCurtoPc(a.pc))}). Ou segure o cabeçalho da seção e arraste.` : "⚠ " + esc(motivoSemOrdem(a))}</p>`
+    + f.itens.map(x => `<button type="button" class="op${x.atual ? " on" : ""}" data-op="p${x.p}"${pode ? "" : " disabled"}><span class="pj-op" style="${Prioridades.vars(x.cor)}"><i class="pj-bola" aria-hidden="true"></i><small>P${x.p}</small>${esc(x.nome)}</span><i>${x.n}${x.atual ? " ✓" : ""}</i></button>`).join("");
+  folhaEscolher = v => {
+    const para = v === "subir" ? f.subir : v === "descer" ? f.descer : /^p\d+$/.test(v) ? Number(v.slice(1)) : null;
+    if (para != null && para !== f.atual) mudarPrioridade(chave, para);
+  };
+  $("folhaFundo").classList.remove("hidden");
+}
+function pegarSecao(e) {
+  const cab = e.target.closest(".pj-cab[data-pj]");
+  if (!cab || (e.button || 0) > 0 || arrastoSecao) return;
+  const a = arrastoSecao = {cab, grupo: cab.closest(".pj-grupo"), chave: cab.dataset.pj, id: e.pointerId, x0: e.clientX, y0: e.clientY, y: e.clientY, modo: ""};
+  cab.classList.add("pj-segurando");
+  a.timer = setTimeout(() => comecarSecao(a), TOQUE_LONGO_MS);
+}
+function comecarSecao(a) {
+  if (arrastoSecao !== a || a.modo) return;
+  a.cab.classList.remove("pj-segurando");
+  a.grupos = [...$("sessoesLista").querySelectorAll(".pj-grupo")].filter(g => g.querySelector(".pj-cab[data-pj]"));
+  if (a.grupos.length < 2 || !a.grupo || !a.cab.isConnected) { arrastoSecao = null; return; }   // nada com que trocar de lugar
+  a.modo = "arrastar";
+  a.visiveis = a.grupos.map(g => g.querySelector(".pj-cab").dataset.pj);
+  const antes = a.cab.getBoundingClientRect().top;
+  $("sessoesLista").classList.add("pj-ordenando");   // só os cabeçalhos: o que pegou fica embaixo do dedo (se a página deixa)
+  noDedo(a.cab, antes);
+  // as vagas: o topo de cada seção recolhida, na página (fixas no arrasto: trocar de lugar não as mexe, nem a rolagem).
+  // A cópia começa em cima do cabeçalho e anda o quanto o dedo andar: com a lista curta demais para ele ficar embaixo do
+  // dedo, a cópia não pula para longe do buraco, e soltar sem mexer não muda nada
+  a.vagas = a.grupos.map(g => g.getBoundingClientRect().top + scrollY);
+  a.vaga = a.grupos.indexOf(a.grupo);
+  const r = a.cab.getBoundingClientRect(), f = a.fantasma = a.cab.cloneNode(true);
+  Object.assign(a, {base: a.vagas[a.vaga], s0: scrollY, yRef: a.y});
+  f.classList.add("pj-fantasma"); f.removeAttribute("data-pj"); f.setAttribute("aria-hidden", "true");
+  f.style.cssText = `${a.grupo.getAttribute("style") || ""};left:${r.left}px;top:${r.top}px;width:${r.width}px`;
+  document.body.appendChild(f);
+  a.grupo.classList.add("pj-pegou");
+  document.body.classList.add("pj-arrastando");
+  try { a.cab.setPointerCapture(a.id); } catch {}
+  if (puxando) { puxando = null; mostrarPuxar(0); }   // o puxar para atualizar não vale com a seção na mão
+  fecharMenu();
+  const sel = window.getSelection && getSelection();
+  if (sel && sel.rangeCount) sel.removeAllRanges();
+  if (navigator.vibrate) navigator.vibrate(12);
+}
+// Rola a página para o cabeçalho ficar com o topo em `y` (onde o dedo o pegou), depois que a lista recolhe ou volta
+function noDedo(cab, y) {
+  if (!cab || !cab.isConnected) return;
+  const d = cab.getBoundingClientRect().top - y;
+  if (Math.abs(d) > 1) window.scrollBy(0, d);
+}
+// O topo da cópia na tela: onde o cabeçalho estava quando pegou, mais o quanto o dedo andou
+const topoDaCopia = a => a.base - a.s0 + (a.y - a.yRef);
+// A vaga da cópia: quantas das outras seções ficam acima dela (o topo da cópia, na página, passou do meio entre duas vagas)
+function vagaDe(a) {
+  const topo = topoDaCopia(a) + scrollY;
+  let v = 0;
+  for (let k = 1; k < a.vagas.length; k++) if (topo >= (a.vagas[k - 1] + a.vagas[k]) / 2) v = k;
+  return v;
+}
+// As outras abrem espaço: a seção pega fica na vaga da cópia. Quem anda no DOM são as outras: a pega (com o dedo
+// capturado nela) nunca sai do lugar no documento, senão o navegador solta a captura.
+function marcarVaga(a) {
+  const v = vagaDe(a);
+  if (v === a.vaga) return;
+  a.vaga = v;
+  const outras = a.grupos.filter(g => g !== a.grupo), pos = g => a.grupo.compareDocumentPosition(g);
+  for (const g of outras.slice(0, v)) if (pos(g) & Node.DOCUMENT_POSITION_FOLLOWING) a.grupo.before(g);
+  for (const g of outras.slice(v).reverse()) if (pos(g) & Node.DOCUMENT_POSITION_PRECEDING) a.grupo.after(g);
+  a.mexeu = true;
+  if (navigator.vibrate) navigator.vibrate(6);
+}
+// Perto do alto ou do pé (acima da barra das abas), a lista rola sozinha, mais rápido quanto mais perto da borda
+function rolarNaBorda(a) {
+  if (a.raf) return;
+  const passo = () => {
+    a.raf = 0;
+    if (arrastoSecao !== a || a.modo !== "arrastar") return;
+    const nav = document.querySelector("nav"), pe = nav ? nav.getBoundingClientRect().top : innerHeight, borda = 72;
+    const v = a.y < borda ? -Math.ceil((borda - a.y) / 5) : a.y > pe - borda ? Math.ceil((a.y - (pe - borda)) / 5) : 0;
+    if (!v) return;
+    const antes = scrollY;
+    window.scrollBy(0, Math.max(-24, Math.min(24, v)));
+    if (scrollY === antes) return;   // chegou na ponta
+    marcarVaga(a);
+    a.raf = requestAnimationFrame(passo);
+  };
+  a.raf = requestAnimationFrame(passo);
+}
+function moverSecao(e) {
+  const a = arrastoSecao;
+  if (!a || e.pointerId !== a.id) return;
+  if (!a.modo) { if (Math.hypot(e.clientX - a.x0, e.clientY - a.y0) > 8) cancelarSecao(); return; }   // andou antes: é rolagem
+  a.y = e.clientY;
+  a.fantasma.style.top = topoDaCopia(a) + "px";
+  marcarVaga(a);
+  rolarNaBorda(a);
+}
+function soltarSecao(e) {
+  const a = arrastoSecao;
+  if (!a || e.pointerId !== a.id) return;
+  clearTimeout(a.timer); arrastoSecao = null;
+  a.cab.classList.remove("pj-segurando");
+  if (!a.modo) return;
+  gestoFim = Date.now();   // o soltar não é um toque (não abre a folha nem a conversa)
+  if (e.type === "pointerup") { a.y = e.clientY; marcarVaga(a); }
+  const para = e.type === "pointerup" ? Prioridades.paraDoSoltar(prioridadesAgora(), a.visiveis, a.chave, a.vaga) : null;
+  limparSecao(a);
+  if (para == null) desenharSessoes();
+  else mudarPrioridade(a.chave, para);   // (redesenha já, com o movimento por cima, antes de esperar o banco)
+  // a lista volta inteira: a seção solta fica onde a cópia estava
+  noDedo($("sessoesLista").querySelector(`.pj-cab[data-pj="${CSS.escape(a.chave)}"]`), topoDaCopia(a));
+}
+function limparSecao(a) {
+  if (a.raf) cancelAnimationFrame(a.raf);
+  a.raf = 0;
+  if (a.fantasma) a.fantasma.remove();
+  if (a.grupo) a.grupo.classList.remove("pj-pegou");
+  document.body.classList.remove("pj-arrastando");
+  $("sessoesLista").classList.remove("pj-ordenando");
+  if (a.mexeu) $("sessoesLista")._html = null;   // as seções trocaram de lugar no DOM: o próximo desenho refaz a lista
+}
+function cancelarSecao() {
+  const a = arrastoSecao;
+  if (!a) return;
+  clearTimeout(a.timer); arrastoSecao = null;
+  a.cab.classList.remove("pj-segurando");
+  if (a.modo) { gestoFim = Date.now(); limparSecao(a); desenharSessoes(); }
 }
 
 // A última mensagem da conversa, numa linha (como a lista de conversas do WhatsApp).
@@ -3182,6 +3453,10 @@ function alertasDoPc(p, falhas) {
   for (const [rot, l] of [["sessão de 5 h", c.sessao], ["semana", c.semana]])
     if (on && c.email && vindo(l) && l.pct >= 80) out.push({texto: `${Lista.contaCurta(c.email)}: ${rot} em ${l.pct}%`, critico: l.pct >= 95});
   if (falhas[p.pc]) out.push({texto: `${plural(falhas[p.pc], "falha", "falhas")} de entrega em 24 h`, critico: true});
+  // 16/11: a central (o Para você) ou as decisões deste PC que não chegam ao outro pela rede local, e por quê
+  // (revisão de 16/11, PT1: o relógio da página vai junto, e só o PC que viu a falta e ainda está no ar conta)
+  // (PT8: o `completo` vai junto, para o title do mini-cartão)
+  if (Pcs.avisosDaRede) out.push(...Pcs.avisosDaRede(p, Object.values(pcs), agoraRede()).map(a => ({texto: a.texto, critico: a.critico, completo: a.completo})));
   if (Lista.compararVersao(p.versao, AGENTE_ATUAL) < 0) out.push({texto: `agente ${p.versao || "?"} (a atual é ${AGENTE_ATUAL})`});
   if (on && e.tomada === false) out.push({texto: `na bateria${e.bateria != null ? ` (${e.bateria}%)` : ""}`});
   if (m.disco_livre_gb != null && m.disco_livre_gb < 15) out.push({texto: `C: com ${String(m.disco_livre_gb).replace(".", ",")} GB livres`});
@@ -3208,7 +3483,8 @@ function blocoComputadores(lista, agora) {
     return `<button class="pcm ${st.cor === "off" ? "off" : ""}" data-pcs-abrir="${esc(p.pc)}" aria-label="${esc(p.pc)}: ${esc(st.texto)}. Abrir">
       <span class="pcm-cab"><i class="dot ${st.cor}"></i><b>${esc(nomeCurtoPc(p.pc))}</b>${o && o.pc === p.pc ? `<span aria-hidden="true">🎼</span>` : ""}</span>
       <span class="pcm-est"${dataAte(st)}>${esc(st.texto)}</span>${nums ? `<span class="pcm-num">${nums}</span>` : ""}
-      ${alertasDoPc(p, falhas).slice(0, 4).map(a => `<span class="pcm-al ${a.critico ? "critico" : ""}">${esc(a.texto)}</span>`).join("")}</button>`;
+      ${alertasDoPc(p, falhas).sort((a, b) => (b.critico ? 1 : 0) - (a.critico ? 1 : 0)).slice(0, 4)   // revisão de 16/11 (PT8): os críticos primeiro no corte de 4
+        .map(a => `<span class="pcm-al ${a.critico ? "critico" : ""}"${a.completo ? ` title="${esc(a.completo)}"` : ""}>${esc(a.texto)}</span>`).join("")}</button>`;
   }).join("");
   const parado = o && o.atualizado && agora / 1000 - o.atualizado > 45 * 60;
   const maestro = o && (o.vigia === false || parado) ? `<p class="pcm-al critico" style="margin-top:8px">🎼 ${o.vigia === false
@@ -3268,6 +3544,9 @@ function cartaoPc(p, {o, viz, falhas, ss, agora}) {
     p.ligou_em && on ? `<div>Ligado desde ${esc(ligadoDesde(p.ligou_em))}</div>` : "",
     e.reinicio_pendente ? `<div class="alerta">⬆️ Atualização do Windows esperando reiniciar</div>` : "",
     `<div class="${falhas[pc] ? "alerta critico" : "meta"}">${falhas[pc] ? plural(falhas[pc], "falha", "falhas") + " de entrega em 24 h" : "nenhuma falha de entrega em 24 h"}</div>`,
+    // revisão de 16/11 (PT8): a central (o Para você) ou as decisões deste PC que não chegam ao outro pela rede local,
+    // com a frase inteira de quem viu a falta ("Atualize a ponte de lá")
+    ...(Pcs.avisosDaRede ? Pcs.avisosDaRede(p, Object.values(pcs), agoraRede()) : []).map(a => `<div class="alerta${a.critico ? " critico" : ""}">${esc(a.completo || a.texto)}</div>`),
     `<div class="meta">agente ${esc(p.versao || "?")}${atras ? ` <span class="alerta">(a atual é ${AGENTE_ATUAL})</span>` : ""} · Seaninho Pro ${esc(pa.pro || "sem leitura")}</div>`,
   ].join("");
   const minhas = ss.filter(s => s.pc === pc && !s.desligado);
@@ -5902,6 +6181,7 @@ function leituraBoa(r, pedidoEm) {
 async function desenharTudo(voltou) {
   const ativo = document.activeElement;
   const digitando = ativo && ["tarefaTexto", "tarefaData", "tarefaHora"].includes(ativo.id);
+  vigiarOrdem();   // 16/11: antes do desenho (a ordem que o PC já publicou não passa pela tela com os movimentos por cima)
   desenharPcs(); desenharSessoes(); desenharInicio(); desenharFeed(); desenharComandos(); desenharAiRats(); desenharUsoIa();
   lembrarMaestro();
   desenharComputadores();
@@ -5917,6 +6197,7 @@ async function desenharTudo(voltou) {
   guardarUltimo();
   drenarFila();
   vigiarAcoes();
+  vigiarOrdem();   // 16/11: a prioridade das seções pedida daqui
   if (window.Reacoes) Reacoes.volta();   // 12/11: as minhas reações: o fim do pedido, a lista do PC e a fila sem rede
   sincronizarHorario();
   renovarPush();
@@ -7675,7 +7956,17 @@ $("sessoesLista").addEventListener("pointerdown", pegarSessao);
 $("sessoesLista").addEventListener("pointermove", moverSessao);
 $("sessoesLista").addEventListener("pointerup", soltarSessao);
 $("sessoesLista").addEventListener("pointercancel", soltarSessao);
-$("sessoesLista").addEventListener("contextmenu", e => { if (e.target.closest(".sl")) e.preventDefault(); });
+$("sessoesLista").addEventListener("contextmenu", e => { if (e.target.closest(".sl, .pj-cab")) e.preventDefault(); });
+// 16/11: a seção (o toque longo no cabeçalho pega; ver pegarSecao). No iPhone, com ela na mão, o dedo não rola a página (o
+// touchmove precisa ser não passivo) e o cabeçalho não começa a seleção de texto.
+$("sessoesLista").addEventListener("pointerdown", pegarSecao);
+for (const [ev, fn] of [["pointermove", moverSecao], ["pointerup", soltarSecao], ["pointercancel", soltarSecao]])
+  document.addEventListener(ev, fn, true);   // no documento: o dedo que sai da lista (a barra das abas) não deixa a seção presa
+$("sessoesLista").addEventListener("touchmove", e => { if (arrastoSecao && arrastoSecao.modo) e.preventDefault(); }, {passive: false});
+$("sessoesLista").addEventListener("selectstart", e => {
+  const t = e.target && (e.target.nodeType === 1 ? e.target : e.target.parentElement);
+  if (t && t.closest(".pj-cab")) e.preventDefault();
+});
 $("fixadas").addEventListener("pointerdown", pegarFixada);
 $("fixadas").addEventListener("pointermove", moverFixada);
 $("fixadas").addEventListener("pointerup", soltarFixada);
@@ -7720,6 +8011,8 @@ $("tabClaude").addEventListener("click", e => {
     return desenharSessoes();
   }
   if (Date.now() - gestoFim < 400) return;   // o fim do arrasto ou do toque longo não abre a conversa
+  const pj = e.target.closest("[data-pj-p]");   // 16/11: o "P<n>" da seção abre a folha da prioridade
+  if (pj) return abrirPrioridade(pj.dataset.pjP);
   const c = e.target.closest(".sl .card"); if (c) abrir(c.dataset.pc, c.dataset.id);
 });
 $("dSugestoes").addEventListener("click", e => {

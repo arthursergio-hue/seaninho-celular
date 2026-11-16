@@ -150,7 +150,76 @@ function vars(cor) {
   return `--pj:${c};--pj-2:#${claro.toUpperCase()};--pj-rgb:${rgb.join(",")}`;
 }
 
-const Prioridades = {OUTRAS, validar, escolher, projetoDe, agrupar, chaveDe, infoDe, rotulo, vars, corOk,
+// ---- 16/11: mudar a prioridade pelo celular (pedido do Arthur pelo iPhone) -------------------------------------------
+// O caminho é o do arrastar do Monitor geral: a ordem mora no prioridades.json do PC. O celular manda ao PC que publicou a
+// ordem que a página mostra o pedido {"acao": ACAO, "chave", "para", "base"} (cel_pedir, tipo "acao"); o agente de lá
+// aplica o MOVIMENTO (a chave vai para o índice "para") sobre o arquivo de agora, grava pelo escritor do próprio Pro e
+// publica; o outro PC adota pela maior "ts", como já fazia (prioridades_rede.py, "16/11"). Enquanto o PC não publica a
+// ordem nova, a página mostra os movimentos pedidos por cima da publicada (aplicar), na mesma regra do agente.
+const ACAO = "prioridades_mover";
+
+// As chaves com `chave` no índice `para` (limitado ao começo e ao fim); a mesma lista (cópia) se a chave não está nela
+function moverChave(chaves, chave, para) {
+  const out = [...(chaves || [])], i = out.indexOf(chave);
+  if (i < 0) return out;
+  out.splice(i, 1);
+  out.splice(Math.max(0, Math.min(out.length, Math.trunc(Number(para)) || 0)), 0, chave);
+  return out;
+}
+
+// O prio com os movimentos ainda não publicados ([{chave, para}], na ordem em que foram feitos), cada um sobre a ordem
+// que o anterior deixou (como o agente, que aplica cada pedido sobre o arquivo de agora). O índice "prioridade" é refeito.
+function aplicar(prio, movs) {
+  if (!prio || !Array.isArray(movs) || !movs.length) return prio;
+  let chaves = prio.itens.map(x => x.chave);
+  for (const m of movs) if (m && chaves.includes(m.chave)) chaves = moverChave(chaves, m.chave, m.para);
+  const de = new Map(prio.itens.map(x => [x.chave, x]));
+  return {...prio, itens: chaves.map((k, n) => ({...de.get(k), prioridade: n}))};
+}
+
+// O "para" de uma seção solta no meio das que aparecem na tela (as chaves das seções com prioridade, na ordem da tela,
+// com a arrastada): `vaga` = quantas das OUTRAS ficam acima do dedo. No alto, P0; embaixo de todas, a última; no meio, logo antes da seção
+// que fica abaixo dela (as que não aparecem, sem sessão agora, não mudam de lugar entre si). null: no mesmo lugar.
+function paraDoSoltar(prio, visiveis, chave, vaga) {
+  const chaves = prio ? prio.itens.map(x => x.chave) : [], i = chaves.indexOf(chave), tela = visiveis || [];
+  if (i < 0) return null;
+  const outras = tela.filter(k => k !== chave), v = Math.max(0, Math.min(outras.length, Math.trunc(Number(vaga)) || 0));
+  if (v === tela.indexOf(chave)) return null;   // no mesmo lugar da tela
+  // as de cima e as de baixo do dedo que ainda estão na ordem (uma que sumiu dela no meio do arrasto não conta)
+  const vale = k => chaves.includes(k), acima = outras.slice(0, v).filter(vale), abaixo = outras.slice(v).filter(vale);
+  if (!acima.length && !abaixo.length) return null;
+  const sem = chaves.filter(k => k !== chave);
+  const para = !acima.length ? 0 : !abaixo.length ? sem.length : sem.indexOf(abaixo[0]);
+  return para === i ? null : para;
+}
+
+// A folha de uma seção (o toque no "P<n>"): a posição de agora, o ▲ e o ▼ (null nas pontas) e a lista P0…Pn inteira (as
+// sem sessão agora também: a prioridade é a do Monitor), com quantas sessões cada uma tem (`contagem` {chave: n}).
+function folha(prio, chave, contagem) {
+  const itens = prio ? prio.itens : [], i = itens.findIndex(x => x.chave === chave);
+  if (i < 0) return null;
+  return {chave, nome: itens[i].nome, cor: itens[i].cor, atual: i, subir: i > 0 ? i - 1 : null,
+    descer: i < itens.length - 1 ? i + 1 : null,
+    itens: itens.map((x, n) => ({chave: x.chave, nome: x.nome, cor: x.cor, p: n, n: (contagem && contagem[x.chave]) || 0, atual: n === i}))};
+}
+
+// Para que PC vai o pedido: um dos que publicam a ordem que a página mostra (a mesma "ts"), ligado (`ligado(p)`) e com o
+// agente que aceita o pedido (a marca "prioridades_mover" no painel; o número da versão não diz). Entre eles, o que
+// escreveu a ordem (o "pc" dela), depois o de nome menor. {pc} ou {pc: null, motivo: "nenhum" | "desligado" | "agente",
+// pcs: os que publicam}.
+function alvo(pcs, prio, ligado) {
+  if (!prio) return {pc: null, motivo: "nenhum", pcs: []};
+  const pa = p => p && p.hoje && p.hoje.painel, ts = p => { const x = pa(p) && pa(p).prioridades; return x && typeof x.ts === "number" ? Math.round(x.ts) : null; };
+  const com = Object.values(pcs || {}).filter(p => p && p.pc && ts(p) === prio.ts)
+    .sort((a, b) => (b.pc === prio.pc) - (a.pc === prio.pc) || String(a.pc).localeCompare(String(b.pc)));
+  const nomes = com.map(p => p.pc), vivos = com.filter(p => !ligado || ligado(p));
+  const bom = vivos.find(p => pa(p).prioridades_mover === true);
+  if (bom) return {pc: bom.pc, pcs: nomes};
+  return {pc: null, motivo: !com.length ? "nenhum" : vivos.length ? "agente" : "desligado", pcs: nomes};
+}
+
+const Prioridades = {OUTRAS, ACAO, validar, escolher, projetoDe, agrupar, chaveDe, infoDe, rotulo, vars, corOk,
+  moverChave, aplicar, paraDoSoltar, folha, alvo,
   _puro: {pastaDoProjeto, pedacos, nomeBase, norm, segura, FIXA}};
 if (typeof module !== "undefined" && module.exports) module.exports = Prioridades;
 else raiz.Prioridades = Prioridades;

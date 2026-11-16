@@ -181,6 +181,33 @@ function avisosDaFolha(p, {sessoes = [], orquestra = null, acao = "desligar"} = 
   return out;
 }
 
+// 16/11 (agente 0.9.0.19): o outro PC que chega sem a central (o Para você de lá) ou sem as decisões pela rede local, e
+// por quê. Quem vê a falta é o PC que recebe: ele publica hoje.painel.rede_local.avisos [{pc, motivo, texto}], e o aviso
+// aparece no cartão do PC de quem falta. {texto, critico, completo}; a ponte antiga é crítica (só a troca dela resolve).
+const FALTA_CURTA = {ponte_antiga: q => `a central daqui não chega ao ${q}: a ponte de cópias daqui é antiga`,
+  sem_central: q => `a central daqui não chega ao ${q} pela rede local`,
+  sem_rede: q => `sem rede local com o ${q}: a central daqui não chega lá`,
+  agente_parado: q => `o agente do celular daqui está parado: a central não chega ao ${q}`,
+  decisoes: q => `as decisões daqui não chegam ao ${q}`};
+// Revisão de 16/11 (o cético, PT1): só quem viu a falta e ainda está no ar (visto há menos de ONLINE_MS, pelo relógio
+// `agora` da página) conta: a página guarda o "hoje" do PC que sumiu, e o aviso dele ficaria no cartão do outro para
+// sempre (e o "sem_rede" de um PC desligado é só ruído).
+function avisosDaRede(p, todos = [], agora = Date.now()) {
+  const meu = String((p && p.pc) || "").toLowerCase(), out = [];
+  if (!meu) return out;
+  for (const q of todos || []) {
+    const avisos = (((q && q.hoje && q.hoje.painel) || {}).rede_local || {}).avisos;
+    if (!q || String(q.pc || "").toLowerCase() === meu || !online(q, agora) || !Array.isArray(avisos)) continue;
+    for (const a of avisos) {
+      if (!a || String(a.pc || "").toLowerCase() !== meu || !a.texto) continue;
+      const curta = Object.prototype.hasOwnProperty.call(FALTA_CURTA, a.motivo) ? FALTA_CURTA[a.motivo](q.pc) : "";
+      out.push({texto: curta || `${q.pc}: ${String(a.texto).slice(0, 120)}`, critico: a.motivo === "ponte_antiga",
+                completo: String(a.texto).slice(0, 300)});
+    }
+  }
+  return out;
+}
+
 // Ligar pelo celular: ainda não nesta versão; o cartão diz o que este PC precisaria.
 function podeLigar(p) {
   const l = energiaDe(p).ligar || {};
@@ -195,7 +222,8 @@ function historico(p, agora, n = 5) {
 }
 
 const Pcs = {AGENTE_ENERGIA, ACAO, ONLINE_MS, energiaDe, pedidoDe, emCurso, estado, vizinhosDe, podeEnergia,
-  avisosDaFolha, podeLigar, historico, mmss, hm, compararVersao, ehMaestro, sessaoDoMaestro, nomeDoMaestro, nomeNoMeio};
+  avisosDaFolha, podeLigar, historico, mmss, hm, compararVersao, ehMaestro, sessaoDoMaestro, nomeDoMaestro, nomeNoMeio,
+  avisosDaRede};
 if (typeof module !== "undefined" && module.exports) module.exports = Pcs;
 raiz.Pcs = Pcs;
 })(typeof window !== "undefined" ? window : globalThis);
