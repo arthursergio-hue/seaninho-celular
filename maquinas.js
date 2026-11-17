@@ -9,6 +9,8 @@
 // ultracode; o rascunho de antes (sem esforço) não impõe o sonnet, e o orçamento dele vai ao maior entre o que veio e o
 // padrão; com o kit que não entende, a linha do kit antigo; com o agente antigo (bloco sem "padrao"), a linha dele e o
 // menor entre o padrão novo e o teto que ele aceita, nunca o padrão antigo de US$ 2 (cético e fechamento de 13/11).
+// pro-103 (16/11, página v36): o painel "Atividade da VPS" (htmlAtividade, acaoAtividade e alternarAberto, sobre o
+// núcleo comum web/vpsatividade.js); o chip do topo (htmlChip) e o cartão (htmlCartao) abrem o painel com ctx.atividade.
 (function (raiz) {
 "use strict";
 
@@ -280,13 +282,14 @@ function htmlResumo(m, ctx = {}) {
 // muda: os PCs e o "2/2" de antes.
 
 // O chip do topo: o mesmo .pc dos PCs, com o ponto verde (responde), âmbar (login, carregando), coral (sem resposta) ou
-// cinza (sem notícia).
+// cinza (sem notícia). pro-103: com ctx.atividade (a página tem o núcleo da atividade), o toque abre o painel
+// "Atividade da VPS" (data-va-abrir); sem ele, o Computadores, como antes.
 function htmlChip(m, ctx = {}) {
   if (!m || !m.pc) return "";
   const s = situacao(m, ctx.agora || Date.now(), ctx.pcs);
   const cor = s.responde ? "on" : s.cor === "off" ? "" : s.cor;
-  return `<button class="pc maq${cor ? " " + cor : ""}" data-pcs-abrir="${esc(m.pc)}" aria-label="${esc(m.rotulo)}, máquina de fila: ${
-    esc(s.texto)}. Abrir os Computadores"><i></i>☁ ${esc(m.rotulo)}</button>`;   // o aria-label já diz o que é
+  return `<button class="pc maq${cor ? " " + cor : ""}" data-pcs-abrir="${esc(m.pc)}"${ctx.atividade ? ` data-va-abrir="${esc(m.pc)}"` : ""} aria-label="${
+    esc(m.rotulo)}, máquina de fila: ${esc(s.texto)}. ${ctx.atividade ? "Abrir a atividade" : "Abrir os Computadores"}"><i></i>☁ ${esc(m.rotulo)}</button>`;   // o aria-label já diz o que é
 }
 
 // A conta dos computadores, com as mesmas palavras do cartão Computadores do Monitor geral (a pro-94 do seaninho-pro):
@@ -320,13 +323,16 @@ const linhaCurtaFila = f => f ? [f.rodando != null ? `${f.rodando} rodando` : ""
   .filter(Boolean).join(" · ") : "";
 
 // ---- HTML: o cartão da tela Computadores ----
-// ctx: {agora, pcs, todas (o "ver todas" aberto), coordenador (o nome da linha do coordenador; padrão "coordenador")}
+// ctx: {agora, pcs, todas (o "ver todas" aberto), coordenador (o nome da linha do coordenador; padrão "coordenador"),
+// atividade (pro-103: o botão "Atividade" no alto do cartão, que abre o painel; sem ele, o cartão de antes)}
 function htmlCartao(m, ctx = {}) {
   if (!m || !m.pc) return "";
   const agora = ctx.agora || Date.now(), s = situacao(m, agora, ctx.pcs), b = m.batida, pc = esc(m.pc);
   const sub = ["máquina de fila", m.kit ? `kit ${m.kit}` : ""].filter(Boolean).join(" · ");
+  const atv = ctx.atividade && !m.novo ? `<button class="btn sec mq-atv" data-va-abrir="${pc}" aria-label="Ver a atividade da ${esc(m.rotulo)}">${
+    ICONE_ATIVIDADE} Atividade</button>` : "";
   const topo = `<div class="pc-topo"><span class="ico" aria-hidden="true">☁</span>
-      <div class="nome"><b>${esc(m.rotulo)}</b><small class="${s.cor}"><i class="dot ${s.cor}"></i><span>${esc(s.texto)}</span></small></div></div>
+      <div class="nome"><b>${esc(m.rotulo)}</b><small class="${s.cor}"><i class="dot ${s.cor}"></i><span>${esc(s.texto)}</span></small></div>${atv}</div>
     <p class="pc-sub">${esc(sub)}</p>`;
   const faixa = s.faixa ? `<div class="mq-faixa ${s.faixa.tipo}" role="status"><span>${esc(s.faixa.texto)}</span>${s.faixa.link
     ? `<a class="btn" href="${esc(s.faixa.link)}" target="_blank" rel="noopener">Abrir o login</a>` : ""}</div>` : "";
@@ -582,11 +588,68 @@ function acaoDe(el) {
 
 const chaveRascunho = nome => `maquina-rascunho:${nome}`;
 
+// ---- pro-103 (16/11): o painel "Atividade da VPS" ----
+// Pedido do Arthur (16/11, 21h1x, pelo celular): "O que está trabalhando na VPS? E quando vou ver melhor a atividade
+// dela pela Seaninho ou monitor geral?". O modelo e o HTML (já escapado) são do núcleo comum, web/vpsatividade.js, o
+// MESMO arquivo do Monitor geral (scripto/assets/vps_atividade.js do seaninho-pro): o celular e o Monitor mostram igual.
+// Aqui, só a moldura da página: o rodapé (Mandar tarefa e Computadores), o que fica aberto e a leitura dos toques. A
+// página (index.html) desenha a cada volta e liga os toques: "abrir" troca o cartão aberto, "log" usa a folha de log de
+// sempre (htmlFolhaLog), "link" é a âncora do Tailscale (só https://login.tailscale.com/, numa aba nova).
+const ICONE_ATIVIDADE = `<span aria-hidden="true">📋</span>`;
+const VA_CLIQUES = ["abrir", "log", "link"];
+// p: a linha da tabela dos PCs (com o hoje.maquina; a leve sem ele mostra "ainda não foi lida"). ctx: {agora (ms),
+// abertos (lista ou Set: os ids das tarefas abertas e "grupo:fechadas"), pcs, V (o núcleo; padrão o
+// window.VpsAtividade)}. "" sem o núcleo (o vpsatividade.js de antes no cache) ou sem máquina. O nome de quem cuida do
+// kit, na frase do erro e na linha da saúde, é o do núcleo ("coordenador"), o mesmo do Monitor geral: o ctx.coordenador
+// dos outros cartões não entra aqui. Se o núcleo quebrar com um dado estranho, o painel diz que não abriu (e a volta da
+// página segue: o resto da tela continua se refazendo).
+const ATIVIDADE_FALHOU = `<p class="va-vazio">Não consegui abrir a atividade agora. Feche e abra de novo.</p>`;
+function htmlAtividade(p, ctx = {}) {
+  const V = ctx.V || raiz.VpsAtividade, m = normalizar(p);
+  if (!V || typeof V.modelo !== "function" || typeof V.html !== "function" || !m || !m.pc) return "";
+  const agora = ctx.agora || Date.now();
+  let corpo;
+  try {
+    const md = V.modelo(p, Math.floor(agora / 1000), {rotulo: m.rotulo, ...(m.por ? {por: m.por} : {})});
+    corpo = V.html(md, {abertos: [...(ctx.abertos || [])], log: m.acoes.includes("log")});
+  } catch (e) {
+    corpo = ATIVIDADE_FALHOU;
+  }
+  const s = situacao(m, agora, ctx.pcs), pode = s.responde && m.acoes.includes("enviar");
+  return `${corpo}<div class="va-pg-bts"><button class="btn" data-mq="enviar" data-mq-pc="${esc(m.pc)}" ${pode ? "" : "disabled"}><span aria-hidden="true">+</span> Mandar tarefa</button>`
+    + `<button class="btn sec" data-va-pcs="${esc(m.pc)}"><span aria-hidden="true">💻</span> Computadores</button></div>`;
+}
+// O toque no painel (ou no chip e no botão que o abrem): {acao: "painel"|"computadores", pc} ou {acao: "abrir"|"log"|
+// "link", id, href?}; null para o desligado, o que não é do painel e o link que não é o login do Tailscale.
+function acaoAtividade(el) {
+  const b = el && typeof el.closest === "function" ? el.closest("[data-va], [data-va-abrir], [data-va-pcs]") : null;
+  if (!b || b.disabled) return null;
+  const d = b.dataset || {};
+  if (d.va == null && d.vaAbrir != null) return NOME_RE.test(d.vaAbrir) ? {acao: "painel", pc: d.vaAbrir} : null;
+  if (d.va == null && d.vaPcs != null) return {acao: "computadores", pc: NOME_RE.test(d.vaPcs) ? d.vaPcs : ""};
+  const acao = String(d.va || "");
+  if (!VA_CLIQUES.includes(acao)) return null;
+  const id = String(d.vaId || ""), out = {acao, id: ID_RE.test(id) ? id : ""};
+  if (acao === "link") {
+    const href = String((typeof b.getAttribute === "function" && b.getAttribute("href")) || "");
+    if (!LINK_RE.test(href)) return null;
+    out.href = href;
+  }
+  return out;
+}
+// O que fica aberto (os ids das tarefas e "grupo:<chave>"), trocando um: a lista nova (a página guarda no Set)
+function alternarAberto(abertos, chave, aberto) {
+  const s = new Set(abertos || []);
+  if (!chave) return [...s];
+  if (aberto === undefined ? !s.has(chave) : aberto) s.add(chave); else s.delete(chave);
+  return [...s];
+}
+
 const Maquinas = {FORMATO, SEM_NOTICIA_MS, PEGAR_MS, ESPERA_MS, TEXTO_MAX, LINHAS_PADRAO, LINHAS_MAX, MODOS, ID_RE, LINK_RE,
   MODELOS, ESFORCOS, ROTULO_MODELO, ROTULO_ESFORCO, ROTULO_ULTRACODE, PADRAO, ORC, KIT_ANTIGO, AGENTE_ANTIGO,
   ehMaquina, normalizar, situacao, htmlResumo, htmlChip, contarComputadores, minCoordenador, htmlCartao, htmlFolhaEnviar, htmlFolhaLog, htmlFolhaPausar, htmlAndamento,
   pedido, lerPedido, respostaDe, acaoDe, tarefaDoLog, tarefaDe, chaveRascunho, camposDaFolha, avisoKit, letras, quando,
-  duracao, ramPct, corRam, corDisco, corCarga, esc};
+  duracao, ramPct, corRam, corDisco, corCarga, esc, htmlAtividade, acaoAtividade, alternarAberto};
 if (typeof module !== "undefined" && module.exports) module.exports = Maquinas;
 raiz.Maquinas = Maquinas;
 })(typeof window !== "undefined" ? window : globalThis);

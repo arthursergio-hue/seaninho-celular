@@ -36,8 +36,12 @@
 // v35 (17/11, a página 0.9.0.23, pro-95): os workflows ao vivo na aba Workflows e no mosaico (o workflows.js, o
 // mosaico.js e o index.html novos: a fase, os agentes e o "agora", a imagem mais nova em destaque com o ✏ Marcar e o
 // ▭ Compacto). Nenhum arquivo novo na casca. Entra depois da v34 do Modo da IA (pro-102, PR #49, já publicada): a casca sobe para a v35, para o celular pegar o workflows.js, o mosaico.js e o index.html novos
-const CACHE = "seaninho-v35";
-const CASCA = ["./", "./index.html", "./config.js", "./markdown.js", "./chat.js", "./reacoes.js", "./lista.js", "./prioridades.js", "./workflows.js", "./estoque.js", "./pcs.js", "./maquinas.js", "./modo_ia.js", "./chrome.js", "./cartoes-dia.js", "./volta.js", "./espaco.js", "./sobras.js", "./usoia.js", "./ninja.js", "./ninjavivo.js", "./marcar.js", "./decisoes.js", "./cards.js", "./paravoce.js", "./entregas.js", "./pedidos.js", "./mosaico.js", "./rodar.js", "./revisoes.js", "./manifest.webmanifest", "./icone-180.png", "./icone-192.png"];
+// v36 (17/11, a página 0.9.0.24, pro-103): o painel "Atividade da VPS" (o vpsatividade.js e o vpsatividade.css entram
+// na casca, depois do modo_ia.js) e o index.html novo, sobre a v35 da PRO-95 (já publicada). Publicar a celular/web
+// INTEIRA da main já juntada, pelo conferir_pagina.py (sem os dois arquivos novos, o addAll da instalação falha e o
+// iPhone fica na casca velha).
+const CACHE = "seaninho-v36";
+const CASCA = ["./", "./index.html", "./config.js", "./markdown.js", "./chat.js", "./reacoes.js", "./lista.js", "./prioridades.js", "./workflows.js", "./estoque.js", "./pcs.js", "./maquinas.js", "./modo_ia.js", "./vpsatividade.js", "./vpsatividade.css", "./chrome.js", "./cartoes-dia.js", "./volta.js", "./espaco.js", "./sobras.js", "./usoia.js", "./ninja.js", "./ninjavivo.js", "./marcar.js", "./decisoes.js", "./cards.js", "./paravoce.js", "./entregas.js", "./pedidos.js", "./mosaico.js", "./rodar.js", "./revisoes.js", "./manifest.webmanifest", "./icone-180.png", "./icone-192.png"];
 
 self.addEventListener("install", e => {
   // "reload": sem o cache HTTP do GitHub Pages (10 min), que podia misturar arquivos de duas versões
