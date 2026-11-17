@@ -104,6 +104,8 @@ function falhasRecentes(pedidos, agoraMs, horas) {
   const limite = agoraMs - (horas || 24) * 3600 * 1000, out = {};
   for (const p of pedidos || []) {
     if (p.estado !== "erro" || !["claude", "acao"].includes(p.tipo || "claude")) continue;
+    // pro-102: a recusa do Modo da IA (a régua de estável, sem a chave, o ensaio) não é falha de entrega
+    if (p.tipo === "acao" && /"acao"\s*:\s*"modo_ia"/.test(String(p.texto || ""))) continue;
     if (new Date(p.atualizado_em || p.criado_em).getTime() < limite) continue;
     out[p.pc] = (out[p.pc] || 0) + 1;
   }

@@ -30,8 +30,11 @@
 // da main, com o usoia.js da pro-104 (a prévia da faixa também na conta da página); nenhum arquivo novo na casca. Sem o
 // número novo, o iPhone seguiria com o usoia.js da v32 guardado. Publicar sempre a pasta inteira e conferir com o
 // celular/conferir_pagina.py (LEIA-ME). O Modo da IA (PR #49) passa para a v34.
-const CACHE = "seaninho-v33";
-const CASCA = ["./", "./index.html", "./config.js", "./markdown.js", "./chat.js", "./reacoes.js", "./lista.js", "./prioridades.js", "./workflows.js", "./estoque.js", "./pcs.js", "./maquinas.js", "./chrome.js", "./cartoes-dia.js", "./volta.js", "./espaco.js", "./sobras.js", "./usoia.js", "./ninja.js", "./ninjavivo.js", "./marcar.js", "./decisoes.js", "./cards.js", "./paravoce.js", "./entregas.js", "./pedidos.js", "./mosaico.js", "./rodar.js", "./revisoes.js", "./manifest.webmanifest", "./icone-180.png", "./icone-192.png"];
+// v34 (17/11, a página 0.9.0.22, pro-102): o Modo da IA, Pool ⇄ Proxy pelo celular (o modo_ia.js entra na casca, depois
+// do maquinas.js) e o index.html novo, sobre a v33 da pro-104. Publicar a celular/web INTEIRA da main já juntada, pelo
+// conferir_pagina.py, nunca só o modo_ia.js e o maquinas.js.
+const CACHE = "seaninho-v34";
+const CASCA = ["./", "./index.html", "./config.js", "./markdown.js", "./chat.js", "./reacoes.js", "./lista.js", "./prioridades.js", "./workflows.js", "./estoque.js", "./pcs.js", "./maquinas.js", "./modo_ia.js", "./chrome.js", "./cartoes-dia.js", "./volta.js", "./espaco.js", "./sobras.js", "./usoia.js", "./ninja.js", "./ninjavivo.js", "./marcar.js", "./decisoes.js", "./cards.js", "./paravoce.js", "./entregas.js", "./pedidos.js", "./mosaico.js", "./rodar.js", "./revisoes.js", "./manifest.webmanifest", "./icone-180.png", "./icone-192.png"];
 
 self.addEventListener("install", e => {
   // "reload": sem o cache HTTP do GitHub Pages (10 min), que podia misturar arquivos de duas versões

@@ -36,6 +36,39 @@ header h1{margin:0;font-size:21px;font-weight:650;letter-spacing:.2px;flex:1}
 .pc i{width:7px;height:7px;border-radius:50%;background:var(--faint)}
 .pc.on i{background:var(--green)}
 .pc.espera i{background:var(--gold)} .pc.erro i{background:var(--coral)}   /* pro-94: a VPS no topo (login, sem resposta) */
+/* pro-102: o Modo da IA (o rótulo nos PCs do topo, a seção no cartão do PC e a folha), nas cores da página. O verde, o
+   âmbar e o vermelho são os da saúde do proxy (ok, lento, fora); cinza sem medida */
+.pcs .pc{white-space:nowrap}   /* o PC com o modo numa linha só (os PCs quebram inteiros) */
+.pc .mia-t{font-size:11.5px;font-weight:700;padding:1px 7px;border-radius:999px;background:var(--glass-2);color:var(--ink);white-space:nowrap}
+.mia-ok{--mia:var(--green)} .mia-lento{--mia:var(--gold)} .mia-fora{--mia:#ff8a80} .mia-sem{--mia:var(--faint)}
+.pc .mia-t{box-shadow:inset 0 0 0 1px var(--mia,var(--stroke))}
+.pc .mia-t.mia-sug{background:rgba(226,184,74,.22);color:var(--gold-2)}
+.pc .mia-t.mia-indo{background:rgba(226,184,74,.14);color:var(--gold-2)}
+.pc .mia-t.mia-off{opacity:.55}
+.pcm-num .mia-pcm{color:var(--ink);font-weight:650} .pcm-num.mia-lento,.pcm-num.mia-fora{color:var(--mia)}
+.mia-sec .mia-linha{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:15px}
+.mia-sec .mia-linha b{flex:1;min-width:0}
+.mia-s{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:600;padding:2px 9px;border-radius:999px;background:var(--glass-2);color:var(--mia,var(--muted))}
+.mia-s i{width:7px;height:7px;border-radius:50%;background:var(--mia,var(--faint))}
+.mia-sec .meta{font-size:12.5px;color:var(--muted);margin-top:4px}
+.mia-sug-l{margin-top:8px;padding:8px 11px;border-radius:10px;background:rgba(226,184,74,.13);color:var(--gold-2);font-size:14px;font-weight:600}
+.mia-res{position:relative;margin-top:8px;padding:10px 34px 10px 12px;border-radius:12px;font-size:14px;background:var(--glass);border:1px solid rgba(72,214,128,.4)}
+.mia-res.erro{border-color:rgba(255,90,79,.45)}
+.mia-res b{display:block;color:var(--green)} .mia-res.erro b{color:#ffb3ad}
+.mia-res span{display:block;margin-top:4px;color:var(--muted);font-size:13px}
+.mia-x{position:absolute;top:4px;right:4px;width:30px;height:30px;font-size:18px;color:var(--muted)}
+.folha .mia-muda{margin-bottom:4px}
+/* os botões da folha ficam à vista (presos embaixo) enquanto as linhas do trocador rolam */
+.folha .mia-bts{position:sticky;bottom:calc(-1 * (var(--bottom) + 14px));margin:6px -16px 0;padding:4px 16px calc(var(--bottom) + 14px);background:#10264F;box-shadow:0 -12px 14px -8px #10264F}
+.folha .mia-bts .btn{margin-top:6px}
+.folha .mia-re{font-size:14px;color:var(--muted);margin:2px 0 8px;line-height:1.4}
+.folha .mia-re b{color:var(--ink);font-weight:600}
+.mia-ens{margin:6px 0 4px;padding:10px 12px;border-radius:12px;background:var(--glass);border:1px solid var(--stroke);font-size:14px;color:var(--muted)}
+.mia-ens small{display:block;font-size:13px;margin:2px 0}
+.mia-ens.mia-am{border-color:rgba(226,184,74,.45);color:var(--gold-2)} .mia-ens.mia-am small{color:var(--muted)}
+.mia-ens.mia-vm{border-color:rgba(255,90,79,.45);color:#ffb3ad}
+.mia-ln{margin:4px 0 0;padding-left:18px;font-size:13px;color:var(--ink);line-height:1.4}
+.mia-ln li{overflow-wrap:anywhere}
 h2{font-size:13px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin:18px 2px 8px}
 .card{display:block;width:100%;text-align:left;padding:14px;margin:0 0 10px;border-radius:16px;background:var(--glass);border:1px solid var(--stroke)}
 button.card:active{background:var(--glass-2)}
@@ -1630,6 +1663,7 @@ body.tela24 #appAviso{z-index:8}
 <script src="estoque.js"></script><!-- entrega 4 (Estoque) -->
 <script src="pcs.js"></script>
 <script src="maquinas.js"></script>
+<script src="modo_ia.js"></script><!-- pro-102: o Modo da IA (Pool ⇄ Proxy com um clique) -->
 <script src="chrome.js"></script><!-- entrega 6 (Seaninho no Chrome) -->
 <script src="cartoes-dia.js"></script>
 <script src="volta.js"></script>
@@ -1680,7 +1714,7 @@ let sugestoesAtuais = []; // as respostas prontas da sessão aberta (o PC pede �
 let ordemPedida = [], arrastoSecao = null, ordemEsperada = null;   // (e a ordem que a tela mostra com eles)
 let timer = null, timerSala = null;
 let aba = "Inicio";
-const VERSAO_APP = "0.9.0.21";   // esta página (v32, a casca seaninho-v32: os cartões do dia do Monitor geral no Início (PR #34), que nascem recolhidos, com o resumo no cabeçalho e a escolha lembrada no aparelho (PR #41), com o agente 0.9.0.21; sobre a v31 publicada em 16/11)
+const VERSAO_APP = "0.9.0.22";   // esta página (v34, a casca seaninho-v34: o Modo da IA, Pool ⇄ Proxy com um clique (pro-102: o modo_ia.js), com o agente 0.9.0.22; sobre a v33 da pro-104, a página inteira)
 // (v31, a casca seaninho-v31: a central e as decisões entre os 2 PCs pela rede local, o aviso da rede no cartão do PC (PR #39) e a prioridade mudada pelo celular (PR #40), com o agente 0.9.0.20)
 // (v30, a casca seaninho-v30: o ⚡ Rodar no PC com o comando de administrador, com o agente 0.9.0.19)
 // (v29, a casca seaninho-v29: as 6 telas do Monitor e o padrão Opus da VPS, com o agente 0.9.0.18; v28: o trem do celular, com o 0.9.0.17)
@@ -1703,10 +1737,13 @@ const VERSAO_APP = "0.9.0.21";   // esta página (v32, a casca seaninho-v32: os 
 // da pasta cartoes-externos do PC em hoje.painel.cartoes_externos, sem os botões, e o pessoal só para o celular, nunca
 // pela rede local). Com o 0.9.0.20, o campo não vem e o bloco 🗂 Cartões do dia não aparece, sem estrago. O recolhido,
 // com a escolha lembrada (PR #41), é só da página (o cartoes-dia.js).
-const AGENTE_ATUAL = "0.9.0.21";
+// v34 (16/11, pro-102; a v33 é a da pro-104): o 0.9.0.22 é o agente do Modo da IA (o bloco em hoje.modo_ia e o pedido modo_ia, a troca e
+// o ensaio). Com o 0.9.0.21, o bloco não vem e a seção diz "o Seaninho de lá ainda não troca o modo".
+const AGENTE_ATUAL = "0.9.0.22";
 // 0.9.0.15 (12/11): o agente que entrega no terminal, no app do Claude e no segundo plano (o mesmo do Chat.AGENTE_QUALQUER)
 const AGENTE_QUALQUER = "0.9.0.15";
 const NOVIDADES_APP = [
+  ["0.9.0.22", "Modo da IA: o Claude Code de cada PC no Pool (as contas do pool) ou no Proxy (o proxy de IA da Seazone), sempre à vista nos PCs do topo (WIN · Pool), na cor da saúde do proxy: verde ok, âmbar lento, vermelho fora. No cartão de cada PC, em Computadores, o botão Trocar para o Pool (ou para o Proxy): a folha diz o que muda, quais sessões seguem no modo antigo até reabrir e o que o trocador faria (o ensaio, sem mudar nada); quando o proxy não passou na régua de estável, o Trocar mesmo assim. Durante, o PC mostra trocando…; depois, uma linha com o resultado e o que falta. Com o PC no Proxy e o proxy lento, a sugestão de voltar ao Pool; nada troca sozinho. No Proxy, o Trocar conta fica desligado. O mesmo controle do Monitor geral, nos dois PCs, também de longe. Precisa do agente 0.9.0.22 nos PCs."],
   ["0.9.0.21", "Cartões do dia no Início: os mesmos cartões que o Monitor geral mostra no PC, com o mesmo ícone, estado e linha, no bloco 🗂 Cartões do dia. Cada grupo nasce recolhido, com o resumo no cabeçalho (quantos cartões e, se houver, quantos em ⚠ atenção e em ✖ erro); um toque abre, outro fecha, e a escolha fica lembrada neste aparelho. O grupo pessoal aparece com o 🔒, só no seu celular, e nunca vai ao outro PC. Com mais de um PC, cada grupo diz de qual PC é; o grupo de um PC fora do ar, ou com os dados vencidos, fica cinza, com a hora dos dados. Os cartões vêm sem botões: o que roda no PC continua no Monitor geral. O bloco recolhe no ▾ ou some no ✕, como os outros do Início. Precisa do agente 0.9.0.21 nos PCs."],
   ["0.9.0.20", "Os dois PCs se enxergam melhor: o Para você do outro PC não some mais quando a rede local falha por alguns segundos (fica a última cópia boa que ela trouxe), as decisões do outro PC não param mais de chegar caladas, o ⚡ Rodar no PC de um item do outro PC usa a última cópia boa que a rede trouxe (e, sem ela, diz por quê), e o cartão de cada PC, no Início e em Computadores, avisa quando o Para você ou as decisões dele não chegam ao outro PC, e por quê (a ponte de cópias antiga, o agente do celular parado, sem rede local). Nas Sessões, toque no P0, P1… do cabeçalho de um projeto para subir, descer ou escolher a posição na prioridade, ou segure o cabeçalho para arrastar a seção; a ordem nova vale também no Monitor geral. As fixadas ganharam ▲ Subir e ▼ Descer, e segurar não abre mais a seleção de texto do iPhone. A ponte de cópias nova vai junto nos dois PCs. Precisa do agente 0.9.0.20 nos PCs."],
   ["0.9.0.19", "⚡ Rodar no PC: o comando que só roda como administrador fica com o Copiar e a frase \"Precisa de administrador: só no PC\" no lugar do ⚡ (a lista curta: o Defender, a política de execução da máquina, o HKLM, os serviços, o firewall, o bcdedit, os recursos do Windows, o -Verb RunAs, o msiexec e os instaladores). Quando o Windows recusa um comando por falta de administrador, o resultado traz a frase em destaque e, embaixo, o fim do que ele escreveu. O ⚡ e o Rodar de novo abrem no PC do item, não no da central. O Get-MpPreference sem as exclusões roda; o winget também. O comando com letras invisíveis que mudam a ordem do texto na tela, ou com espaços fora do comum, não roda pelo celular (fica o Copiar). Precisa do agente 0.9.0.19 nos PCs."],
@@ -1857,8 +1894,9 @@ function desenharPcs() {
   // Monitor geral; o toque abre o cartão dela no Computadores. Ela continua fora dos filtros das Sessões (não tem sessões).
   // Com o maquinas.js de antes no cache do iPhone (a casca troca um arquivo por vez), fica sem o chip, sem quebrar.
   const chipsMaq = Maquinas.htmlChip ? maquinas().map(p => Maquinas.htmlChip(Maquinas.normalizar(p), {agora: agoraRede(), pcs})).join("") : "";
-  por($("pcs"), lista.map(p => `<button class="pc ${online(p) ? "on" : ""}" data-pcs-abrir="${esc(p.pc)}" aria-label="${esc(p.pc)}: ${
-    online(p) ? "ligado" : "sem sinal"}. Abrir os Computadores"><i></i>${esc(nomeCurtoPc(p.pc))}</button>`).join("") + chipsMaq);
+  // pro-102: o modo da IA de cada PC sempre à vista ("WIN · Pool"), na cor da saúde do proxy; o toque abre o cartão dele
+  por($("pcs"), lista.map(p => { const t = miaTopo(p); return `<button class="pc ${online(p) ? "on" : ""}" data-pcs-abrir="${esc(p.pc)}" aria-label="${esc(p.pc)}: ${
+    online(p) ? "ligado" : "sem sinal"}${t ? `, modo da IA ${esc(t.aria)}` : ""}. Abrir os Computadores"><i></i>${esc(nomeCurtoPc(p.pc))}${t ? ` · ${t.html}` : ""}</button>`; }).join("") + chipsMaq);
   por($("pcsLista"), `<button class="btn" data-pcs-abrir="">💻 Abrir os Computadores</button>${blocoAparelhos()}`);
   por($("appVersao"), versaoDoApp());
 }
@@ -2045,7 +2083,7 @@ function abrirFolha(titulo, opcoes, atual, escolher) {
       p == null ? "" : `<small>P${p}</small>`}${esc(rot)}</span>` : esc(rot)}<i>${n}${v === atual ? " ✓" : ""}</i></button>`).join("");
   $("folhaFundo").classList.remove("hidden");
 }
-function fecharFolha() { $("folhaFundo").classList.add("hidden"); folhaEscolher = null; folhaEnergia = null; mqFolha = null; pararSegurar(); }
+function fecharFolha() { $("folhaFundo").classList.add("hidden"); folhaEscolher = null; folhaEnergia = null; mqFolha = null; miaFolha = null; pararSegurar(); }
 
 // ---- Fixadas: a fileira do topo (como os favoritos), gravada no banco para valer em todo aparelho ----------
 function desenharFixadas(ss, filtrando, agora) {
@@ -3483,6 +3521,8 @@ function alertasDoPc(p, falhas) {
   // (PT8: o `completo` vai junto, para o title do mini-cartão)
   if (Pcs.avisosDaRede) out.push(...Pcs.avisosDaRede(p, Object.values(pcs), agoraRede()).map(a => ({texto: a.texto, critico: a.critico, completo: a.completo})));
   if (Lista.compararVersao(p.versao, AGENTE_ATUAL) < 0) out.push({texto: `agente ${p.versao || "?"} (a atual é ${AGENTE_ATUAL})`});
+  const mb = miaBloco(p);   // pro-102: com o PC no Proxy e o proxy lento ou fora, a sugestão (nada troca sozinho)
+  if (mb && ModoIa.sugere(mb)) out.push({texto: ModoIa.TX.sugestao((mb.saude || {}).estado)});
   if (on && e.tomada === false) out.push({texto: `na bateria${e.bateria != null ? ` (${e.bateria}%)` : ""}`});
   if (m.disco_livre_gb != null && m.disco_livre_gb < 15) out.push({texto: `C: com ${String(m.disco_livre_gb).replace(".", ",")} GB livres`});
   return out;
@@ -3505,9 +3545,12 @@ function blocoComputadores(lista, agora) {
     const st = estadoPc(p, viz, Pcs.pedidoDe(pedidos, p.pc)), c = (p.hoje && p.hoje.conta) || {}, ram = ramDe(p);
     const nums = [ram != null && online(p) ? `RAM ${ram}%` : "", c.sessao ? `5 h ${c.sessao.pct}%` : "", c.semana ? `sem ${c.semana.pct}%` : ""]
       .filter(Boolean).join(" · ");
+    // pro-102: o modo da IA e a saúde do proxy numa linha própria ("🔀 Pool · proxy lento · 4,1 s"), na cor da saúde
+    const mb = miaBloco(p), mia = !mb ? "" : `<span class="pcm-num mia-${ModoIa.corDaSaude(mb.saude)}"><b class="mia-pcm">🔀 ${esc(
+      ModoIa.trocandoAgora(mb, !!miaTroca[p.pc]) ? ModoIa.TX.trocando : ModoIa.TX.rotulo[mb.modo])}</b> · ${esc(ModoIa.saudeCurta(mb.saude))}</span>`;
     return `<button class="pcm ${st.cor === "off" ? "off" : ""}" data-pcs-abrir="${esc(p.pc)}" aria-label="${esc(p.pc)}: ${esc(st.texto)}. Abrir">
       <span class="pcm-cab"><i class="dot ${st.cor}"></i><b>${esc(nomeCurtoPc(p.pc))}</b>${o && o.pc === p.pc ? `<span aria-hidden="true">🎼</span>` : ""}</span>
-      <span class="pcm-est"${dataAte(st)}>${esc(st.texto)}</span>${nums ? `<span class="pcm-num">${nums}</span>` : ""}
+      <span class="pcm-est"${dataAte(st)}>${esc(st.texto)}</span>${mia}${nums ? `<span class="pcm-num">${nums}</span>` : ""}
       ${alertasDoPc(p, falhas).sort((a, b) => (b.critico ? 1 : 0) - (a.critico ? 1 : 0)).slice(0, 4)   // revisão de 16/11 (PT8): os críticos primeiro no corte de 4
         .map(a => `<span class="pcm-al ${a.critico ? "critico" : ""}"${a.completo ? ` title="${esc(a.completo)}"` : ""}>${esc(a.texto)}</span>`).join("")}</button>`;
   }).join("");
@@ -3600,6 +3643,7 @@ function cartaoPc(p, {o, viz, falhas, ss, agora}) {
   return `<section class="pcc ${st.cor === "off" ? "off" : ""}" data-pc-card="${esc(pc)}" aria-label="${esc(pc)}">${topo}${agoraEn}
     ${reabre ? `<button class="btn" data-reabrir-maestro="${esc(pc)}">🎼 Reabrir o ${esc(nomeMaestro(true))}</button>` : ""}
     <div class="pc-sec"><h4>🩺 Saúde</h4><div class="pc-linhas">${saude}</div>${botaoRamCheia(p)}${notasDoMaestro(p)}</div>
+    ${miaSecao(p)}
     ${conta}
     <div class="pc-sec">${sessoes}${ligar}</div>
     ${hist.length ? `<div class="pc-sec"><h4>Últimos 7 dias</h4><div class="pc-hist">${hist.map(h => `<div><b>${esc(h.quando)}</b><span>${esc(h.texto)}</span></div>`).join("")}</div></div>` : ""}
@@ -3762,6 +3806,101 @@ async function mqRetomar(pc) {
   andamento("appAviso", "");
   if (lp && lp.fase === "ok") avisar("appAviso", "✓ " + lp.msg, {ok: true});
   else if (lp) avisar("appAviso", lp.msg, {erro: true, ...(lp.semResposta ? {} : {acao: () => mqRetomar(pc)})});
+}
+
+// ---- pro-102: o Modo da IA (Pool ⇄ Proxy com um clique; o mesmo controle do Monitor geral) ----------------------
+// O rótulo nos PCs do topo, a seção no cartão do PC, a folha (o que muda, as sessões a reabrir e o ensaio, pedido assim
+// que ela abre), o "Trocar mesmo assim" depois da recusa da régua, o "trocando…" e a linha de resultado com o que falta
+// (até o × ou 10 min). As contas e o HTML no modo_ia.js (test_modo_ia.cjs); o pedido é o cel_pedir "acao" "modo_ia",
+// e a espera, a do pedido (olharPedido), como a da máquina de fila. Nada troca sozinho.
+const miaTroca = {};   // pc -> {pid, para, forcar, desde, atual, nomes, n}: a troca que este celular pediu e ainda anda
+const miaRes = {};     // pc -> {ok, linha, falta, t}: o resultado dela
+let miaFolha = null;   // {pc, para, n, r, msg, r2}: a folha aberta (o fecharFolha() zera)
+let miaN = 0;
+// rodada 4 da revisão do PR 49: o ModoIa com guarda, como o Maquinas (o modo_ia.js de antes no cache do iPhone, ou a
+// falha de rede só nesse script na 1ª carga: a página fica sem o Modo da IA, sem quebrar os PCs do topo nem os Computadores)
+const miaTem = () => typeof ModoIa !== "undefined";
+const miaBloco = p => miaTem() ? ModoIa.bloco(p) : null;
+const miaSessoes = pc => todasSessoes().filter(s => s.pc === pc && !s.desligado);
+function miaInfo(pc) {
+  const p = pcs[pc], ss = miaSessoes(pc);
+  return {bloco: miaBloco(p), online: !!p && online(p), pend: !!miaTroca[pc], n: ss.length, nomes: ss.map(s => s.titulo || "sessão")};
+}
+const miaTopo = p => miaTem() ? ModoIa.topo(p.pc, ModoIa.bloco(p), {online: online(p), pend: !!miaTroca[p.pc]}) : "";
+const miaSecao = p => !miaTem() ? "" : ModoIa.secao(p.pc, ModoIa.bloco(p), {online: online(p), pend: !!miaTroca[p.pc], res: miaRes[p.pc],
+  agora: Date.now(), antigo: Lista.compararVersao(p.versao, ModoIa.AGENTE) < 0});
+function miaRepintar() {
+  desenharPcs();
+  desenharComputadores();
+  if (aba === "Inicio") desenharInicio();
+}
+function miaPintarFolha() {
+  const f = miaFolha;
+  if (!f || $("folhaFundo").classList.contains("hidden")) return;
+  $("folha").innerHTML = ModoIa.folha(f, miaInfo(f.pc));
+}
+async function miaPedir(pc, campos) {
+  return rpc("cel_pedir", {pc, tipo: "acao", titulo: `Modo da IA · ${pc}`, texto: ModoIa.pedidoTexto(campos)});
+}
+// Espera o pedido terminar (ou o prazo), chamando cada(lp) a cada passo, enquanto vivo()
+async function miaEsperar(pid, desde, ensaio, cada, vivo) {
+  for (;;) {
+    const lp = ModoIa.lerPedido(pedidos.find(x => x.id === pid), {agora: Date.now(), desde, ensaio});
+    cada(lp);
+    if (lp.fase === "ok" || lp.fase === "erro") return lp;
+    await dorme(2000);
+    if (!vivo()) return null;
+    try { await olharPedido(pid); } catch {}
+  }
+}
+// O ensaio na folha f (forcado: o que o "Trocar mesmo assim" faria; nada muda nos dois)
+async function miaEnsaio(f, forcar) {
+  const vivo = () => miaFolha === f, desde = Date.now();
+  let pid;
+  try { pid = await miaPedir(f.pc, {para: f.para, forcar, ensaio: true}); }
+  catch (e) { if (vivo() && !forcar) { f.r = {fase: "erro", codigo: "erro", msg: "Não saiu do celular: " + motivoRede(e)}; miaPintarFolha(); } return; }
+  voltaJa();
+  const lp = await miaEsperar(pid, desde, true, x => {
+    if (!vivo() || forcar) return;
+    if (x.fase === "espera" || x.fase === "anda") { f.msg = `${ModoIa.TX.conferindo} (${x.msg})`; miaPintarFolha(); }
+  }, vivo);
+  if (!lp || !vivo()) return;
+  if (forcar) f.r2 = lp; else f.r = lp;
+  miaPintarFolha();
+  if (!forcar && lp.codigo === "instavel" && miaInfo(f.pc).bloco && miaInfo(f.pc).bloco.chave) miaEnsaio(f, true);
+}
+function miaAbrir(pc, para) {
+  if (!miaTem()) return;
+  const info = miaInfo(pc), why = ModoIa.motivo(pc, info.bloco, info);
+  if (why) return avisar("appAviso", `Não dá para trocar agora: ${why}.`, {erro: true});
+  if (rede.ok === false) return avisar("appAviso", "Sem internet: o pedido não sai do celular agora.", {erro: true});
+  folhaEscolher = null; folhaEnergia = null; mqFolha = null; pararSegurar();
+  const f = miaFolha = {pc, para: para === "pool" ? "pool" : "proxy", n: ++miaN, r: null, msg: ModoIa.TX.conferindo, r2: null};
+  $("folhaFundo").classList.remove("hidden");
+  miaPintarFolha();
+  miaEnsaio(f, false);
+}
+async function miaTrocar(forcar) {
+  const f = miaFolha;
+  if (!f || miaTroca[f.pc]) return;
+  const info = miaInfo(f.pc), atual = ModoIa.TX.rotulo[(info.bloco || {}).modo] || "?";
+  fecharFolha();
+  const t = miaTroca[f.pc] = {pid: null, para: f.para, forcar: !!forcar, desde: Date.now(), atual, nomes: info.nomes, n: info.n};
+  delete miaRes[f.pc];
+  miaRepintar();
+  let lp = null;
+  try {
+    t.pid = await miaPedir(f.pc, {para: f.para, forcar: !!forcar, ensaio: false});
+    voltaJa();
+    lp = await miaEsperar(t.pid, t.desde, false, () => {}, () => miaTroca[f.pc] === t);
+  } catch (e) { lp = {fase: "erro", codigo: "erro", msg: "Não saiu do celular: " + motivoRede(e)}; }
+  if (miaTroca[f.pc] !== t) return;
+  delete miaTroca[f.pc];
+  if (!lp) return miaRepintar();
+  const r = miaRes[f.pc] = {...ModoIa.resultado(f.pc, lp, t), t: Date.now()};
+  avisar("appAviso", r.linha, r.ok ? {ok: true} : {erro: true, fica: true});
+  miaRepintar();
+  if (r.ok) atualizar();   // o bloco novo (o modo, a "ultima") vem com o inteiro
 }
 
 // O aviso de que o PC caiu ou voltou: quem manda é o outro PC (agente 0.9.0); desligado por PC na preferência da conta.
@@ -4174,17 +4313,19 @@ function contaCartao(p, varios) {
   else if (ped && ped.estado === "entregue") status = `<div class="status ok">✓ ${esc(ped.resposta || "Conta trocada")}</div>`;
   else if (ped && ped.estado === "erro") status = `<div class="status err">Não trocou: ${esc(ped.erro)}</div>`;
   const ocupado = troca && (!ped || ["novo", "escrevendo"].includes(ped.estado)) && !String(troca).startsWith("erro:");
+  const noProxy = (miaBloco(p) || {}).modo === "proxy";   // pro-102: no Proxy a conta do pool não é usada
   return `<div class="conta">
     <div class="topo">⏳ <b>${esc(c.email)}</b>${varios ? esc(p.pc) : ""}</div>
     <div class="meta">Conta do Claude${c.plano ? " · " + esc(c.plano) : ""}${c.lido ? " · lida " + ha(c.lido * 1000) : ""}</div>
     ${lim("Sessão (5 h)", c.sessao)}${lim("Semana", c.semana)}
-    <button class="btn sec" data-trocar="${esc(p.pc)}" ${online(p) && !ocupado ? "" : "disabled"}>${online(p) ? "Trocar conta" : "Trocar conta (PC desligado)"}</button>
+    <button class="btn sec" data-trocar="${esc(p.pc)}" ${online(p) && !ocupado && !noProxy ? "" : "disabled"}>${
+      noProxy ? "Trocar conta (no Proxy)" : online(p) ? "Trocar conta" : "Trocar conta (PC desligado)"}</button>
     ${status}</div>`;
 }
 
 async function trocarConta(pc, botao) {
   const p = pcs[pc];
-  if (!p || !online(p)) return;
+  if (!p || !online(p) || (miaBloco(p) || {}).modo === "proxy") return;
   if (!confirm(`Trocar a conta do Claude no ${pc}?\n\nO switcher escolhe a conta do pool com mais folga. As sessões abertas continuam, já na conta nova.`)) return;
   botao.disabled = true;
   try {
@@ -7833,6 +7974,10 @@ $("usoIa").addEventListener("click", e => {
 $("pcs").addEventListener("click", e => { const b = e.target.closest("[data-pcs-abrir]"); if (b) abrirComputadores(b.dataset.pcsAbrir); });
 $("computadores").addEventListener("click", e => {
   if (e.target.closest("#pcsFechar")) return fecharComputadores();
+  const mi = e.target.closest("[data-mia-abrir]");   // pro-102: o Modo da IA
+  if (mi) return mi.disabled ? null : miaAbrir(mi.dataset.miaAbrir, mi.dataset.para);
+  const mx = e.target.closest("[data-mia-x]");
+  if (mx) { delete miaRes[mx.dataset.miaX]; return miaRepintar(); }
   const mq = Maquinas.acaoDe(e.target);   // v27: os botões do cartão da máquina de fila
   if (mq) return acaoMaquina(mq);
   const t = e.target.closest("[data-trocar]");
@@ -7959,6 +8104,8 @@ $("frente").addEventListener("click", e => {
   if (e.target.closest("[data-fr-msg]")) return mensagemFrente();
 });
 $("folhaFundo").addEventListener("click", e => {
+  const mt = e.target.closest("[data-mia-trocar]");   // pro-102: o Trocar agora (ou o Trocar mesmo assim) da folha
+  if (mt) return mt.disabled ? null : miaTrocar(mt.dataset.miaTrocar === "forcar");
   const op = e.target.closest("[data-op]");
   if (op && folhaEscolher) { const f = folhaEscolher; fecharFolha(); return f(op.dataset.op); }
   if (e.target.closest("[data-nf-fechar]")) return fecharFolha();
