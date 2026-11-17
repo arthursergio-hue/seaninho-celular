@@ -242,7 +242,17 @@ function tarefaDoLog(m) {
   return mais(ts.filter(t => t.estado === "rodando")) || mais(ts);
 }
 
+// Os minutos desde a última batida do coordenador (o maestro) na máquina: pela hora da batida; sem ela, o "min" do kit.
+// null quando o kit não traz (o kit antigo).
+function minCoordenador(co, agora) {
+  if (!co || !(co.batida || co.min != null)) return null;
+  const t = msDe(co.batida);
+  return t ? Math.max(0, Math.floor((agora - t) / 60000)) : co.min;
+}
+const haMin = min => min < 60 ? `${min} min` : duracao(min * 60);
+
 // ---- HTML: o mini-cartão do Início ----
+// pro-94 (16/11): mais a ligação com o maestro (a última batida do coordenador), como as linhas do mapa do Monitor.
 function htmlResumo(m, ctx = {}) {
   if (!m || !m.pc) return "";
   const agora = ctx.agora || Date.now(), s = situacao(m, agora, ctx.pcs), b = m.batida;
@@ -252,10 +262,59 @@ function htmlResumo(m, ctx = {}) {
   if (s.faixa && s.faixa.tipo !== "off") al.push({texto: m.estado === "login" ? "precisa do seu login no card" : s.faixa.texto, critico: s.faixa.tipo === "erro"});
   if (!s.semNoticia && b && b.avisos && b.avisos.novos) al.push({texto: `${b.avisos.novos} ${b.avisos.novos === 1 ? "aviso novo" : "avisos novos"}`});
   if (!s.semNoticia && b && b.fila && b.fila.pausada) al.push({texto: "fila pausada"});
+  const min = b && !s.semNoticia ? minCoordenador(b.coordenador, agora) : null;
+  const coord = min == null ? "" : `<span class="${min > 45 ? "pcm-al" : "pcm-num"} mq-coord"><span aria-hidden="true">🎼</span> ${
+    esc(ctx.coordenador || "coordenador")} · última batida há ${esc(haMin(min))}</span>`;
   return `<button class="pcm maq ${s.cor === "off" ? "off" : ""}" data-pcs-abrir="${esc(m.pc)}" aria-label="${esc(m.rotulo)}, máquina de fila: ${esc(s.texto)}. Abrir">
       <span class="pcm-cab"><i class="dot ${s.cor}"></i><b><span aria-hidden="true">☁</span> ${esc(m.rotulo)}</b><small class="mq-sub">máquina de fila</small></span>
-      <span class="pcm-est">${esc(s.texto)}</span>${nums ? `<span class="pcm-num">${esc(nums)}</span>` : ""}
+      <span class="pcm-est">${esc(s.texto)}</span>${nums ? `<span class="pcm-num">${esc(nums)}</span>` : ""}${coord}
       ${al.slice(0, 2).map(a => `<span class="pcm-al ${a.critico ? "critico" : ""}">${esc(a.texto)}</span>`).join("")}</button>`;
+}
+
+// ---- pro-94 (16/11): a VPS como a 3ª máquina no topo e na conta dos Computadores ----
+// Pedido do Arthur (16/11, no Monitor geral, aba Sistema): "aqui não devia aparecer a VPS?". O Monitor ganha a VPS no
+// mapa, no cartão Computadores ("3/3 · todos ligados") e nos chips das máquinas do topo. No celular, o mesmo: o chip
+// dela no topo, ao lado dos PCs (o toque abre o cartão dela no Computadores), e a conta no bloco 💻 Computadores.
+// Ligada = responde (a regra B.5 do contrato: com notícia e online ou kit antigo); carregando (a linha chegou pela leve
+// e o bloco ainda não) também conta, para não piscar "2/3" ao abrir. Sem a linha da VPS (ou com o nome estragado), nada
+// muda: os PCs e o "2/2" de antes.
+
+// O chip do topo: o mesmo .pc dos PCs, com o ponto verde (responde), âmbar (login, carregando), coral (sem resposta) ou
+// cinza (sem notícia).
+function htmlChip(m, ctx = {}) {
+  if (!m || !m.pc) return "";
+  const s = situacao(m, ctx.agora || Date.now(), ctx.pcs);
+  const cor = s.responde ? "on" : s.cor === "off" ? "" : s.cor;
+  return `<button class="pc maq${cor ? " " + cor : ""}" data-pcs-abrir="${esc(m.pc)}" aria-label="${esc(m.rotulo)}, máquina de fila: ${
+    esc(s.texto)}. Abrir os Computadores"><i></i>☁ ${esc(m.rotulo)}</button>`;   // o aria-label já diz o que é
+}
+
+// A conta dos computadores, com as mesmas palavras do cartão Computadores do Monitor geral (a pro-94 do seaninho-pro):
+// {total, ligados, texto ("3/3"), sub ("todos ligados", "VPS sem sinal", "1 desligado · VPS sem resposta"…), fora}.
+// pcs: as linhas dos PCs; maqs: as linhas das máquinas (a tabela dos PCs). ctx: {agora, online(p)}: o online da página
+// para os PCs (150 s). A máquina fora diz o porquê: "sem sinal" (sem notícia), "precisa do login" ou "sem resposta".
+function contarComputadores(pcs, maqs, ctx = {}) {
+  const agora = ctx.agora || Date.now();
+  const online = typeof ctx.online === "function" ? ctx.online : () => true;
+  const maqFora = [];
+  let nPc = 0, onPc = 0, nMaq = 0;
+  for (const p of Array.isArray(pcs) ? pcs : []) {
+    if (!obj(p) || !p.pc) continue;
+    nPc++;
+    if (online(p)) onPc++;
+  }
+  for (const p of Array.isArray(maqs) ? maqs : []) {
+    const m = normalizar(p);
+    if (!m || !m.pc) continue;
+    nMaq++;
+    const s = situacao(m, agora);
+    if (!s.responde && !(m.carregando && !s.semNoticia))
+      maqFora.push(`${m.rotulo} ${s.semNoticia ? "sem sinal" : m.estado === "login" ? "precisa do login" : "sem resposta"}`);
+  }
+  const offPc = nPc - onPc, total = nPc + nMaq, ligados = onPc + nMaq - maqFora.length;
+  const fora = (offPc ? [`${offPc} ${offPc === 1 ? "desligado" : "desligados"}`] : []).concat(maqFora);
+  const sub = !total ? "" : fora.length ? fora.join(" · ") : total === 1 ? "ligado" : "todos ligados";
+  return {total, ligados, texto: `${ligados}/${total}`, sub, fora};
 }
 const linhaCurtaFila = f => f ? [f.rodando != null ? `${f.rodando} rodando` : "", f.esperando != null ? `${f.esperando} esperando` : ""]
   .filter(Boolean).join(" · ") : "";
@@ -338,13 +397,9 @@ function secAvisos(b, agora, ctx) {
     if (!resolveu) for (const t of a.novos) if (!vistos.has(t)) { vistos.add(t); recentes.push({quando: a.quando, texto: t}); }
     if ((a.resolvidos || []).length) resolveu = true;
   }
-  const co = b.coordenador;
-  let coord = "";
-  if (co && (co.batida || co.min != null)) {
-    const t = msDe(co.batida), min = t ? Math.max(0, Math.floor((agora - t) / 60000)) : co.min;
-    coord = `<li class="${min > 45 ? "espera" : "apagado"}"><span aria-hidden="true">🎼</span><span>${esc(ctx.coordenador || "coordenador")}: última batida há ${
-      min < 60 ? `${min} min` : duracao(min * 60)}</span></li>`;
-  }
+  const min = minCoordenador(b.coordenador, agora);
+  const coord = min == null ? "" : `<li class="${min > 45 ? "espera" : "apagado"}"><span aria-hidden="true">🎼</span><span>${
+    esc(ctx.coordenador || "coordenador")}: última batida há ${haMin(min)}</span></li>`;
   const novos = b.avisos && b.avisos.novos;
   if (!itens.length && !recentes.length && !coord && !novos) return `<div class="mq-sec"><h4>🔔 Avisos</h4><p class="mq-vazio">Nenhum aviso.</p></div>`;
   return `<div class="mq-sec"><h4>🔔 Avisos ${novos ? `<span class="mq-pill espera">${novos} ${novos === 1 ? "aviso novo" : "avisos novos"}</span>` : ""}</h4><ul class="mq-avisos">
@@ -529,7 +584,7 @@ const chaveRascunho = nome => `maquina-rascunho:${nome}`;
 
 const Maquinas = {FORMATO, SEM_NOTICIA_MS, PEGAR_MS, ESPERA_MS, TEXTO_MAX, LINHAS_PADRAO, LINHAS_MAX, MODOS, ID_RE, LINK_RE,
   MODELOS, ESFORCOS, ROTULO_MODELO, ROTULO_ESFORCO, ROTULO_ULTRACODE, PADRAO, ORC, KIT_ANTIGO, AGENTE_ANTIGO,
-  ehMaquina, normalizar, situacao, htmlResumo, htmlCartao, htmlFolhaEnviar, htmlFolhaLog, htmlFolhaPausar, htmlAndamento,
+  ehMaquina, normalizar, situacao, htmlResumo, htmlChip, contarComputadores, minCoordenador, htmlCartao, htmlFolhaEnviar, htmlFolhaLog, htmlFolhaPausar, htmlAndamento,
   pedido, lerPedido, respostaDe, acaoDe, tarefaDoLog, tarefaDe, chaveRascunho, camposDaFolha, avisoKit, letras, quando,
   duracao, ramPct, corRam, corDisco, corCarga, esc};
 if (typeof module !== "undefined" && module.exports) module.exports = Maquinas;

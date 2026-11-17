@@ -35,6 +35,7 @@ header h1{margin:0;font-size:21px;font-weight:650;letter-spacing:.2px;flex:1}
 .pc{font-size:12.5px;color:var(--muted);display:flex;align-items:center;gap:6px;padding:3px 11px;min-height:36px;border-radius:999px;background:var(--glass)}
 .pc i{width:7px;height:7px;border-radius:50%;background:var(--faint)}
 .pc.on i{background:var(--green)}
+.pc.espera i{background:var(--gold)} .pc.erro i{background:var(--coral)}   /* pro-94: a VPS no topo (login, sem resposta) */
 h2{font-size:13px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin:18px 2px 8px}
 .card{display:block;width:100%;text-align:left;padding:14px;margin:0 0 10px;border-radius:16px;background:var(--glass);border:1px solid var(--stroke)}
 button.card:active{background:var(--glass-2)}
@@ -614,6 +615,8 @@ button.bloco-cab{display:block;width:100%;text-align:left}
    (no lugar do quadro "Se parar agora"; pro-73: "No TeamZone: Azul · próximo relatório às 18h35"), com o cinto da faixa
    que o TeamZone mostra */
 .uso-selo.vivo{display:inline-flex;align-items:center;gap:6px;color:#8FEBB4}
+/* pro-93: a prévia (a régua da semana anterior), em dourado como no Monitor, para não parecer a faixa oficial */
+.uso-selo.vivo.previa{color:var(--gold-2);text-align:left}
 .vivo-ponto{flex:none;width:8px;height:8px;border-radius:50%;background:var(--green);animation:vivo-pulsa 1.8s ease-out infinite}
 @keyframes vivo-pulsa{0%{box-shadow:0 0 0 0 rgba(72,214,128,.6)}70%{box-shadow:0 0 0 7px rgba(72,214,128,0)}100%{box-shadow:0 0 0 0 rgba(72,214,128,0)}}
 @media (prefers-reduced-motion:reduce){.vivo-ponto{animation:none}}
@@ -1126,6 +1129,7 @@ details>summary{padding:6px 0}
 .aparelho .btn{width:auto;margin:0;padding:8px 14px;font-size:14px}
 /* ---- v27: a máquina de fila (a VPS): o mini-cartão do Início, o cartão e as folhas (só as cores da página) ---- */
 .pcm.maq{grid-column:1/-1;min-height:0}
+.pcs-conta.fora .meta{color:var(--gold-2)}   /* pro-94: "2/3 · VPS sem sinal" no bloco Computadores */
 .pcm.maq .pcm-cab b{flex:none}
 .mq-sub{font-size:12px;color:var(--faint);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .pcc.maq .pc-sub{margin-top:2px}
@@ -1823,9 +1827,10 @@ const desligadoHa = p => agoraRede() - new Date(p.visto_em).getTime() >= 600000;
 const desligando = p => { const ped = Pcs.pedidoDe(pedidos, p.pc); return !!ped && ["escrevendo", "entregue"].includes(ped.estado)
   && JSON.parse(ped.texto || "{}").acao !== "bloquear" && Date.now() - Date.parse(ped.atualizado_em) < 180000
   && !(new Date(p.visto_em) > new Date(Date.parse(ped.atualizado_em) + 20000)); };
-// v27: a máquina de fila (a VPS, web/maquinas.js) chega na tabela dos PCs, mas não é PC: não tem sessões, ⏻, chip no
-// topo nem "Pedir". O comando, o microfone e o teste de aviso nunca vão para ela (logo depois de publicar, ela seria o
-// "visto mais novo"). As máquinas ficam à parte: um cartão próprio no Início e no Computadores.
+// v27: a máquina de fila (a VPS, web/maquinas.js) chega na tabela dos PCs, mas não é PC: não tem sessões, ⏻, filtro
+// das Sessões nem "Pedir" (desde a pro-94, de 16/11, ela tem o chip "☁ VPS" no topo, que só abre o cartão dela). O
+// comando, o microfone e o teste de aviso nunca vão para ela (logo depois de publicar, ela seria o "visto mais novo").
+// As máquinas ficam à parte: um cartão próprio no Início e no Computadores.
 const pcsDeVerdade = () => Object.values(pcs).filter(p => !Maquinas.ehMaquina(p));
 const maquinas = () => Object.values(pcs).filter(p => Maquinas.ehMaquina(p)).sort((a, b) => a.pc.localeCompare(b.pc));
 const pcAtivo = () => pcsDeVerdade().filter(p => online(p) && !desligando(p)).sort((a, b) => b.visto_em.localeCompare(a.visto_em))[0];
@@ -1847,9 +1852,13 @@ function todasSessoes() {
 }
 
 function desenharPcs() {
-  const lista = pcsDeVerdade().sort((a, b) => a.pc.localeCompare(b.pc));   // v27: sem chip da máquina (ela não tem sessões)
+  const lista = pcsDeVerdade().sort((a, b) => a.pc.localeCompare(b.pc));
+  // pro-94 (16/11, "aqui não devia aparecer a VPS?"): a máquina de fila também ganha o chip, depois dos PCs, como no
+  // Monitor geral; o toque abre o cartão dela no Computadores. Ela continua fora dos filtros das Sessões (não tem sessões).
+  // Com o maquinas.js de antes no cache do iPhone (a casca troca um arquivo por vez), fica sem o chip, sem quebrar.
+  const chipsMaq = Maquinas.htmlChip ? maquinas().map(p => Maquinas.htmlChip(Maquinas.normalizar(p), {agora: agoraRede(), pcs})).join("") : "";
   por($("pcs"), lista.map(p => `<button class="pc ${online(p) ? "on" : ""}" data-pcs-abrir="${esc(p.pc)}" aria-label="${esc(p.pc)}: ${
-    online(p) ? "ligado" : "sem sinal"}. Abrir os Computadores"><i></i>${esc(nomeCurtoPc(p.pc))}</button>`).join(""));
+    online(p) ? "ligado" : "sem sinal"}. Abrir os Computadores"><i></i>${esc(nomeCurtoPc(p.pc))}</button>`).join("") + chipsMaq);
   por($("pcsLista"), `<button class="btn" data-pcs-abrir="">💻 Abrir os Computadores</button>${blocoAparelhos()}`);
   por($("appVersao"), versaoDoApp());
 }
@@ -3129,12 +3138,19 @@ const fileiraFaixas = (faixa, proxima) => { const i = faixa ? Ninja.FAIXAS_TIME.
     `<i${corDaFaixa(f)} class="${f === faixa ? "aqui" : f === proxima ? "prox" : j < i ? "feita" : ""}" title="Faixa ${esc(f)}"></i>`).join("")}</span>`; };
 
 // ---- a manchete: a faixa, o selo (agora; sem a faixa ao vivo, TeamZone 18h35 ou estimativa), a próxima e o que falta -
-const tituloFaixa = (p, m = p.manchete) => m.faixa ? `Faixa ${m.faixa}${p.parcial && m === p.manchete && m.proxima ? " ou acima" : ""}`
+// pro-93: a prévia (a semana sem régua ainda, contada pelo Monitor com a régua da anterior), com o texto do Monitor:
+// "Prévia: Verde · pela régua da W46 (a desta semana ainda não saiu)" e a régua "As faixas da W46 (prévia)".
+const emPreviaUso = (p, m = p.manchete) => !!(p && p.previa && m === p.manchete && !m.sem_faixa);
+const curtaUso = semana => String(semana || "").split("-W")[1] || String(semana || "");
+const previaUsoTxt = p => `pela régua da W${curtaUso(p.previa)} (a desta semana ainda não saiu)`;
+const tituloFaixa = (p, m = p.manchete) => emPreviaUso(p, m) ? `Prévia: ${m.faixa || "abaixo da Branca"}`
+  : m.faixa ? `Faixa ${m.faixa}${p.parcial && m === p.manchete && m.proxima ? " ou acima" : ""}`
   : m.primeiro_dia || (m === p.manchete && p.dias === 0) ? `Semana ${p.numero} começou` : m.sem_regua ? "Sem régua da semana" : "Ainda sem faixa";
 // pro-67 (o Arthur, 12/11: "Você tem que dizer aqui, hoje, agora, nesse exato momento, você está na faixa roxa"): com a
 // faixa ao vivo, o selo é "agora" (com a leitura do TeamZone) ou "agora · estimativa · 2 de 3 máquinas" (sem ela); a hora
 // do TeamZone vai na linha dele, embaixo. `b`: o painel ou a semana que fecha (que não tem as máquinas: "estimativa").
 function seloUso(b) {
+  if (emPreviaUso(b)) return previaUsoTxt(b);   // pro-93: o selo do Monitor na prévia
   const tz = b.base === "oficial" && b.teamzone ? `TeamZone ${horaTz(b.teamzone.atualizado_em)}`
     : !b.pcs || !b.maquinas ? "estimativa" : `estimativa · ${b.pcs.length} de ${b.maquinas} ${b.maquinas === 1 ? "máquina" : "máquinas"}`;
   if (!b.manchete || !b.manchete.ao_vivo) return tz;
@@ -3142,7 +3158,7 @@ function seloUso(b) {
 }
 // o selo em HTML: com a faixa ao vivo, o ponto verde que pulsa
 const seloHtml = b => { const vivo = !!(b.manchete && b.manchete.ao_vivo);
-  return `<span class="un-sub uso-selo${vivo ? " vivo" : ""}">${vivo ? `<i class="vivo-ponto" aria-hidden="true"></i>` : ""}${esc(seloUso(b))}</span>`; };
+  return `<span class="un-sub uso-selo${vivo ? " vivo" : ""}${emPreviaUso(b) ? " previa" : ""}">${vivo ? `<i class="vivo-ponto" aria-hidden="true"></i>` : ""}${esc(seloUso(b))}</span>`; };
 // A linha pequena do TeamZone embaixo da faixa ao vivo (UsoIa.linhaTeamZone; pro-73, o cantinho do Pro): "No TeamZone:
 // Azul · próximo relatório às 18h35 · a semana fecha em 13/11", ou "Sem leitura do TeamZone nesta semana: a soma dos
 // computadores". Ela substitui o quadro "Se parar agora". O cinto é o da faixa que o TeamZone mostra (≈ sem leitura).
@@ -3291,6 +3307,7 @@ function reguaUso(p, valores, dias, m) {
 const semanaDaRegua = r => { const m = /W(\d{1,2})\b/.exec(`${(r && r.semana) || ""} ${(r && r.versao) || ""}`); return m ? ` · semana ${Number(m[1])}` : ""; };
 const fonteRegua = p => {
   if (!p.regua.regua) return p.manchete.motivo || "Sem a régua da semana";
+  if (p.regua.previa) return `Prévia ${previaUsoTxt({previa: p.regua.previa})}`;   // pro-93: a régua da semana anterior
   const selo = String(p.regua.selo || "régua do TeamZone");
   return `${selo.charAt(0).toUpperCase()}${selo.slice(1)}${semanaDaRegua(p.regua.regua)}`;
 };
@@ -3330,7 +3347,7 @@ function desenharUsoIa() {
         ? "as faixas aparecem no sábado, às 17h" : "o TeamZone ainda não gravou a régua dela, e as faixas aparecem quando ela chegar"}. Não é erro.</p>` : ""}
       <div class="rodape">${somandoTxt(p)}</div>${avisosDoPainel(p)}</section>
     <section class="bloco"><h3>As 7 faixas</h3>${escadaUso(daRegua.m)}</section>
-    <section class="bloco"><h3>A régua da semana <span class="n3">${esc(daRegua.titulo)}</span></h3>${reguaUso(daRegua.p, daRegua.valores, daRegua.dias, daRegua.m)}
+    <section class="bloco"><h3>${daRegua.p.regua.previa ? `As faixas da W${esc(curtaUso(daRegua.p.regua.previa))} (prévia)` : "A régua da semana"} <span class="n3">${daRegua.p.regua.previa ? "a desta semana ainda não saiu · " : ""}${esc(daRegua.titulo)}</span></h3>${reguaUso(daRegua.p, daRegua.valores, daRegua.dias, daRegua.m)}
       <div class="rodape">${esc(fonteRegua(daRegua.p))}${comoConta()}</div></section>
     ${r && r.dias.length ? `<section class="bloco"><h3>Evolução da semana</h3>${graficoUso(r)}</section>` : ""}
     <section class="bloco"><h3>Semanas anteriores</h3>${r && r.anteriores.length ? r.anteriores.map(w => { const fw = faixaFechada(w, r); return `<div class="us"><span class="fx-mini"${corDaFaixa(fw)} title="${esc(Ninja.rotulo(fw))}">${esc(fw || "–")}</span>
@@ -3497,10 +3514,15 @@ function blocoComputadores(lista, agora) {
   const parado = o && o.atualizado && agora / 1000 - o.atualizado > 45 * 60;
   const maestro = o && (o.vigia === false || parado) ? `<p class="pcm-al critico" style="margin-top:8px">🎼 ${o.vigia === false
     ? `A vigia do ${esc((Pcs.nomeNoMeio ? Pcs.nomeNoMeio(o) : "maestro"))} está desligada` : `O loop do ${esc((Pcs.nomeNoMeio ? Pcs.nomeNoMeio(o) : "maestro"))} pode ter parado`} (${esc(nomeCurtoPc(o.pc))})</p>` : "";
-  // v27: a máquina de fila depois dos PCs, na linha toda da grade
-  const maq = maqs.map(p => Maquinas.htmlResumo(Maquinas.normalizar(p), {agora: agoraRede(), pcs})).join("");
+  // v27: a máquina de fila depois dos PCs, na linha toda da grade (pro-94: com a ligação com o maestro)
+  const maq = maqs.map(p => Maquinas.htmlResumo(Maquinas.normalizar(p), {agora: agoraRede(), pcs, coordenador: "hokage"})).join("");
+  // pro-94 (16/11): a conta dos computadores, com a VPS como a 3ª máquina ("3/3 · todos ligados", "2/3 · VPS sem sinal"),
+  // como o cartão Computadores do Monitor geral. Recolhido, o bloco mostra a conta no cabeçalho (o resumo do espaco.js).
+  const n = Maquinas.contarComputadores ? Maquinas.contarComputadores(lista, maqs, {agora: agoraRede(), online}) : null;
+  const conta = n && n.total ? `<div class="ses-topo pcs-conta${n.fora.length ? " fora" : ""}" aria-label="${esc(`${n.ligados} de ${n.total} computadores ligados${
+    n.fora.length ? ": " + n.sub : ""}`)}"><span class="grande">${esc(n.texto)}</span><span class="meta">${esc(n.sub)}</span></div>` : "";
   return `<section class="bloco"><button class="bloco-cab" data-pcs-abrir=""><h3>💻 Computadores <span class="ir">Abrir ›</span></h3></button>
-    <div class="pcs-grade">${cartoes}${maq}</div>${maestro}${faixaAparelhoNovo()}</section>`;
+    ${conta}<div class="pcs-grade">${cartoes}${maq}</div>${maestro}${faixaAparelhoNovo()}</section>`;
 }
 
 function abrirComputadores(foco = "") {

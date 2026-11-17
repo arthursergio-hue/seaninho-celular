@@ -25,7 +25,12 @@
 // o nome deles no Início organizável (espaco.js) e o index.html novo. Sobre a v31 do agente 0.9.0.20, que saiu sem eles:
 // o activate apaga a seaninho-v31 e não ficam duas casas v31 diferentes. Publicar o cartoes-dia.js no repositório da
 // página ANTES ou junto do sw.js: sem ele, o addAll da instalação falha e o iPhone fica na casca velha
-const CACHE = "seaninho-v32";
+// v33 (17/11, pro-104, a página 0.9.0.21, sem agente novo): a v32 subiu sem o usoia.js e o index.html da pro-93 e sem o
+// maquinas.js da pro-94 (a publicação copiou só os arquivos da branch da versão). Esta casca leva a celular/web INTEIRA
+// da main, com o usoia.js da pro-104 (a prévia da faixa também na conta da página); nenhum arquivo novo na casca. Sem o
+// número novo, o iPhone seguiria com o usoia.js da v32 guardado. Publicar sempre a pasta inteira e conferir com o
+// celular/conferir_pagina.py (LEIA-ME). O Modo da IA (PR #49) passa para a v34.
+const CACHE = "seaninho-v33";
 const CASCA = ["./", "./index.html", "./config.js", "./markdown.js", "./chat.js", "./reacoes.js", "./lista.js", "./prioridades.js", "./workflows.js", "./estoque.js", "./pcs.js", "./maquinas.js", "./chrome.js", "./cartoes-dia.js", "./volta.js", "./espaco.js", "./sobras.js", "./usoia.js", "./ninja.js", "./ninjavivo.js", "./marcar.js", "./decisoes.js", "./cards.js", "./paravoce.js", "./entregas.js", "./pedidos.js", "./mosaico.js", "./rodar.js", "./revisoes.js", "./manifest.webmanifest", "./icone-180.png", "./icone-192.png"];
 
 self.addEventListener("install", e => {

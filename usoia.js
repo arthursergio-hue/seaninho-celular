@@ -9,6 +9,9 @@
 // pro-67 (12/11, o Arthur: "Eu quero saber ao vivo em que faixa eu estou. Não a que o Teamzone está contando"): a manchete
 // é a faixa AO VIVO (os números de agora contra a régua de hoje, faixaAoVivo); o TeamZone vira a linha pequena de baixo
 // (linhaTeamZone), no lugar do "Se parar agora".
+// pro-93 (16/11, "o Monitor e o celular andam iguais"): a manchete é a faixa de agora que o Monitor geral calculou (o
+// `agora` do conjunto), com a prévia da pro-92 na semana sem régua; a conta daqui só sem ele ou com ele velho
+// (faixaDoMonitor). pro-104 (17/11): a conta daqui também faz a prévia (o Monitor fechado deixa o conjunto velho).
 (function (raiz) {
 "use strict";
 
@@ -424,6 +427,51 @@ function faixaAoVivo(valores, regua, dias, semana, imp = null, banda = "") {
       fica, faltam_para_ficar: paraFicar}};
 }
 
+// ---- pro-93 (16/11): a faixa que o Monitor geral calculou -----------------------------------------------------------
+// O Arthur (13/11): "o Monitor e o celular andam iguais". O Seaninho Pro grava no uso-ia-conjunto.json a faixa de agora
+// (`agora`: a faixa, a próxima, o que falta, as metas, os dias e os números) e a régua (`regua.faixas`); desde a pro-92,
+// na semana que ainda não tem régua, a da semana anterior como prévia (`regua.previa`: "2026-W46"). O agente repassa o
+// arquivo inteiro (painel.uso_ia_conjunto) e a página mostra ISSO, com o texto do Monitor ("Prévia: Verde · pela régua da
+// W46 (a desta semana ainda não saiu)"). A conta daqui (a de antes) só vale sem o arquivo ou com ele velho:
+//  - de outra semana, sem o `agora` ou com o `agora` sem faixa (o dia 0, sem régua nem prévia: a conta daqui diz o mesmo);
+//  - contado com outros dias que os de agora (o dia fechou às 17h e o Monitor ainda não refez a conta);
+//  - na prévia, com a régua desta semana já aqui (a leitura do TeamZone mais nova já a traz: a prévia some); fora da
+//    prévia, sem a régua da semana aqui (as duas contas não estariam na mesma régua).
+// `dias`: os dias da faixa de agora daqui (a meta de hoje); `diasMonitor`: os outros dias que também valem (só das 17h00
+// às 17h45, ver o painel; null fora disso); `reguaDaqui`: a régua da semana daqui (reguaDaSemana).
+// Devolve null (fica a conta daqui) ou {manchete (o formato do faixaAoVivo, com "previa" e "do_monitor"), regua (a da
+// prévia, no formato do reguaDaSemana, ou null: fica a daqui), previa (o rótulo da semana da régua, ou null)}.
+const SEMANA_RE = /^\d{4}-W\d{2}$/;
+function faixaDoMonitor(c, {semana, dias, diasMonitor = null, reguaDaqui = null} = {}) {
+  const R = N(), FX = R.FAIXAS_TIME, a = c && c.agora;
+  if (!a || typeof a !== "object" || Array.isArray(a) || c.semana !== semana || a.sem_faixa !== false) return null;
+  if (!num(a.dias) || (a.dias !== dias && a.dias !== diasMonitor)) return null;
+  const nomeOk = f => f === null || FX.includes(f);
+  if (!nomeOk(a.faixa) || !nomeOk(a.proxima)) return null;
+  const rg = c.regua && typeof c.regua === "object" ? c.regua : {};
+  const previa = SEMANA_RE.test(String(rg.previa || "")) && rg.previa < semana ? String(rg.previa) : null;
+  let regua = null;
+  if (previa) {
+    if (reguaDaqui) return null;
+    try {
+      regua = R.reguaDasLinhas(previa, String(rg.versao || `previa-${previa}`), String(rg.fonte || "monitor"), R.linhasDasFaixas(rg.faixas));
+    } catch (e) { return null; }
+  } else if (!reguaDaqui) return null;
+  const obj = x => x && typeof x === "object" && !Array.isArray(x) ? x : {};
+  const criterios = x => Object.fromEntries(R.METRICAS_TIME.filter(m => num(obj(x)[m])).map(m => [m, obj(x)[m]]));
+  const imp = obj(a.na_importacao);
+  const manchete = {faixa: a.faixa, proxima: a.proxima, metas: criterios(a.metas), faltam: criterios(a.faltam),
+    atingidos: num(a.atingidos) ? a.atingidos : 0, total: num(a.total) ? a.total : 0, limitada_pela_banda: !!a.limitada_pela_banda,
+    dias: a.dias, sem_regua: false, primeiro_dia: false, sem_faixa: false, motivo: "", valores: R.valoresDosFatores(a.valores),
+    ao_vivo: true, previa, do_monitor: true,
+    na_importacao: {faixa: FX.includes(imp.faixa) ? imp.faixa : null, proxima: FX.includes(imp.proxima) ? imp.proxima : null,
+      dias: num(imp.dias) ? imp.dias : null, sem_faixa: !!imp.sem_faixa, quando: null, retrato: false, fica: imp.fica !== false,
+      faltam_para_ficar: criterios(imp.faltam_para_ficar)}};
+  const curta = previa ? previa.split("-W")[1] : "";
+  return {manchete, previa, regua: regua ? {regua: {...regua, origem: "monitor"}, fonte: String(rg.fonte || "monitor"),
+    selo: `prévia: régua da W${curta}`, sem_regua: true, avisos: [], previa} : null};
+}
+
 // As horas da linha do TeamZone, no fuso do programa (−03:00 fixo) e do jeito da página ("18h35", "17h"):
 const DIA_SEMANA = ["dom", "seg", "ter", "qua", "qui", "sex", "sáb"];
 const horaCurta = ms => { const s = N().emSP(ms); return `${s.hora}h${s.minuto ? String(s.minuto).padStart(2, "0") : ""}`; };
@@ -534,8 +582,42 @@ function painel(lista, agora, {maquinasPadrao = MAQUINAS_PADRAO} = {}) {
   // máquinas e a hora da leitura (o oficial de dentro do conjunto do Pro não traz)
   const oficial = oficiais.sort((a, b) => R.instante(b.atualizado_em) - R.instante(a.atualizado_em)
     || (num(b.maquinas) ? 1 : 0) - (num(a.maquinas) ? 1 : 0))[0] || null;
-  const regua = R.reguaDaSemana(semana, {oficial, conjunto: c, coletor: reguaColetor});
+  // pro-93 (cético): na prévia da pro-92 (`regua.previa`), as faixas do conjunto são as da semana anterior, não as desta;
+  // sem a leitura do TeamZone dizendo "sem régua", elas viravam a régua da W47 aqui ("Faixa Verde" sem "Prévia"). A régua
+  // desta semana fica com a leitura, o asset ou nada; a da prévia vai pelo faixaDoMonitor.
+  const conjuntoEmPrevia = !!(c && c.regua && c.regua.previa);
+  // o conjunto sem a régua quando ela é a prévia (a da semana anterior): nunca vira a régua da semana dele
+  const semPrevia = x => x && x.regua && x.regua.previa ? {...x, regua: null} : x;
+  const regua = R.reguaDaSemana(semana, {oficial, conjunto: semPrevia(c), coletor: reguaColetor});
   const avisos = [...regua.avisos, ...((c && c.avisos) || []).map(String)];
+  // pro-104 (17/11, cético): a prévia da pro-92 também na conta daqui. O Seaninho Pro só refaz o uso-ia-conjunto.json com
+  // o Monitor geral aberto (ou com o ao vivo de fundo que o outro PC pede); com ele fechado nos dois PCs, o `agora` do
+  // Monitor fica com os dias de ontem e, depois das 17h45, a página caía na conta daqui, que não fazia a prévia: de novo
+  // "Sem régua da semana" e a régua sem as metas (17/11 06h10: os conjuntos dos dois PCs parados em 16/11 22h29 e 22h51;
+  // a partir das 17h46 o celular voltava ao print do Arthur). Agora a conta daqui faz o mesmo que o regua_ou_previa do
+  // Pro: a semana em andamento sem régua (nem na leitura, nem no conjunto, nem no asset) conta com a régua da semana
+  // anterior, marcada como prévia. A régua da anterior vem do conjunto em prévia (as faixas dele são as da anterior), da
+  // leitura ou do conjunto da anterior (nunca de um em prévia, que traz a de duas semanas antes) ou do asset
+  // (REGUAS_DO_PAINEL). O TeamZone (`no_teamzone`) continua com a régua da própria semana: sem ela, sem faixa, como o
+  // Monitor. O dia 0 fica como era (sem faixa nas duas contas: "a semana começou").
+  let previaDaqui = null;
+  if (!regua.regua && diasAgora > 0) {
+    const rgC = c && c.regua && typeof c.regua === "object" ? c.regua : {};
+    const conjAnterior = rgC.previa === anterior.rotulo && rgC.faixas
+      ? {semana: anterior.rotulo, regua: {faixas: rgC.faixas, versao: rgC.versao, fonte: rgC.fonte}}
+      : semPrevia(c && c.fechando && c.fechando.semana === anterior.rotulo ? c.fechando
+        : (escolherConjunto(doConjunto(anterior.rotulo)) || {}).conjunto);
+    const ofAnterior = [c && c.fechando && c.fechando.oficial, ...itens.map(u => u.oficial)].filter(o => oficialValido(o, anterior.rotulo))
+      .sort((a, b) => R.instante(b.atualizado_em) - R.instante(a.atualizado_em))[0] || null;
+    const p = R.reguaDaSemana(anterior.rotulo, {oficial: ofAnterior, conjunto: conjAnterior || null});
+    if (p.regua) {
+      previaDaqui = {regua: p.regua, fonte: p.fonte, selo: `prévia: régua da W${anterior.rotulo.split("-W")[1]}`, sem_regua: true,
+        avisos: [...regua.avisos, ...p.avisos], previa: anterior.rotulo};
+      for (const a of p.avisos) if (!avisos.includes(a)) avisos.push(a);
+    }
+  }
+  // a régua com que a conta daqui classifica (a da semana ou a da prévia); o TeamZone fica com a da semana (regua.regua)
+  const reguaConta = regua.regua || (previaDaqui && previaDaqui.regua) || null;
 
   // quem entra na soma: o conjunto cobre os PCs dele (o uso_ia próprio desses PCs fica de fora: sem contar duas vezes)
   const daSemanaAtual = itens.filter(u => u.valores && u.semana === semana);
@@ -562,7 +644,7 @@ function painel(lista, agora, {maquinasPadrao = MAQUINAS_PADRAO} = {}) {
     valores = R.valoresDosFatores(pa.valores);
   } else if (daSemanaAtual.length) {
     base = "estimativa";
-    const soma = comJanelas ? somarComoTeamzone(null, daSemanaAtual.flatMap(linhasDoPc), t, regua.regua, semana)
+    const soma = comJanelas ? somarComoTeamzone(null, daSemanaAtual.flatMap(linhasDoPc), t, reguaConta, semana)
       : {valores: R.valoresDosFatores((somar(daSemanaAtual) || {}).valores)};
     valores = soma.valores;
     // a banda do coletor só conta nas semanas com o portão (até a W44): a que o agente mandou ou a da régua dele
@@ -581,19 +663,19 @@ function painel(lista, agora, {maquinasPadrao = MAQUINAS_PADRAO} = {}) {
   // importação de hoje (17h00 a 17h45), a janela é a que acabou de fechar: o TeamZone das 17h35 conta os dias de agora.
   if (pa) {
     const janela = pa.importacao_de_hoje && pa.aberta ? R.somarDias(pa.aberta, -1) : pa.aberta || R.janelaDoMomento(medido || t);
-    proxima = camadaProxima(pa.valores, regua.regua, semana, fechaEm, janela, t,
+    proxima = camadaProxima(pa.valores, reguaConta, semana, fechaEm, janela, t,
       {base: pa.base || base, fora_do_oficial: pa.fora_do_oficial || null, sessoes_repetidas: pa.sessoes_repetidas || 0,
        importacao_de_hoje: !!pa.importacao_de_hoje});
   } else if (comJanelas) {
-    const s = somarComoTeamzone(oficial, daSemanaAtual.flatMap(linhasDoPc), t, regua.regua, semana);
-    proxima = s.aberta ? camadaProxima(s.valores, regua.regua, semana, fechaEm, s.importacao_de_hoje ? R.somarDias(s.aberta, -1) : s.aberta, t,
+    const s = somarComoTeamzone(oficial, daSemanaAtual.flatMap(linhasDoPc), t, reguaConta, semana);
+    proxima = s.aberta ? camadaProxima(s.valores, reguaConta, semana, fechaEm, s.importacao_de_hoje ? R.somarDias(s.aberta, -1) : s.aberta, t,
       {base: s.base, fora_do_oficial: s.fora_do_oficial, sessoes_repetidas: s.sessoes_repetidas, importacao_de_hoje: s.importacao_de_hoje,
        avisos: s.avisos}) : null;
   } else if (!oficial && daSemanaAtual.length) {
     // sem as janelas: a janela da medida; a medida da janela recém-aberta, na importação de hoje, conta na de hoje
     const daMedida = R.janelaDoMomento(medido || t), aberta = t < R.fimDaSemana(fechaEm) ? R.janelaDoMomento(t) : null;
     const hoje = daMedida === aberta && importacaoDeHoje(t, aberta, null);
-    proxima = camadaProxima(valores, regua.regua, semana, fechaEm, hoje ? R.somarDias(daMedida, -1) : daMedida, t, {base, importacao_de_hoje: hoje});
+    proxima = camadaProxima(valores, reguaConta, semana, fechaEm, hoje ? R.somarDias(daMedida, -1) : daMedida, t, {base, importacao_de_hoje: hoje});
   }
   if (proxima && proxima.avisos) { for (const a of proxima.avisos) if (!avisos.includes(a)) avisos.push(a); delete proxima.avisos; }
 
@@ -604,12 +686,13 @@ function painel(lista, agora, {maquinasPadrao = MAQUINAS_PADRAO} = {}) {
   // passou, os dias de agora (o TeamZone recalcula com o relógio de quem abre).
   if (!manchete) {
     const dias = proxima && !proxima.passou && proxima.dias !== null ? proxima.dias : diasAgora;
-    manchete = R.faixaDaSemana(valores, regua.regua, dias, semana, bandaDoColetor);
+    manchete = R.faixaDaSemana(valores, reguaConta, dias, semana, bandaDoColetor);
   }
   // no dia 0, sem faixa, como o TeamZone: com a régua da semana nova, "as faixas aparecem no sábado"; sem ela, o "sem
-  // régua" (a tela do TeamZone só marca o primeiro dia quando há régua: consultas-uso-ia.ts)
-  if (diasAgora === 0 && regua.regua && !manchete.primeiro_dia) manchete = {...manchete, faixa: null, proxima: null, metas: {}, faltam: {},
-    atingidos: 0, total: 0, dias: 0, primeiro_dia: true, sem_faixa: true, motivo: R.MOTIVO_PRIMEIRO_DIA};
+  // régua" (a tela do TeamZone só marca o primeiro dia quando há régua: consultas-uso-ia.ts). pro-93 (cético): em prévia
+  // (pro-92), o Monitor diz "as faixas aparecem no sábado" (a prévia mostra a faixa no sábado); o celular, o mesmo.
+  if (diasAgora === 0 && (regua.regua || conjuntoEmPrevia) && !manchete.primeiro_dia) manchete = {...manchete, faixa: null, proxima: null, metas: {}, faltam: {},
+    atingidos: 0, total: 0, dias: 0, primeiro_dia: true, sem_faixa: true, sem_regua: false, motivo: R.MOTIVO_PRIMEIRO_DIA};
 
   // pro-67: a faixa AO VIVO vira a manchete (o nome, a próxima, a régua, os critérios, o ninja e a animação): os números
   // de agora (o oficial mais o que ainda não entrou: a camada "próxima") contra a régua de hoje. O TeamZone fica em
@@ -622,11 +705,28 @@ function painel(lista, agora, {maquinasPadrao = MAQUINAS_PADRAO} = {}) {
     : oficial ? noTeamzone.valores : valores;
   const abertaAgora = R.janelaDoMomento(t);
   const janelaDaLeitura = importacaoDeHoje(t, abertaAgora, tOficial) ? R.somarDias(abertaAgora, -1) : abertaAgora;
-  const leitura = camadaProxima(valoresAgora, regua.regua, semana, fechaEm, janelaDaLeitura, t);
+  const leitura = camadaProxima(valoresAgora, reguaConta, semana, fechaEm, janelaDaLeitura, t);
   // pro-73: a meta de hoje (os dias da leitura que leva a janela de hoje); no dia 0, sem faixa
   const diasVivo = diasAgora === 0 || !leitura || !num(leitura.dias) ? diasAgora : leitura.dias;
-  const vivo = faixaAoVivo(valoresAgora, regua.regua, diasVivo, semana, leitura, bandaDoColetor);
+  const vivo = faixaAoVivo(valoresAgora, reguaConta, diasVivo, semana, leitura, bandaDoColetor);
   if (vivo.ao_vivo) { manchete = vivo; valores = vivo.valores; } else manchete = {...manchete, ao_vivo: false};
+  // pro-93: a faixa que o Monitor calculou manda (a prévia, com a régua da semana anterior, ou a normal); a conta daqui
+  // fica só sem o arquivo dele ou com ele velho (faixaDoMonitor). O TeamZone (`no_teamzone`) continua o daqui: sem a
+  // régua da semana, sem faixa, como o Monitor ("No TeamZone: sem faixa ainda").
+  // pro-93 (cético): das 17h00 às 17h45 (a importação de hoje) a meta daqui ainda é a de ontem (diasVivo = diasAgora),
+  // mas o Monitor já conta o dia que abriu (o "vivo" do somar_como_teamzone: dias + 1); nessa janela as duas valem.
+  // Depois das 17h45, só o dia novo: o arquivo de antes das 17h cai na conta daqui.
+  const diasMonitor = janelaDaLeitura !== abertaAgora ? Math.min(7, diasAgora + 1) : null;
+  const doMonitor = faixaDoMonitor(c, {semana, dias: diasVivo, diasMonitor, reguaDaqui: regua.regua});
+  let reguaDaTela = regua, previa = null;
+  if (doMonitor) {
+    manchete = doMonitor.manchete; valores = doMonitor.manchete.valores;
+    if (doMonitor.regua) { reguaDaTela = doMonitor.regua; previa = doMonitor.previa; }
+  } else if (previaDaqui && manchete.ao_vivo) {
+    // pro-104: a conta daqui em prévia (o Monitor fechado): a tela igual à do Monitor ("Prévia: Azul", a tabela da W46)
+    reguaDaTela = previaDaqui; previa = previaDaqui.previa;
+    manchete = {...manchete, previa};
+  }
 
   // a semana que fecha (de sexta 17h a sábado 17h, o dia 0 da nova): o oficial dela (o que o TeamZone mostra, como no
   // Pro, em que o oficial vence a projeção); sem ele, o conjunto dela ou os PCs. A "próxima atualização" do conjunto
@@ -637,7 +737,10 @@ function painel(lista, agora, {maquinasPadrao = MAQUINAS_PADRAO} = {}) {
       : escolherConjunto(doConjunto(anterior.rotulo));
     const of = [cf && cf.conjunto.oficial, ...itens.map(u => u.oficial)].filter(o => oficialValido(o, anterior.rotulo))
       .sort((a, b) => R.instante(b.atualizado_em) - R.instante(a.atualizado_em))[0] || null;
-    const rf = R.reguaDaSemana(anterior.rotulo, {oficial: of, conjunto: cf && cf.conjunto, coletor: reguaColetor});
+    // pro-104 (17/11, cético): o conjunto da semana que fecha feito ainda em prévia (o Monitor não refez o arquivo depois
+    // de sexta 17h) traz as faixas da semana de antes dela: como na semana em curso (pro-93), elas não viram a régua da que
+    // fecha ("Semana 47 · fechando · Faixa Verde" com a tabela da W46). Sem a régua dela, sem faixa, como o Monitor.
+    const rf = R.reguaDaSemana(anterior.rotulo, {oficial: of, conjunto: cf && semPrevia(cf.conjunto), coletor: reguaColetor});
     let mf = null, bf = "estimativa", pcsF = [], projecao = null, bandaF = "";
     const paF = cf && cf.conjunto.proxima_atualizacao && cf.conjunto.proxima_atualizacao.valores ? cf.conjunto.proxima_atualizacao : null;
     const daProjecao = () => ({...R.faixaDaSemana(paF.valores, rf.regua, 7, anterior.rotulo), valores: R.valoresDosFatores(paF.valores),
@@ -705,8 +808,8 @@ function painel(lista, agora, {maquinasPadrao = MAQUINAS_PADRAO} = {}) {
   // Azul lá). A tela diz isso ("Faixa Verde ou acima", "faltam até 175"). O mesmo com uma janela que faltou medir.
   const parcial = base === "estimativa" && !c && (pcs.length < maquinas || semJanelas.length > 0);
   return {semana, numero: semana.split("-W")[1], fecha_em: fechaEm, inicio: R.fimDaSemana(anterior.fecha_em),
-    fim: R.fimDaSemana(fechaEm), dias: diasAgora, origem: c ? "conjunto" : "pcs", base, parcial, regua, manchete, valores,
-    no_teamzone: noTeamzone,
+    fim: R.fimDaSemana(fechaEm), dias: diasAgora, origem: c ? "conjunto" : "pcs", base, parcial, regua: reguaDaTela, manchete, valores,
+    previa, do_monitor: !!doMonitor, no_teamzone: noTeamzone,
     teamzone: oficial ? {atualizado_em: R.instante(oficial.atualizado_em), maquinas: num(oficial.maquinas) ? oficial.maquinas : null,
       lido_em: R.instante(oficial.lido_em), fechada: !!oficial.fechada} : null,
     proxima, pcs, visto: pa && pa.pcs && typeof pa.pcs === "object" && !Array.isArray(pa.pcs) ? pa.pcs : {}, maquinas, medido, fora, fechando,
@@ -842,7 +945,9 @@ const UsoIa = {ORDEM, CRITERIOS, ROTULO, UNIDADE, ESTIMADAS, ESTADOS, VOLUMES, D
   linhasDoPc, somaDiaria, daSemana, somar, cobertos, medidoMinimo, escolherConjunto, painel, faltasTxt, bate, banda, ritmo,
   porDia, semanas, montar, erros, formatar, curto,
   // pro-67: a faixa AO VIVO e a linha do TeamZone
-  faltamParaFicar, valoresDeAgora, faixaAoVivo, linhaTeamZone, proximoRelatorio, quandoCurto, diaDaLeitura};
+  faltamParaFicar, valoresDeAgora, faixaAoVivo, linhaTeamZone, proximoRelatorio, quandoCurto, diaDaLeitura,
+  // pro-93: a faixa do Monitor (e a prévia da pro-92)
+  faixaDoMonitor};
 if (typeof module !== "undefined" && module.exports) module.exports = UsoIa;
 else raiz.UsoIa = UsoIa;
 })(typeof window !== "undefined" ? window : globalThis);
