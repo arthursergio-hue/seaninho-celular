@@ -304,12 +304,15 @@ function prazoDe(prazo, estado, agora) {
 function barraDe(w) {
   const a = w.agentes && typeof w.agentes === "object" ? w.agentes : {};
   const n = k => Math.max(0, parseInt(a[k], 10) || 0);
-  const prontos = n("prontos"), rodando = n("rodando"), erro = n("erro"), fila = n("fila"), total = prontos + rodando + erro + fila;
+  // pro-95, 2ª rodada: o agente "parado" (sem gravar há 10 min) entra no total, mas não é "rodando"
+  const prontos = n("prontos"), rodando = n("rodando"), erro = n("erro"), fila = n("fila"), parados = n("parados");
+  const total = prontos + rodando + erro + fila + parados;
   const fases = arr(w.fases).filter(f => f && f.nome);
   const feita = f => /^(feita|feito|pronta|pronto|done|completed|terminad)/i.test(String(f.estado || ""));
   const atual = fases.find(f => /^(rodando|progress|running|start)/i.test(String(f.estado || ""))) || null;
   if (!total && !fases.length) return null;
-  const partes = total ? [plural(prontos, "pronto", "prontos"), rodando ? `${rodando} rodando` : "", fila ? `${fila} na fila` : ""].filter(Boolean)
+  const partes = total ? [plural(prontos, "pronto", "prontos"), rodando ? `${rodando} rodando` : "", parados ? `${parados} ${parados === 1 ? "parado" : "parados"}` : "",
+    fila ? `${fila} na fila` : ""].filter(Boolean)
     : [`${fases.filter(feita).length} de ${fases.length} fases`];
   return {texto: `${atual ? txt(atual.nome, 40) + " · " : ""}${partes.join(", ")}`, erro: erro ? `${erro} com erro` : "",
     pct: total ? prontos / total : fases.length ? fases.filter(feita).length / fases.length : 0, prontos, total};
@@ -1409,7 +1412,7 @@ function arquivosDaFrente(it, linhas, {agora = Date.now()} = {}) {
       w: Number(x.doc.w) || 0, h: Number(x.doc.h) || 0} : null;
     return {nome, base, ext: (base.includes(".") ? base.split(".").pop() : "").toUpperCase().slice(0, 5), tipo, t, b,
       hora: t ? horaOuDia(t, agora) : "", tamanho: b ? tamanhoArq(b) : "", mini: hex(x.mini), id: hex(x.id), nitida: x.nitida === true,
-      doc: tipo === "pdf" ? d : null};
+      doc: tipo === "pdf" ? d : null, agente: x.agente === true};   // pro-95: a imagem de um agente, fora da pasta da frente
   }).sort((x, y) => y.t - x.t);
   return {pasta: String(a.pasta || ""), total: Math.max(itens.length, parseInt(a.total, 10) || 0), cortado: a.cortado === true,
     erro: txt(a.erro, 160), itens};
@@ -1491,6 +1494,92 @@ function montar(linhas, ctx = {}) {
       skills: skills.itens.filter(desatualizadaDeVerdade).length}};
 }
 
+// ---- pro-95 (16/11/2026): o destaque do cartão, o "agora" e os agentes por fase ---------------------------------------
+// Pedido do Arthur (16/11, 16h08 e 16h1x): "cada workflow aqui aberto mostrasse em tempo real tudo que está fazendo. os
+// que têm imagem, que fiquem aparecendo as imagens" e "sempre apareça uma imagem aqui no card ... em forma de destaque
+// maior e eu posso voltar para essa padronização que está agora". O PC da frente põe no sinal da sessão (o
+// hoje.painel.sinais que a página já lê) as imagens da frente ("imgs": a 1ª é o destaque; o "id" é o da nítida e o
+// "mini" o da miniatura, na tabela fotos) e, no wf rodando, o "agora" (em palavras), o "por_fase" ([fase, prontos,
+// rodando, erro, parados]) e os "ags" ([rótulo, fase, estado]). Sem imagem, o cartão fica como antes.
+// 2ª rodada (16/11): o agente "parado" (começado e sem gravar há 10 min: o fantasma da retomada depois do limite da conta)
+// não conta como rodando; os símbolos são os do Monitor geral: ✓ pronto, ● rodando, ◌ parado, ✕ com erro.
+const MAX_IMGS_CARTAO = 4;
+const CHAVE_COMPACTO = "seaninho.fr.compacto";   // as frentes que o Arthur pôs no formato compacto (por frente)
+const MAX_COMPACTOS = 300;
+const ESTADOS_AG = ["rodando", "parado", "erro", "pronto"];
+const SIMBOLO_AG = {pronto: "✓", rodando: "●", parado: "◌", erro: "✕"};
+const NOME_AG = {pronto: "pronto", rodando: "rodando", parado: "parado", erro: "com erro"};
+// As imagens da frente, a mais nova primeiro: [{id (a nítida; "" quando ela não sobe), mini, nome, t (ms)}].
+function imagensDaFrente(it) {
+  const s = it && objeto(it.sinal) ? it.sinal : null;
+  return arr(s && s.imgs).filter(objeto).map(x => ({id: hex(x.id), mini: hex(x.mini), nome: txt(x.n, 60), t: ms(x.t)}))
+    .filter(x => x.mini).sort((a, b) => b.t - a.t).slice(0, MAX_IMGS_CARTAO);
+}
+// O que o workflow faz agora, em palavras (só com ele rodando).
+const agoraDaFrente = it => it && objeto(it.wf) && it.wf.estado === "rodando" ? txt(it.wf.agora, 100) : "";
+// As fases com a conta: [{nome, prontos, rodando, erro, parados}] (o parado é a 5ª coluna; o PC antigo não manda).
+function fasesDaFrente(it) {
+  const w = it && objeto(it.wf) && it.wf.estado === "rodando" ? it.wf : null;
+  return arr(w && w.por_fase).filter(f => Array.isArray(f) && f[0]).slice(0, 6).map(f => {
+    const n = i => Math.max(0, parseInt(f[i], 10) || 0);
+    return {nome: txt(f[0], 40), prontos: n(1), rodando: n(2), erro: n(3), parados: n(4)};
+  });
+}
+// "Construir ✓2 ◌1 · Cético ●1 · Ajuste ●1 ✕1"
+const textoDasFases = fases => arr(fases).map(f => [f.nome, f.prontos ? `✓${f.prontos}` : "", f.rodando ? `●${f.rodando}` : "",
+  f.parados ? `◌${f.parados}` : "", f.erro ? `✕${f.erro}` : ""].filter(Boolean).join(" ")).join(" · ");
+// Os agentes com o rótulo (como o PC manda: os rodando, os parados, os com erro e os prontos, o mais novo antes), até 8:
+// [{rotulo, fase, estado, simbolo, voz}]. 2ª rodada (G): o cartão mostra esses rótulos, como o Monitor geral.
+function agentesDaFrente(it) {
+  const w = it && objeto(it.wf) && it.wf.estado === "rodando" ? it.wf : null;
+  return arr(w && w.ags).filter(a => Array.isArray(a) && a[0]).slice(0, 8).map(a => {
+    const estado = ESTADOS_AG.includes(a[2]) ? a[2] : "rodando", rotulo = txt(a[0], 40);
+    return {rotulo, fase: txt(a[1], 40), estado, simbolo: SIMBOLO_AG[estado], voz: `${rotulo}, ${NOME_AG[estado]}`};
+  });
+}
+// pro-95, 3ª rodada: a sessão está te esperando (pergunta, pedido de permissão, plano para aprovar ou enquete aberta),
+// os mesmos sinais do esperando(s) do Monitor geral (o "Para você" do maestro não conta). A mesma regra do
+// Mosaico.esperandoResposta (o ladrilho).
+function esperandoResposta(s) {
+  return objeto(s) && !s.desligado && (s.estado === "perguntando" || !!s.permissao || !!(objeto(s.enquete) && s.enquete.aberta !== false));
+}
+// O destaque do cartão: {hero, fileira, agora, fases, textoFases, agentes}, ou null quando a frente não tem imagem (aí o
+// cartão fica no formato de sempre, sem o botão). 3ª rodada: com as `sessoes`, também null quando a sessão da frente
+// está te esperando (como o Monitor geral: o destaque some sozinho, sem o ▣, e volta quando ela é respondida); o
+// "agora" e os agentes o cartão mostra à parte, com ou sem o destaque.
+function destaqueDaFrente(it, sessoes) {
+  const imgs = imagensDaFrente(it);
+  if (!imgs.length) return null;
+  if (sessoes !== undefined && esperandoResposta(sessaoDaFrente(it, sessoes))) return null;
+  const fases = fasesDaFrente(it);
+  return {hero: imgs[0], fileira: imgs.slice(1), agora: agoraDaFrente(it), fases, textoFases: textoDasFases(fases),
+    agentes: agentesDaFrente(it)};
+}
+// O formato compacto lembrado por frente, no aparelho (store: {get, set}).
+function lerCompactos(store) {
+  try {
+    const v = JSON.parse((store && store.get && store.get(CHAVE_COMPACTO)) || "[]");
+    return new Set(arr(v).map(String).filter(Boolean).slice(-MAX_COMPACTOS));
+  } catch { return new Set(); }
+}
+// Liga ou desliga o compacto da frente e devolve o estado novo (true = compacto).
+function alternarCompacto(chave, store) {
+  const s = lerCompactos(store), k = String(chave || "");
+  if (!k) return false;
+  const agora = !s.has(k);
+  if (agora) s.add(k); else s.delete(k);
+  const lista = [...s].slice(-MAX_COMPACTOS);
+  try { if (store && store.set) store.set(CHAVE_COMPACTO, lista.length ? JSON.stringify(lista) : ""); } catch {}
+  return agora;
+}
+// O texto da imagem marcada no visor da frente: "Marcação de Arthur sobre a imagem X" (e " da sessão Y" quando vai
+// pela conversa do maestro), com a legenda dele.
+function textoDaMarcacao(it, arquivo, legenda, peloMaestro = false) {
+  const nome = txt(arquivo, 80) || "da frente";
+  const cab = `Marcação de Arthur sobre a imagem ${nome}${peloMaestro ? ` da sessão ${txt(it && it.titulo, 80) || "da frente"}` : ""}`;
+  return `${cab}: ${String(legenda || "").trim() || "marquei na imagem o que precisa ajustar."}`;
+}
+
 const Workflows = {AGENTE_TRABALHOS, ONLINE_MS, DESLIGADO_MS, PRAZO_PERTO_MS, DISPENSA_DESFAZER_MS, RODAR_DESFAZER_MS,
   RODAR_REPETIR_MS, RODAR_EXPIRA_MS, FILTROS, SECOES, FILTROS_AUT, GRUPOS_SKILL, FAIXA_EXEMPLO,
   linhaStatus, estadoDelegacao, juntar, filtrar, opcoes, totalHoje, contagens, contagensDoHoje, folhaTrocarConta,
@@ -1502,7 +1591,10 @@ const Workflows = {AGENTE_TRABALHOS, ONLINE_MS, DESLIGADO_MS, PRAZO_PERTO_MS, DI
   AGENTE_FRENTES, SEM_NOVIDADE_MIN, SEM_MAESTRO, BANCO_SEM_TRABALHOS, vistaDasFrentes, barraDaFrente, umaLinha, botoesDaFrente,
   textoDoResumo, chipsDoResumo, filtrarFrentes, quandoDaLista, novidadeDaFrente, tempoDaFrente, sessaoDaFrente, falaDaFrente,
   notaDaFrente, maisFrentes, seloDasFrentes, FIM_DA_BARRA,
-  arquivosDaFrente, runDaFrente, detalheDaFrente, faixasDasFrentes, frenteDoLink, vozDaFrente, tamanhoArq, horaOuDia, horaCurta};
+  arquivosDaFrente, runDaFrente, detalheDaFrente, faixasDasFrentes, frenteDoLink, vozDaFrente, tamanhoArq, horaOuDia, horaCurta,
+  // pro-95: o destaque do cartão (a imagem mais nova), o "agora", os agentes por fase e o compacto lembrado
+  MAX_IMGS_CARTAO, CHAVE_COMPACTO, MAX_COMPACTOS, SIMBOLO_AG, imagensDaFrente, agoraDaFrente, fasesDaFrente, textoDasFases, agentesDaFrente,
+  destaqueDaFrente, esperandoResposta, lerCompactos, alternarCompacto, textoDaMarcacao};
 if (typeof module !== "undefined" && module.exports) module.exports = Workflows;
 raiz.Workflows = Workflows;
 })(typeof window !== "undefined" ? window : globalThis);

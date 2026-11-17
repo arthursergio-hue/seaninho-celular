@@ -117,7 +117,35 @@ function frenteDe(s, frentes) {
   const w = it.barra && obj(it.wf) ? it.wf : null, total = w ? Math.max(0, parseInt(w.total, 10) || 0) : 0;
   const feitos = w ? Math.max(0, parseInt(w.feitos, 10) || 0) : 0;
   return {titulo: umaLinha(it.titulo, 60), pct: total ? Math.min(1, feitos / total) : null, barra: String(it.barra || ""),
-    chip: obj(it.chip) ? umaLinha(it.chip.texto, 30) : "", icone: it.icone || "🎼"};
+    chip: obj(it.chip) ? umaLinha(it.chip.texto, 30) : "", icone: it.icone || "🎼", chave: String(it.chave || ""),
+    imgs: imagensDe(it), agora: obj(it.wf) && it.wf.estado === "rodando" ? umaLinha(it.wf.agora, 100) : "",
+    agentes: agentesDe(it)};
+}
+// pro-95, 2ª rodada (G): os rótulos dos agentes do workflow rodando (até 8, na ordem do PC), com o estado em símbolo,
+// como o cartão da aba Workflows e o Monitor geral: ● rodando, ◌ parado (sem gravar há 10 min), ✕ com erro, ✓ pronto.
+const SIMBOLO_AG = {rodando: "●", parado: "◌", erro: "✕", pronto: "✓"};
+function agentesDe(it) {
+  const w = obj(it) && obj(it.wf) && it.wf.estado === "rodando" ? it.wf : null;
+  return arr(w && w.ags).filter(a => Array.isArray(a) && a[0]).slice(0, 8).map(a => {
+    const estado = SIMBOLO_AG[a[2]] ? a[2] : "rodando";
+    return {rotulo: umaLinha(a[0], 40), estado, simbolo: SIMBOLO_AG[estado]};
+  });
+}
+// pro-95, 3ª rodada: a sessão está te esperando (pergunta, pedido de permissão, plano para aprovar ou enquete aberta),
+// os mesmos sinais do esperando(s) do Monitor geral (o "Para você" do maestro não conta: ele não deixa a sessão parada).
+// Com ela esperando, o destaque some sozinho, sem o ▣ (o ladrilho fica como hoje), e volta quando ela é respondida.
+// A mesma regra do Workflows.esperandoResposta (a aba Workflows).
+function esperandoResposta(s) {
+  return obj(s) && !s.desligado && (s.estado === "perguntando" || !!s.permissao || !!(obj(s.enquete) && s.enquete.aberta !== false));
+}
+// pro-95: as imagens da frente que o PC dela pôs no sinal da sessão ([{id da nítida, mini, n, t}]), a mais nova
+// primeiro: a 1ª vira o destaque do ladrilho (o mesmo do cartão da aba Workflows).
+const HEX = /^[0-9a-f]{8,64}$/i;
+function imagensDe(it) {
+  const s = obj(it) && obj(it.sinal) ? it.sinal : null;
+  return arr(s && s.imgs).filter(obj).map(x => ({id: HEX.test(String(x.id || "")) ? String(x.id) : "",
+    mini: HEX.test(String(x.mini || "")) ? String(x.mini) : "", nome: umaLinha(x.n, 60), t: Number(x.t) || 0}))
+    .filter(x => x.mini).sort((a, b) => b.t - a.t).slice(0, 4);
 }
 
 // ==== O andamento do envio de cada ladrilho ==============================================================================
@@ -149,7 +177,8 @@ function envioDe(s, pedido, agora = Date.now()) {
 
 // ==== A tela ==========================================================================================================
 // O ladrilho. op: {agora, varios, estadoDe(s), previa(s), ha(s), envio(s) -> {pode, motivo, responder, desligado},
-// frentes (a vista das frentes), extras (as orquestras: [{pc, sessao, nome, quadro}]), rascunho(s), pedido(id)}.
+// frentes (a vista das frentes), extras (as orquestras: [{pc, sessao, nome, quadro}]), rascunho(s), pedido(id),
+// foto(img, chave da frente) -> o src da imagem (pro-95: o destaque; a página pede a que falta), compacto(chave) -> true}.
 function ladrilho(s, op = {}) {
   const k = typeof op.estadoDe === "function" ? op.estadoDe(s) : (s.desligado ? "desligado" : s.estado === "perguntando" ? "esperando" : s.estado === "trabalhando" ? "trabalhando" : "ociosa");
   const [icEst, rotEst] = ESTADOS[k] || ESTADOS.ociosa;
@@ -175,8 +204,26 @@ function ladrilho(s, op = {}) {
   const fr = cen ? null : frenteDe(s, op.frentes);
   if (fr) {
     const pct = fr.pct == null ? null : Math.round(fr.pct * 100);
+    // pro-95: a imagem mais nova da frente em destaque (o toque abre o visor com o ✏ Marcar); ▭ volta ao compacto,
+    // lembrado por frente (o mesmo da aba Workflows); sem imagem, ou com a sessão te esperando (3ª rodada, como o
+    // Monitor geral), o ladrilho fica como antes, sem o ▣
+    const espera = esperandoResposta(s), imgs = espera ? [] : fr.imgs;
+    const compacto = typeof op.compacto === "function" && op.compacto(fr.chave);
+    const hero = imgs.length && !compacto ? imgs[0] : null;
+    if (hero) {
+      const src = typeof op.foto === "function" ? op.foto(hero, fr.chave) : "";
+      // data-fr-nitida: a página pede a nítida só quando o ladrilho aparece na tela (o observarDestaques)
+      corpo += `<div class="mz-hero"><button type="button" class="mz-hero-img" data-mz-img="${esc(fr.chave)}"${hero.id ? ` data-fr-nitida="${esc(hero.id)}"` : ""} aria-label="Ver a imagem ${esc(hero.nome)} da frente ${esc(fr.titulo)}">${
+        src ? `<img src="${esc(src)}" alt="" loading="lazy" decoding="async">` : `<span class="mz-hero-v" aria-hidden="true">🖼️</span>`}</button>`
+        + `<button type="button" class="mz-hero-c" data-mz-compacto="${esc(fr.chave)}" aria-label="Formato compacto (sem a imagem)">▭</button></div>`;
+    }
+    // cético da pro-95: o "agora" também sem imagem e no compacto (o Monitor mostra os agentes e o "agora" sempre)
+    if (fr.agora) corpo += `<p class="mz-agora">${esc(fr.agora)}</p>`;
+    if (fr.agentes.length) corpo += `<p class="mz-ags" aria-label="Agentes">${fr.agentes.map(a =>
+      `<span class="mz-ag ${esc(a.estado)}"><i aria-hidden="true">${a.simbolo}</i>${esc(a.rotulo)}</span>`).join("")}</p>`;
     corpo += `<div class="mz-fr"><span class="mz-fr-t">${esc(fr.icone)} ${esc(fr.titulo)}</span>${pct == null ? ""
-      : `<span class="mz-barra" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${pct}"><i style="width:${pct}%"></i></span><small>${pct}%</small>`}</div>`;
+      : `<span class="mz-barra" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${pct}"><i style="width:${pct}%"></i></span><small>${pct}%</small>`}${
+      imgs.length && compacto ? `<button type="button" class="mz-dest-b" data-mz-compacto="${esc(fr.chave)}" aria-label="Mostrar a imagem em destaque">▣</button>` : ""}</div>`;
   }
   const ha = typeof op.ha === "function" ? op.ha(s) : "";
   corpo += `<div class="mz-est"><span class="mz-chip ${esc(k)}">${esc(rotEst)}</span>${ha ? `<small>${esc(ha)}</small>` : ""}</div>`;
@@ -220,11 +267,16 @@ function seletor(modo = estado.modo) {
     `<button type="button" data-mz-modo="${v}" aria-pressed="${v === modo}" class="${v === modo ? "on" : ""}">${v === "mosaico" ? "▦" : "☰"} ${rot}</button>`).join("")}</div></div>`;
 }
 
-// O que um toque pede: {acao: "modo", valor} | {acao: "abrir", pc, id} | null (a caixa e o ➤ não abrem a conversa).
+// O que um toque pede: {acao: "modo", valor} | {acao: "abrir", pc, id} | {acao: "imagem" | "compacto", chave} (pro-95)
+// | null (a caixa e o ➤ não abrem a conversa).
 function acaoDe(el) {
   if (!el || !el.closest) return null;
   const m = el.closest("[data-mz-modo]");
   if (m) return {acao: "modo", valor: m.dataset.mzModo};
+  const im = el.closest("[data-mz-img]");
+  if (im) return {acao: "imagem", chave: im.dataset.mzImg};
+  const cp = el.closest("[data-mz-compacto]");
+  if (cp) return {acao: "compacto", chave: cp.dataset.mzCompacto};
   if (el.closest("[data-mz-form]")) return null;
   const t = el.closest("[data-mz-t]");
   if (t && el.closest("[data-mz-abrir], [data-mz-t]")) return {acao: "abrir", pc: t.dataset.pc, id: t.dataset.id};
@@ -312,6 +364,17 @@ const CSS = `
 .mz-barra{flex:1;height:6px;border-radius:3px;background:rgba(255,255,255,.12);overflow:hidden}
 .mz-barra i{display:block;height:100%;border-radius:3px;background:linear-gradient(90deg,#C99A2E,#F6D77E)}
 .mz-fr small{font-variant-numeric:tabular-nums;color:var(--ink);font-weight:650}
+.mz-hero{position:relative;margin:0 -2px}
+.mz-hero-img{display:block;width:100%;padding:0;border-radius:11px;overflow:hidden;background:#0b1a38;aspect-ratio:16/10;border:1px solid var(--stroke)}
+.mz-hero-img img{display:block;width:100%;height:100%;object-fit:contain}
+.mz-hero-v{display:grid;place-items:center;height:100%;font-size:26px;opacity:.6}
+.mz-hero-c,.mz-dest-b{min-width:44px;min-height:44px;display:grid;place-items:center;color:#fff;font-size:15px;font-weight:700}
+.mz-hero-c{position:absolute;top:0;right:0;background:none;text-shadow:0 1px 3px rgba(0,0,0,.9)}
+.mz-dest-b{margin-left:auto;min-height:32px;min-width:44px;border-radius:9px;background:var(--glass-2);color:var(--ink)}
+.mz-agora{margin:0;font-size:12px;line-height:1.3;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mz-ags{margin:0;display:flex;gap:4px;overflow:hidden;white-space:nowrap;font-size:11px;line-height:1}
+.mz-ag{flex:none;display:inline-flex;align-items:center;gap:3px;padding:3px 6px;border-radius:999px;background:var(--glass-2);color:var(--muted)}
+.mz-ag i{font-style:normal} .mz-ag.rodando{color:var(--ink)} .mz-ag.erro{color:#FF8A80} .mz-ag.parado{opacity:.75}
 .mz-est{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--faint);min-width:0;margin-top:auto}
 .mz-est small{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .mz-chip{flex:none;font-size:11.5px;font-weight:650;padding:2px 7px;border-radius:999px;background:var(--glass-2);color:var(--muted);white-space:nowrap}
@@ -341,7 +404,8 @@ function estilo(doc) {
 }
 // A página: ctx = {doc, lista (o #sessoesLista), topo (o #mzTopo), store, redesenhar(), abrir(pc, id), menu(pc, id, el)?,
 // enviar(pc, id, texto) -> o objeto da mensagem (o "local" da página), guardarRascunho(pc, id, texto), avisar(msg, o),
-// vibrar()}. Os toques do mosaico; a página só chama Mosaico.html() e Mosaico.seletor() no desenho.
+// vibrar(), verImagens(chave da frente) e compacto(chave da frente) (pro-95)}. Os toques do mosaico; a página só chama
+// Mosaico.html() e Mosaico.seletor() no desenho.
 function ligar(ctx) {
   C = ctx || {};
   lerModo(C.store);
@@ -377,6 +441,8 @@ function ligar(ctx) {
     if (Date.now() - segurou < 450) return;   // o soltar do toque longo não abre a conversa
     const a = acaoDe(e.target);
     if (a && a.acao === "abrir" && C.abrir) { esquecerEnvio(a.pc, a.id); C.abrir(a.pc, a.id); }
+    if (a && a.acao === "imagem" && C.verImagens) C.verImagens(a.chave);   // pro-95: o visor da frente, com o ✏ Marcar
+    if (a && a.acao === "compacto" && C.compacto) { C.compacto(a.chave); if (C.redesenhar) C.redesenhar(); }
   });
   lista.addEventListener("submit", e => {
     const f = e.target.closest && e.target.closest("[data-mz-form]");
@@ -397,7 +463,7 @@ function ligar(ctx) {
 }
 
 const Mosaico = {CHAVE_MODO, MODOS, COR_PADRAO, ICONE_PADRAO, TEXTO_MAX, ENTREGUE_VALE_MS, ERRO_VALE_MS, ESTADOS, corValida, rgbDe,
-  iconeValido, siglaPc, circulo, centralDe, centrais, quadroDe, quadroDaOrquestra, ordenar, frenteDe, lembrarEnvio, esquecerEnvio,
+  iconeValido, siglaPc, circulo, centralDe, centrais, quadroDe, quadroDaOrquestra, ordenar, frenteDe, imagensDe, agentesDe, esperandoResposta, lembrarEnvio, esquecerEnvio,
   envioDe, ladrilho, html, seletor, acaoDe, lerModo, definirModo, conferirTexto, escrevendo, segurando, ligar, estilo, CSS,
   get modo() { return estado.modo; }};
 if (typeof module !== "undefined" && module.exports) module.exports = Mosaico;

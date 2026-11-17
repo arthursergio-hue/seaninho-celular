@@ -1103,6 +1103,7 @@ details>summary{padding:6px 0}
 .pcm-al{font-size:12.5px;color:var(--gold);margin:0} .pcm-al.critico{color:#ffb3ad}
 .dot{width:9px;height:9px;border-radius:50%;background:var(--faint);flex:none}
 .dot.ok{background:var(--green)} .dot.espera,.dot.anda{background:var(--gold)} .dot.erro{background:var(--coral)}
+.dot.parado{background:transparent;box-shadow:inset 0 0 0 1.5px var(--faint)}   /* pro-95: o agente parado (◌) */
 .pcc{padding:14px;margin:0 0 14px;border-radius:18px;background:var(--glass);border:1px solid var(--stroke)}
 .pcc.off .pc-topo .nome b{color:var(--muted)}
 .pc-topo{display:flex;align-items:center;gap:8px}
@@ -1285,6 +1286,27 @@ nav button span:not(.n){max-width:100%;overflow:hidden;text-overflow:clip;white-
 .fr-l3{margin-top:4px;font-size:12.5px;color:var(--faint);flex-wrap:wrap;gap:2px 10px}
 .verm{color:#FF8A80!important;font-weight:650}
 .fr-l4{display:block;margin-top:4px;font-size:13.5px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* pro-95: o destaque (a imagem mais nova da frente) no cartão e no detalhe; o ▭ volta ao formato de antes */
+.fr-dest{display:block;margin-top:10px}
+.fr-hero{position:relative;display:block;width:100%;aspect-ratio:16/10;max-height:46vh;border-radius:12px;overflow:hidden;background:#0b1a38;border:1px solid var(--stroke);cursor:zoom-in}
+.fr-hero img{display:block;width:100%;height:100%;object-fit:contain}   /* a imagem inteira, como no Monitor geral */
+.fr-hero-v{display:grid;place-items:center;height:100%;font-size:34px;opacity:.55}
+.fr-hero-n{position:absolute;left:8px;bottom:8px;max-width:calc(100% - 70px);font-size:11.5px;font-weight:650;padding:2px 8px;border-radius:7px;background:rgba(0,0,0,.62);color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fr-fila{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin-top:6px}
+.fr-fila span{display:block;aspect-ratio:4/3;border-radius:9px;overflow:hidden;background:#13254a;border:1px solid var(--stroke);cursor:zoom-in}
+.fr-fila img{display:block;width:100%;height:100%;object-fit:cover}
+.fr-agora-l{display:block;margin-top:8px;font-size:13.5px;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fr-agora-l b{color:var(--gold);font-weight:700}
+.fr-fases-l{display:block;margin-top:3px;font-size:12.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* pro-95, 2ª rodada (G): os rótulos dos agentes no cartão, como o Monitor geral (até 8): ● rodando, ◌ parado, ✕ erro, ✓ pronto */
+.fr-ags-l{display:flex;flex-wrap:wrap;gap:4px 5px;margin-top:6px}
+.fr-ag{display:inline-flex;align-items:center;gap:4px;max-width:100%;font-size:11.5px;font-weight:600;line-height:1;padding:4px 7px;border-radius:999px;background:var(--glass-2);color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fr-ag i{font-style:normal;font-size:11px}
+.fr-ag.rodando{color:var(--tag-anda);background:var(--tag-anda-f)} .fr-ag.erro{color:var(--tag-erro);background:var(--tag-erro-f)}
+.fr-ag.pronto i{color:var(--green)} .fr-ag.parado{opacity:.8}
+.fr-compacto{display:inline-grid;place-items:center;min-width:44px;min-height:44px;padding:0 10px;border-radius:10px;font-size:12.5px;font-weight:650;color:var(--ink);background:var(--glass-2);cursor:pointer}
+.fr-hero .fr-compacto{position:absolute;top:0;right:0;border-radius:0 0 0 12px;background:rgba(0,0,0,.55);color:#fff}
+.fr-l3 .fr-compacto{margin-left:auto;min-height:32px}
 details.fr-term{margin:6px 0 14px}
 details.fr-term>summary{display:flex;align-items:center;min-height:44px;padding:0 4px;cursor:pointer;font-size:13px;font-weight:650;color:var(--muted);text-transform:uppercase;letter-spacing:.6px}
 details.fr-term[open]>summary{margin-bottom:6px}
@@ -1695,6 +1717,7 @@ const store = {
 // longo com o menu da sessão e o [Mosaico | Lista])
 if (window.Mosaico) Mosaico.ligar({doc: document, lista: $("sessoesLista"), topo: $("mzTopo"), store, redesenhar: () => desenharSessoes(),
   abrir: (pc, id) => abrir(pc, id), menu: (pc, id, el) => menuDaSessao(pc, id, el), enviar: mzEnviar,
+  verImagens: chave => verImagensDoCartao(chave), compacto: chave => alternarCompacto(chave),   // pro-95: o destaque
   guardarRascunho: (pc, id, t) => store.set("seaninho.rascunho." + id, t), avisar: (msg, o) => avisar("appAviso", msg, o),
   vibrar: () => { if (navigator.vibrate) navigator.vibrate(8); }});
 const MIC = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>';
@@ -1714,7 +1737,9 @@ let sugestoesAtuais = []; // as respostas prontas da sessão aberta (o PC pede �
 let ordemPedida = [], arrastoSecao = null, ordemEsperada = null;   // (e a ordem que a tela mostra com eles)
 let timer = null, timerSala = null;
 let aba = "Inicio";
-const VERSAO_APP = "0.9.0.22";   // esta página (v34, a casca seaninho-v34: o Modo da IA, Pool ⇄ Proxy com um clique (pro-102: o modo_ia.js), com o agente 0.9.0.22; sobre a v33 da pro-104, a página inteira)
+const VERSAO_APP = "0.9.0.23";   // esta página (v35, a casca seaninho-v35: os workflows ao vivo na aba Workflows e no mosaico (pro-95): a fase, os agentes e o "agora", a imagem mais nova em destaque que abre o visor com o ✏ Marcar e o ▭ Compacto lembrado por frente, com o agente 0.9.0.23; entra depois do Modo da IA do PR #49, que passou à v34 sobre a v33 da pro-104: quem publica esta página depois dele sobe o número da casca)
+// (v34 do PR #49, a casca seaninho-v34: o Modo da IA, Pool ⇄ Proxy com um clique (pro-102: o modo_ia.js), com o agente 0.9.0.22; sobre a v33 da pro-104, a página inteira)
+// (v32, a casca seaninho-v32: os cartões do dia do Monitor geral no Início (PR #34), que nascem recolhidos, com o resumo no cabeçalho e a escolha lembrada no aparelho (PR #41), com o agente 0.9.0.21)
 // (v31, a casca seaninho-v31: a central e as decisões entre os 2 PCs pela rede local, o aviso da rede no cartão do PC (PR #39) e a prioridade mudada pelo celular (PR #40), com o agente 0.9.0.20)
 // (v30, a casca seaninho-v30: o ⚡ Rodar no PC com o comando de administrador, com o agente 0.9.0.19)
 // (v29, a casca seaninho-v29: as 6 telas do Monitor e o padrão Opus da VPS, com o agente 0.9.0.18; v28: o trem do celular, com o 0.9.0.17)
@@ -1739,10 +1764,14 @@ const VERSAO_APP = "0.9.0.22";   // esta página (v34, a casca seaninho-v34: o M
 // com a escolha lembrada (PR #41), é só da página (o cartoes-dia.js).
 // v34 (16/11, pro-102; a v33 é a da pro-104): o 0.9.0.22 é o agente do Modo da IA (o bloco em hoje.modo_ia e o pedido modo_ia, a troca e
 // o ensaio). Com o 0.9.0.21, o bloco não vem e a seção diz "o Seaninho de lá ainda não troca o modo".
-const AGENTE_ATUAL = "0.9.0.22";
+// v35 (16/11, pro-95): o 0.9.0.23 é o agente dos workflows ao vivo (no sinal da sessão, a fase, os agentes por fase, os
+// rótulos, o "agora" em palavras e as 4 imagens mais novas do run da frente). Com o 0.9.0.22 ou de antes, esses campos
+// não vêm e o cartão da frente fica como antes, sem estrago. O ▭ Compacto, lembrado por frente, é só da página.
+const AGENTE_ATUAL = "0.9.0.23";
 // 0.9.0.15 (12/11): o agente que entrega no terminal, no app do Claude e no segundo plano (o mesmo do Chat.AGENTE_QUALQUER)
 const AGENTE_QUALQUER = "0.9.0.15";
 const NOVIDADES_APP = [
+  ["0.9.0.23", "Workflows ao vivo, na aba Workflows e no mosaico: cada workflow aberto mostra a fase, os agentes de cada fase (● rodando, ◌ parado, ✕ com erro, ✓ pronto) e o \"Agora:\" em palavras, sem termo técnico. A imagem mais nova que os agentes gravaram ou leram aparece grande no cartão e troca sozinha, com as anteriores pequenas embaixo. O toque na imagem abre o visor de sempre, com o ✏ Marcar: a marcação vai para a sessão do workflow. O ▭ esconde a imagem (o Agora e os agentes continuam) e o ▣ Destaque traz a imagem de volta; a escolha fica lembrada por cartão neste aparelho, e com a sessão te esperando a imagem sai sozinha. Sem imagem, não há destaque nem botão. O caminho de uma pasta pessoal aparece como \"uma pasta pessoal\". O workflow retomado depois do limite da conta aparece rodando, e cada cartão mostra um workflow só, sem agentes repetidos. Precisa do agente 0.9.0.23 nos PCs."],
   ["0.9.0.22", "Modo da IA: o Claude Code de cada PC no Pool (as contas do pool) ou no Proxy (o proxy de IA da Seazone), sempre à vista nos PCs do topo (WIN · Pool), na cor da saúde do proxy: verde ok, âmbar lento, vermelho fora. No cartão de cada PC, em Computadores, o botão Trocar para o Pool (ou para o Proxy): a folha diz o que muda, quais sessões seguem no modo antigo até reabrir e o que o trocador faria (o ensaio, sem mudar nada); quando o proxy não passou na régua de estável, o Trocar mesmo assim. Durante, o PC mostra trocando…; depois, uma linha com o resultado e o que falta. Com o PC no Proxy e o proxy lento, a sugestão de voltar ao Pool; nada troca sozinho. No Proxy, o Trocar conta fica desligado. O mesmo controle do Monitor geral, nos dois PCs, também de longe. Precisa do agente 0.9.0.22 nos PCs."],
   ["0.9.0.21", "Cartões do dia no Início: os mesmos cartões que o Monitor geral mostra no PC, com o mesmo ícone, estado e linha, no bloco 🗂 Cartões do dia. Cada grupo nasce recolhido, com o resumo no cabeçalho (quantos cartões e, se houver, quantos em ⚠ atenção e em ✖ erro); um toque abre, outro fecha, e a escolha fica lembrada neste aparelho. O grupo pessoal aparece com o 🔒, só no seu celular, e nunca vai ao outro PC. Com mais de um PC, cada grupo diz de qual PC é; o grupo de um PC fora do ar, ou com os dados vencidos, fica cinza, com a hora dos dados. Os cartões vêm sem botões: o que roda no PC continua no Monitor geral. O bloco recolhe no ▾ ou some no ✕, como os outros do Início. Precisa do agente 0.9.0.21 nos PCs."],
   ["0.9.0.20", "Os dois PCs se enxergam melhor: o Para você do outro PC não some mais quando a rede local falha por alguns segundos (fica a última cópia boa que ela trouxe), as decisões do outro PC não param mais de chegar caladas, o ⚡ Rodar no PC de um item do outro PC usa a última cópia boa que a rede trouxe (e, sem ela, diz por quê), e o cartão de cada PC, no Início e em Computadores, avisa quando o Para você ou as decisões dele não chegam ao outro PC, e por quê (a ponte de cópias antiga, o agente do celular parado, sem rede local). Nas Sessões, toque no P0, P1… do cabeçalho de um projeto para subir, descer ou escolher a posição na prioridade, ou segure o cabeçalho para arrastar a seção; a ordem nova vale também no Monitor geral. As fixadas ganharam ▲ Subir e ▼ Descer, e segurar não abre mais a seleção de texto do iPhone. A ponte de cópias nova vai junto nos dois PCs. Precisa do agente 0.9.0.20 nos PCs."],
@@ -1967,6 +1996,7 @@ function desenharSessoes() {
     html = `<button class="pv-nota" data-ir-pv>💬 ${c.slack === 1 ? "1 mensagem do Slack espera" : c.slack + " mensagens do Slack esperam"} você: no Para você, no Início ›</button>` + html;
   if (window.Mosaico && Mosaico.escrevendo($("sessoesLista"))) return;   // entrega 3: a caixa de um ladrilho em uso fica
   por($("sessoesLista"), html);
+  observarDestaques();   // pro-95: a nítida do destaque do ladrilho que está à vista
 }
 
 // A mensagem minha desta sessão que deu erro e ainda está no chat (nem reenviada nem apagada), das últimas 24 h; e a
@@ -2008,6 +2038,7 @@ const mzOp = (agora, varios, prio) => ({agora, varios, estadoDe: s => Lista.esta
   ha: s => s.desligado ? `desde ${quandoFoi(s.desligado)}` : ha(s.desde * 1000), extras: mzExtras(),
   frentes: Workflows.vistaDasFrentes(Object.values(pcs), {agora: agoraRede()}).itens,
   rascunho: s => store.get("seaninho.rascunho." + s.id), pedido: id => pedidos.find(x => x.id === id) || null,
+  compacto: k => frCompactos.has(k), foto: (x, chave) => srcDoDestaque(chave, x),   // pro-95: o destaque do ladrilho
   grupos: prio ? l => Prioridades.agrupar(l, prio).map(g => ({cab: pjCab(g), estilo: Prioridades.vars(g.cor), rotulo: Prioridades.rotulo(g), lista: g.lista})) : null});
 // A caixa do ladrilho manda como está (sem o ✨ Melhorar) pelo caminho da caixa da conversa: o balão fica nela (🕓 ✓ ✓✓),
 // com a fila sem rede e o Tentar de novo; o ladrilho mostra o andamento.
@@ -6692,6 +6723,8 @@ const frTrab = {linhas: null, erro: "", semFuncaoAte: 0, carregando: false, time
 const frMinis = new Map(), frMinisPedidas = new Set(), frMinisTentou = new Map();   // id da miniatura -> data URL
 let frArqs = [];                   // os arquivos desenhados no detalhe (o toque acha pelo índice)
 let frArqsPasta = "";              // 0.9.0.4: a pasta que o PC leu para esses arquivos (os nomes são relativos a ela)
+// pro-95 (16/11): as frentes que o Arthur pôs no formato compacto (sem o destaque), lembradas no aparelho
+let frCompactos = Workflows.lerCompactos(store);
 
 const frVista = () => Workflows.vistaDasFrentes(Object.values(pcs), {agora: agoraRede()});
 function frCtx() {
@@ -6735,6 +6768,7 @@ function desenharWorkflows() {
       : `<p class="note">Nada em andamento agora.</p>`)) + mais);
   por($("wfTerm"), v.terminadas.length ? `<details class="fr-term" data-fr-term ${frTerminadasAberto ? "open" : ""}><summary>Terminaram hoje (${v.totalTerminadas})</summary>${
     v.terminadas.map(it => cartaoFrente(it, ctx)).join("")}${v.totalTerminadas > v.terminadas.length ? `<p class="note">Aqui ficam as ${v.terminadas.length} mais novas.</p>` : ""}</details>` : "");
+  observarDestaques();   // pro-95: a nítida do destaque dos cartões à vista
 }
 // O cartão: título e estado; o PC e a barra; há quanto tempo sem novidade (vermelho com 20 min trabalhando) e desde
 // quando; a última fala em 1 linha. O motivo e o STATUS: ficam no detalhe.
@@ -6743,11 +6777,151 @@ function cartaoFrente(it, ctx) {
   const tempo = Workflows.tempoDaFrente(it, ctx.agora);
   // 0.9.0.4 (céticos): sem fala, a nota do hokage na 4ª linha (com a sessão fechada ou o PC desligado, é o que informa)
   const nota = fala ? "" : Workflows.umaLinha(Workflows.notaDaFrente(it));
+  // pro-95: com imagem, o destaque (a mais nova, grande) entre a barra e o tempo; no compacto, só o ▣ para voltar.
+  // 3ª rodada: com a sessão te esperando (pergunta, permissão, plano, enquete), sem destaque e sem o ▣, como o Monitor
+  const d = Workflows.destaqueDaFrente(it, ctx.sessoes), compacto = !!d && frCompactos.has(it.chave);
+  const volta = d && compacto ? `<span class="fr-compacto" role="button" data-fr-compacto="${esc(it.chave)}" aria-label="Mostrar a imagem em destaque">▣ Destaque</span>` : "";
+  // cético da pro-95: o "agora" e a conta por fase em todo workflow rodando (com ou sem imagem, e no compacto), como
+  // o Monitor geral, que mostra os agentes e o "agora" sempre
+  const agoraTxt = Workflows.agoraDaFrente(it), fasesTxt = Workflows.textoDasFases(Workflows.fasesDaFrente(it));
+  const agsHtml = agentesFrHtml(it);   // pro-95, 2ª rodada (G): os rótulos dos agentes, como o Monitor geral
   return `<button class="card fr ${it.grupo}" data-frente="${esc(it.chave)}" aria-label="${esc(Workflows.vozDaFrente(it, ctx.agora, fala || (nota ? "nota do maestro: " + nota : "")))}">
     <span class="fr-l1"><span class="fr-ico" aria-hidden="true">${it.icone}</span><b>${esc(it.titulo)}</b><span class="fr-chip ${it.chip.cor}">${esc(it.chip.texto)}</span></span>
     <span class="fr-l2"><span class="fr-pc">${esc(it.pcCurto)}</span>${it.barra ? barraFrHtml(it.barra) : ""}</span>
-    ${nov || tempo ? `<span class="fr-l3">${nov ? `<span class="${it.vermelho ? "verm" : ""}">${esc(nov)}</span>` : ""}${tempo ? `<span>${esc(tempo)}</span>` : ""}</span>` : ""}
+    ${d && !compacto ? destaqueHtml(it, {...d, agora: "", textoFases: ""}, ctx.agora) : ""}
+    ${agoraTxt ? `<span class="fr-agora-l"><b>Agora:</b> ${esc(agoraTxt)}</span>` : ""}${fasesTxt ? `<span class="fr-fases-l">${esc(fasesTxt)}</span>` : ""}${agsHtml}
+    ${nov || tempo || volta ? `<span class="fr-l3">${nov ? `<span class="${it.vermelho ? "verm" : ""}">${esc(nov)}</span>` : ""}${tempo ? `<span>${esc(tempo)}</span>` : ""}${volta}</span>` : ""}
     ${fala ? `<span class="fr-l4">${esc(fala)}</span>` : nota ? `<span class="fr-l4 fr-nota-l"><span aria-hidden="true">🎼 </span>${esc(nota)}</span>` : ""}</button>`;
+}
+// pro-95, 2ª rodada (G): os rótulos dos agentes do workflow rodando (até 8, como o PC manda), com o estado em símbolo.
+function agentesFrHtml(it) {
+  const ags = Workflows.agentesDaFrente(it);
+  return ags.length ? `<span class="fr-ags-l" aria-label="Agentes">${ags.map(a =>
+    `<span class="fr-ag ${a.estado}" title="${esc(a.voz)}" aria-label="${esc(a.voz)}"><i aria-hidden="true">${a.simbolo}</i>${esc(a.rotulo)}</span>`).join("")}</span>` : "";
+}
+// pro-95: a imagem de uma frente e o pedido do que falta. A miniatura (240 px) é pedida aqui, na fila das miniaturas do
+// detalhe (até 4 de cada vez, guardadas no aparelho como foto:<id>). A nítida "media" (1080 px), só a do destaque
+// (`nitida`) e só com o cartão à vista: quem pede é o observarDestaques (o Supabase Nano não baixa a de todas as
+// frentes da lista). Até ela chegar, vale a miniatura.
+function srcDaImagem(x, nitida = false) {
+  const src = (nitida && x.id && frMinis.get(x.id)) || frMinis.get(x.mini) || "";
+  if (!frMinis.has(x.mini)) pedirMinis([{mini: x.mini}]);
+  return src;
+}
+// O que marca o destaque para o observarDestaques pedir a nítida dele quando aparecer na tela ("" quando já chegou).
+const nitidaAttr = x => x.id && !frMinis.has(x.id) ? ` data-fr-nitida="${esc(x.id)}"` : "";
+// A nítida do destaque que entrou na tela (ou a 120 px dela): uma vez por elemento; o elemento que saiu da página
+// (a lista refeita) deixa de ser olhado.
+let frObs = null;
+const frObservados = new Set();
+const frNitidasQueridas = new Set();   // as nítidas dos destaques que já apareceram e ainda não chegaram (a fila: 4 por vez)
+function pedirNitidas() {
+  for (const id of [...frNitidasQueridas]) if (frMinis.has(id)) frNitidasQueridas.delete(id);
+  pedirMinis([...frNitidasQueridas].map(id => ({mini: id})));
+}
+function querNitida(id) {
+  frNitidasQueridas.add(id);
+  if (frNitidasQueridas.size > 12) frNitidasQueridas.delete(frNitidasQueridas.values().next().value);
+  pedirNitidas();
+}
+function observarDestaques() {
+  for (const el of [...frObservados]) if (!el.isConnected) { frObservados.delete(el); if (frObs) frObs.unobserve(el); }
+  const novos = [...document.querySelectorAll("[data-fr-nitida]")].filter(el => !frObservados.has(el));
+  if (!novos.length) return;
+  if (typeof IntersectionObserver !== "function") { novos.forEach(el => querNitida(el.dataset.frNitida)); return; }
+  if (!frObs) frObs = new IntersectionObserver(es => {
+    for (const e of es) {
+      if (!e.isIntersecting) continue;
+      frObs.unobserve(e.target); frObservados.delete(e.target);
+      querNitida(e.target.dataset.frNitida);
+    }
+  }, {rootMargin: "120px"});
+  for (const el of novos) { frObservados.add(el); frObs.observe(el); }
+}
+// O destaque que trocou de imagem mostra a de antes até a nova chegar (sem piscar o 🖼️), por frente.
+const frHeroVisto = new Map();
+function srcDoDestaque(chave, h) {
+  const src = srcDaImagem(h, true);
+  if (src) {
+    frHeroVisto.delete(chave); frHeroVisto.set(chave, src);
+    if (frHeroVisto.size > 40) frHeroVisto.delete(frHeroVisto.keys().next().value);
+    return src;
+  }
+  return frHeroVisto.get(chave) || "";
+}
+// O destaque: a imagem mais nova grande (o toque abre o visor de sempre, com o ✏ Marcar), as anteriores pequenas
+// embaixo, o que o workflow faz agora e a conta por fase. Fica dentro do cartão (que é um botão): as partes tocáveis
+// são <span role="button">, e o toque nelas não abre a frente (ver o tocarDestaque).
+function destaqueHtml(it, d, agora) {
+  const h = d.hero, src = srcDoDestaque(it.chave, h);
+  return `<span class="fr-dest">
+    <span class="fr-hero" role="button" data-fr-img="${esc(it.chave)}" data-i="0"${nitidaAttr(h)} aria-label="Ver a imagem ${esc(h.nome)}">${
+      src ? `<img src="${esc(src)}" alt="" decoding="async">` : `<span class="fr-hero-v" aria-hidden="true">🖼️</span>`}
+      <span class="fr-hero-n">${esc(h.nome)}${h.t ? " · " + esc(Workflows.horaOuDia(h.t, agora)) : ""}</span>
+      <span class="fr-compacto" role="button" data-fr-compacto="${esc(it.chave)}" aria-label="Formato compacto, sem a imagem">▭</span></span>
+    ${d.fileira.length ? `<span class="fr-fila">${d.fileira.map((x, i) => {
+      const s = srcDaImagem(x);
+      return `<span role="button" data-fr-img="${esc(it.chave)}" data-i="${i + 1}" aria-label="Ver a imagem ${esc(x.nome)}">${s ? `<img src="${esc(s)}" alt="" decoding="async">` : ""}</span>`;
+    }).join("")}</span>` : ""}
+    ${d.agora ? `<span class="fr-agora-l"><b>Agora:</b> ${esc(d.agora)}</span>` : ""}
+    ${d.textoFases ? `<span class="fr-fases-l">${esc(d.textoFases)}</span>` : ""}</span>`;
+}
+// O toque no destaque (ou numa da fileira): o visor de sempre, com as imagens da frente em sequência e o ✏ Marcar.
+function verImagensDoCartao(chave, i = 0) {
+  const it = Workflows.frenteDoLink(frVista(), chave).item, d = it && Workflows.destaqueDaFrente(it);
+  if (!d) return;
+  const imgs = [d.hero, ...d.fileira], agora = agoraRede();
+  Marcar.ver({lista: imgs.map(x => {
+      const mini = frMinis.get(x.mini), media = x.id && frMinis.get(x.id);
+      const foto = {src: media || mini || FR_SEM_MINI, nome: x.nome, sub: `${it.pcCurto} · ${Workflows.horaOuDia(x.t, agora)}`, arquivo: x.nome};
+      if (x.id) Object.assign(foto, {carregarAlta: () => fotoAlta({id: x.id}), rotuloAlta: "Carregando a imagem nítida…",
+        erroAlta: "A imagem nítida não veio · tocar para tentar de novo"});
+      else if (!mini) Object.assign(foto, {carregarAlta: () => esperarFoto(x.mini, 20000), rotuloAlta: "Carregando a miniatura…"});
+      return foto;
+    }), indice: Math.max(0, Math.min(imgs.length - 1, i)), faixa: imgs.length > 1, aoMarcar: marcarNaFrente(it)});
+}
+// O ✏ Marcar das imagens da frente: o mesmo editor do chat. A imagem marcada vai para a sessão da frente quando ela
+// recebe (o "Mandar mensagem" do detalhe); a frente de fundo vai pela conversa do maestro, com o cabeçalho "Marcação de
+// Arthur sobre a imagem X da sessão Y". Sem caminho de entrega, o visor fica sem o ✏ Marcar (como no chat).
+// O destino da marcação: a conversa da sessão (só quando a caixa dela entregaria agora: o mesmo mzEnvio do ladrilho;
+// pergunta aberta, sessão sem entrega ou PC desligado não) ou a do maestro. null quando não há.
+function destinoDaMarcacao(it) {
+  const m = Workflows.botoesDaFrente(it, frCtx()).mensagem;
+  if (!m.ok || !m.conversa) return null;
+  const s = todasSessoes().find(x => x.pc === m.conversa.pc && x.id === m.conversa.id);
+  if (!s || !mzEnvio(s).pode) return null;
+  return {pc: s.pc, id: s.id, titulo: s.titulo || "", maestro: m.acao === "maestro"};
+}
+function marcarNaFrente(it) {
+  if (!destinoDaMarcacao(it)) return null;
+  return async f => {
+    if (f.carregarAlta && !f.alta) f.src = await f.carregarAlta().catch(() => {   // as marcas em cima da nítida
+      Marcar.avisoVisor("A imagem nítida ainda não chegou: a marcação vai na que está na tela.", 4000);
+      return f.src;
+    });
+    Marcar.editar({src: f.src, nome: f.arquivo || f.nome, legenda: "",
+      aoEnviar: async (tela, legenda) => {
+        const d = destinoDaMarcacao(it);   // de novo na hora de mandar (a sessão pode ter parado de receber)
+        if (!d) throw new Error("a sessão desta frente não está recebendo agora.");
+        const im = imagemDe(tela), corpo = Workflows.textoDaMarcacao(it, f.arquivo || f.nome, legenda, d.maestro);
+        const local = {id: idLocal(), sessao: d.id, de: "eu", texto: corpo, t: Math.floor(Date.now() / 1000), mini: im.mini,
+          grande: urlAnexo(im), mime: im.mime};
+        enviarLocal(local, {pc: d.pc, sessao: d.id, titulo: d.titulo, texto: corpo, direto: true, audio: im.b64, mime: im.mime});
+        avisar("appAviso", d.maestro ? `Mandei a marcação ao ${nomeMaestro(true)}.` : "Mandei a marcação para a sessão.", {ok: true});
+      },
+      aoEnviado: () => Marcar.fecharVisor()});
+  };
+}
+// A imagem que chegou redesenha só o que está à vista (a frente aberta, a lista das frentes ou o mosaico), uma vez.
+let frRedesenho = 0;
+function redesenharImagens() {
+  if (frRedesenho) return;
+  frRedesenho = setTimeout(() => {
+    frRedesenho = 0;
+    if (frAberta) return desenharFrente();
+    if (aba === "Workflows") desenharWorkflows();
+    else if (aba === "Claude" && window.Mosaico && Mosaico.modo === "mosaico") desenharSessoes();
+  }, 120);
 }
 // O bloco do Início: os contadores da frente (como os das Sessões); o toque leva à aba, já com o filtro do contador.
 // Some quando o maestro não publica frentes.
@@ -6806,7 +6980,8 @@ async function carregarTrabalhos(forcar = false) {
   } finally { frTrab.carregando = false; desenharFrente(); }
 }
 const ESTADO_FASE = {feita: ["ok", "✓", "feita"], rodando: ["anda", "●", "rodando"], parou: ["erro", "■", "parou"]};
-const ESTADO_AGENTE = {pronto: ["ok", "pronto"], rodando: ["anda", "rodando"], erro: ["erro", "com erro"], fila: ["", "na fila"]};
+const ESTADO_AGENTE = {pronto: ["ok", "pronto"], rodando: ["anda", "rodando"], erro: ["erro", "com erro"], fila: ["", "na fila"],
+  parado: ["parado", "parado (sem gravar há 10 min)"]};   // pro-95, 2ª rodada: o fantasma da retomada
 function runFrHtml(run) {
   const fases = run.fases.length ? `<ol class="fr-fases" aria-label="Fases do workflow">${run.fases.map(f => {
     const [cls, ico, rot] = ESTADO_FASE[f.estado] || ["", "○", f.estado || "a fazer"];
@@ -6856,7 +7031,11 @@ async function pedirMini(id) {
       if (frMinis.size > 200) frMinis.delete(frMinis.keys().next().value);
     }
   } catch { /* sem rede: tenta de novo na próxima volta */ }
-  finally { frMinisPedidas.delete(id); if (frMinis.has(id)) desenharFrente(); }
+  finally {   // pro-95: também a lista e o mosaico; e a nítida de destaque que esperava vaga na fila
+    frMinisPedidas.delete(id);
+    if (frMinis.has(id)) redesenharImagens();
+    if (frNitidasQueridas.size) pedirNitidas();
+  }
 }
 // O "Abrir a pasta no PC" em andamento, como no acaoHoje: "Pedi ao PC…", e depois a resposta ou o erro do pedido.
 function andamentoDaPasta(it) {
@@ -6892,9 +7071,15 @@ function desenharFrente() {
   // a barra e o que roda agora; com o banco novo, as fases e os agentes do run
   const det = Workflows.detalheDaFrente(it, {linhas: frTrab.linhas, semFuncao: Date.now() < frTrab.semFuncaoAte, erro: frTrab.erro, agora, pcs: ctx.pcs});
   const rodando = it.barra && it.wf && Array.isArray(it.wf.rodando) ? it.wf.rodando.filter(Boolean).slice(0, 4) : [];
-  por($("frProg"), `<section class="fr-sec" aria-label="Progresso"><h4>Progresso</h4>${it.barra ? `<div class="fr-barra-g">${barraFrHtml(it.barra)}</div>`
+  // pro-95: o destaque também aqui (o mesmo ▭/▣ do cartão), e o "agora" em palavras antes dos rótulos dos agentes
+  const dst = Workflows.destaqueDaFrente(it, ctx.sessoes), compacto = !!dst && frCompactos.has(it.chave);   // 3ª rodada: te esperando, sem destaque
+  const agoraTxt = Workflows.agoraDaFrente(it), fasesTxt = Workflows.textoDasFases(Workflows.fasesDaFrente(it));
+  por($("frProg"), `<section class="fr-sec" aria-label="Progresso"><h4>Progresso${dst && compacto ? `<span class="fr-compacto" role="button" data-fr-compacto="${esc(it.chave)}" aria-label="Mostrar a imagem em destaque" style="margin-left:auto">▣ Destaque</span>` : ""}</h4>${
+      dst && !compacto ? destaqueHtml(it, {...dst, agora: "", textoFases: ""}, agora) : ""}${it.barra ? `<div class="fr-barra-g">${barraFrHtml(it.barra)}</div>`
       : `<p class="fr-nota">${it.wf ? "O workflow desta sessão começou antes da frente." : "Nenhum workflow nesta frente agora: a barra aparece quando um Workflow roda na sessão."}</p>`}
-    ${rodando.length ? `<p class="fr-agora"><b>Agora:</b> ${esc(rodando.join(", "))}</p>` : ""}${det.run ? runFrHtml(det.run) : ""}</section>`);
+    ${agoraTxt ? `<p class="fr-agora"><b>Agora:</b> ${esc(agoraTxt)}</p>` : ""}${fasesTxt ? `<p class="fr-agora">${esc(fasesTxt)}</p>` : ""}${agentesFrHtml(it)}
+    ${rodando.length ? `<p class="fr-agora"><b>${agoraTxt ? "Rodando" : "Agora"}:</b> ${esc(rodando.join(", "))}</p>` : ""}${det.run ? runFrHtml(det.run) : ""}</section>`);
+  observarDestaques();   // pro-95
   // os arquivos novos da pasta de saída
   const a = det.arquivos, pasta = (a && a.pasta) || f.entrega || f.cwd || "";
   frArqs = a ? a.itens : [];
@@ -6969,13 +7154,18 @@ function verImagensFrente(it, a) {
   const imgs = frArqs.filter(x => x.tipo === "imagem"), pasta = Workflows.botoesDaFrente(it, frCtx()).pasta;
   Marcar.ver({lista: imgs.map(x => {
       const mini = x.mini && frMinis.get(x.mini);
-      const foto = {src: mini || FR_SEM_MINI, nome: x.base, sub: `${it.pcCurto} · ${x.hora}`, arquivo: x.base, rel: x.nome};
+      const foto = {src: mini || FR_SEM_MINI, nome: x.base, sub: `${it.pcCurto} · ${x.hora}`, arquivo: x.base, rel: x.nome, agente: x.agente};
       if (x.nitida && x.id) Object.assign(foto, {carregarAlta: () => fotoAlta({id: x.id}), rotuloAlta: "Carregando a imagem nítida…",
         erroAlta: "A imagem nítida não veio · tocar para tentar de novo"});
       else if (!mini && x.mini) Object.assign(foto, {carregarAlta: () => esperarFoto(x.mini, 20000), rotuloAlta: "Carregando a miniatura…"});
       return foto;
-    }), indice: Math.max(0, imgs.indexOf(a)), faixa: true,
-    extra: pasta.ok ? [{rotulo: "📂 Mostrar no PC", acao: foto => { Marcar.avisoVisor(`Pedi ao ${it.pcCurto} para mostrar o arquivo na pasta.`); abrirPastaFrente(foto && foto.rel); }}] : []});
+    }), indice: Math.max(0, imgs.indexOf(a)), faixa: true, aoMarcar: marcarNaFrente(it),   // pro-95: o ✏ Marcar
+    extra: pasta.ok ? [{rotulo: "📂 Mostrar no PC", acao: foto => {
+      // pro-95: a imagem de um agente fica fora da pasta da frente: o PC abre só a pasta
+      Marcar.avisoVisor(foto && foto.agente ? `Esta imagem fica fora da pasta da frente: pedi ao ${it.pcCurto} para abrir a pasta.`
+        : `Pedi ao ${it.pcCurto} para mostrar o arquivo na pasta.`);
+      abrirPastaFrente(foto && !foto.agente ? foto.rel : "");
+    }}] : []});
 }
 function folhaMostrarNoPc(it, a, estado = null) {
   const b = Workflows.botoesDaFrente(it, frCtx()).pasta;
@@ -8091,13 +8281,29 @@ $("tabWorkflows").addEventListener("click", e => {
     frFiltro = frFiltro === f.dataset.frFiltro ? "" : f.dataset.frFiltro;
     return desenharWorkflows();
   }
+  if (tocarDestaque(e)) return;   // pro-95: o ▭/▣ e a imagem do destaque não abrem a frente
   const c = e.target.closest("[data-frente]");
   if (c) abrirFrente(c.dataset.frente);
 });
+// pro-95: o toque no destaque (cartão e detalhe): true quando ele era do destaque.
+function tocarDestaque(e) {
+  const cp = e.target.closest("[data-fr-compacto]");
+  if (cp) { alternarCompacto(cp.dataset.frCompacto); return true; }
+  const im = e.target.closest("[data-fr-img]");
+  if (im) { verImagensDoCartao(im.dataset.frImg, Number(im.dataset.i) || 0); return true; }
+  return false;
+}
+function alternarCompacto(chave) {
+  Workflows.alternarCompacto(chave, store);
+  frCompactos = Workflows.lerCompactos(store);
+  desenharWorkflows();
+  if (frAberta) desenharFrente();
+}
 $("tabWorkflows").addEventListener("toggle", e => { if (e.target.matches && e.target.matches("details[data-fr-term]")) frTerminadasAberto = e.target.open; }, true);
 $("frente").addEventListener("click", e => {
   if (e.target.closest("#frVoltar") || e.target.closest("[data-fr-voltar]")) return fecharFrente();
   if (e.target.closest("#frAtualizar")) { atualizarAgora(); return carregarTrabalhos(true); }
+  if (tocarDestaque(e)) return;   // pro-95
   const a = e.target.closest("[data-fr-arq]");
   if (a) return tocarArquivo(Number(a.dataset.frArq));
   if (e.target.closest("[data-fr-pasta]")) return abrirPastaFrente("");
