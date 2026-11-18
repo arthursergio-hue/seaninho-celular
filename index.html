@@ -1703,6 +1703,7 @@ body.tela24 #appAviso{z-index:8}
 <script src="modo_ia.js"></script><!-- pro-102: o Modo da IA (Pool ⇄ Proxy com um clique) -->
 <script src="vpsatividade.js"></script><!-- pro-103: o núcleo do painel "Atividade da VPS" (o mesmo do Monitor geral) -->
 <script src="chrome.js"></script><!-- entrega 6 (Seaninho no Chrome) -->
+<script src="ok_chrome.js"></script><!-- pro-106: o OK do Seaninho no Chrome pelo celular (Permitir / Negar) -->
 <script src="cartoes-dia.js"></script>
 <script src="volta.js"></script>
 <script src="espaco.js"></script><!-- entrega 5: o Início organizável -->
@@ -1753,7 +1754,8 @@ let sugestoesAtuais = []; // as respostas prontas da sessão aberta (o PC pede �
 let ordemPedida = [], arrastoSecao = null, ordemEsperada = null;   // (e a ordem que a tela mostra com eles)
 let timer = null, timerSala = null;
 let aba = "Inicio";
-const VERSAO_APP = "0.9.0.24";   // esta página (v36, a casca seaninho-v36: o painel "Atividade da VPS" (pro-103: o vpsatividade.js e o .css), com o agente 0.9.0.24; sobre a v35 dos workflows ao vivo (pro-95), já publicada)
+const VERSAO_APP = "0.9.0.26";   // esta página (v37, a casca seaninho-v37: o OK do Seaninho no Chrome pelo celular (pro-106: o ok_chrome.js), com o agente 0.9.0.26; sobre a v36 da Atividade da VPS (pro-103), já publicada)
+// (v36, a casca seaninho-v36: o painel "Atividade da VPS" (pro-103: o vpsatividade.js e o .css), com o agente 0.9.0.24; sobre a v35 dos workflows ao vivo (pro-95), já publicada)
 // (v35, a casca seaninho-v35: os workflows ao vivo na aba Workflows e no mosaico (pro-95): a fase, os agentes e o "agora", a imagem mais nova em destaque que abre o visor com o ✏ Marcar e o ▭ Compacto lembrado por frente, com o agente 0.9.0.23; entra depois do Modo da IA do PR #49, que passou à v34 sobre a v33 da pro-104: quem publica esta página depois dele sobe o número da casca)
 // (v34 do PR #49, a casca seaninho-v34: o Modo da IA, Pool ⇄ Proxy com um clique (pro-102: o modo_ia.js), com o agente 0.9.0.22; sobre a v33 da pro-104, a página inteira)
 // (v32, a casca seaninho-v32: os cartões do dia do Monitor geral no Início (PR #34), que nascem recolhidos, com o resumo no cabeçalho e a escolha lembrada no aparelho (PR #41), com o agente 0.9.0.21)
@@ -1787,10 +1789,15 @@ const VERSAO_APP = "0.9.0.24";   // esta página (v36, a casca seaninho-v36: o p
 // v36 (17/11, pro-103, sobre a v35): o 0.9.0.24 é o agente que leva a atividade da VPS (os crons e, em cada
 // tarefa, o teto, a pergunta, a última linha e o PR, por lista branca e limpos). Com o 0.9.0.22, o painel abre com o que
 // a batida de antes traz (a fila, a saúde e a leitura), sem as rotinas e sem a última linha.
-const AGENTE_ATUAL = "0.9.0.24";
+// v37 (17/11, pro-106, sobre a v36): o 0.9.0.26 é o agente do OK do Seaninho no Chrome pelo celular (o bloco hoje.ok_chrome
+// com os cards do sinal da ponte do Chrome 0.3.2, o push "ok_chrome" e a ação ok_chrome_responder, que roda a CLI do Chrome
+// como filho do agente). Com o 0.9.0.24 ou de antes, o bloco não vem e o Início fica como antes, sem estrago; o toque num
+// card de um PC com o agente antigo volta "ação desconhecida no agente". O 0.9.0.25 é o da pro-105.
+const AGENTE_ATUAL = "0.9.0.26";
 // 0.9.0.15 (12/11): o agente que entrega no terminal, no app do Claude e no segundo plano (o mesmo do Chat.AGENTE_QUALQUER)
 const AGENTE_QUALQUER = "0.9.0.15";
 const NOVIDADES_APP = [
+  ["0.9.0.26", "O OK do Seaninho no Chrome pelo celular: quando uma sessão pede ao Seaninho no Chrome para anexar um arquivo (ou outra ação que pede o seu OK) e a tela do PC está trancada, o pedido chega aqui, com push: o card 🔐 Seaninho no Chrome pede o seu OK, no alto do Início, com a ação e o site, o nome e o tamanho de cada arquivo (nunca a pasta), a sessão e a contagem (vence em 3 min). Permitir ou Negar manda a resposta ao PC, que a entrega à ponte do Chrome como se fosse você no PC; o card mostra ✓ Permitido, ✕ Negado ou que já foi respondido no PC. Só do seu celular aprovado, e cada anexo pede o seu OK (não há permitir sempre). Precisa do agente 0.9.0.26 nos PCs e do Seaninho no Chrome 0.3.2."],
   ["0.9.0.24", "Atividade da VPS: um toque no chip ☁ VPS do topo, ou no botão Atividade do cartão dela em Computadores, abre o que a VPS está fazendo. No alto, se ela foi lida agora ou por que está sem leitura e o que fazer (o Tailscale pediu confirmação: o botão Confirmar no Tailscale abre o login). Depois, os chips do resumo e os grupos: esperam resposta (com a pergunta), rodando, na fila, prontas sem PR, falharam e as fechadas. Cada cartão abre com o custo e o teto em barra, a última linha do trabalho em palavras e o Ver log. Embaixo, as rotinas da VPS (a varredura do GitHub, os testes da noite, o relatório do dia, o olheiro) com a última rodada, e a saúde (RAM, sessões em uso, fila barrada). Sem leitura, os últimos dados ficam apagados, com a hora. O mesmo painel do Monitor geral. Precisa do agente 0.9.0.24 nos PCs."],
   ["0.9.0.23", "Workflows ao vivo, na aba Workflows e no mosaico: cada workflow aberto mostra a fase, os agentes de cada fase (● rodando, ◌ parado, ✕ com erro, ✓ pronto) e o \"Agora:\" em palavras, sem termo técnico. A imagem mais nova que os agentes gravaram ou leram aparece grande no cartão e troca sozinha, com as anteriores pequenas embaixo. O toque na imagem abre o visor de sempre, com o ✏ Marcar: a marcação vai para a sessão do workflow. O ▭ esconde a imagem (o Agora e os agentes continuam) e o ▣ Destaque traz a imagem de volta; a escolha fica lembrada por cartão neste aparelho, e com a sessão te esperando a imagem sai sozinha. Sem imagem, não há destaque nem botão. O caminho de uma pasta pessoal aparece como \"uma pasta pessoal\". O workflow retomado depois do limite da conta aparece rodando, e cada cartão mostra um workflow só, sem agentes repetidos. Precisa do agente 0.9.0.23 nos PCs."],
   ["0.9.0.22", "Modo da IA: o Claude Code de cada PC no Pool (as contas do pool) ou no Proxy (o proxy de IA da Seazone), sempre à vista nos PCs do topo (WIN · Pool), na cor da saúde do proxy: verde ok, âmbar lento, vermelho fora. No cartão de cada PC, em Computadores, o botão Trocar para o Pool (ou para o Proxy): a folha diz o que muda, quais sessões seguem no modo antigo até reabrir e o que o trocador faria (o ensaio, sem mudar nada); quando o proxy não passou na régua de estável, o Trocar mesmo assim. Durante, o PC mostra trocando…; depois, uma linha com o resultado e o que falta. Com o PC no Proxy e o proxy lento, a sugestão de voltar ao Pool; nada troca sozinho. No Proxy, o Trocar conta fica desligado. O mesmo controle do Monitor geral, nos dois PCs, também de longe. Precisa do agente 0.9.0.22 nos PCs."],
@@ -2363,6 +2370,21 @@ async function pedirNoPc(pc, obj, vigia) {
     voltaJa();
   } catch (e) { avisar("appAviso", "Não saiu do celular: " + motivoRede(e), {erro: true, acao: () => pedirNoPc(pc, obj, vigia)}); }
 }
+// pro-106: o OK do Seaninho no Chrome pelo celular. O toque em Permitir ou Negar manda ao PC do card o pedido
+// {"acao": "ok_chrome_responder", "id", "resposta"} (ok_chrome.js); o agente de lá confere que veio deste celular (aprovado,
+// pela nuvem, em 3 min), roda a CLI do Chrome como filho dele e devolve {ok, codigo, erro}. Enquanto o pedido anda, o card
+// mostra "Permitindo no PC…"; a resposta vira ✓ Permitido / ✕ Negado / já respondido / o erro, até o agente publicar o
+// estado dele no bloco (que vale mais). Nunca "permitir sempre": cada anexo pede o seu OK.
+let okcEstados = {};
+function acaoOkChrome({id, pc, resposta}) {
+  const p = pcs[pc];
+  if (!p || !online(p)) return avisar("appAviso", OkChrome.TX.pcOff(nomeCurtoPc(pc)), {erro: true});
+  const k = OkChrome.chave(pc, id);
+  okcEstados[k] = {fase: "enviando", resposta, t: Date.now()};
+  desenharInicio();
+  pedirNoPc(pc, OkChrome.pedido(id, resposta), {indo: OkChrome.TX.indo(resposta), ok: OkChrome.TX.okAviso, erro: OkChrome.TX.erroAviso,
+    fim: ped => { okcEstados[k] = {...OkChrome.lerResposta(ped, resposta), resposta, t: Date.now()}; desenharInicio(); }});
+}
 function fecharAbaNoPc(pc, id, titulo) {
   if (!confirm(`Fechar a aba “${titulo || "sessão"}” no ${nomeCurtoPc(pc)}?\n\nLibera memória do PC. A conversa continua no histórico do Claude e pode ser reaberta.`)) return;
   pedirNoPc(pc, {acao: "fechar_sessao", sessao: id, origem: "celular", de: "menu"}, {indo: "Fechando a aba no PC…", ok: "Aba fechada no PC.", erro: "Não fechou"});
@@ -2714,7 +2736,7 @@ function previa(s) {
 // ---- Início: o painel do dia (blocos resumidos; cada um leva à aba ou à tela completa) -------------------
 // v24: as Decisões no alto quando há lote; as Entregas e os Meus pedidos depois do Para você; sem lote esperando, a
 // última respondida desce para perto deles (dcfim)
-const PAINEL_BLOCOS = ["decisoes", "airats", "esperando", "frentes", "cartoes", "sessoes", "paravoce", "revisoes", "entregas", "pedidos", "dcfim", "usoia", "computadores", "chrome", "metricas", "resumos"];   // "cartoes": os cartões do dia (cartoes-dia.js); "revisoes": entrega 2; "chrome": entrega 6 (Seaninho no Chrome)
+const PAINEL_BLOCOS = ["decisoes", "okchrome", "airats", "esperando", "frentes", "cartoes", "sessoes", "paravoce", "revisoes", "entregas", "pedidos", "dcfim", "usoia", "computadores", "chrome", "metricas", "resumos"];   // "cartoes": os cartões do dia (cartoes-dia.js); "revisoes": entrega 2; "chrome": entrega 6 (Seaninho no Chrome); "okchrome": o OK do Chrome pelo celular (pro-106, no alto: é urgente e vence em 3 min)
 const painelDe = p => (p && p.hoje && p.hoje.painel) || null;
 function motivoRede(e) {
   const m = String((e && e.message) || e || "");
@@ -2744,6 +2766,9 @@ function desenharInicio() {
       : `<div class="empty">Nenhum PC publicou ainda. Ligue o Seaninho no celular num PC.</div>`);
   }
   por($("p-decisoes"), blocoDecisoes());   // v24
+  // pro-106: o OK do Seaninho no Chrome (ok_chrome.js): os cards de cada PC com Permitir e Negar; o estado depois do toque
+  // fica em okcEstados até o agente publicar o dele (permitido, negado, já respondido)
+  por($("p-okchrome"), window.OkChrome ? OkChrome.bloco(lista, {agora, online, estados: okcEstados}) : "");
   por($("p-airats"), blocoAiRats());
   por($("p-esperando"), blocoEsperando(ss, agora));
   por($("p-frentes"), blocoFrentes(lista));   // 0.9.0.4
@@ -8198,6 +8223,9 @@ $("tabInicio").addEventListener("click", e => {
     if (rd) return acaoRodar(rd);
     if (e.target.closest("[data-rd-rodar], [data-rd-rodei]")) return;   // o botão desligado (sem PC, comando grande) não faz nada
   }
+  const okc = window.OkChrome ? OkChrome.acaoDe(e.target) : null;   // pro-106: Permitir / Negar do OK do Chrome
+  if (okc) return acaoOkChrome(okc);
+  if (e.target.closest("[data-okc-resposta]")) return;   // o botão desligado (PC sem sinal, prazo vencido) não faz nada
   const t = e.target.closest("[data-trocar]");
   if (t) return trocarConta(t.dataset.trocar, t);
   const pa = e.target.closest("[data-pcs-abrir]");
@@ -8332,6 +8360,7 @@ setInterval(() => {
     const t = `${el.dataset.prefixo} ${Pcs.mmss(Number(el.dataset.ate) - (Date.now() + relogio))}`;
     if (el.textContent !== t) el.textContent = t;
   }
+  if (window.OkChrome) OkChrome.tic(document, Date.now());   // pro-106: o "vence em 2:41" do OK do Chrome (e os botões, vencido)
 }, 1000);
 $("aiRats").addEventListener("click", e => {
   if (e.target.closest("#arFechar")) return fecharAiRats();
@@ -8701,6 +8730,11 @@ function abrirPeloAviso(d) {
     mostrarAba("Inicio"); paraVoceTodos = true; desenharInicio();
     const el = $("p-paravoce"); if (el) el.scrollIntoView({block: "start", behavior: "smooth"});
   });
+  if (d.okchrome) return atualizar().finally(() => {   // pro-106: o push do OK do Chrome abre o Início no card
+    if (aberta) fechar();
+    fecharComputadores(); mostrarAba("Inicio"); desenharInicio();
+    const el = $("p-okchrome"); if (el) el.scrollIntoView({block: "start", behavior: "smooth"});
+  });
   if (d.sessao) atualizar().finally(() => abrir(d.pc || "", d.sessao));
 }
 addEventListener("hashchange", () => {
@@ -8708,6 +8742,7 @@ addEventListener("hashchange", () => {
   if (h.get("sessao") && !(aberta && aberta.id === h.get("sessao"))) abrirPeloAviso({sessao: h.get("sessao"), pc: h.get("pc") || ""});
   else if (h.get("airats")) { history.replaceState(null, "", location.pathname); abrirPeloAviso({airats: true}); }
   else if (h.get("pv")) { history.replaceState(null, "", location.pathname); abrirPeloAviso({pv: true}); }
+  else if (h.get("okchrome")) { history.replaceState(null, "", location.pathname); abrirPeloAviso({okchrome: true}); }   // pro-106
   else if (h.has("pcs")) { history.replaceState(null, "", location.pathname); abrirPeloAviso({pcs: h.get("pcs") || ""}); }
   else if (h.get("ajustes")) { history.replaceState(null, "", location.pathname); abrirPeloAviso({ajustes: true}); }
   else if (h.get("frente") && h.get("frente") !== frAberta) { const k = h.get("frente"); if (aberta) fechar(); abrirFrente(k); }   // 0.9.0.4
@@ -8723,6 +8758,7 @@ if (!CFG.url || !CFG.publica) {
   if (h.get("sessao")) atualizar().then(() => abrir(h.get("pc") || "", h.get("sessao")));
   else if (h.get("airats")) { history.replaceState(null, "", location.pathname); atualizar().then(abrirAiRats); }
   else if (h.get("pv")) { history.replaceState(null, "", location.pathname); abrirPeloAviso({pv: true}); }
+  else if (h.get("okchrome")) { history.replaceState(null, "", location.pathname); abrirPeloAviso({okchrome: true}); }   // pro-106
   else if (h.has("pcs")) { history.replaceState(null, "", location.pathname); abrirPeloAviso({pcs: h.get("pcs") || ""}); }
   else if (h.get("ajustes")) { history.replaceState(null, "", location.pathname); abrirPeloAviso({ajustes: true}); }
   else if (h.get("frente")) { const k = h.get("frente"); atualizar().finally(() => abrirFrente(k)); }   // 0.9.0.4: o link da frente

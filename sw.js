@@ -40,8 +40,12 @@
 // na casca, depois do modo_ia.js) e o index.html novo, sobre a v35 da PRO-95 (já publicada). Publicar a celular/web
 // INTEIRA da main já juntada, pelo conferir_pagina.py (sem os dois arquivos novos, o addAll da instalação falha e o
 // iPhone fica na casca velha).
-const CACHE = "seaninho-v36";
-const CASCA = ["./", "./index.html", "./config.js", "./markdown.js", "./chat.js", "./reacoes.js", "./lista.js", "./prioridades.js", "./workflows.js", "./estoque.js", "./pcs.js", "./maquinas.js", "./modo_ia.js", "./vpsatividade.js", "./vpsatividade.css", "./chrome.js", "./cartoes-dia.js", "./volta.js", "./espaco.js", "./sobras.js", "./usoia.js", "./ninja.js", "./ninjavivo.js", "./marcar.js", "./decisoes.js", "./cards.js", "./paravoce.js", "./entregas.js", "./pedidos.js", "./mosaico.js", "./rodar.js", "./revisoes.js", "./manifest.webmanifest", "./icone-180.png", "./icone-192.png"];
+// v37 (17/11, a página 0.9.0.26, pro-106): o OK do Seaninho no Chrome pelo celular (o ok_chrome.js entra na casca, depois
+// do chrome.js) e o index.html novo (o bloco "Seaninho no Chrome pede o seu OK" no alto do Início, com Permitir e Negar;
+// o push "ok_chrome" abre o Início nele), sobre a v36 da pro-103. Publicar a celular/web INTEIRA da main já juntada,
+// pelo conferir_pagina.py (sem o ok_chrome.js, o addAll da instalação falha e o iPhone fica na casca velha).
+const CACHE = "seaninho-v37";
+const CASCA = ["./", "./index.html", "./config.js", "./markdown.js", "./chat.js", "./reacoes.js", "./lista.js", "./prioridades.js", "./workflows.js", "./estoque.js", "./pcs.js", "./maquinas.js", "./modo_ia.js", "./vpsatividade.js", "./vpsatividade.css", "./chrome.js", "./ok_chrome.js", "./cartoes-dia.js", "./volta.js", "./espaco.js", "./sobras.js", "./usoia.js", "./ninja.js", "./ninjavivo.js", "./marcar.js", "./decisoes.js", "./cards.js", "./paravoce.js", "./entregas.js", "./pedidos.js", "./mosaico.js", "./rodar.js", "./revisoes.js", "./manifest.webmanifest", "./icone-180.png", "./icone-192.png"];
 
 self.addEventListener("install", e => {
   // "reload": sem o cache HTTP do GitHub Pages (10 min), que podia misturar arquivos de duas versões
@@ -119,6 +123,7 @@ self.addEventListener("notificationclick", e => {
   const url = d.tipo === "ai_rats" ? "./#airats=1"   // a prévia do post do AI Rats
     : d.tipo === "decisoes" ? `./#decisoes=1${loteDoAviso(d) ? `&lote=${encodeURIComponent(loteDoAviso(d))}` : ""}`   // v24: o lote novo, já aberto
     : d.tipo === "entregas" ? `./#entregas=1${d.entrega ? `&lote=${encodeURIComponent(d.entrega)}` : ""}`   // 13/11: a entrega nova, no detalhe
+    : d.tipo === "ok_chrome" ? "./#okchrome=1"   // pro-106: o OK do Seaninho no Chrome: o Início, no card
     : d.tipo === "aparelho" ? "./#ajustes=1"   // 0.9.0: aparelho novo na conta: o ⚙ (aprovar ou não)
     : doPc ? `./#pcs=${encodeURIComponent(d.pc || "")}`   // 0.9.0: o PC caiu, voltou ou vai desligar: o cartão dele
     : d.tipo === "para_voce" || d.tipo === "teste" ? "./#pv=1"   // o Para você (0.8.9)
@@ -129,6 +134,7 @@ self.addEventListener("notificationclick", e => {
       c.postMessage({tipo: "abrir", sessao: doPc ? "" : d.sessao || "", pc: d.pc || "", airats: d.tipo === "ai_rats",
                      pv: d.tipo === "para_voce" || d.tipo === "teste", ...(doPc ? {pcs: d.pc || ""} : {}),
                      ...(d.tipo === "aparelho" ? {ajustes: true, sessao: ""} : {}),
+                     ...(d.tipo === "ok_chrome" ? {okchrome: true, sessao: ""} : {}),   // pro-106
                      ...(d.tipo === "decisoes" ? {decisoes: true, sessao: "", lote: loteDoAviso(d)} : {}),
                      ...(d.tipo === "entregas" ? {entregas: true, sessao: "", lote: String(d.entrega || "")} : {})});
       return c.focus();

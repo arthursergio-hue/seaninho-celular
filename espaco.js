@@ -19,7 +19,7 @@
 "use strict";
 
 const VERSAO = 1;
-const FIXOS = ["esperando"];                 // recolhe, mas nunca esconde
+const FIXOS = ["esperando", "okchrome"];     // recolhe, mas nunca esconde (o OK do Chrome é urgente: pro-106)
 const JUNTOS = {dcfim: "decisoes"};          // a última decisão respondida (embaixo, sem lote esperando) é das Decisões
 const ROTULOS = {
   decisoes: "🗳 Decisões", airats: "📣 AI Rats", esperando: "🔔 Esperando você", frentes: "🧭 Frentes de trabalho",
@@ -28,6 +28,7 @@ const ROTULOS = {
   resumos: "📋 As outras abas",
   chrome: "🌐 Seaninho no Chrome",   // o trem 0.9.0.18: o grupo da entrega 6 (chrome.js) também na folha "Mostrar na tela"
   cartoes: "🗂 Cartões do dia",      // 16/11 (PR #34): o bloco do cartoes-dia.js, com nome no ▾, no ✕ e na folha
+  okchrome: "🔐 OK do Chrome",       // pro-106: o bloco do ok_chrome.js (o OK do Seaninho no Chrome pelo celular)
 };
 const NOME = /^[a-z0-9_-]{1,30}$/;
 const MAX = 40;                              // nomes por lista (o banco aceita até 20 KB e a lista da conta tem 1 item)
