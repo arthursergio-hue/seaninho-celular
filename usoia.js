@@ -12,6 +12,9 @@
 // pro-93 (16/11, "o Monitor e o celular andam iguais"): a manchete é a faixa de agora que o Monitor geral calculou (o
 // `agora` do conjunto), com a prévia da pro-92 na semana sem régua; a conta daqui só sem ele ou com ele velho
 // (faixaDoMonitor). pro-104 (17/11): a conta daqui também faz a prévia (o Monitor fechado deixa o conjunto velho).
+// pro-99 (17/11): uma leitura do TeamZone serve aos dois PCs. Entre as leituras da semana vale a de maior lido_em (a
+// escolha do Pro), e o `teamzone` do painel leva quem leu (`lido_por`, o curto): a tela diz "lido no TeamZone pelo WIN às
+// 11h40" (leituraTxt), o mesmo chip do Monitor geral. Sem quem leu (o Pro de antes), fica como era.
 (function (raiz) {
 "use strict";
 
@@ -137,6 +140,40 @@ function somarDia(linhas) {
 
 const oficialValido = (o, semana) => !!(o && typeof o === "object" && o.semana === semana && !o.erro && o.valores
   && typeof o.valores === "object" && N().instante(o.atualizado_em) !== null);
+// pro-99 (17/11, uma leitura do TeamZone serve aos dois PCs): entre as leituras da mesma semana (a do conjunto e a que
+// cada PC publica), vale a lida por último no TeamZone, o maior lido_em (sem ele, o atualizado_em, que nunca é depois
+// da leitura); no empate, o atualizado_em mais novo e, de novo, a que traz as máquinas. É a escolha do
+// oficial_compartilhado do Pro (pro-99): o WIN leu às 11h40 e o SEAZONE192 às 10h40, vale a do WIN nos dois.
+const lidaEm = o => { const R = N(), l = R.instante(o.lido_em); return l !== null ? l : R.instante(o.atualizado_em) || 0; };
+const maisNovaPrimeiro = (a, b) => (lidaEm(b) - lidaEm(a))
+  || ((N().instante(b.atualizado_em) || 0) - (N().instante(a.atualizado_em) || 0))
+  || (num(b.maquinas) ? 1 : 0) - (num(a.maquinas) ? 1 : 0);
+// Quem leu (o curto do PC: WIN-EAD6OD66GE7 vira WIN): o lido_por_curto do conjunto do Pro novo; sem ele, o curto do
+// lido_por do uso_ia_oficial (o nome inteiro, como o Pro grava); sem nenhum (o Pro de antes), null.
+function lidoPor(o) {
+  if (!o || typeof o !== "object") return null;
+  const curto = typeof o.lido_por_curto === "string" ? o.lido_por_curto.trim() : "";
+  if (curto) return curto.slice(0, 30);
+  const nome = typeof o.lido_por === "string" ? o.lido_por.trim() : "";
+  return nome ? nomeCurto(nome).slice(0, 30) : null;
+}
+// O lido_por da leitura escolhida; sem ele, o de outra cópia da MESMA leitura (a mesma semana, o mesmo lido_em e o mesmo
+// atualizado_em: o oficial do conjunto de um Pro de antes e o uso_ia_oficial que o agente publica são a mesma leitura).
+function lidoPorDe(oficial, candidatas) {
+  if (!oficial) return null;
+  const R = N(), mesma = o => o && o.semana === oficial.semana && R.instante(o.lido_em) === R.instante(oficial.lido_em)
+    && R.instante(o.atualizado_em) === R.instante(oficial.atualizado_em);
+  return lidoPor(oficial) || (candidatas || []).filter(mesma).map(lidoPor).find(Boolean) || null;
+}
+// pro-99: a linha de quem leu, o texto do chip do Monitor geral (geral_uso.js): "lido no TeamZone pelo WIN às 11h40"; de
+// outro dia, "lido no TeamZone pelo WIN em 16/11 às 11h40". "" sem quem leu (o Pro de antes) ou sem a hora da leitura: a
+// tela fica como era. `tz`: o `teamzone` do painel ({lido_em (ms), lido_por}).
+function leituraTxt(tz, agora) {
+  const R = N(), t = R.instante(agora);
+  if (!tz || !tz.lido_por || !num(tz.lido_em) || t === null) return "";
+  const dia = R.emSP(tz.lido_em).dia, h = horaSP(tz.lido_em);
+  return `lido no TeamZone pelo ${tz.lido_por} ${dia === R.emSP(t).dia ? `às ${h}` : `em ${diaBr(dia)} às ${h}`}`;
+}
 
 // ---- a situação de cada janela e a importação de hoje (o `situacao` e o `importacao_de_hoje` do Pro, pro-62) --------
 const ENVIO_ATE_MS = 40 * 60000;       // o coletor manda a janela que fechou às 17h por volta das 17h24: às 17h40 já foi
@@ -578,10 +615,9 @@ function painel(lista, agora, {maquinasPadrao = MAQUINAS_PADRAO} = {}) {
   const escolhido = escolherConjunto(doConjunto(semana));
   const c = escolhido ? escolhido.conjunto : null;
   const oficiais = [c && c.oficial, ...itens.map(u => u.oficial)].filter(o => oficialValido(o, semana));
-  // a leitura mais nova; no empate (o oficial do conjunto e o uso_ia_oficial são a mesma leitura), a que traz as
-  // máquinas e a hora da leitura (o oficial de dentro do conjunto do Pro não traz)
-  const oficial = oficiais.sort((a, b) => R.instante(b.atualizado_em) - R.instante(a.atualizado_em)
-    || (num(b.maquinas) ? 1 : 0) - (num(a.maquinas) ? 1 : 0))[0] || null;
+  // a leitura mais nova (pro-99: a de maior lido_em, a escolha do Pro; antes, a de maior atualizado_em); no empate (o
+  // oficial do conjunto e o uso_ia_oficial são a mesma leitura), a que traz as máquinas
+  const oficial = [...oficiais].sort(maisNovaPrimeiro)[0] || null;
   // pro-93 (cético): na prévia da pro-92 (`regua.previa`), as faixas do conjunto são as da semana anterior, não as desta;
   // sem a leitura do TeamZone dizendo "sem régua", elas viravam a régua da W47 aqui ("Faixa Verde" sem "Prévia"). A régua
   // desta semana fica com a leitura, o asset ou nada; a da prévia vai pelo faixaDoMonitor.
@@ -608,7 +644,7 @@ function painel(lista, agora, {maquinasPadrao = MAQUINAS_PADRAO} = {}) {
       : semPrevia(c && c.fechando && c.fechando.semana === anterior.rotulo ? c.fechando
         : (escolherConjunto(doConjunto(anterior.rotulo)) || {}).conjunto);
     const ofAnterior = [c && c.fechando && c.fechando.oficial, ...itens.map(u => u.oficial)].filter(o => oficialValido(o, anterior.rotulo))
-      .sort((a, b) => R.instante(b.atualizado_em) - R.instante(a.atualizado_em))[0] || null;
+      .sort(maisNovaPrimeiro)[0] || null;
     const p = R.reguaDaSemana(anterior.rotulo, {oficial: ofAnterior, conjunto: conjAnterior || null});
     if (p.regua) {
       previaDaqui = {regua: p.regua, fonte: p.fonte, selo: `prévia: régua da W${anterior.rotulo.split("-W")[1]}`, sem_regua: true,
@@ -735,8 +771,8 @@ function painel(lista, agora, {maquinasPadrao = MAQUINAS_PADRAO} = {}) {
   if (t < R.corteDaSemana(anterior.fecha_em)) {
     const cf = (c && c.fechando && c.fechando.semana === anterior.rotulo) ? {conjunto: c.fechando, pc: escolhido.pc}
       : escolherConjunto(doConjunto(anterior.rotulo));
-    const of = [cf && cf.conjunto.oficial, ...itens.map(u => u.oficial)].filter(o => oficialValido(o, anterior.rotulo))
-      .sort((a, b) => R.instante(b.atualizado_em) - R.instante(a.atualizado_em))[0] || null;
+    const ofsF = [cf && cf.conjunto.oficial, ...itens.map(u => u.oficial)].filter(o => oficialValido(o, anterior.rotulo));
+    const of = [...ofsF].sort(maisNovaPrimeiro)[0] || null;
     // pro-104 (17/11, cético): o conjunto da semana que fecha feito ainda em prévia (o Monitor não refez o arquivo depois
     // de sexta 17h) traz as faixas da semana de antes dela: como na semana em curso (pro-93), elas não viram a régua da que
     // fecha ("Semana 47 · fechando · Faixa Verde" com a tabela da W46). Sem a régua dela, sem faixa, como o Monitor.
@@ -776,7 +812,8 @@ function painel(lista, agora, {maquinasPadrao = MAQUINAS_PADRAO} = {}) {
         {...R.faixaDaSemana(agoraF, rf.regua, 7, anterior.rotulo, bandaF), dias: 7, quando: retrato, retrato: true}, bandaF);
       fechando = {semana: anterior.rotulo, numero: anterior.rotulo.split("-W")[1], fecha_em: anterior.fecha_em,
         manchete: vivoF.ao_vivo ? vivoF : {...mf, ao_vivo: false}, no_teamzone: of ? mf : null,
-        base: bf, teamzone: of ? {atualizado_em: R.instante(of.atualizado_em), maquinas: of.maquinas, fechada: !!of.fechada} : null, pcs: pcsF, regua: rf,
+        base: bf, teamzone: of ? {atualizado_em: R.instante(of.atualizado_em), maquinas: of.maquinas, fechada: !!of.fechada,
+          lido_em: R.instante(of.lido_em), lido_por: lidoPorDe(of, ofsF)} : null, pcs: pcsF, regua: rf,
         projecao: projecao && (projecao.faixa !== mf.faixa || JSON.stringify(projecao.faltam) !== JSON.stringify(mf.faltam)) ? projecao : null,
         retrato};
     }
@@ -811,7 +848,8 @@ function painel(lista, agora, {maquinasPadrao = MAQUINAS_PADRAO} = {}) {
     fim: R.fimDaSemana(fechaEm), dias: diasAgora, origem: c ? "conjunto" : "pcs", base, parcial, regua: reguaDaTela, manchete, valores,
     previa, do_monitor: !!doMonitor, no_teamzone: noTeamzone,
     teamzone: oficial ? {atualizado_em: R.instante(oficial.atualizado_em), maquinas: num(oficial.maquinas) ? oficial.maquinas : null,
-      lido_em: R.instante(oficial.lido_em), fechada: !!oficial.fechada} : null,
+      lido_em: R.instante(oficial.lido_em), fechada: !!oficial.fechada,
+      lido_por: lidoPorDe(oficial, oficiais)} : null,   // pro-99: quem leu ("WIN"); null com o Pro de antes
     proxima, pcs, visto: pa && pa.pcs && typeof pa.pcs === "object" && !Array.isArray(pa.pcs) ? pa.pcs : {}, maquinas, medido, fora, fechando,
     conferencia: c && c.conferencia && typeof c.conferencia === "object" ? c.conferencia : null, avisos, ninja};
 }
@@ -947,7 +985,9 @@ const UsoIa = {ORDEM, CRITERIOS, ROTULO, UNIDADE, ESTIMADAS, ESTADOS, VOLUMES, D
   // pro-67: a faixa AO VIVO e a linha do TeamZone
   faltamParaFicar, valoresDeAgora, faixaAoVivo, linhaTeamZone, proximoRelatorio, quandoCurto, diaDaLeitura,
   // pro-93: a faixa do Monitor (e a prévia da pro-92)
-  faixaDoMonitor};
+  faixaDoMonitor,
+  // pro-99: a leitura do TeamZone de um PC serve aos dois (a mais nova e quem leu)
+  maisNovaPrimeiro, lidoPor, leituraTxt};
 if (typeof module !== "undefined" && module.exports) module.exports = UsoIa;
 else raiz.UsoIa = UsoIa;
 })(typeof window !== "undefined" ? window : globalThis);

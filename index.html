@@ -1754,7 +1754,8 @@ let sugestoesAtuais = []; // as respostas prontas da sessão aberta (o PC pede �
 let ordemPedida = [], arrastoSecao = null, ordemEsperada = null;   // (e a ordem que a tela mostra com eles)
 let timer = null, timerSala = null;
 let aba = "Inicio";
-const VERSAO_APP = "0.9.0.26";   // esta página (v37, a casca seaninho-v37: o OK do Seaninho no Chrome pelo celular (pro-106: o ok_chrome.js), com o agente 0.9.0.26; sobre a v36 da Atividade da VPS (pro-103), já publicada)
+const VERSAO_APP = "0.9.0.27";   // esta página (v38, a casca seaninho-v38: quem leu o TeamZone (pro-99: o usoia.js e o chip "lido no TeamZone pelo WIN") e os textos do Modo da IA iguais ao Monitor (pro-110: o modo_ia.js), com o agente 0.9.0.27, que também acha a sessão do hokage num painel do Herdr sem agent_session (herdr-repasse-arvore: só o agente, a página não muda por ela); sobre a v37 do OK do Chrome (pro-106), já publicada)
+// (v37, a casca seaninho-v37: o OK do Seaninho no Chrome pelo celular (pro-106: o ok_chrome.js), com o agente 0.9.0.26; sobre a v36 da Atividade da VPS (pro-103), já publicada)
 // (v36, a casca seaninho-v36: o painel "Atividade da VPS" (pro-103: o vpsatividade.js e o .css), com o agente 0.9.0.24; sobre a v35 dos workflows ao vivo (pro-95), já publicada)
 // (v35, a casca seaninho-v35: os workflows ao vivo na aba Workflows e no mosaico (pro-95): a fase, os agentes e o "agora", a imagem mais nova em destaque que abre o visor com o ✏ Marcar e o ▭ Compacto lembrado por frente, com o agente 0.9.0.23; entra depois do Modo da IA do PR #49, que passou à v34 sobre a v33 da pro-104: quem publica esta página depois dele sobe o número da casca)
 // (v34 do PR #49, a casca seaninho-v34: o Modo da IA, Pool ⇄ Proxy com um clique (pro-102: o modo_ia.js), com o agente 0.9.0.22; sobre a v33 da pro-104, a página inteira)
@@ -1793,10 +1794,18 @@ const VERSAO_APP = "0.9.0.26";   // esta página (v37, a casca seaninho-v37: o O
 // com os cards do sinal da ponte do Chrome 0.3.2, o push "ok_chrome" e a ação ok_chrome_responder, que roda a CLI do Chrome
 // como filho do agente). Com o 0.9.0.24 ou de antes, o bloco não vem e o Início fica como antes, sem estrago; o toque num
 // card de um PC com o agente antigo volta "ação desconhecida no agente". O 0.9.0.25 é o da pro-105.
-const AGENTE_ATUAL = "0.9.0.26";
+// v38 (18/11, pro-99 + pro-110, sobre a v37): o 0.9.0.27 é o agente que leva ao outro PC a leitura do TeamZone
+// (o uso_ia_oficial no sessoes-remotas.json de lá, para o Pro 1.6.46 escolher a mais nova) e publica o lido_por; a
+// página mostra "lido no TeamZone pelo WIN às 11h40" e os textos do Modo da IA iguais ao Monitor. O mesmo agente
+// (herdr-repasse-arvore) acha a sessão do hokage num painel do Herdr sem agent_session (pela árvore de processos):
+// o chat daqui ao hokage e o orq.py enviar do WIN deixam de voltar "Este PC não tem quem repasse as mensagens", e a
+// nota do Para você vai digitada no Herdr (a marca "herdr": true, o selo do Monitor geral do Pro 1.6.46). Com o
+// 0.9.0.26 ou de antes, o chip não aparece e o Pro de lá fica só com a leitura dele, sem estrago.
+const AGENTE_ATUAL = "0.9.0.27";
 // 0.9.0.15 (12/11): o agente que entrega no terminal, no app do Claude e no segundo plano (o mesmo do Chat.AGENTE_QUALQUER)
 const AGENTE_QUALQUER = "0.9.0.15";
 const NOVIDADES_APP = [
+  ["0.9.0.27", "Uma leitura do TeamZone serve aos dois PCs: a leitura que um PC faz do TeamZone vai ao outro pelo agente, e o painel Seu uso de IA (aqui e no Monitor geral dos dois PCs) mostra a mais nova, com o chip 📖 lido no TeamZone pelo WIN às 11h40. E os textos do Modo da IA ficam iguais aos do Monitor geral (ESTE PC, OUTRO PC). O chat daqui ao hokage e o recado do outro PC voltam a chegar quando ele trabalha num painel do Herdr (o agente acha a sessão pela árvore de processos, sem depender da integração do Claude com o Herdr), e as notas do Para você chegam a ele digitadas no Herdr. Precisa do agente 0.9.0.27 nos PCs e do Seaninho Pro 1.6.46."],
   ["0.9.0.26", "O OK do Seaninho no Chrome pelo celular: quando uma sessão pede ao Seaninho no Chrome para anexar um arquivo (ou outra ação que pede o seu OK) e a tela do PC está trancada, o pedido chega aqui, com push: o card 🔐 Seaninho no Chrome pede o seu OK, no alto do Início, com a ação e o site, o nome e o tamanho de cada arquivo (nunca a pasta), a sessão e a contagem (vence em 3 min). Permitir ou Negar manda a resposta ao PC, que a entrega à ponte do Chrome como se fosse você no PC; o card mostra ✓ Permitido, ✕ Negado ou que já foi respondido no PC. Só do seu celular aprovado, e cada anexo pede o seu OK (não há permitir sempre). Precisa do agente 0.9.0.26 nos PCs e do Seaninho no Chrome 0.3.2."],
   ["0.9.0.24", "Atividade da VPS: um toque no chip ☁ VPS do topo, ou no botão Atividade do cartão dela em Computadores, abre o que a VPS está fazendo. No alto, se ela foi lida agora ou por que está sem leitura e o que fazer (o Tailscale pediu confirmação: o botão Confirmar no Tailscale abre o login). Depois, os chips do resumo e os grupos: esperam resposta (com a pergunta), rodando, na fila, prontas sem PR, falharam e as fechadas. Cada cartão abre com o custo e o teto em barra, a última linha do trabalho em palavras e o Ver log. Embaixo, as rotinas da VPS (a varredura do GitHub, os testes da noite, o relatório do dia, o olheiro) com a última rodada, e a saúde (RAM, sessões em uso, fila barrada). Sem leitura, os últimos dados ficam apagados, com a hora. O mesmo painel do Monitor geral. Precisa do agente 0.9.0.24 nos PCs."],
   ["0.9.0.23", "Workflows ao vivo, na aba Workflows e no mosaico: cada workflow aberto mostra a fase, os agentes de cada fase (● rodando, ◌ parado, ✕ com erro, ✓ pronto) e o \"Agora:\" em palavras, sem termo técnico. A imagem mais nova que os agentes gravaram ou leram aparece grande no cartão e troca sozinha, com as anteriores pequenas embaixo. O toque na imagem abre o visor de sempre, com o ✏ Marcar: a marcação vai para a sessão do workflow. O ▭ esconde a imagem (o Agora e os agentes continuam) e o ▣ Destaque traz a imagem de volta; a escolha fica lembrada por cartão neste aparelho, e com a sessão te esperando a imagem sai sozinha. Sem imagem, não há destaque nem botão. O caminho de uma pasta pessoal aparece como \"uma pasta pessoal\". O workflow retomado depois do limite da conta aparece rodando, e cada cartão mostra um workflow só, sem agentes repetidos. Precisa do agente 0.9.0.23 nos PCs."],
@@ -3313,10 +3322,16 @@ function linhaProxima(p) {
   const oQue = q.sem_regua ? esc(q.motivo) : `${cintoNinja(q.faixa)}<b>${esc(q.faixa ? `Faixa ${q.faixa}` : "sem faixa")}</b>${q.proxima && falta ? ` · ${esc(falta)} para a ${esc(q.proxima)}` : ""}`;
   return `<p class="uso-agora">${q.passou ? `Na atualização de ${esc(quando)}` : `Se parar agora (${esc(quando)})`}: ${oQue}${porque ? ` <small class="uso-pq">(${esc(porque)})</small>` : ""}</p>`;
 }
+// pro-99 (17/11): o chip de quem leu o TeamZone, o mesmo texto do Monitor geral ("lido no TeamZone pelo WIN às 11h40"):
+// a leitura de um PC serve aos dois. Sem quem leu (o Seaninho Pro de antes), não aparece.
+function chipLeitura(p) {
+  const txt = p.base === "oficial" && UsoIa.leituraTxt ? UsoIa.leituraTxt(p.teamzone, agoraBanco()) : "";
+  return txt ? `<span class="uso-chip" title="A última leitura do TeamZone: a leitura de um computador serve aos dois">📖 ${esc(txt)}</span>` : "";
+}
 function chipsUso(p) {
   const pcsTxt = `${p.pcs.length} de ${p.maquinas} ${p.maquinas === 1 ? "máquina" : "máquinas"}`;
   return `<div class="uso-chips"><span class="uso-chip">📅 dia ${p.dias} de 7</span><span class="uso-chip${p.pcs.length < p.maquinas ? " meio" : ""}">🖥 ${pcsTxt}</span>${p.medido
-    ? `<span class="uso-chip">🕒 medido às ${esc(horaTz(p.medido))}</span>` : ""}</div>`;
+    ? `<span class="uso-chip">🕒 medido às ${esc(horaTz(p.medido))}</span>` : ""}${chipLeitura(p)}</div>`;
 }
 // Quem entra na soma e quem fica de fora (o PC desligado, o que ainda não mede, o que o conjunto não cobre).
 function somandoTxt(p) {

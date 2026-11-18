@@ -44,7 +44,10 @@
 // do chrome.js) e o index.html novo (o bloco "Seaninho no Chrome pede o seu OK" no alto do Início, com Permitir e Negar;
 // o push "ok_chrome" abre o Início nele), sobre a v36 da pro-103. Publicar a celular/web INTEIRA da main já juntada,
 // pelo conferir_pagina.py (sem o ok_chrome.js, o addAll da instalação falha e o iPhone fica na casca velha).
-const CACHE = "seaninho-v37";
+// v38 (18/11, a página 0.9.0.27, pro-99 + pro-110): sem script novo na casca; o usoia.js (a leitura mais nova entre os
+// PCs e o chip "lido no TeamZone pelo WIN"), o modo_ia.js (os textos ESTE PC / OUTRO PC do Monitor) e o index.html
+// novo, sobre a v37 da pro-106. Publicar a celular/web INTEIRA da main já juntada, pelo conferir_pagina.py.
+const CACHE = "seaninho-v38";
 const CASCA = ["./", "./index.html", "./config.js", "./markdown.js", "./chat.js", "./reacoes.js", "./lista.js", "./prioridades.js", "./workflows.js", "./estoque.js", "./pcs.js", "./maquinas.js", "./modo_ia.js", "./vpsatividade.js", "./vpsatividade.css", "./chrome.js", "./ok_chrome.js", "./cartoes-dia.js", "./volta.js", "./espaco.js", "./sobras.js", "./usoia.js", "./ninja.js", "./ninjavivo.js", "./marcar.js", "./decisoes.js", "./cards.js", "./paravoce.js", "./entregas.js", "./pedidos.js", "./mosaico.js", "./rodar.js", "./revisoes.js", "./manifest.webmanifest", "./icone-180.png", "./icone-192.png"];
 
 self.addEventListener("install", e => {

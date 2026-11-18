@@ -41,6 +41,12 @@ const TX = {
   // revisão do PR 49: a troca de verdade de outro computador é só pelo toque no celular; do Monitor do outro PC, só o
   // ensaio (aqui só para a tabela ficar igual à do Monitor: o celular é o toque que troca)
   soCelular: pc => `A troca de verdade do ${pc} é só pelo toque no celular (Computadores › Trocar). Daqui, só o ensaio.`,
+  // pro-110 (17/11, o Arthur no WIN: "Eu tô aqui no Windows, eu não sei onde é que eu troco do Windows"): o alto do
+  // Monitor mostra os dois PCs, ESTE PC (com o botão de trocar) e OUTRO PC (sem botão, com a linha de onde trocar). Aqui
+  // só para a tabela ficar igual à do Monitor: no celular não há "este PC", e o toque troca qualquer um
+  esteRotulo: "ESTE PC",
+  outroRotulo: "OUTRO PC",
+  outroTroca: pc => `troque pelo celular ou pelo Monitor do ${pc}`,
   // o ninho do Monitor geral (16/11): um clique troca o PC dele, sem folha, com o Desfazer (aqui só para a tabela ficar
   // igual à do Monitor; o celular segue com a folha)
   ninhoDica: (x, s) => `Clique para trocar este PC para o ${x}${s ? ` (${s})` : ""}`,
