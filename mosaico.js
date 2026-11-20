@@ -176,7 +176,7 @@ function envioDe(s, pedido, agora = Date.now()) {
 }
 
 // ==== A tela ==========================================================================================================
-// O ladrilho. op: {agora, varios, estadoDe(s), previa(s), ha(s), envio(s) -> {pode, motivo, responder, desligado},
+// O ladrilho. op: {agora, varios, estadoDe(s), previa(s), ha(s), envio(s) -> {pode, motivo, responder, desligado, fila},
 // frentes (a vista das frentes), extras (as orquestras: [{pc, sessao, nome, quadro}]), rascunho(s), pedido(id),
 // foto(img, chave da frente) -> o src da imagem (pro-95: o destaque; a página pede a que falta), compacto(chave) -> true}.
 function ladrilho(s, op = {}) {
@@ -236,7 +236,10 @@ function ladrilho(s, op = {}) {
     const r = typeof op.rascunho === "function" ? String(op.rascunho(s) || "") : "";
     // um textarea de uma linha (e não um input): o rascunho da conversa pode ter quebras de linha, e elas ficam; o
     // Enter (o "enviar" do teclado do iPhone) manda, como na lista de conversas do WhatsApp
-    pe = `<form class="mz-caixa" data-mz-form data-pc="${esc(s.pc)}" data-id="${esc(s.id)}"><textarea class="mz-in" data-mz-texto rows="1" enterkeyhint="send" autocomplete="off" maxlength="${TEXTO_MAX}" placeholder="Mensagem…" aria-label="Mensagem para ${esc(titulo)}">${esc(r)}</textarea><button type="submit" class="mz-env" data-mz-enviar aria-label="Enviar para ${esc(titulo)}">➤</button></form>`;
+    // 20/11 (crítico): a sessão do Herdr em pergunta (envio.fila): o "Responder ›" que abre o quadro, o aviso de que a
+    // mensagem espera a resposta, e a caixa (a mensagem vai na fila do PC)
+    pe = (ev.fila ? `<button type="button" class="mz-resp" data-mz-abrir>Responder ›</button><p class="mz-motivo">🕓 Esperando a sua resposta: a mensagem entra depois dela.</p>` : "")
+      + `<form class="mz-caixa" data-mz-form data-pc="${esc(s.pc)}" data-id="${esc(s.id)}"><textarea class="mz-in" data-mz-texto rows="1" enterkeyhint="send" autocomplete="off" maxlength="${TEXTO_MAX}" placeholder="Mensagem…" aria-label="Mensagem para ${esc(titulo)}">${esc(r)}</textarea><button type="submit" class="mz-env" data-mz-enviar aria-label="Enviar para ${esc(titulo)}">➤</button></form>`;
   }
   const st = envioDe(s, op.pedido, op.agora);
   return `<div class="mz-t est-${esc(k)}${cen ? " mz-central" : ""}${s.desligado ? " off" : ""}" data-mz-t data-pc="${esc(s.pc)}" data-id="${esc(s.id)}"${estilo}>

@@ -354,6 +354,7 @@ body.md-ver-cartoes .md-tab .md-seg [data-tab-modo="tabela"],body.md-ver-tabela 
 .perm-det{margin:6px 0 4px;padding:8px 10px;border-radius:10px;background:rgba(0,0,0,.3);font:12.5px/1.45 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
   white-space:pre-wrap;word-break:break-word;max-height:none;overflow:hidden}
 .perm-det.longo{max-height:220px;-webkit-mask-image:linear-gradient(#000 75%,transparent)}
+.perm-det.perm-tela{max-height:50vh;overflow:auto;border:1px solid rgba(255,190,90,.45)}   /* 19/11: o pedido inteiro da trava (Herdr), com rolagem */
 .perm .btn{margin-top:8px;padding:11px;font-size:15px}
 .perm .perm-recado{margin-top:10px}
 .nota.obs{margin-top:4px}
@@ -1754,7 +1755,7 @@ let sugestoesAtuais = []; // as respostas prontas da sessão aberta (o PC pede �
 let ordemPedida = [], arrastoSecao = null, ordemEsperada = null;   // (e a ordem que a tela mostra com eles)
 let timer = null, timerSala = null;
 let aba = "Inicio";
-const VERSAO_APP = "0.9.0.27";   // esta página (v38, a casca seaninho-v38: quem leu o TeamZone (pro-99: o usoia.js e o chip "lido no TeamZone pelo WIN") e os textos do Modo da IA iguais ao Monitor (pro-110: o modo_ia.js), com o agente 0.9.0.27, que também acha a sessão do hokage num painel do Herdr sem agent_session (herdr-repasse-arvore: só o agente, a página não muda por ela); sobre a v37 do OK do Chrome (pro-106), já publicada)
+const VERSAO_APP = "0.9.0.30";   // esta página (v41, a casca seaninho-v41: o celular responde as sessões do Herdr: a pergunta, a permissão e o plano com o agente 0.9.0.30 (AGENTE_HERDR_QUADRO), a caixa de mensagem que não bloqueia na pergunta do Herdr (a mensagem vai na fila: s.na_fila) e o texto inteiro do pedido da trava de segredos; o 0.9.0.28/v39 é da pro-113 e o 0.9.0.29/v40 de quem juntar depois dela; sobre a v38 do TeamZone (pro-99) e do Modo da IA (pro-110))
 // (v37, a casca seaninho-v37: o OK do Seaninho no Chrome pelo celular (pro-106: o ok_chrome.js), com o agente 0.9.0.26; sobre a v36 da Atividade da VPS (pro-103), já publicada)
 // (v36, a casca seaninho-v36: o painel "Atividade da VPS" (pro-103: o vpsatividade.js e o .css), com o agente 0.9.0.24; sobre a v35 dos workflows ao vivo (pro-95), já publicada)
 // (v35, a casca seaninho-v35: os workflows ao vivo na aba Workflows e no mosaico (pro-95): a fase, os agentes e o "agora", a imagem mais nova em destaque que abre o visor com o ✏ Marcar e o ▭ Compacto lembrado por frente, com o agente 0.9.0.23; entra depois do Modo da IA do PR #49, que passou à v34 sobre a v33 da pro-104: quem publica esta página depois dele sobe o número da casca)
@@ -1801,10 +1802,15 @@ const VERSAO_APP = "0.9.0.27";   // esta página (v38, a casca seaninho-v38: que
 // o chat daqui ao hokage e o orq.py enviar do WIN deixam de voltar "Este PC não tem quem repasse as mensagens", e a
 // nota do Para você vai digitada no Herdr (a marca "herdr": true, o selo do Monitor geral do Pro 1.6.46). Com o
 // 0.9.0.26 ou de antes, o chip não aparece e o Pro de lá fica só com a leitura dele, sem estrago.
-const AGENTE_ATUAL = "0.9.0.27";
+// v41 (19/11, celular-herdr-1911, sobre a v38; a v39 é da pro-113 e a v40 de quem juntar depois dela): o 0.9.0.30 é
+// o agente que responde o quadro das sessões do Herdr (a pergunta, a permissão e o plano, pelo teclado do Herdr), põe a
+// mensagem na fila da pergunta e tira o falso "Perguntando" (a tela de agora). Com o 0.9.0.29 ou de antes, a sessão do
+// Herdr segue "só se responde no PC", sem estrago.
+const AGENTE_ATUAL = "0.9.0.30";
 // 0.9.0.15 (12/11): o agente que entrega no terminal, no app do Claude e no segundo plano (o mesmo do Chat.AGENTE_QUALQUER)
 const AGENTE_QUALQUER = "0.9.0.15";
 const NOVIDADES_APP = [
+  ["0.9.0.30", "O celular volta a responder as sessões do Herdr: a pergunta com opções, o pedido de permissão e o plano aparecem aqui como no VS Code, e o toque vira a tecla da opção no Herdr (sem mexer na tela do PC, também com ela bloqueada). O que a trava de segredos pede vem com o texto inteiro e só Permitir ou Não. A caixa de mensagem não trava: na pergunta, a mensagem entra na fila e vai depois da resposta. O Perguntando das sessões do Herdr vem da tela de agora (acabou o Perguntando falso sem pergunta). E a conversa nova abre no Herdr quando o VS Code não dá (a tela bloqueada). Precisa do agente 0.9.0.30 nos PCs e do Seaninho Pro 1.6.46."],
   ["0.9.0.27", "Uma leitura do TeamZone serve aos dois PCs: a leitura que um PC faz do TeamZone vai ao outro pelo agente, e o painel Seu uso de IA (aqui e no Monitor geral dos dois PCs) mostra a mais nova, com o chip 📖 lido no TeamZone pelo WIN às 11h40. E os textos do Modo da IA ficam iguais aos do Monitor geral (ESTE PC, OUTRO PC). O chat daqui ao hokage e o recado do outro PC voltam a chegar quando ele trabalha num painel do Herdr (o agente acha a sessão pela árvore de processos, sem depender da integração do Claude com o Herdr), e as notas do Para você chegam a ele digitadas no Herdr. Precisa do agente 0.9.0.27 nos PCs e do Seaninho Pro 1.6.46."],
   ["0.9.0.26", "O OK do Seaninho no Chrome pelo celular: quando uma sessão pede ao Seaninho no Chrome para anexar um arquivo (ou outra ação que pede o seu OK) e a tela do PC está trancada, o pedido chega aqui, com push: o card 🔐 Seaninho no Chrome pede o seu OK, no alto do Início, com a ação e o site, o nome e o tamanho de cada arquivo (nunca a pasta), a sessão e a contagem (vence em 3 min). Permitir ou Negar manda a resposta ao PC, que a entrega à ponte do Chrome como se fosse você no PC; o card mostra ✓ Permitido, ✕ Negado ou que já foi respondido no PC. Só do seu celular aprovado, e cada anexo pede o seu OK (não há permitir sempre). Precisa do agente 0.9.0.26 nos PCs e do Seaninho no Chrome 0.3.2."],
   ["0.9.0.24", "Atividade da VPS: um toque no chip ☁ VPS do topo, ou no botão Atividade do cartão dela em Computadores, abre o que a VPS está fazendo. No alto, se ela foi lida agora ou por que está sem leitura e o que fazer (o Tailscale pediu confirmação: o botão Confirmar no Tailscale abre o login). Depois, os chips do resumo e os grupos: esperam resposta (com a pergunta), rodando, na fila, prontas sem PR, falharam e as fechadas. Cada cartão abre com o custo e o teto em barra, a última linha do trabalho em palavras e o Ver log. Embaixo, as rotinas da VPS (a varredura do GitHub, os testes da noite, o relatório do dia, o olheiro) com a última rodada, e a saúde (RAM, sessões em uso, fila barrada). Sem leitura, os últimos dados ficam apagados, com a hora. O mesmo painel do Monitor geral. Precisa do agente 0.9.0.24 nos PCs."],
@@ -2069,7 +2075,9 @@ const mzExtras = () => Object.values(pcs).map(p => { const o = (painelDe(p) || {
 function mzEnvio(s) {
   const p = pcs[s.pc];
   if (s.desligado || !p || !online(p)) return {desligado: true, motivo: `${nomeCurtoPc(s.pc)} desligado`};
-  if ((s.enquete && s.enquete.aberta !== false && s.respondivel) || (s.permissao && !s.enquete && s.respondivel)) return {responder: true};
+  // 19/11: a do Herdr em pergunta recebe a mensagem na fila (s.na_fila): a caixa do ladrilho não bloqueia
+  if ((s.enquete && s.enquete.aberta !== false && s.respondivel) || (s.permissao && !s.enquete && s.respondivel))
+    return s.na_fila ? {pode: true, fila: true} : {responder: true};
   if (!s.entregavel) return {pode: false, motivo: Chat.motivoSemEntrega(s, p.versao, {agentePermissao: AGENTE_PERMISSAO})};
   return {pode: true};
 }
@@ -4912,6 +4920,10 @@ async function transcrever1(blob, alvo, sessao) {
 // A lógica (juntar a conversa com os pedidos, os sinais) está em chat.js; aqui, o desenho e os toques.
 const AGENTE_CHAT = "0.8.0";        // o agente que responde enquete e recebe imagem
 const AGENTE_PERMISSAO = "0.8.1";   // o que responde o pedido de permissão (e aprova o plano)
+const AGENTE_HERDR_QUADRO = "0.9.0.30";   // 19/11: o que responde o quadro das sessões do Herdr (a pergunta, a permissão, o plano)
+// No Herdr, quem responde é o agente 0.9.0.30 (o de antes nem marcava "respondivel" lá); a resposta vai pelo teclado do Herdr
+const ondeResponde = s => s && s.herdr ? "no Herdr" : "na aba do PC";
+const respondeHerdr = s => !s || !s.herdr || agenteNovo(s.pc, AGENTE_HERDR_QUADRO);
 const CLIPE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5l-8.6 8.6a5.5 5.5 0 0 1-7.8-7.8l9.2-9.2a3.7 3.7 0 0 1 5.2 5.2l-9.2 9.2a1.8 1.8 0 0 1-2.6-2.6l8.5-8.5"/></svg>';
 const SETA = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M3.4 20.4l17.5-7.5a1 1 0 0 0 0-1.8L3.4 3.6a.9.9 0 0 0-1.3 1L4 11l9 1-9 1-1.9 6.4a.9.9 0 0 0 1.3 1z"/></svg>';
 const NOME_SINAL = {mandando: "mandando", enviado: "enviado", entregue: "entregue", lido: "a sessão respondeu", erro: "não foi",
@@ -5042,9 +5054,11 @@ function desenharDetalhe(paraOFim = false) {
     $("dSub").className = "sub off";
   }
   const ligado = s && pcs[s.pc] && online(pcs[s.pc]);
-  const enquete = s && s.enquete && s.enquete.aberta !== false && s.respondivel && agenteNovo(s.pc) ? s.enquete : null;
+  const enquete = s && s.enquete && s.enquete.aberta !== false && s.respondivel && agenteNovo(s.pc) && respondeHerdr(s) ? s.enquete : null;
   const permissao = s && s.permissao && !s.enquete ? s.permissao : null;
-  const respondePerm = !!(permissao && s.respondivel && agenteNovo(s.pc, AGENTE_PERMISSAO));
+  const respondePerm = !!(permissao && s.respondivel && agenteNovo(s.pc, AGENTE_PERMISSAO) && respondeHerdr(s));
+  // 19/11: a sessão do Herdr esperando a resposta não bloqueia a caixa: a mensagem vai na fila e entra depois dela
+  const naFila = !!(s && s.na_fila && (enquete || respondePerm));
   let motivo = "";
   envioBloqueado = "";
   if (!s) motivo = "A sessão não está mais aberta no PC.";
@@ -5055,9 +5069,10 @@ function desenharDetalhe(paraOFim = false) {
   else if (!s.entregavel) motivo = Chat.motivoSemEntrega(s, (pcs[s.pc] || {}).versao, {agentePermissao: AGENTE_PERMISSAO});
   const rascunho = ped.find(p => p.estado === "pronto" && (p.tipo || "claude") === "claude");
   if (!escrevendoEm($("dRascunho"))) $("dRascunho").innerHTML = rascunho ? desenharRascunho(rascunho) : "";
-  $("dCompor").classList.toggle("hidden", !!motivo || !!rascunho || !!enquete || respondePerm);
-  const info = enquete ? "Responda a enquete acima. Se nenhuma opção servir, use “Outra resposta”."
-    : respondePerm ? (permissao.plano ? "Aprove ou não o plano acima." : "Responda o pedido de permissão acima.") : motivo || envioBloqueado;
+  $("dCompor").classList.toggle("hidden", !!motivo || !!rascunho || ((!!enquete || respondePerm) && !naFila));
+  const fila = naFila ? " Pode escrever: a mensagem entra na fila e vai depois da resposta." : "";
+  const info = enquete ? "Responda a enquete acima. Se nenhuma opção servir, use “Outra resposta”." + fila
+    : respondePerm ? (permissao.plano ? "Aprove ou não o plano acima." : "Responda o pedido de permissão acima.") + fila : motivo || envioBloqueado;
   $("dBloqueio").textContent = info;
   if (enquete && s && pcs[s.pc] && online(pcs[s.pc]) && Lista.compararVersao(pcs[s.pc].versao, AGENTE_RECUSA) >= 0 && !respostaEmAndamento(s, s.enquete.id))
     $("dBloqueio").insertAdjacentHTML("beforeend", ` <button class="bloq-acao" data-recusar="${esc(s.enquete.id)}">✕ Não quero responder</button>`);
@@ -5321,7 +5336,7 @@ function respostaEmAndamento(s, id) {
 function desenharEnquete(enq, s) {
   const pendente = enq.aberta !== false && !!s.enquete && s.enquete.id === enq.id && !!pcs[s.pc];
   const enviando = pendente && respostaEmAndamento(s, enq.id);
-  const pode = pendente && s.respondivel && agenteNovo(s.pc) && online(pcs[s.pc]) && !enviando;
+  const pode = pendente && s.respondivel && agenteNovo(s.pc) && respondeHerdr(s) && online(pcs[s.pc]) && !enviando;
   const marcadas = escolhas[enq.id] || (escolhas[enq.id] = enq.perguntas.map(() => ({opcoes: [], outraMarcada: false, outra: ""})));
   const titulos = enq.perguntas.map(q => q.titulo).filter(Boolean).join(" · ");
   const recusa = pode && Lista.compararVersao(pcs[s.pc].versao, AGENTE_RECUSA) >= 0;
@@ -5341,9 +5356,10 @@ function desenharEnquete(enq, s) {
   const erro = pedidos.find(p => { const a = Chat.respostaDeEnquete(p, s.id); return a && a.id === enq.id; });   // o mais novo (o banco manda do mais novo para o mais velho)
   if (pendente) {
     if (pode) h += `<button class="btn" data-responder="${esc(enq.id)}"${Chat.completas(enq, marcadas) ? "" : " disabled"}>Responder</button>`;
-    else if (enviando) h += `<div class="enq-status"><span class="spin"></span>Respondendo na aba do PC…</div>`;
+    else if (enviando) h += `<div class="enq-status"><span class="spin"></span>Respondendo ${ondeResponde(s)}…</div>`;
     else if (!s.respondivel) h += `<div class="enq-status">${esc(soNoPc(s))}</div>`;
     else if (!agenteNovo(s.pc)) h += `<div class="enq-status">Para responder daqui, o ${esc(s.pc)} precisa do Seaninho no celular ${AGENTE_CHAT}.</div>`;
+    else if (!respondeHerdr(s)) h += `<div class="enq-status">Para responder no Herdr daqui, o ${esc(s.pc)} precisa do Seaninho no celular ${AGENTE_HERDR_QUADRO}.</div>`;
     else h += `<div class="enq-status">O PC parece desligado.</div>`;
     if (!enviando && erro && erro.estado === "erro") h += `<div class="enq-status err">⚠ ${esc(erro.erro)}</div>`;
   } else h += `<div class="enq-status">${enq.respostas ? "Respondida" : "Encerrada"}</div>`;
@@ -5397,9 +5413,14 @@ function respostaPermissaoEmAndamento(s, id) {
 
 function desenharPermissao(perm, s) {
   const enviando = respostaPermissaoEmAndamento(s, perm.id);
-  const pode = s.respondivel && agenteNovo(s.pc, AGENTE_PERMISSAO) && !!pcs[s.pc] && online(pcs[s.pc]) && !enviando;
-  let h = `<div class="enq-topo">${perm.plano ? "📋 Plano para aprovar" : "🔐 Pedido de permissão" + (perm.ferramenta ? " · " + esc(perm.ferramenta) : "")}</div>`
+  const pode = s.respondivel && agenteNovo(s.pc, AGENTE_PERMISSAO) && respondeHerdr(s) && !!pcs[s.pc] && online(pcs[s.pc]) && !enviando;
+  // 20/11: o quadro que só está na tela do Herdr (sem o pedido na conversa) vem com o texto inteiro e as opções da tela
+  const topo = perm.so_tela ? (perm.trava ? "🔒 Trava de segredos" : perm.tipo_tela === "confianca" ? "📁 Pergunta da pasta" : "❓ Pergunta na tela do Herdr")
+    : perm.plano ? "📋 Plano para aprovar" : (perm.trava ? "🔒 Trava de segredos" : "🔐 Pedido de permissão") + (perm.ferramenta ? " · " + esc(perm.ferramenta) : "");
+  let h = `<div class="enq-topo">${topo}</div>`
     + `<div class="enq-q">${esc(perm.titulo)}</div>`;
+  // 19/11: o que a trava de segredos pede no Herdr vem com o texto inteiro da tela (a decisão é sua, com tudo à vista)
+  if ((perm.trava || perm.so_tela) && perm.tela) h += `<pre class="perm-det perm-tela">${esc(perm.tela)}</pre>`;
   if (perm.detalhe) {
     const id = "perm:" + perm.id, aberto = abertos.has(id);
     const longo = perm.detalhe.length > 600 || perm.detalhe.split("\n").length > 12;
@@ -5408,15 +5429,17 @@ function desenharPermissao(perm, s) {
     if (longo) h += `<button class="mais" data-mais="${esc(id)}">${aberto ? "Mostrar menos" : "Ler tudo"}</button>`;
   }
   if (pode) {
-    const botoes = Chat.botoesPermissao(perm), botao = b => `<button class="btn${b.escolha === "sim" ? "" : " sec"}" data-perm="${esc(perm.id)}"
+    const botoes = Chat.botoesPermissao(perm), botao = b => `<button class="btn${b.escolha === "sim" || b.escolha === "n:1" ? "" : " sec"}" data-perm="${esc(perm.id)}"
       data-escolha="${b.escolha}"${b.original ? ` title="No PC: ${esc(b.original)}"` : ""}>${esc(b.rotulo)}</button>`;
     h += botoes.filter(b => b.escolha !== "nao").map(botao).join("");
-    h += `<input class="enq-outra perm-recado" data-perm-recado="${esc(perm.id)}" value="${esc(permRecados[perm.id] || "")}"
+    if (!perm.so_tela || perm.tipo_tela !== "confianca")
+      h += `<input class="enq-outra perm-recado" data-perm-recado="${esc(perm.id)}" value="${esc(permRecados[perm.id] || "")}"
       placeholder="${perm.plano ? "O que mudar no plano (opcional)" : "Recado para o Claude (opcional)"}" enterkeyhint="done">`;
     h += botoes.filter(b => b.escolha === "nao").map(botao).join("");
-  } else if (enviando) h += `<div class="enq-status"><span class="spin"></span>Respondendo na aba do PC…</div>`;
+  } else if (enviando) h += `<div class="enq-status"><span class="spin"></span>Respondendo ${ondeResponde(s)}…</div>`;
   else if (!s.respondivel) h += `<div class="enq-status">${esc(soNoPc(s))}</div>`;
   else if (!agenteNovo(s.pc, AGENTE_PERMISSAO)) h += `<div class="enq-status">Para responder daqui, o ${esc(s.pc)} precisa do Seaninho no celular ${AGENTE_PERMISSAO}.</div>`;
+  else if (!respondeHerdr(s)) h += `<div class="enq-status">Para responder no Herdr daqui, o ${esc(s.pc)} precisa do Seaninho no celular ${AGENTE_HERDR_QUADRO}.</div>`;
   else h += `<div class="enq-status">O PC parece desligado.</div>`;
   const ultimo = pedidos.find(p => { const a = Chat.respostaDePermissao(p, s.id); return a && a.id === perm.id; });   // o mais novo
   if (!enviando && ultimo && ultimo.estado === "erro") h += `<div class="enq-status err">⚠ ${esc(ultimo.erro)}</div>`;
@@ -5431,6 +5454,10 @@ async function responderPermissao(id, escolha) {
       && !confirm(`${b ? b.rotulo : "Permitir sempre"}?\n\nO Claude não vai mais pedir antes de fazer isso${b && b.original ? "" : " (vale a regra que o PC sugerir)"}.`)) return;
   const texto = escolha === "nao" ? (permRecados[id] || "").trim() : "";
   const acao = {acao: "responder_permissao", sessao: s.id, id, escolha, texto, titulo: perm.titulo};
+  // 19/11 (cético): a trava de segredos no Herdr: a marca do texto inteiro que esta página desenhou (o agente só aperta
+  // o Permitir com ela batendo com o texto da tela de agora); 20/11: também o quadro que só está na tela
+  if ((perm.trava || perm.so_tela) && perm.tela) acao.tela_vista = Chat.marcaTela(perm.tela);
+  if (perm.so_tela && b && b.original) acao.opcao = b.original;
   const local = {id: idLocal(), sessao: s.id, de: "eu", texto: Chat.textoPermissao(acao), t: Math.floor(Date.now() / 1000),
                  permissao_a: id};
   delete permRecados[id];

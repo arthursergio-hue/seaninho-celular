@@ -47,7 +47,11 @@
 // v38 (18/11, a página 0.9.0.27, pro-99 + pro-110): sem script novo na casca; o usoia.js (a leitura mais nova entre os
 // PCs e o chip "lido no TeamZone pelo WIN"), o modo_ia.js (os textos ESTE PC / OUTRO PC do Monitor) e o index.html
 // novo, sobre a v37 da pro-106. Publicar a celular/web INTEIRA da main já juntada, pelo conferir_pagina.py.
-const CACHE = "seaninho-v38";
+// v41 (19/11, a página 0.9.0.30, celular-herdr-1911; a v39 é da pro-113 e a v40 de quem juntar depois dela): sem
+// script novo na casca; o index.html (a caixa que não trava na pergunta do Herdr, o quadro do Herdr respondível, o
+// texto inteiro da trava) e o chat.js (os rótulos do terminal), sobre a v38. Publicar a celular/web INTEIRA da main já
+// juntada, pelo conferir_pagina.py.
+const CACHE = "seaninho-v41";
 const CASCA = ["./", "./index.html", "./config.js", "./markdown.js", "./chat.js", "./reacoes.js", "./lista.js", "./prioridades.js", "./workflows.js", "./estoque.js", "./pcs.js", "./maquinas.js", "./modo_ia.js", "./vpsatividade.js", "./vpsatividade.css", "./chrome.js", "./ok_chrome.js", "./cartoes-dia.js", "./volta.js", "./espaco.js", "./sobras.js", "./usoia.js", "./ninja.js", "./ninjavivo.js", "./marcar.js", "./decisoes.js", "./cards.js", "./paravoce.js", "./entregas.js", "./pedidos.js", "./mosaico.js", "./rodar.js", "./revisoes.js", "./manifest.webmanifest", "./icone-180.png", "./icone-192.png"];
 
 self.addEventListener("install", e => {

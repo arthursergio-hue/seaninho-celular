@@ -102,12 +102,27 @@ const BOTOES = {"yes": "Permitir", "no": "Não", "yes, allow all edits this sess
   "yes, and don't ask again": "Permitir e não perguntar de novo", "yes, return to normal mode": "Permitir e voltar ao modo normal",
   "yes, and use auto mode": "Aprovar e seguir no modo auto", "yes, and auto-accept": "Aprovar e aceitar as edições",
   "yes, and manually approve edits": "Aprovar e revisar cada edição", "no, keep planning": "Não, continuar planejando",
-  "send feedback and keep planning": "Mandar os comentários e continuar planejando"};
+  "send feedback and keep planning": "Mandar os comentários e continuar planejando",
+  // 19/11: os do terminal (o Herdr), lidos da tela do Claude Code 2.1.328
+  "yes, manually approve edits": "Aprovar e revisar cada edição", "tell claude what to change": "Não, dizer o que mudar",
+  // 20/11: a pergunta de confiança da pasta (o quadro que só está na tela do Herdr)
+  "yes, i trust this folder": "Sim, confio nesta pasta", "no, exit": "Não, sair"};
+// 20/11: o rótulo de uma opção da tela traduzido só quando é um conhecido (senão, como está no PC: “Permitir I trust…” não)
+function rotuloDaTela(rotulo) {
+  const r = String(rotulo || "").trim();
+  return BOTOES[r.toLowerCase()] || /^Yes, (allow .+ for |and always allow .+ from this project$|and don't ask again for )/i.test(r)
+    ? traduzirBotao(r) : r;
+}
 function traduzirBotao(rotulo) {
   const r = String(rotulo || "").trim(), chave = r.toLowerCase();
   if (BOTOES[chave]) return BOTOES[chave];
   const m = /^Yes, allow (access to )?(.+?) for (.+)$/i.exec(r);
   if (m) return `Permitir sempre ${m[1] ? "acesso a " : ""}${m[2]} ${DESTINOS[m[3].toLowerCase()] || "(" + m[3] + ")"}`;
+  // 19/11, o terminal (Herdr): "Yes, and always allow access to C:\x from this project", "Yes, and don't ask again for …"
+  const t = /^Yes, and always allow (access to )?(.+?) from this project$/i.exec(r);
+  if (t) return `Permitir sempre ${t[1] ? "o acesso a " : ""}${t[2]} neste projeto`;
+  const d = /^Yes, and don't ask again for (.+)$/i.exec(r);
+  if (d) return `Permitir e não perguntar de novo: ${d[1]}`;
   return r.replace(/^Yes,?\s*/i, "Permitir ").replace(/^No,?\s*/i, "Não ").trim() || r;
 }
 
@@ -115,11 +130,22 @@ function traduzirBotao(rotulo) {
 // o No) ou, sem eles, os de sempre. [{escolha: "sim"|"sempre"|"nao", rotulo, original?}]
 function botoesPermissao(perm) {
   const opcoes = Array.isArray(perm.opcoes) ? perm.opcoes : null;
+  if (perm.so_tela) {
+    // 20/11: o quadro que só está na tela do Herdr: um botão por opção da tela, pelo número dela ("n:2"), menos as que
+    // mudam o modo da sessão e as vazias (o "Yes, and …" que a trava de segredos não tem); o Esc é o "Cancelar"
+    const out = (opcoes || []).map((r, i) => ({escolha: "n:" + (i + 1), rotulo: rotuloDaTela(r), original: r}))
+      .filter(b => b.original && !/switch to auto mode/i.test(b.original) && i9(b.escolha));
+    out.push({escolha: "nao", rotulo: "Cancelar (Esc)"});
+    return out;
+  }
   if (opcoes) {
-    const sim = opcoes.filter(r => /^yes\b/i.test(r)), nao = opcoes.find(r => /^(no\b|send feedback)/i.test(r));
+    // 19/11: no terminal (Herdr), o "Yes, and switch to auto mode" não é o "Permitir sempre", e o "não" do plano é o
+    // "Tell Claude what to change"; a trava de segredos (perm.trava) só tem Permitir e Não
+    const sim = opcoes.filter(r => /^yes\b/i.test(r) && !/switch to auto mode/i.test(r)),
+      nao = opcoes.find(r => /^(no\b|send feedback|tell claude)/i.test(r));
     const out = [];
     if (sim[0]) out.push({escolha: "sim", rotulo: traduzirBotao(sim[0]), original: sim[0]});
-    if (sim[1]) out.push({escolha: "sempre", rotulo: traduzirBotao(sim[1]), original: sim[1]});
+    if (sim[1] && !perm.trava) out.push({escolha: "sempre", rotulo: traduzirBotao(sim[1]), original: sim[1]});
     if (nao) out.push({escolha: "nao", rotulo: traduzirBotao(nao), original: nao});
     if (out.length >= 2) return out;
   }
@@ -130,8 +156,11 @@ function botoesPermissao(perm) {
        {escolha: "nao", rotulo: "Não"}];
 }
 
+const i9 = escolha => /^n:[1-9]$/.test(escolha);   // o teclado do Herdr só alcança da 1 à 9
+
 // O balão meu da resposta: o que escolhi e o pedido.
 function textoPermissao(acao) {
+  if (i9(acao.escolha || "")) return `✅ Escolhi “${acao.opcao || acao.escolha.slice(2)}”` + (acao.titulo ? `: ${acao.titulo}` : "");
   const o = {sim: "✅ Permiti", sempre: "✅ Permiti sempre", nao: "🚫 Não permiti"}[acao.escolha] || "Respondi";
   return o + (acao.titulo ? `: ${acao.titulo}` : "") + (acao.escolha === "nao" && acao.texto ? `\n“${acao.texto}”` : "");
 }
@@ -519,6 +548,19 @@ function acharCitada(linhas, cita, horaDe) {
          : normalizar(separarCitacao(l.texto).texto).toLowerCase().replace(/"/g, "'").startsWith(alvo))) || null;
 }
 
+// 19/11 (cético): a marca do texto do pedido que o celular desenhou (perm.tela, a trava de segredos no Herdr), igual à
+// herdr.marca do agente: FNV-1a de 32 bits nas unidades UTF-16 do texto, em hexadecimal (8 letras). O toque em
+// Permitir leva a marca ("tela_vista"), e o agente só aperta com ela batendo com o texto que ele publicou e com o da tela.
+function marcaTela(texto) {
+  const s = String(texto == null ? "" : texto);
+  let h = 0x811c9dc5;
+  for (let i = 0; i < s.length; i++) {
+    h ^= s.charCodeAt(i);
+    h = Math.imul(h, 0x01000193) >>> 0;
+  }
+  return h.toString(16).padStart(8, "0");
+}
+
 // A lista com o item i levado para a posição j (reordenar as prévias arrastando).
 function mover(lista, i, j) {
   const out = [...lista], [x] = out.splice(i, 1);
@@ -529,7 +571,7 @@ function mover(lista, i, j) {
 const Chat = {SINAL, normalizar, versaoMin, montar, estadoDoPedido, pelaCaixa, pedidosDaSessao, respostaDeEnquete, textoResposta,
   AGENTE_QUALQUER, SELO, viaDaResposta, viaDoErro, motivoSemEntrega,
   ESPERANDO, respostaDePermissao, traduzirBotao, botoesPermissao, textoPermissao, reenviavel, MAX_IMAGENS, imagensDaColagem, imagensDosItens,
-  nImagens, mover, citacao, comCitacao, separarCitacao, acharCitada,
+  nImagens, mover, marcaTela, citacao, comCitacao, separarCitacao, acharCitada,
   daOrquestra, temAnexo, corpoDaOrquestra, NOME_ORQ, FOTO_LADO, FOTO_QUALIDADE, FOTO_PEQUENA, FOTO_MAX, PC_GUARDA, tipoDosBytes, orientacaoExif,
   ladoReduzido, bytesDoBase64, comoVaiAFoto,
   rotuloDia, marcacao, escolhidas, completas, acaoResponder, conversaDe, imagemDaColagem, imagemDosItens, esc};
