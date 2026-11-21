@@ -58,8 +58,15 @@
 // script novo na casca; o index.html (a caixa que não trava na pergunta do Herdr, o quadro do Herdr respondível, o
 // texto inteiro da trava) e o chat.js (os rótulos do terminal), sobre a v38. Publicar a celular/web INTEIRA da main já
 // juntada, pelo conferir_pagina.py.
-const CACHE = "seaninho-v42";
-const CASCA = ["./", "./index.html", "./config.js", "./markdown.js", "./chat.js", "./reacoes.js", "./lista.js", "./prioridades.js", "./workflows.js", "./estoque.js", "./pcs.js", "./maquinas.js", "./modo_ia.js", "./vpsatividade.js", "./vpsatividade.css", "./chrome.js", "./ok_chrome.js", "./cartoes-dia.js", "./volta.js", "./espaco.js", "./sobras.js", "./usoia.js", "./ninja.js", "./ninjavivo.js", "./marcar.js", "./decisoes.js", "./cards.js", "./paravoce.js", "./entregas.js", "./pedidos.js", "./mosaico.js", "./rodar.js", "./revisoes.js", "./manifest.webmanifest", "./icone-180.png", "./icone-192.png"];
+// v43 (20/11, a página 0.9.0.32 com o Para você premium da pro-105, PR #52, sobre a v42 do PR #62, na main 4637b91): o
+// pvlista.js (as contas da lista compacta, iguais às do Monitor geral) entra na casca, antes do cards.js, e o
+// paravoce.js e o index.html novos (a lista compacta por grupo, a folha do detalhe com o texto inteiro e o anexo).
+// O agente 0.9.0.32 traz o texto inteiro, o anexo e os 30 itens: publicar o agente nos dois PCs ANTES da página. Com
+// o 0.9.0.31 ou de antes, a lista chega com 12 itens e o texto cortado, e todo item cortado pede o ✓ Confirmar (a trava não vê o
+// resto). Publicar a celular/web INTEIRA da main já juntada, pelo conferir_pagina.py (sem o pvlista.js, o addAll da
+// instalação falha e o iPhone fica na casca velha).
+const CACHE = "seaninho-v43";
+const CASCA = ["./", "./index.html", "./config.js", "./markdown.js", "./chat.js", "./reacoes.js", "./lista.js", "./prioridades.js", "./workflows.js", "./estoque.js", "./pcs.js", "./maquinas.js", "./modo_ia.js", "./vpsatividade.js", "./vpsatividade.css", "./chrome.js", "./ok_chrome.js", "./cartoes-dia.js", "./volta.js", "./espaco.js", "./sobras.js", "./usoia.js", "./ninja.js", "./ninjavivo.js", "./marcar.js", "./decisoes.js", "./pvlista.js", "./cards.js", "./paravoce.js", "./entregas.js", "./pedidos.js", "./mosaico.js", "./rodar.js", "./revisoes.js", "./manifest.webmanifest", "./icone-180.png", "./icone-192.png"];
 
 self.addEventListener("install", e => {
   // "reload": sem o cache HTTP do GitHub Pages (10 min), que podia misturar arquivos de duas versões

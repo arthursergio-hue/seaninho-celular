@@ -1561,6 +1561,7 @@ body.tela24 #appAviso{z-index:8}
   <div class="ar-corpo" id="rvCorpo"></div>
 </div>
 <div class="folha-fundo hidden" id="folhaFundo"><div class="folha" id="folha" role="dialog" aria-modal="true"></div></div>
+<div id="pvFolha" class="hidden"></div><!-- pro-105: a folha do detalhe do Para você -->
 <div id="rdFolha" class="hidden"></div>
 
 <div id="detalhe" class="hidden">
@@ -1716,6 +1717,7 @@ body.tela24 #appAviso{z-index:8}
 <script src="ninja.js"></script>
 <script src="ninjavivo.js"></script>
 <script src="decisoes.js"></script>
+<script src="pvlista.js"></script><!-- pro-105: as contas da lista compacta do Para você (iguais às do Monitor geral) -->
 <script src="cards.js"></script>
 <script src="paravoce.js"></script>
 <script src="entregas.js"></script>
@@ -1758,7 +1760,8 @@ let sugestoesAtuais = []; // as respostas prontas da sessão aberta (o PC pede �
 let ordemPedida = [], arrastoSecao = null, ordemEsperada = null;   // (e a ordem que a tela mostra com eles)
 let timer = null, timerSala = null;
 let aba = "Inicio";
-const VERSAO_APP = "0.9.0.31";   // esta página (v42, a casca seaninho-v42: o cartão do recado de outra sessão no Herdr — Entregar e Negar pelos botões, o destaque no Negar (a opção segura), o aviso do recado cortado e o recado sem texto na tela sem botões — e o pedido mais alto que a tela do Herdr, que agora mostra o que apareceu, diz quantas linhas ficaram acima e MANTÉM os botões (só a trava de segredos cortada fica no PC), com o diálogo de trocar de modelo entrando como pergunta comum, em português e com o destaque no “Não, voltar”; o pedido cortado mostra o começo quando dá para recuperá-lo (o histórico do painel ou a conversa), diz que o Permitir aprova o pedido inteiro e não oferece “Permitir sempre” — com o agente 0.9.0.31 (AGENTE_ATUAL), que também recusa no PC o Esc no quadro do recado (ele nega o recado de verdade) e aperta o quadro cortado no começo. A v41/0.9.0.30 é de 19/11 (celular-herdr-1911)
+const VERSAO_APP = "0.9.0.32";   // esta página (v43, a casca seaninho-v43: o Para você premium da pro-105, PR #52, igual ao do Monitor geral, com o agente 0.9.0.32)
+// (v42, a casca seaninho-v42: o cartão do recado de outra sessão no Herdr — Entregar e Negar pelos botões, o destaque no Negar (a opção segura), o aviso do recado cortado e o recado sem texto na tela sem botões — e o pedido mais alto que a tela do Herdr, que agora mostra o que apareceu, diz quantas linhas ficaram acima e MANTÉM os botões (só a trava de segredos cortada fica no PC), com o diálogo de trocar de modelo entrando como pergunta comum, em português e com o destaque no “Não, voltar”; o pedido cortado mostra o começo quando dá para recuperá-lo (o histórico do painel ou a conversa), diz que o Permitir aprova o pedido inteiro e não oferece “Permitir sempre” — com o agente 0.9.0.31 (AGENTE_ATUAL), que também recusa no PC o Esc no quadro do recado (ele nega o recado de verdade) e aperta o quadro cortado no começo. A v41/0.9.0.30 é de 19/11 (celular-herdr-1911)
 // (v41, a casca seaninho-v41: o celular responde as sessões do Herdr: a pergunta, a permissão e o plano com o agente 0.9.0.30 (AGENTE_HERDR_QUADRO), a caixa de mensagem que não bloqueia na pergunta do Herdr (a mensagem vai na fila: s.na_fila) e o texto inteiro do pedido da trava de segredos; o 0.9.0.28/v39 é da pro-113 e o 0.9.0.29/v40 de quem juntar depois dela; sobre a v38 do TeamZone (pro-99) e do Modo da IA (pro-110))
 // (v37, a casca seaninho-v37: o OK do Seaninho no Chrome pelo celular (pro-106: o ok_chrome.js), com o agente 0.9.0.26; sobre a v36 da Atividade da VPS (pro-103), já publicada)
 // (v36, a casca seaninho-v36: o painel "Atividade da VPS" (pro-103: o vpsatividade.js e o .css), com o agente 0.9.0.24; sobre a v35 dos workflows ao vivo (pro-95), já publicada)
@@ -1798,7 +1801,8 @@ const VERSAO_APP = "0.9.0.31";   // esta página (v42, a casca seaninho-v42: o c
 // v37 (17/11, pro-106, sobre a v36): o 0.9.0.26 é o agente do OK do Seaninho no Chrome pelo celular (o bloco hoje.ok_chrome
 // com os cards do sinal da ponte do Chrome 0.3.2, o push "ok_chrome" e a ação ok_chrome_responder, que roda a CLI do Chrome
 // como filho do agente). Com o 0.9.0.24 ou de antes, o bloco não vem e o Início fica como antes, sem estrago; o toque num
-// card de um PC com o agente antigo volta "ação desconhecida no agente". O 0.9.0.25 é o da pro-105.
+// card de um PC com o agente antigo volta "ação desconhecida no agente". O 0.9.0.25 ficou sem dono (a pro-105 saiu na
+// 0.9.0.32).
 // v38 (18/11, pro-99 + pro-110, sobre a v37): o 0.9.0.27 é o agente que leva ao outro PC a leitura do TeamZone
 // (o uso_ia_oficial no sessoes-remotas.json de lá, para o Pro 1.6.46 escolher a mais nova) e publica o lido_por; a
 // página mostra "lido no TeamZone pelo WIN às 11h40" e os textos do Modo da IA iguais ao Monitor. O mesmo agente
@@ -1813,10 +1817,14 @@ const VERSAO_APP = "0.9.0.31";   // esta página (v42, a casca seaninho-v42: o c
 // o agente que responde o quadro das sessões do Herdr (a pergunta, a permissão e o plano, pelo teclado do Herdr), põe a
 // mensagem na fila da pergunta e tira o falso "Perguntando" (a tela de agora). Com o 0.9.0.29 ou de antes, a sessão do
 // Herdr segue "só se responde no PC", sem estrago.
-const AGENTE_ATUAL = "0.9.0.31";
+// v43 (20/11, pro-105, sobre a v42 do PR #62): o 0.9.0.32 é o agente do Para você premium (até 30 itens no teto de 60 KB, o
+// "inteiro" com as quebras e o "anexo" do card). Com o 0.9.0.31 ou de antes, a lista compacta e a folha desenham com os
+// 12 itens e o texto cortado, e todo item cortado pede o ✓ Confirmar (ParaVoce.trava: o resto do texto não chegou). O 0.9.0.25 que a pro-105 pedia ficou para trás (a fila andou até o 0.9.0.31, o do PR #62).
+const AGENTE_ATUAL = "0.9.0.32";
 // 0.9.0.15 (12/11): o agente que entrega no terminal, no app do Claude e no segundo plano (o mesmo do Chat.AGENTE_QUALQUER)
 const AGENTE_QUALQUER = "0.9.0.15";
 const NOVIDADES_APP = [
+  ["0.9.0.32", "O Para você do Início fica igual ao do Monitor geral, enxuto: a faixa fina de contadores, os grupos recolhíveis (Ação sua, Decisão, Mensagens, Informação) com o Mostrar mais, a linha compacta com até 3 respostas e os botões ↩ ✓ ↗, e a folha que sobe de baixo com o texto inteiro, o anexo, o ⚡ Rodar no PC só para comando de terminal e a resposta livre. Deslize para a direita para a resposta principal e para a esquerda para o depois, com 5 s para desfazer; as respostas travadas abrem a folha com o ✓ Confirmar, e as do Slack abrem a folha com o rascunho (o Enviar no Slack pede a confirmação). Precisa do agente 0.9.0.32 nos PCs."],
   ["0.9.0.31", "O recado de outra sessão aparece aqui, com botões: quando uma sessão segura uma mensagem que outra mandou e o Claude pede para você aprovar, o cartão 📨 Recado de outra sessão mostra quem mandou e o recado em português (nunca o endereço interno do canal), com Negar o recado (quem mandou fica sabendo) em destaque e Entregar o recado ao Claude desta sessão ao lado. O toque aperta a opção na tela do Herdr pela seta e pelo enter, conferindo antes que o cursor chegou nela, e a sua mensagem que estava esperando sai sozinha logo depois, sem Tentar agora. Com o recado longo, o cartão avisa que a tela mostra só o começo (ao entregar, o Claude recebe inteiro); com dois recados segurados, diz quantos são. Negar é o que fica em destaque, porque é a opção segura, e não há mais Cancelar neste cartão: ali o Esc nega o recado de verdade. O pedido que não cabe inteiro na tela do Herdr também passou a ter botões: o cartão mostra o que apareceu, diz quantas linhas ficaram acima e, quando dá, traz o começo que faltava; só o pedido da trava de segredos cortado continua no PC. E o aviso de trocar de modelo (Sim, trocar para … / Não, voltar) chega como pergunta comum, em português. Precisa do agente 0.9.0.31 nos PCs e do Seaninho Pro 1.6.46."],
   ["0.9.0.30", "O celular volta a responder as sessões do Herdr: a pergunta com opções, o pedido de permissão e o plano aparecem aqui como no VS Code, e o toque vira a tecla da opção no Herdr (sem mexer na tela do PC, também com ela bloqueada). O que a trava de segredos pede vem com o texto inteiro e só Permitir ou Não. A caixa de mensagem não trava: na pergunta, a mensagem entra na fila e vai depois da resposta. O Perguntando das sessões do Herdr vem da tela de agora (acabou o Perguntando falso sem pergunta). E a conversa nova abre no Herdr quando o VS Code não dá (a tela bloqueada). Precisa do agente 0.9.0.30 nos PCs e do Seaninho Pro 1.6.46."],
   ["0.9.0.27", "Uma leitura do TeamZone serve aos dois PCs: a leitura que um PC faz do TeamZone vai ao outro pelo agente, e o painel Seu uso de IA (aqui e no Monitor geral dos dois PCs) mostra a mais nova, com o chip 📖 lido no TeamZone pelo WIN às 11h40. E os textos do Modo da IA ficam iguais aos do Monitor geral (ESTE PC, OUTRO PC). O chat daqui ao hokage e o recado do outro PC voltam a chegar quando ele trabalha num painel do Herdr (o agente acha a sessão pela árvore de processos, sem depender da integração do Claude com o Herdr), e as notas do Para você chegam a ele digitadas no Herdr. Precisa do agente 0.9.0.27 nos PCs e do Seaninho Pro 1.6.46."],
@@ -2787,6 +2795,7 @@ function desenharInicio() {
     : `<span><span class="spin"></span>Carregando o painel…</span>`);
   if (!lista.length && !maquinas().length) {
     PAINEL_BLOCOS.forEach(b => por($("p-" + b), ""));
+    por($("p-paravoce"), blocoParaVoceSemDados());   // pro-105: as linhas-esqueleto antes do primeiro dado; sem rede, o aviso
     return por($("p-sessoes"), rede.ok === null ? "" : rede.ok === false ? `<div class="empty">Sem internet: o painel aparece quando a rede voltar.</div>`
       : `<div class="empty">Nenhum PC publicou ainda. Ligue o Seaninho no celular num PC.</div>`);
   }
@@ -2800,7 +2809,9 @@ function desenharInicio() {
   por($("p-cartoes"), window.CartoesDia ? CartoesDia.htmlBloco(lista, {agora, nomePc: nomeCurtoPc, online}) : "");   // cartões do dia (cartoes-dia.js; o PC fora do ar, cinza)
   por($("p-sessoes"), blocoSessoes(c, lista));
   const escrevendo = document.activeElement && document.activeElement.matches && document.activeElement.matches("#p-paravoce textarea");
-  if (!escrevendo) por($("p-paravoce"), blocoParaVoce(lista));
+  if (pvDeslizando) pvRedesenhar = true;
+  else if (!escrevendo) por($("p-paravoce"), blocoParaVoce(lista));
+  desenharPvFolha();   // pro-105: a folha do item aberta acompanha o que mudou
   por($("p-revisoes"), blocoRevisoes());   // 13/11: ✓ Revisões (revisoes.js)
   por($("p-entregas"), blocoEntregas());   // v24
   por($("p-pedidos"), blocoMeusPedidos());
@@ -2861,7 +2872,9 @@ const nomeMaestro = (meio = false) => {
   return meio && n === "Maestro" ? "maestro" : n;
 };
 const linkSeguro = u => /^https:\/\//.test(String(u || "")) ? String(u) : "";
-function blocoParaVoce(lista) {
+// pro-105: o Para você premium (paravoce.js + pvlista.js); a casca velha, sem eles, desenha como era
+function blocoParaVoce(lista) { return pvPremium() ? blocoParaVocePremium(lista) : blocoParaVoceAntigo(lista); }
+function blocoParaVoceAntigo(lista) {
   const o = orquestraDe(lista);
   if (!o) return "";
   const itens = itensParaVoce(o), mostrar = paraVoceTodos ? itens : itens.slice(0, 3);
@@ -2883,6 +2896,460 @@ function blocoParaVoce(lista) {
     ${mostrar.map(it => itemParaVoce(it, maestro, notas, slack)).join("") || `<p class="note">Nada esperando decisão sua agora.</p>`}
     ${itens.length > mostrar.length ? `<button class="pv-mais" data-pv-todos>Ver todos (${itens.length})</button>` : ""}
     <div class="rodape">${contas}${o.delegacoes_hoje || 0} ${o.delegacoes_hoje === 1 ? "delegação" : "delegações"} hoje</div></section>`;
+}
+
+// ---- pro-105: o Para você premium (17/11, o Arthur: "Esse espaço aqui está tudo muito grande muito poluído, ajuste para
+// mim. Quero tudo premium.") ------------------------------------------------------------------------------------------
+// O roteiro é o mesmo do Monitor geral: a faixa fina de chips, os grupos recolhíveis (🔧 Ação sua, ❓ Decisão,
+// 💬 Mensagens, ✓ Informação: PvLista.agrupar), a linha compacta com as pílulas e os ícones ↩ ✓ ↗, a folha do detalhe
+// que sobe de baixo (com tudo o que o card tinha), os gestos (direita = a resposta principal, esquerda = depois, 5 s para
+// desfazer) e os estados (vazio, carregando, erro e "✓ Respondidos agora"). O HTML é o do paravoce.js; aqui o estado,
+// os toques e o envio, pelos caminhos de sempre: a frase pronta vai à sessão que perguntou (ou ao maestro) como o
+// "↩ Responder" com a citação, o maestro fica sabendo pela nota de sempre, o Slack sai só pelo "Enviar no Slack" com a
+// confirmação, o ⚡ só pela folha "Rodar agora". A frase travada (ParaVoce.trava: o mesmo critério do pvTrava do Monitor)
+// e todo item do Slack nunca saem num toque nem num gesto: abrem a folha (a travada com o "✓ Confirmar"; o Slack com o
+// rascunho e o "Enviar no Slack", que pede a confirmação).
+const pvPremium = () => typeof PvLista !== "undefined" && typeof ParaVoce !== "undefined" && typeof ParaVoce.linha === "function" && typeof Cards !== "undefined";
+const PV_MANDAR_MS = window.__pvMandarMs || 5000, PV_ADIAR_MS = 4 * 3600e3, PV_CONF_MS = 8000;
+let pvPend = {};                                     // chave -> {frase, timer, msg}: a resposta nos 5 s do Desfazer
+let pvAdiados = lerJson("seaninho.pvAdiados", {});   // chave -> até quando (o deslize para a esquerda sem um "depois")
+let pvRecolhidos = lerJson("seaninho.pvGrupos", {}); // grupo -> recolhido? ("feitos" começa recolhido)
+let pvMais = {};                                     // grupo -> o "Mostrar mais" tocado
+let pvAbertoPeloAviso = {};                          // grupo -> aberto pelo toque num aviso (só nesta visita: nunca gravado)
+let pvFolha = null;                                  // {chave, conf (a frase travada esperando o ✓ Confirmar), confT, timer, entrando}
+let pvGestoFim = 0;
+// o dedo no meio do deslize de uma linha: a lista não se refaz por baixo dele (a volta seguinte redesenha ao soltar)
+let pvDeslizando = false, pvRedesenhar = false;
+const pvRecolhido = g => pvAbertoPeloAviso[g] ? false
+  : Object.prototype.hasOwnProperty.call(pvRecolhidos, g) ? !!pvRecolhidos[g] : g === "feitos";
+function salvarPvPrefs() {
+  const agora = Date.now();
+  pvAdiados = Object.fromEntries(Object.entries(pvAdiados).filter(([, t]) => t > agora));
+  store.set("seaninho.pvAdiados", Object.keys(pvAdiados).length ? JSON.stringify(pvAdiados) : "");
+  store.set("seaninho.pvGrupos", JSON.stringify(pvRecolhidos));
+}
+const pvCalmo = () => !!(window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches);
+const pvHora = s => s ? hm(new Date(Number(s) * 1000).toISOString()) : "";
+// O item do quadro de agora pela chave (com o índice e a chave), ou null.
+function pvItemAgora(chave) {
+  const o = orquestraDe(Object.values(pcs));
+  const i = ((o && o.para_voce) || []).findIndex(it => chavePv(it) === chave);
+  return i < 0 ? null : {...o.para_voce[i], i, chave};
+}
+function pvCtx(o) {
+  const m = pcs[o.pc], notas = !!(m && Lista.compararVersao(m.versao, AGENTE_NOTA) >= 0);
+  return {o, notas, maestro: !!(o.sessao && m && online(m)), nomeM: nomeMaestro(), meio: nomeMaestro(true),
+          slack: !notas ? `Enviar no Slack (precisa do agente ${AGENTE_NOTA} no ${nomeCurtoPc(o.pc)})` : !online(m) ? `${nomeCurtoPc(o.pc)} desligado` : ""};
+}
+// Para onde vai a resposta do item (a frase pronta, o deslize, a caixa da folha): a sessão que perguntou, aberta no PC
+// dela, ou a sessão do maestro, com a mesma citação do "↩ Responder" (responderParaVoce). pode: dá para mandar agora.
+function pvDestino(ctx, it) {
+  const {o} = ctx, a = pvAlvo(it), hora = horaDe(o.atualizado);
+  if (a && a.achou) return {pc: a.pc, sessao: a.sessao, nome: a.nome, pode: a.ligado, porque: a.ligado ? "" : `o ${nomeCurtoPc(a.pc)} está desligado`,
+    cita: Chat.citacao({nome: `${ctx.nomeM} · Para você`, hora, texto: it.texto}),
+    pv: {chave: it.chave, item: it.texto, pc: a.pc, sessao: a.sessao, nome: a.nome, maestro: o.pc}};
+  return {pc: o.pc, sessao: o.sessao || "", nome: ctx.nomeM, pode: ctx.maestro, porque: ctx.maestro ? "" : `o ${ctx.nomeM} está fechado`,
+    cita: Chat.citacao({nome: "Para você", hora, texto: it.texto}),
+    pv: {chave: it.chave, item: it.texto, pc: o.pc, sessao: o.sessao || "", nome: ctx.nomeM, maestro: o.pc, direto: true}};
+}
+const pvDesesc = s => String(s || "").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&amp;/g, "&");
+// A pílula principal da ação sua com comando: o "⚡ Rodar no …" quando a caixa do item oferece o ⚡ ligado (abre a folha
+// de confirmação de sempre), senão o "Copiar comando"; null sem caixa (sem comando, com senha, sem o rodar.js).
+function pvPilulaRodar(it) {
+  const h = caixaRodar(it);
+  if (!h) return null;
+  const m = /<button type="button" class="rd-b ouro[^"]*" data-rd-rodar="([^"]*)" data-rd-alvo="([^"]*)">([^<]*)<\/button>/.exec(h);
+  // na linha, "⚡ Rodar no PC" (o chip da direita já diz qual; o nome inteiro fica no aria-label e na folha de confirmação)
+  if (m) return {rotulo: /de novo/.test(m[3]) ? "⚡ Rodar de novo" : "⚡ Rodar no PC", principal: true,
+                 attrs: {"data-rd-rodar": pvDesesc(m[1]), "data-rd-alvo": pvDesesc(m[2])}, aria: `${pvDesesc(m[3])}: abre a confirmação`};
+  if (/data-rd-copiar=/.test(h)) return {rotulo: "Copiar comando", principal: true, attrs: {"data-rd-copiar": it.chave}};
+  return null;
+}
+// O "card" do item para as contas do PvLista: o comando que o item traz só no bloco do texto (o agente de antes não
+// mandava o "comando"; no Monitor, o caixa.py copia o bloco para o card), para a ação sua cair no grupo dela.
+function pvCardDe(it) {
+  const c = !it || it.comando || it.slack || typeof Rodar === "undefined" || !Rodar.comandoDoItem ? "" : Rodar.comandoDoItem(it);
+  return c ? {comando: c} : null;
+}
+const pvTipo = it => PvLista.tipoDoItem(it, pvCardDe(it));
+const pvFrases = it => (Array.isArray(it.respostas) ? it.respostas : []).filter(f => typeof f === "string" && f.trim());
+// O comando do item (o do card ou o do bloco do texto) e se ele tem cara de terminal (PvLista.ehShell): só aí vale o
+// ⚡ Rodar no PC / Copiar comando; a frase em português para o chat ("Instala o código novo… e retoma os vigias.") fica
+// como "Frase para o chat do Hokage", só com o Copiar, e a principal volta a ser a resposta recomendada ("digitei").
+function pvComando(it) {
+  if (!it || it.slack) return "";
+  return String(it.comando || (typeof Rodar !== "undefined" && Rodar.comandoDoItem ? Rodar.comandoDoItem(it) : "") || "");
+}
+const pvShell = it => PvLista.ehShell(pvComando(it));
+// As pílulas da linha (a regra comum, PvLista.pilulasDaLinha, igual no Monitor): sem comando de terminal, a recomendada,
+// uma curta e o "depois"; com ele, o ⚡ (ou o "Copiar comando") e o "depois". O resto vai no "+N", que abre a folha.
+// No Slack: "Enviar" (abre a folha com o rascunho: nunca envia da linha) e "Já respondi".
+function pvPilulas(ctx, it, tipo) {
+  const k = it.chave;
+  if (it.slack) return [{rotulo: estadoSlack(k).fase === "erro" ? "Tentar de novo" : "Enviar", principal: true,
+                         attrs: {"data-pv-abrir": k, "data-pv-foco": "rasc"}, aria: "Enviar no Slack: conferir o rascunho"},
+                        {rotulo: "Já respondi", attrs: {"data-pv-ja": k}, aria: `Já respondi no Slack: ${it.texto || ""}`}];
+  const frases = pvFrases(it), rd = pvShell(it) ? pvPilulaRodar(it) : null;
+  const {indices, principal, resto} = PvLista.pilulasDaLinha(frases, it.recomendada, rd ? pvComando(it) : "");
+  const fr = n => ({rotulo: frases[n], principal: n === principal, trava: ParaVoce.trava(it, frases[n]), attrs: {"data-pv-frase": k, "data-n": String(n)}});
+  const out = (rd ? [rd] : []).concat(indices.map(fr));
+  if (resto > 0) out.push({rotulo: `+${resto}`, mais: true, attrs: {"data-pv-abrir": k}, aria: `Mais ${resto} ${resto === 1 ? "resposta" : "respostas"}: abre o detalhe`});
+  return out;
+}
+// O que o deslize faz: {manda: frase | "", abre (a folha, com conf = a frase travada), adiar, rodar ({chave, pc}), rotulo}.
+function pvAcaoLado(ctx, it, lado) {
+  const frases = pvFrases(it), {principal, depois} = PvLista.principalEDepois(frases, it.recomendada), d = pvDestino(ctx, it);
+  const frase = n => {
+    if (it.slack || !d.pode) return {abre: true, conf: -1, rotulo: n >= 0 ? frases[n] : "Abrir"};
+    if (ParaVoce.trava(it, frases[n])) return {abre: true, conf: n, rotulo: frases[n]};
+    return {manda: frases[n], rotulo: frases[n]};
+  };
+  if (lado === "esq") return depois >= 0 && !it.slack ? frase(depois) : {adiar: true, rotulo: "⏸ Adiar 4 h"};
+  if (it.slack) return {abre: true, conf: -1, rotulo: "Enviar"};
+  const rd = pvTipo(it) === "acao" && pvShell(it) ? pvPilulaRodar(it) : null;
+  if (rd && rd.attrs["data-rd-rodar"] !== undefined) return {rodar: {chave: it.chave, pc: rd.attrs["data-rd-alvo"]}, rotulo: rd.rotulo};
+  if (rd || principal < 0) return {abre: true, conf: -1, rotulo: "Abrir"};
+  return frase(principal);
+}
+function pvLinhaSlack(k) {
+  const st = estadoSlack(k), h = st.t ? hm(new Date(st.t).toISOString()) : "";
+  const html = st.fase === "enviando" ? `<span class="spin"></span>Enviando no Slack…`
+    : st.fase === "ok" ? `✓ Enviado no Slack às ${esc(h)}${linkSeguro(st.link) ? ` · <a href="${esc(linkSeguro(st.link))}" target="_blank" rel="noopener">Ver a mensagem</a>` : ""}`
+    : st.fase === "erro" ? `<span class="alerta">⚠ Não saiu: ${esc(st.erro || "")}</span>` : "";
+  return ParaVoce.FASE_SLACK[st.fase] ? {fase: ParaVoce.FASE_SLACK[st.fase], html, classe: "pv-feito"} : null;
+}
+// A linha da ação do item (🕓 enviado · ✓ chegou · ✓✓ visto): a resposta, o envio no Slack, o ✓ Resolvido, o ✓ Rodei e
+// o ⚡ que rodou. null sem nada.
+function pvLinhaDaAcao(ctx, it) {
+  const k = it.chave, r = pvRespondidos[k];
+  if (it.slack && pvSlack[k]) return pvLinhaSlack(k);
+  const nf = !r && pvNaFila(k);
+  if (nf) return {fase: "enviado", passos: false, texto: nf.fila ? "🕓 Sem internet: sai sozinha quando a rede voltar" : "🕓 Mandando…"};
+  if (r) return {fase: ParaVoce.faseResposta(r, pedidos.find(x => x.id === r.pedido)), html: estadoRespostaPv(r), classe: "pv-feito"};
+  const t = pvResolvidos[k];
+  if (t && Date.now() - t < PV_GUARDA_MS) {
+    const avisando = notasMaestro.some(n => n.chave === k);
+    return {fase: avisando ? "enviado" : "chegou", passos: false, texto: `✓ ${it.slack ? "Já respondido no Slack" : "Resolvido"} às ${hm(new Date(t).toISOString())}`
+      + (avisando ? ` · avisando o ${ctx.meio}…` : ` · ${ctx.meio} avisado`)};
+  }
+  if (rdRodei[k]) return {fase: "chegou", passos: false, texto: `✓ Você avisou o ${ctx.meio} que rodou (${hm(new Date(rdRodei[k]).toISOString())})`};
+  const rr = rdPedidos[k];
+  if (rr && typeof Rodar !== "undefined") {
+    const p = rdLinha(rr, k), pc = Cards.chipCurto(rr.pc), res = p.estado === "entregue" ? Rodar.lerResultado(p.resposta) : null;
+    const erro = ["erro", "cancelado"].includes(p.estado) || !!(res && res.codigo !== null && res.codigo !== 0);
+    // o erro de antes de chegar ao PC diz o porquê (o "não sei se saiu do celular" de quem fechou o app no meio)
+    const porque = !res && String(p.erro || "").trim();
+    return {fase: erro ? "erro" : res ? "chegou" : "enviado", passos: false, roda: !erro && !res,
+            texto: erro ? (res ? `⚠ Terminou com erro no ${pc}` : porque ? `⚠ ${porque}` : `⚠ Não rodou no ${pc}`)
+              : res ? `✓ Rodou no ${pc}` : `⚡ Rodando no ${pc}…`};
+  }
+  return null;
+}
+// Já foi respondido daqui (vai para "✓ Respondidos agora")? A resposta que deu erro volta para o grupo dele.
+function pvFeito(it) {
+  const k = it.chave;
+  return Date.now() - (pvResolvidos[k] || 0) < PV_GUARDA_MS || respondidoPv(k) || !!rdRodei[k] || !!pvNaFila(k);
+}
+// A resposta deste item que saiu pelo caminho do chat e ainda não tem o pedido (saindo, ou na fila sem rede), ou null.
+const pvNaFila = k => (typeof locais !== "undefined" ? locais : []).find(l => l.pv && l.pv.chave === k && !l.pedidoId && (l.fila || l.sinal === "mandando")) || null;
+// A linha do "✓ Respondidos agora": uma só (PvLista.linhaFeito, igual no Monitor): “fiz” · 13:33 · ✓✓ visto, no tom
+// suave (só o ✓✓ no azul). O erro fica como era (em vermelho, com o porquê).
+function pvLinhaFeito(ctx, it) {
+  const l = pvLinhaDaAcao(ctx, it), k = it.chave, r = pvRespondidos[k], nf = !r && pvNaFila(k);
+  if (!l || l.fase === "erro") return l;
+  const h = t => t ? hm(new Date(t).toISOString()) : "";
+  const fase = l.fase === "visto" ? "visto" : l.fase === "chegou" ? "chegou" : "enviado";
+  let txt;
+  if (r) txt = PvLista.linhaFeito(curtoTxt(r.frase || "", 60), h(r.t), fase);
+  else if (nf) txt = PvLista.linhaFeito(curtoTxt(Chat.separarCitacao(nf.texto || "").texto, 60), h(nf.t * 1000), nf.fila ? "" : "enviado")
+    + (nf.fila ? " · 🕓 sai quando a rede voltar" : "");
+  else if (it.slack && pvSlack[k]) txt = PvLista.linhaFeito(curtoTxt(pvSlack[k].texto || "", 60), h(pvSlack[k].t), fase);
+  else if (Date.now() - (pvResolvidos[k] || 0) < PV_GUARDA_MS) txt = `✓ ${it.slack ? "Já respondido" : "Resolvido"} · ${PvLista.linhaFeito("", h(pvResolvidos[k]), fase)}`;
+  else if (rdRodei[k]) txt = PvLista.linhaFeito("rodei", h(rdRodei[k]), fase);
+  else return {...l, passos: false};
+  // a frase longa de antes ("✓✓ Você respondeu a Hokage às 13:33 · Hokage avisado", "o maestro não foi avisado…") fica
+  // no title da linha e na folha do item: a linha mostra só o curto
+  const longa = String(l.html != null ? l.html : l.texto || "").replace(/<[^>]+>/g, "").replace(/\s+/g, " ").trim();
+  return {fase: l.fase, passos: false, classe: "pv-feito",
+    html: `<span class="pv-fe"${longa ? ` title="${esc(longa)}"` : ""}>${esc(txt).replace("✓✓", '<span class="pv-vv">✓✓</span>')}</span>`};
+}
+function pvResponderIcone(ctx, it) {
+  const a = pvAlvo(it), k = it.chave;
+  if (a && a.achou) return {icone: "↩", attrs: {"data-pv": k}, aria: a.ligado ? `Responder a ${a.nome}` : `${nomeCurtoPc(a.pc)} desligado`, desligado: !a.ligado};
+  if (it.slack) return null;
+  return {icone: "↩", attrs: {"data-pv": k}, aria: ctx.maestro ? `Responder ao ${ctx.nomeM}` : `${ctx.nomeM} fechado`, desligado: !ctx.maestro};
+}
+function pvLinha(ctx, it, tipo, velha, feito = false) {
+  const {titulo, sub} = PvLista.tituloESub(it, pvCardDe(it)), a = pvAlvo(it);
+  const l = feito ? pvLinhaFeito(ctx, it) : pvLinhaDaAcao(ctx, it), pc = rdPcDoItem(it) || (a ? a.pc : ctx.o.pc);
+  // o chip do PC só quando o item é de outro PC que não o do maestro (12 de 12 diziam "S192"); a folha diz sempre
+  return ParaVoce.linha({chave: it.chave, tipo, titulo, sub, pc: PvLista.mostraPc(pc, ctx.o.pc) ? pc : "", alta: PvLista.alta(it),
+    pilulas: feito ? [] : pvPilulas(ctx, it, tipo), link: linkSeguro(it.link), responder: pvResponderIcone(ctx, it),
+    resolver: !it.slack && ctx.notas, linha: l, velha, feito,
+    deslize: feito ? null : {dir: pvAcaoLado(ctx, it, "dir").rotulo, esq: pvAcaoLado(ctx, it, "esq").rotulo}});
+}
+function blocoParaVocePremium(lista) {
+  const o = orquestraDe(lista);
+  if (!o) return "";
+  const ctx = pvCtx(o), agora = Date.now(), abertos = [], feitos = [];
+  let adiados = 0;
+  for (const [i, x] of (o.para_voce || []).entries()) {
+    const chave = chavePv(x);
+    migrarPv(x, chave);
+    const it = {...x, i, chave};
+    if (pvPend[chave]) continue;                                      // nos 5 s do Desfazer
+    if (pvFeito(it)) { feitos.push(it); continue; }
+    if ((pvAdiados[chave] || 0) > agora) { adiados++; continue; }
+    abertos.push(it);
+  }
+  const m = pcs[o.pc], ligado = !!(m && online(m));
+  const aviso = rede.ok === false ? {texto: `Sem conexão: a lista é a das ${hm(new Date(corte.inteiroEm || rede.em || agora).toISOString())}.`, tentar: true}
+    : !ligado ? {texto: `O ${nomeCurtoPc(o.pc)}, o PC do ${ctx.meio}, está desligado${m && m.visto_em ? " desde " + hm(m.visto_em) : ""}: a lista é a de lá dessa hora.`} : null;
+  const velha = !!aviso;
+  const grupos = PvLista.agrupar(abertos, pvCardDe).map(g => {
+    const todos = !!pvMais[g.tipo], vis = g.itens.slice(0, PvLista.quantosAVista(g.itens.length, todos));
+    return ParaVoce.grupo({tipo: g.tipo, icone: g.icone, rotulo: g.rotulo, n: g.itens.length, recolhido: pvRecolhido(g.tipo),
+      linhas: pvRecolhido(g.tipo) ? [] : vis.map(it => pvLinha(ctx, it, g.tipo, velha)), mais: g.itens.length - vis.length});
+  }).join("");
+  const respondidos = feitos.length ? ParaVoce.grupo({tipo: "feitos", icone: "✓", rotulo: "Respondidos agora", n: feitos.length, recolhido: pvRecolhido("feitos"),
+    linhas: pvRecolhido("feitos") ? [] : feitos.map(it => pvLinha(ctx, it, pvTipo(it), false, true))}) : "";
+  const visual = Array.isArray(o.chips) && o.contador && typeof o.contador === "object";
+  const topo = visual ? ParaVoce.faixa(o.contador, o.chips) : o.resumo ? `<p class="pv-resumo">${esc(o.resumo)}</p>` : "";
+  const n = k => Math.max(0, Math.floor(Number(visual && o.contador[k]) || 0));
+  const contas = visual ? (n("antigas") ? `🗄 ${n("antigas")} antigas · ` : "") : `Em andamento ${o.em_andamento || 0} · Esperando ${o.esperando || 0} · `;
+  return `<section class="bloco pv-bloco"><h3 class="pv-h">Para você ${abertos.length ? `<span class="n3">${abertos.length}</span>` : ""}</h3>
+    ${topo}${ParaVoce.aviso(aviso)}${abertos.length ? grupos : ParaVoce.vazio(pvHora(o.atualizado))}${respondidos}
+    <div class="rodape">${contas}${o.delegacoes_hoje || 0} ${o.delegacoes_hoje === 1 ? "delegação" : "delegações"} hoje${adiados
+      ? ` · <button type="button" class="pv-adiados" data-pv-adiados>⏸ ${plural(adiados, "adiado", "adiados")} · mostrar</button>` : ""}</div></section>`;
+}
+// O bloco antes do primeiro dado (as 3 linhas-esqueleto) e sem rede e sem nada guardado.
+function blocoParaVoceSemDados() {
+  if (!pvPremium()) return "";
+  if (rede.ok === null) return `<section class="bloco pv-bloco"><h3 class="pv-h">Para você</h3>${ParaVoce.esqueleto()}</section>`;
+  if (rede.ok === false) return `<section class="bloco pv-bloco"><h3 class="pv-h">Para você</h3>${ParaVoce.aviso({texto: "Sem internet: o Para você aparece quando a rede voltar.", tentar: true})}</section>`;
+  return "";
+}
+
+// -- mandar com o Desfazer (5 s), adiar, o "✓ Confirmar" da travada --------------------------------------------------
+// O aviso de baixo com o "Desfazer" (o do último toque: um novo tira o de antes, como no iOS); some sozinho com o tempo.
+// Só o Desfazer anterior de um deslize/pílula sai (o novo toma o lugar); a fila de avisos fica (a revisão de 17/11: o
+// avisar vazio zerava a fila e levava junto um erro de envio ou o Desfazer de um ✓ Resolvido de 1 s antes)
+const ehAvisoPv = a => !!a && a.rotulo === "Desfazer" && /^(?:Mandando “|Adiado por )/.test(String(a.msg || ""));
+function pvAvisoDesfazer(msg, desfazer) {
+  const el = $("appAviso");
+  if (el) {
+    el._fila = (el._fila || []).filter(a => !ehAvisoPv(a));
+    if (ehAvisoPv(el._atual)) sumirAviso(el);
+  }
+  avisar("appAviso", msg, {ok: true, rotulo: "Desfazer", acao: desfazer});
+  setTimeout(() => { const el = $("appAviso"); if (el._atual && el._atual.msg === msg) sumirAviso(el); }, PV_MANDAR_MS);
+}
+// A linha que sai: o vão dela fecha devagar (altura, ~220 ms), depois que a lista já mudou. mudar: muda o estado e redesenha.
+function pvSumir(chave, mudar) {
+  const el = [...document.querySelectorAll("#p-paravoce [data-pv-item]")].find(x => x.dataset.pvItem === chave);
+  const h = el ? el.offsetHeight : 0, grupo = el && el.closest("[data-pv-grupo]"), prox = el && el.nextElementSibling;
+  const g = grupo && grupo.dataset.pvGrupo, depois = prox && prox.dataset.pvItem;
+  mudar();
+  if (!h || pvCalmo()) return;
+  const lista = document.querySelector(`#p-paravoce [data-pv-grupo="${g}"] .pv-lista`);
+  if (!lista) return;
+  const ref = depois && [...lista.children].find(x => x.dataset.pvItem === depois);
+  const vao = document.createElement("div");
+  vao.className = "pv-vao"; vao.setAttribute("aria-hidden", "true"); vao.style.height = h + "px";
+  lista.insertBefore(vao, ref || null);
+  void vao.offsetHeight;
+  vao.style.height = "0px";
+  setTimeout(() => vao.remove(), 300);
+}
+function pvAgendarMandar(chave, frase, {livre = false} = {}) {
+  const o = orquestraDe(Object.values(pcs)), it = pvItemAgora(chave);
+  if (!o || !it) return pvIndice(chave);
+  const d = pvDestino(pvCtx(o), it);
+  if (!d.pode || !d.sessao) return avisar("appAviso", `Para responder agora: ${d.porque || "a sessão não está aberta"}.`, {erro: true});
+  const ant = pvPend[chave];
+  if (ant) clearTimeout(ant.timer);
+  const p = pvPend[chave] = {frase, livre, msg: `Mandando “${curtoTxt(frase, 48)}” a ${curtoTxt(d.nome, 30)}`};
+  p.timer = setTimeout(() => {
+    if (pvPend[chave] !== p) return;
+    delete pvPend[chave];
+    pvMandarAgora(chave, frase, livre);
+  }, PV_MANDAR_MS);
+  if (pvFolha && pvFolha.chave === chave) fecharPvFolha();
+  pvAvisoDesfazer(p.msg, () => pvDesfazer(chave, p));
+  pvSumir(chave, () => { desenharInicio(); desenharSessoes(); });
+}
+function pvDesfazer(chave, p) {
+  if (pvPend[chave] !== p) return;
+  clearTimeout(p.timer);
+  delete pvPend[chave];
+  desenharInicio(); desenharSessoes();
+}
+// O app foi para o fundo (o iOS pode fechar a página) dentro dos 5 s do Desfazer: o que esperava sai na hora, para a
+// resposta deslizada não se perder calada (a revisão de 17/11). Quem voltar ao app vê o item no "Respondidos agora".
+function pvMandarPendentes() {
+  for (const [chave, p] of Object.entries(pvPend)) {
+    clearTimeout(p.timer);
+    delete pvPend[chave];
+    pvMandarAgora(chave, p.frase, p.livre);
+  }
+}
+addEventListener("pagehide", pvMandarPendentes);
+document.addEventListener("visibilitychange", () => { if (document.visibilityState === "hidden") pvMandarPendentes(); });
+// Passados os 5 s: a resposta vai à sessão (o mesmo pedido "claude" da conversa, com a citação do item) e o item passa
+// para "✓ Respondidos agora", com a linha da ação; a sessão que perguntou (não o maestro) avisa o maestro quando entrar.
+async function pvMandarAgora(chave, frase, livre) {
+  const o = orquestraDe(Object.values(pcs)), it = pvItemAgora(chave);
+  if (!o || !it) { desenharInicio(); return avisar("appAviso", `Não mandei “${curtoTxt(frase, 60)}”: o item saiu do Para você.`, {erro: true}); }
+  const d = pvDestino(pvCtx(o), it);
+  if (!d.pode || !d.sessao) { desenharInicio(); return avisar("appAviso", `Não mandei “${curtoTxt(frase, 60)}”: ${d.porque || "a sessão não está aberta"}. O item voltou à lista.`, {erro: true}); }
+  const corpo = Chat.comCitacao(d.cita, frase);
+  if (corpo.length > 4000) { desenharInicio(); return avisar("appAviso", `A resposta tem ${corpo.length.toLocaleString("pt-BR")} letras com a citação; o PC entrega até 4.000.`, {erro: true}); }
+  const s = ((pcs[d.pc] && pcs[d.pc].sessoes) || []).find(x => x.id === d.sessao);
+  // pelo caminho do chat (a revisão de 17/11): sem rede, a resposta fica na fila daquela conversa e sai sozinha quando a
+  // rede volta, e o pedido gravado no meio de um tempo esgotado é achado pela janela da tentativa (nunca sai em dobro).
+  // Enquanto sai (ou espera a rede), o item fica no "Respondidos agora" pelo pvNaFila: não volta à lista para ser
+  // mandado de novo; o enviarLocal chama o registrarResposta (a nota ao maestro, uma vez) quando o banco aceita.
+  const local = {id: idLocal(), sessao: d.sessao, de: "eu", texto: corpo, t: Math.floor(Date.now() / 1000), mini: "", grande: "", mime: "", pv: d.pv};
+  enviarLocal(local, {pc: d.pc, sessao: d.sessao, titulo: s ? s.titulo : "", texto: corpo, direto: true});
+  if (livre) { delete pvRascunhos["livre:" + chave]; salvarPv(); }
+  desenharInicio(); desenharSessoes();
+}
+function pvAdiar(chave) {
+  pvAdiados[chave] = Date.now() + PV_ADIAR_MS;
+  salvarPvPrefs();
+  pvAvisoDesfazer("Adiado por 4 h neste aparelho", () => { delete pvAdiados[chave]; salvarPvPrefs(); desenharInicio(); });
+  pvSumir(chave, () => { desenharInicio(); desenharSessoes(); });
+}
+// O toque numa frase (na linha ou na folha). A travada: da linha, abre a folha com o "✓ Confirmar"; na folha, vira o
+// "✓ Confirmar" (8 s). O item do Slack abre a folha. Sem para onde mandar agora, a folha diz por quê.
+function pvTocarFrase(chave, n, daFolha) {
+  const it = pvItemAgora(chave);
+  if (!it) return pvIndice(chave);
+  const frase = pvFrases(it)[n];
+  if (!frase) return;
+  if (it.slack) return daFolha ? null : abrirPvFolha(chave);
+  const d = pvDestino(pvCtx(orquestraDe(Object.values(pcs))), it);
+  if (ParaVoce.trava(it, frase)) return daFolha ? pvPedirConf(chave, n) : abrirPvFolha(chave, {conf: n});
+  if (!d.pode) return daFolha ? avisar("appAviso", `Para responder agora: ${d.porque}.`, {erro: true}) : abrirPvFolha(chave);
+  pvAgendarMandar(chave, frase);
+}
+function pvPedirConf(chave, n) {
+  if (!pvFolha || pvFolha.chave !== chave) return abrirPvFolha(chave, {conf: n});
+  clearTimeout(pvFolha.timer);
+  Object.assign(pvFolha, {conf: n, confT: Date.now()});
+  const f = pvFolha;
+  f.timer = setTimeout(() => { if (pvFolha === f) { f.conf = -1; desenharPvFolha(); } }, PV_CONF_MS);
+  desenharPvFolha();
+}
+function pvCancelarConf() {
+  if (!pvFolha) return;
+  clearTimeout(pvFolha.timer);
+  pvFolha.conf = -1;
+  pvFolha.confLivre = "";
+  desenharPvFolha();
+}
+// O segundo toque, no "✓ Confirmar": manda como a frase sem trava (5 s para desfazer). O que chega antes de 500 ms é o
+// segundo de um toque duplo e não confirma.
+function pvConfirmar(chave, n) {
+  if (!pvFolha || pvFolha.chave !== chave || pvFolha.conf !== n || Date.now() - pvFolha.confT < 500) return;
+  const it = pvItemAgora(chave), frase = it && pvFrases(it)[n];
+  if (!frase) return pvIndice(chave);
+  pvAgendarMandar(chave, frase);
+}
+function pvMandarLivre(chave) {
+  const t = document.querySelector(`#pvFolha [data-pv-livre="${CSS.escape(chave)}"]`), texto = String(t ? t.value : "").trim();
+  if (!texto) return avisar("appAviso", "Escreva a resposta antes de mandar.", {erro: true});
+  // a resposta com as suas palavras passa pela mesma trava das frases (como no Monitor): a que autoriza envio, push,
+  // apagar… vira o "✓ Confirmar: <texto>" por 8 s, com o rascunho ainda na caixa
+  const it = pvItemAgora(chave);
+  if (pvFolha && pvFolha.chave === chave && it && ParaVoce.trava(it, texto)) {
+    clearTimeout(pvFolha.timer);
+    const f = pvFolha;
+    Object.assign(f, {conf: -1, confLivre: texto, confT: Date.now()});
+    f.timer = setTimeout(() => { if (pvFolha === f) { f.confLivre = ""; desenharPvFolha(); } }, PV_CONF_MS);
+    return desenharPvFolha();
+  }
+  pvAgendarMandar(chave, texto, {livre: true});
+}
+// O segundo toque no "✓ Confirmar: <texto>" da resposta livre (500 ms de guarda contra o toque duplo)
+function pvConfirmarLivre(chave) {
+  if (!pvFolha || pvFolha.chave !== chave || !pvFolha.confLivre || Date.now() - pvFolha.confT < 500) return;
+  const texto = pvFolha.confLivre;
+  clearTimeout(pvFolha.timer);
+  pvFolha.confLivre = "";
+  pvAgendarMandar(chave, texto, {livre: true});
+}
+async function pvCopiar(b) {
+  const pre = b.closest(".pv-cod") && b.closest(".pv-cod").querySelector("pre");
+  try { await navigator.clipboard.writeText(pre ? pre.textContent : ""); avisar("appAviso", "✓ Copiado", {ok: true}); }
+  catch { avisar("appAviso", "Não consegui copiar: toque e segure o texto para copiar.", {erro: true}); }
+}
+
+// -- a folha do detalhe (sobe de baixo; fecha arrastando para baixo, tocando fora, no ✕, no Esc ou no voltar) -----------
+function abrirPvFolha(chave, {foco = "", conf = -1} = {}) {
+  if (!pvItemAgora(chave)) return pvIndice(chave);
+  const nova = !pvFolha;
+  if (pvFolha) clearTimeout(pvFolha.timer);
+  pvFolha = {chave, conf, confT: conf >= 0 ? Date.now() : 0, timer: 0, entrando: nova};
+  if (conf >= 0) { const f = pvFolha; f.timer = setTimeout(() => { if (pvFolha === f) { f.conf = -1; desenharPvFolha(); } }, PV_CONF_MS); }
+  if (nova && !(history.state && history.state.pvFolha)) history.pushState({...(history.state || {}), pvFolha: 1}, "");
+  document.body.classList.add("pv-folha-aberta");
+  $("pvFolha")._html = "";
+  desenharPvFolha();
+  setTimeout(() => {
+    const el = $("pvFolha"), t = foco === "rasc" ? el.querySelector("[data-pv-rasc]:not([disabled])") : null;
+    if (t) t.focus(); else if (nova) { const h = el.querySelector(".pv-f-t"); if (h) h.focus({preventScroll: true}); }
+  }, foco === "rasc" ? 350 : 30);
+}
+function fecharPvFolha({voltar = true} = {}) {
+  if (!pvFolha) return;
+  clearTimeout(pvFolha.timer);
+  pvFolha = null;
+  const el = $("pvFolha");
+  el.innerHTML = ""; el._html = ""; el.classList.add("hidden");
+  document.body.classList.remove("pv-folha-aberta");
+  if (voltar && history.state && history.state.pvFolha) history.back();
+}
+function desenharPvFolha() {
+  const el = $("pvFolha");
+  if (!pvFolha || !pvPremium()) return;
+  const o = orquestraDe(Object.values(pcs)), it = pvItemAgora(pvFolha.chave);
+  if (!o || !it) { fecharPvFolha(); return avisar("appAviso", `Esse item saiu do Para você: o ${nomeMaestro(true)} atualizou a lista.`, {}); }
+  if (el.contains(document.activeElement) && document.activeElement.matches("textarea")) return;   // escrevendo: não refaz
+  const ctx = pvCtx(o), k = it.chave, tipo = pvTipo(it), a = pvAlvo(it), d = pvDestino(ctx, it);
+  const frases = pvFrases(it), {principal} = PvLista.principalEDepois(frases, it.recomendada);
+  // 20/11 (o crítico): o ⚡ só para comando de terminal, como na linha (pvShell) e no Monitor (geral_pv.js); o comando
+  // que é uma frase para o chat ("Instala o código novo… e retoma os vigias.") vai na caixa "Frase para o chat do …",
+  // só com o Copiar, e a principal volta a ser a resposta recomendada ("digitei")
+  const shell = pvShell(it), cmd = pvComando(it), rodar = shell ? caixaRodar(it) : "",
+        frase = !shell && cmd ? ParaVoce.caixaFrase(cmd, ctx.nomeM) : "", st = it.slack ? estadoSlack(k) : null;
+  const responder = a && a.achou
+    ? {attrs: {"data-pv": k}, rotulo: a.ligado ? `↩ Responder a ${curtoTxt(a.nome, 24)}` : `${nomeCurtoPc(a.pc)} desligado`, desligado: !a.ligado,
+       aria: `Abrir a conversa com ${a.nome}, com o item citado`}
+    : it.slack ? null : {attrs: {"data-pv": k}, rotulo: ctx.maestro ? `↩ Responder ao ${ctx.nomeM}` : `${ctx.nomeM} fechado`, desligado: !ctx.maestro,
+       aria: `Abrir a conversa com o ${ctx.nomeM}, com o item citado`};
+  const html = ParaVoce.folha({chave: k, tipo, titulo: PvLista.tituloESub(it, pvCardDe(it)).titulo,
+    de: a ? {nome: a.nome, pc: Cards.chipCurto(a.pc), aviso: a.achou ? (a.ligado ? "" : `o ${nomeCurtoPc(a.pc)} está desligado`) : `a sessão não está aberta: a resposta vai ao ${ctx.meio}`}
+      : it.slack ? {nome: `Slack${it.slack.de ? " · " + it.slack.de : ""}`, pc: ""} : {nome: ctx.nomeM, pc: Cards.chipCurto(o.pc), aviso: ctx.maestro ? "" : `o ${ctx.nomeM} está fechado`},
+    texto: it.inteiro || it.texto, sem: rodar && typeof Rodar !== "undefined" ? Rodar.comandoDoItem(it) : (frase ? cmd : ""),
+    link: linkSeguro(it.link), rodar: rodar + frase,
+    // um principal só na folha: com a caixa do ⚡ (o comando de terminal), ela é o destaque e as frases ficam discretas
+    frases: it.slack ? [] : frases.map((f, n) => ({rotulo: f, n, principal: !rodar && n === principal, trava: ParaVoce.trava(it, f)})),
+    conf: pvFolha.conf, mandar: {pode: d.pode, porque: d.porque},
+    slack: it.slack ? {slack: it.slack, texto: it.texto, estado: st, rascunho: pvRascunhos[k] ? pvRascunhos[k].v : (it.slack.rascunho || ""), bloqueio: ctx.slack} : null,
+    livre: it.slack ? null : {nome: d.nome, rascunho: (pvRascunhos["livre:" + k] || {}).v || "", pode: d.pode, conf: pvFolha.confLivre || ""},
+    responder, resolver: !it.slack && ctx.notas,
+    linha: pvLinhaDaAcao(ctx, it), entrando: pvFolha.entrando,
+    // o anexo do card (a revisão de 17/11): o nome e o tipo; a imagem fica no PC do maestro (abrir no Monitor)
+    anexo: it.anexo && typeof it.anexo === "object" ? {nome: it.anexo.nome, tipo: it.anexo.tipo} : null});
+  if (el._html !== html) {
+    const f = el.querySelector(".pv-folha"), sc = f ? f.scrollTop : 0;
+    el.innerHTML = html; el._html = html;
+    const nf = el.querySelector(".pv-folha");
+    if (nf && sc) nf.scrollTop = sc;
+  }
+  pvFolha.entrando = false;
+  el.classList.remove("hidden");
 }
 const curtoTxt = (t, n) => (t = String(t || "")).length > n ? t.slice(0, n - 1).trimEnd() + "…" : t;
 // 13/11 (entrega 1 do Monitor no celular): cada item no card comum (paravoce.js + cards.js); a casca velha, sem eles, como era
@@ -2960,7 +3427,7 @@ function estadoSlack(chave) {
 async function enviarSlack(i) {
   const o = orquestraDe(Object.values(pcs)), it = o && (o.para_voce || [])[i];
   if (!it || !it.slack) return;
-  const chave = chavePv(it), sl = it.slack, campo = document.querySelector(`[data-pv-rasc="${chave}"]`);
+  const chave = chavePv(it), sl = it.slack, campo = document.querySelector(`[data-pv-rasc="${CSS.escape(chave)}"]`);   // a chave pode ter aspas
   const texto = String(campo ? campo.value : (pvRascunhos[chave] ? pvRascunhos[chave].v : sl.rascunho) || "").trim();
   if (!texto) return avisar("appAviso", "Escreva a resposta antes de enviar.", {erro: true});
   if (texto.length > 4000) return avisar("appAviso", `A resposta tem ${texto.length} caracteres; o limite é 4000.`, {erro: true});
@@ -2996,6 +3463,7 @@ function contarSessoes(ss, agora) {
 }
 function irParaItem(chave) {
   mostrarAba("Inicio");
+  if (pvPremium()) { desenharInicio(); return abrirPvFolha(chave, {foco: "rasc"}); }   // pro-105: a folha do item, com o rascunho
   paraVoceTodos = true;
   desenharInicio();
   const el = [...document.querySelectorAll("#p-paravoce [data-pv-item]")].find(x => x.dataset.pvItem === chave);
@@ -3008,6 +3476,10 @@ function irParaItem(chave) {
 function estadoRespostaPv(r) {
   const p = pedidos.find(x => x.id === r.pedido), h = hm(new Date(r.t).toISOString());
   if (p && ["erro", "cancelado"].includes(p.estado)) return `<span class="alerta">⚠ A resposta a ${esc(r.nome)} não entrou: abra a conversa para tentar de novo.</span>`;
+  if (r.direto) {   // pro-105: a frase ao próprio maestro (não há nota): chegou quando entrou na sessão dele
+    if (p && p.estado === "entregue" && !r.chegou) { r.chegou = true; salvarPv(); }
+    return r.chegou ? `✓ ${esc(r.nome)} recebeu a resposta às ${h}` : `✓ Resposta a caminho de ${esc(r.nome)} (${h})`;
+  }
   if (!r.nota && (!p || p.estado !== "entregue")) return `✓ Resposta a caminho de ${esc(r.nome)} (${h})`;
   const nota = r.nota === "antigo" ? ` · o ${esc(nomeMaestro(true))} não foi avisado (o agente do ${esc(nomeCurtoPc(r.maestro))} precisa da ${AGENTE_NOTA})`
     : r.nota ? ` · ${esc(nomeMaestro(true))} avisado` : ` · avisando o ${esc(nomeMaestro(true))}…`;
@@ -3109,10 +3581,13 @@ function responderParaVoce(i, frase) {
   t.focus();
 }
 // A resposta saiu do celular (o pedido existe): o item mostra o andamento e o maestro fica sabendo quando ela entrar.
+// pro-105: a resposta que foi ao próprio maestro (pv.direto: a frase pronta do item sem sessão) não pede a nota: ele já leu.
 function registrarResposta(pv, pedido, texto) {
-  pvRespondidos[pv.chave] = {t: Date.now(), nome: pv.nome, pedido, nota: "", maestro: pv.maestro};
-  notasMaestro.push({tipo: "respondido", ref: pedido, pedido, chave: pv.chave, item: pv.item, nome: pv.nome, pc_sessao: pv.pc,
-                     sessao: pv.sessao, maestro: pv.maestro, resposta: Chat.separarCitacao(texto).texto.slice(0, 600), t: Date.now()});
+  // frase: o que foi respondido, para a linha do "Respondidos agora" (“fiz” · 13:33 · ✓✓ visto)
+  pvRespondidos[pv.chave] = {t: Date.now(), nome: pv.nome, pedido, nota: "", maestro: pv.maestro, frase: Chat.separarCitacao(texto).texto.slice(0, 200),
+                             ...(pv.direto ? {direto: true} : {})};
+  if (!pv.direto) notasMaestro.push({tipo: "respondido", ref: pedido, pedido, chave: pv.chave, item: pv.item, nome: pv.nome, pc_sessao: pv.pc,
+                                     sessao: pv.sessao, maestro: pv.maestro, resposta: Chat.separarCitacao(texto).texto.slice(0, 600), t: Date.now()});
   salvarPv();
 }
 function resolverParaVoce(i, tipo = "resolvido") {
@@ -4388,7 +4863,7 @@ async function atualizarAgora() {
   setTimeout(() => { atualizandoAgora = false; mostrarPuxar(0); }, ok ? 1200 : 3000);
 }
 const podePuxar = e => ["Inicio", "Claude", "Workflows"].includes(aba) && $("detalhe").classList.contains("hidden") && $("folhaFundo").classList.contains("hidden")
-  && $("frente").classList.contains("hidden") && !telaV24 && !rdFolha   // v24: o arrasto das Decisões não é o puxar
+  && $("frente").classList.contains("hidden") && !telaV24 && !rdFolha && !pvFolha   // v24: o arrasto das Decisões não é o puxar; pro-105: nem o da folha
   && window.scrollY <= 0 && !e.target.closest(".fx-fila, .filtros, .fr-resumo, input, textarea, .sl .card.arrastando");
 document.addEventListener("touchstart", e => {
   puxando = e.touches.length === 1 && podePuxar(e) ? {y0: e.touches[0].clientY, dy: 0} : null;
@@ -5009,6 +5484,7 @@ function sessaoAberta() {
 function abrir(pc, id) {
   if (Marcar.aberto() && !Marcar.sairEditor(true)) return;   // marcando uma imagem: pergunta antes de trocar de conversa
   Marcar.fecharVisor();
+  if (pvFolha) fecharPvFolha();   // pro-105: a folha do Para você não fica por cima da conversa
   frVolta = null;   // 0.9.0.4: a conversa aberta por outro caminho não volta para a frente
   if (frAberta) fecharFrente();
   aberta = {pc, id};
@@ -6820,6 +7296,7 @@ function entrar() {
   clearTimeout(timerSala);
   $("parear").classList.add("hidden");
   ["app", "nav", "gear"].forEach(i => $(i).classList.remove("hidden"));
+  if (aba === "Inicio" && !Object.keys(pcs).length) desenharInicio();   // pro-105: sem nada guardado, as linhas-esqueleto do Para você
   ciclo();
 }
 function sair(motivo = "") {
@@ -7458,7 +7935,7 @@ const frasePedeV24 = (pc, onde) => `O agente do ${nomeCurtoPc(pc) || "PC"} é de
 const AGENTE_CARD = "0.9.0.11";    // o agente que leva a nota "card" (o quadro visual) à caixa do maestro
 // Com a casca velha no cache do iPhone (um arquivo de cada versão), a página não quebra: só não mostra o que é da v24.
 const temV24 = () => typeof Decisoes !== "undefined" && typeof Entregas !== "undefined" && typeof MeusPedidos !== "undefined" && typeof Rodar !== "undefined";
-$("estiloV24").textContent = [window.Cards, window.Decisoes, window.Entregas, window.MeusPedidos, window.Rodar, window.Reacoes].map(m => (m && m.CSS) || "").join("\n");
+$("estiloV24").textContent = [window.Cards, window.Decisoes, window.Entregas, window.MeusPedidos, window.Rodar, window.Reacoes, window.ParaVoce].map(m => (m && m.CSS) || "").join("\n");
 
 // ---- as fotos e os lotes (CONTRATO seção 1): memória + aparelho ---------------------------------------------------
 // No aparelho (localStorage "sf:<id>:<tamanho>") só a miniatura pequena (até 40 KB), com teto de 2 MB (sai a mais
@@ -8290,6 +8767,125 @@ async function acaoRodar(a) {
 }
 $("rdFolha").addEventListener("click", e => { const a = temV24() && Rodar.acaoDe(e.target); if (a) acaoRodar(a); });
 
+// ---- pro-105: os toques da folha do Para você, o deslize da linha e o arrastar a folha para baixo ----------------------
+$("pvFolha").addEventListener("click", e => {
+  if (e.target.closest("a")) return;
+  const rd = temV24() && Rodar.acaoDe(e.target);
+  if (rd) return acaoRodar(rd);
+  if (e.target.closest("[data-rd-rodar], [data-rd-rodei]")) return;   // o botão desligado não faz nada
+  if (e.target.matches("[data-pv-fundo]") || e.target.closest("[data-pv-fechar]")) return fecharPvFolha();
+  const cp = e.target.closest("[data-pv-copiar]");
+  if (cp) return pvCopiar(cp);
+  const fr = e.target.closest("[data-pv-frase]");
+  if (fr) return fr.disabled ? null : pvTocarFrase(fr.dataset.pvFrase, Number(fr.dataset.n) || 0, true);
+  const cf = e.target.closest("[data-pv-confirmar]");
+  if (cf) return pvConfirmar(cf.dataset.pvConfirmar, Number(cf.dataset.n) || 0);
+  const cl = e.target.closest("[data-pv-confirmar-livre]");
+  if (cl) return pvConfirmarLivre(cl.dataset.pvConfirmarLivre);
+  if (e.target.closest("[data-pv-cancelar]")) return pvCancelarConf();
+  const lm = e.target.closest("[data-pv-livre-mandar]");
+  if (lm) return lm.disabled ? null : pvMandarLivre(lm.dataset.pvLivreMandar);
+  const sk = e.target.closest("[data-pv-slack]");
+  if (sk) return sk.disabled ? null : enviarSlack(pvIndice(sk.dataset.pvSlack));
+  const ok = e.target.closest("[data-pv-ok]");
+  if (ok) { const k = ok.dataset.pvOk; fecharPvFolha(); return pvSumir(k, () => resolverParaVoce(pvIndice(k))); }
+  const ja = e.target.closest("[data-pv-ja]");
+  if (ja) { const k = ja.dataset.pvJa; fecharPvFolha(); return pvSumir(k, () => resolverParaVoce(pvIndice(k), "slack_ja")); }
+  const pv = e.target.closest("[data-pv]");   // o "↩ Responder a …" de sempre: a conversa com o item citado
+  if (pv) { if (pv.disabled) return; const k = pv.dataset.pv; fecharPvFolha(); return responderParaVoce(pvIndice(k)); }
+});
+// Os rascunhos da folha (o do Slack e o da "Outra resposta") ficam no aparelho enquanto são escritos.
+$("pvFolha").addEventListener("input", e => {
+  const t = e.target.closest("[data-pv-rasc], [data-pv-livre]");
+  if (!t) return;
+  pvRascunhos[t.dataset.pvRasc !== undefined ? t.dataset.pvRasc : "livre:" + t.dataset.pvLivre] = {v: t.value, t: Date.now()};
+  store.set("seaninho.pvRascunhos", JSON.stringify(pvRascunhos));
+});
+// A folha desce com o dedo (da alça e do topo sempre; do resto, com ela rolada até o alto): passou de 90 px, fecha.
+let pvArrasto = null;
+$("pvFolha").addEventListener("touchstart", e => {
+  const f = e.target.closest(".pv-folha");
+  pvArrasto = null;
+  if (!f || e.touches.length !== 1 || e.target.closest("textarea, pre, .rd-pcs")) return;
+  if (!e.target.closest(".pv-pega, .pv-f-topo") && f.scrollTop > 0) return;
+  pvArrasto = {f, y0: e.touches[0].clientY, dy: 0};
+}, {passive: true});
+$("pvFolha").addEventListener("touchmove", e => {
+  const a = pvArrasto;
+  if (!a) return;
+  a.dy = Math.max(0, e.touches[0].clientY - a.y0);
+  if (a.dy > 4 && a.f.scrollTop <= 0) { a.f.classList.add("arrastando"); a.f.style.transform = `translateY(${a.dy}px)`; }
+}, {passive: true});
+function pvSoltarFolha() {
+  const a = pvArrasto;
+  pvArrasto = null;
+  if (!a) return;
+  a.f.classList.remove("arrastando");
+  if (a.dy > 90 && a.f.style.transform) return fecharPvFolha();
+  a.f.style.transform = "";
+}
+document.addEventListener("touchend", pvSoltarFolha, {passive: true});   // no documento: a folha refeita no meio não prende
+document.addEventListener("touchcancel", pvSoltarFolha, {passive: true});
+document.addEventListener("keydown", e => {
+  if (e.key !== "Escape" || !pvFolha) return;
+  if (rdFolha) return fecharRdFolha();   // a do ⚡ por cima fecha primeiro
+  fecharPvFolha();
+});
+addEventListener("popstate", e => { if (pvFolha && !(e.state && e.state.pvFolha)) fecharPvFolha({voltar: false}); });   // o voltar do iPhone
+// O deslize da linha (só no toque): a rolagem tem a vez (o .pv-frente é touch-action: pan-y; o deslize só começa com o
+// movimento claramente de lado). Direita = a resposta principal, esquerda = o "depois" (ou adiar 4 h neste aparelho).
+// Passou de 35% da largura, soltar faz; a travada e a do Slack abrem a folha em vez de mandar.
+let pvToque = null;
+$("tabInicio").addEventListener("touchstart", e => {
+  pvToque = null;
+  if (pvDeslizando) { pvDeslizando = false; if (pvRedesenhar) { pvRedesenhar = false; setTimeout(desenharInicio, 0); } }   // um fim que não veio
+  if (!pvPremium() || e.touches.length !== 1) return;
+  const frente = e.target.closest("#p-paravoce .pv-linha:not(.feito) > .pv-frente");
+  if (!frente || !frente.parentElement.querySelector(".pv-fundo-d")) return;
+  pvToque = {el: frente.parentElement, frente, x0: e.touches[0].clientX, y0: e.touches[0].clientY, modo: "", dx: 0, w: frente.offsetWidth};
+}, {passive: true});
+$("tabInicio").addEventListener("touchmove", e => {
+  const g = pvToque;
+  if (!g) return;
+  const dx = e.touches[0].clientX - g.x0, dy = e.touches[0].clientY - g.y0;
+  if (!g.modo) {
+    g.modo = ParaVoce.direcaoGesto(dx, dy);
+    if (!g.modo) return;
+    if (g.modo === "v") { pvToque = null; return; }
+    g.el.classList.add("pv-movendo");
+    pvDeslizando = true;
+  }
+  const r = ParaVoce.gesto(dx, g.w);
+  g.dx = dx;
+  g.el.classList.toggle("desl-dir", r.lado === "dir");
+  g.el.classList.toggle("desl-esq", r.lado === "esq");
+  g.el.classList.toggle("pronto", r.pronto);
+  g.frente.style.transform = `translateX(${r.x}px)`;
+}, {passive: true});
+function pvSoltarLinha(cancelou) {
+  const g = pvToque;
+  pvToque = null;
+  if (!g || g.modo !== "h") return;
+  pvGestoFim = Date.now();
+  pvDeslizando = false;
+  if (pvRedesenhar) { pvRedesenhar = false; setTimeout(desenharInicio, 280); }   // o que chegou durante o deslize
+  const r = ParaVoce.gesto(g.dx, g.w), k = g.el.dataset.pvItem, o = orquestraDe(Object.values(pcs)), it = pvItemAgora(k);
+  g.el.classList.remove("pv-movendo");
+  const voltar = () => { g.frente.style.transform = ""; setTimeout(() => g.el.classList.remove("desl-dir", "desl-esq", "pronto"), 240); };
+  if (cancelou || !r.pronto || !o || !it) return voltar();
+  const acao = pvAcaoLado(pvCtx(o), it, r.lado);
+  if (acao.manda || acao.adiar) {
+    g.frente.style.transform = `translateX(${r.lado === "dir" ? g.w : -g.w}px)`;   // a linha sai para o lado; o vão fecha
+    return setTimeout(() => acao.adiar ? pvAdiar(k) : pvAgendarMandar(k, acao.manda), pvCalmo() ? 0 : 160);
+  }
+  voltar();
+  if (acao.rodar) return acaoRodar({acao: "rodar", chave: acao.rodar.chave, pc: acao.rodar.pc});   // a folha "Rodar agora" de sempre
+  abrirPvFolha(k, {conf: acao.conf >= 0 ? acao.conf : -1, foco: it.slack ? "rasc" : ""});
+}
+// o fim do toque no documento: a linha que se refez no meio (o nó do toque fora da página) não deixa o deslize preso
+document.addEventListener("touchend", () => pvSoltarLinha(false), {passive: true});
+document.addEventListener("touchcancel", () => pvSoltarLinha(true), {passive: true});
+
 // ---- Ligações ----------------------------------------------------------------------------------------
 document.querySelectorAll(".mic").forEach(b => { b.innerHTML = MIC; b.addEventListener("click", () => alternarMic(b)); });
 function mostrarAba(nome) {
@@ -8298,6 +8894,7 @@ function mostrarAba(nome) {
   $("gear").classList.toggle("on", nome === "Ajustes");
   ["Inicio", "Claude", "Workflows", "Hoje", "Pedir", "Copias", "Feed", "Ajustes"].forEach(t => $("tab" + t).classList.toggle("hidden", t !== nome));
   if (frAberta && nome !== "Workflows") fecharFrente();   // 0.9.0.4
+  if (pvFolha && nome !== "Inicio") fecharPvFolha();      // pro-105
   window.scrollTo(0, 0);
   fecharMenu();
   if (nome === "Copias") carregarCopias();
@@ -8341,6 +8938,26 @@ $("tabInicio").addEventListener("click", e => {
   if (e.target.closest("[data-uso]")) return abrirUsoIa();
   const fp = e.target.closest("[data-fechar-paradas]");
   if (fp) return fecharParadas(fp.dataset.fecharParadas);
+  // pro-105: o Para você premium: os grupos, o "Mostrar mais", as pílulas, a linha que abre a folha. O ✓ Resolvido e o
+  // "Já respondi" da linha fecham o vão devagar; o resto (o ↩, o ⚡) segue pelos caminhos de baixo
+  if (pvPremium() && e.target.closest("#p-paravoce")) {
+    if (Date.now() - pvGestoFim < 450 && e.target.closest(".pv-linha")) return;   // o toque que terminou um deslize
+    const rc = e.target.closest("[data-pv-recolher]");
+    if (rc) { const g = rc.dataset.pvRecolher, era = pvRecolhido(g); delete pvAbertoPeloAviso[g]; pvRecolhidos[g] = !era; salvarPvPrefs(); return desenharInicio(); }
+    const mm = e.target.closest("[data-pv-todos]");
+    if (mm && mm.dataset.pvTodos) { pvMais[mm.dataset.pvTodos] = true; return desenharInicio(); }
+    if (e.target.closest("[data-pv-adiados]")) { pvAdiados = {}; salvarPvPrefs(); return desenharInicio(); }
+    const fr = e.target.closest("[data-pv-frase]");
+    if (fr) return fr.disabled ? null : pvTocarFrase(fr.dataset.pvFrase, Number(fr.dataset.n) || 0, false);
+    const okl = e.target.closest("[data-pv-ok]");
+    if (okl) { const k = okl.dataset.pvOk; return pvSumir(k, () => resolverParaVoce(pvIndice(k))); }
+    const jal = e.target.closest("[data-pv-ja]");
+    if (jal) { const k = jal.dataset.pvJa; return pvSumir(k, () => resolverParaVoce(pvIndice(k), "slack_ja")); }
+    const ab = e.target.closest("[data-pv-abrir]");
+    if (ab) return abrirPvFolha(ab.dataset.pvAbrir, {foco: ab.dataset.pvFoco || ""});
+    const ln = e.target.closest(".pv-linha");
+    if (ln && !e.target.closest("button, a, textarea")) return abrirPvFolha(ln.dataset.pvItem);
+  }
   // 0.8.9: pela chave do item. Pela posição, com a caixa em foco (a lista não se refaz) e o maestro mudando a lista, o
   // "Enviar" mandava o rascunho de outro item, ou o "✓ Resolvido" resolvia outro
   const ok = e.target.closest("[data-pv-ok]");
@@ -8819,6 +9436,18 @@ const pvSlackEnviando = () => Object.keys(pvSlack).some(k => estadoSlack(k).fase
 function abrirPeloAviso(d) {
   if (!chave) return;
   if (window.EstoqueTela && EstoqueTela.aberta()) EstoqueTela.soltar();   // o trem 0.9.0.18: o destino nunca por baixo do Estoque
+  // 20/11 (a junção da pro-105 com a main, o cético): nem por baixo da folha do Para você (z-index 8, acima do
+  // Computadores e das telas cheias). Sem isto, o push do OK do Chrome com a folha aberta caía no fundo escuro dela: o
+  // 1º toque no Permitir só fechava a folha e o card saía da tela. Fecha antes do atualizar() e SEM o history.back(),
+  // que correria com o pushState da tela do aviso (a 2ª rodada; o mesmo do EstoqueTela.soltar): a entrada da folha no
+  // histórico vira a página
+  if (pvFolha) {
+    fecharPvFolha({voltar: false});
+    if (history.state && history.state.pvFolha) {
+      const {pvFolha: _f, ...resto} = history.state;
+      history.replaceState(Object.keys(resto).length ? resto : null, "");
+    }
+  }
   if (d.airats) return atualizar().then(abrirAiRats);
   if (d.ajustes) return atualizar().finally(() => { if (aberta) fechar(); fecharComputadores(); mostrarAba("Ajustes"); });   // 0.9.0: aparelho novo
   if (d.pcs !== undefined && d.pcs !== null && d.pcs !== false) return atualizar().finally(() => { if (aberta) fechar(); abrirComputadores(String(d.pcs)); });
@@ -8832,8 +9461,12 @@ function abrirPeloAviso(d) {
   });
   if (d.pv) return atualizar().finally(() => {   // a mensagem nova do Slack no Para você
     if (aberta) fechar();
+    // pro-105: a lista premium não lê o paraVoceTodos (é da casca antiga); o grupo Mensagens abre inteiro, só nesta
+    // visita (o pvAbertoPeloAviso nunca é gravado: a escolha do aparelho fica), e a tela rola até ele
+    if (pvPremium()) { pvAbertoPeloAviso.slack = true; pvMais.slack = true; }
     mostrarAba("Inicio"); paraVoceTodos = true; desenharInicio();
-    const el = $("p-paravoce"); if (el) el.scrollIntoView({block: "start", behavior: "smooth"});
+    const el = document.querySelector('#p-paravoce [data-pv-grupo="slack"]') || $("p-paravoce");
+    if (el) el.scrollIntoView({block: "start", behavior: "smooth"});
   });
   if (d.okchrome) return atualizar().finally(() => {   // pro-106: o push do OK do Chrome abre o Início no card
     if (aberta) fechar();
