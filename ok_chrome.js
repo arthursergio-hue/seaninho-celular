@@ -17,7 +17,7 @@
 "use strict";
 
 const ACAO = "ok_chrome_responder";
-const AGENTE = "0.9.0.30";          // o agente que publica o bloco e faz o pedido (a versão do agente, como o test_ok_chrome.cjs pede)
+const AGENTE = "0.9.0.31";          // o agente que publica o bloco e faz o pedido (a versão do agente, como o test_ok_chrome.cjs pede)
 const MAX_CARDS = 6, MAX_LINHAS = 10, LINHA_MAX = 120, TEXTO_MAX = 80;   // os mesmos tetos do ok_chrome.py
 const ONLINE_MS = 150000;           // o online() da página: o PC deu sinal há menos que isso
 const PRAZO_PEDIDO_MS = 3 * 60000;  // o pedido do celular vale por 3 min (o agente também recusa depois disso)

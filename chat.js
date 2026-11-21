@@ -106,24 +106,74 @@ const BOTOES = {"yes": "Permitir", "no": "Não", "yes, allow all edits this sess
   // 19/11: os do terminal (o Herdr), lidos da tela do Claude Code 2.1.328
   "yes, manually approve edits": "Aprovar e revisar cada edição", "tell claude what to change": "Não, dizer o que mudar",
   // 20/11: a pergunta de confiança da pasta (o quadro que só está na tela do Herdr)
-  "yes, i trust this folder": "Sim, confio nesta pasta", "no, exit": "Não, sair"};
+  "yes, i trust this folder": "Sim, confio nesta pasta", "no, exit": "Não, sair",
+  // 20/11: o diálogo de trocar de modelo ("Switch model?"), que agora entra como pergunta comum
+  "no, go back": "Não, voltar"};
+// 20/11 (revisão adversarial, 3ª volta): o título do cartão também sai em português. São frases FIXAS do Claude Code;
+// o <pre> com a tela do PC continua em inglês de propósito (é a cópia do que está lá)
+const TITULOS_DA_TELA = {"switch model?": "Trocar de modelo?", "select model": "Escolher o modelo",
+  "do you want to proceed?": "Pode seguir com esse pedido?"};
+function tituloDaTela(titulo) {
+  const t = String(titulo || "").trim();
+  return TITULOS_DA_TELA[t.toLowerCase()] || t;
+}
+// 20/11 (revisão adversarial, 3ª volta): o rótulo que não se traduz ("Yes, and switch to accept edits … for this
+// session; Yes, and always allow access to C:\…") tem ~250 letras e vira um bloco de dez linhas no meio dos botões.
+// No botão vai o começo; o texto inteiro fica na dica "No PC: …" (o atributo title)
+const MAX_ROTULO = 90;
+// 20/11 (cético ao vivo): cortando só o fim, o "Permitir sempre" escondia justo a PASTA que ele libera para sempre
+// (o caminho é longo e o corte caía no meio dele). O corte passou para o meio do rótulo: o começo diz o que é, o fim
+// diz até onde vale. No iPhone não há dica de passar o mouse (o title), então o botão tem de bastar sozinho
+const FIM_ROTULO = 30;
+function cortarRotulo(rotulo) {
+  const r = String(rotulo || "");
+  if (r.length <= MAX_ROTULO) return r;
+  return r.slice(0, MAX_ROTULO - FIM_ROTULO - 1).trimEnd() + "…" + r.slice(r.length - FIM_ROTULO).trimStart();
+}
 // 20/11: o rótulo de uma opção da tela traduzido só quando é um conhecido (senão, como está no PC: “Permitir I trust…” não)
 function rotuloDaTela(rotulo) {
   const r = String(rotulo || "").trim();
-  return BOTOES[r.toLowerCase()] || /^Yes, (allow .+ for |and always allow .+ from this project$|and don't ask again for )/i.test(r)
+  return BOTOES[r.toLowerCase()] || /^Yes, (allow .+ for |and always allow .+ (from this project$|for this session)|and don't ask again for |switch to |and switch to accept edits)/i.test(r)
     ? traduzirBotao(r) : r;
 }
-function traduzirBotao(rotulo) {
-  const r = String(rotulo || "").trim(), chave = r.toLowerCase();
-  if (BOTOES[chave]) return BOTOES[chave];
+function _conhecido(r) {
+  // a tradução das frases que o Claude Code escreve; "" quando nenhuma regra conhece o rótulo (e aí ele não se
+  // traduz de verdade — é disso que o rótulo composto precisa para não sair pela metade)
+  if (BOTOES[r.toLowerCase()]) return BOTOES[r.toLowerCase()];
+  // 20/11: "Yes, switch to Opus 5.5" (o diálogo de trocar de modelo). O "Yes, and switch to …" da permissão não cai
+  // aqui: lá o "and" vem antes
+  const sw = /^Yes, switch to (.+)$/i.exec(r);
+  if (sw) return `Sim, trocar para ${sw[1]}`;
   const m = /^Yes, allow (access to )?(.+?) for (.+)$/i.exec(r);
   if (m) return `Permitir sempre ${m[1] ? "acesso a " : ""}${m[2]} ${DESTINOS[m[3].toLowerCase()] || "(" + m[3] + ")"}`;
-  // 19/11, o terminal (Herdr): "Yes, and always allow access to C:\x from this project", "Yes, and don't ask again for …"
-  const t = /^Yes, and always allow (access to )?(.+?) from this project$/i.exec(r);
-  if (t) return `Permitir sempre ${t[1] ? "o acesso a " : ""}${t[2]} neste projeto`;
+  // 20/11 (revisão adversarial da 3ª volta): o "Yes, and switch to accept edits … for this session" sozinho caía na
+  // troca genérica e virava "Permitir and switch to accept edits…"
+  if (/^Yes, and switch to accept edits\b/i.test(r)) return "Aceitar edições (nesta sessão)";
+  // 19/11, o terminal (Herdr): "Yes, and always allow access to <pasta> from this project"; 20/11: o mesmo rótulo
+  // com "for this session" no lugar de "from this project" (ele também chega assim)
+  const t = /^Yes, and always allow (access to )?(.+?) (from this project|for this session)$/i.exec(r);
+  if (t) return `Permitir sempre ${t[1] ? "o acesso a " : ""}${t[2]} ${/session/i.test(t[3]) ? "nesta sessão" : "neste projeto"}`;
   const d = /^Yes, and don't ask again for (.+)$/i.exec(r);
   if (d) return `Permitir e não perguntar de novo: ${d[1]}`;
-  return r.replace(/^Yes,?\s*/i, "Permitir ").replace(/^No,?\s*/i, "Não ").trim() || r;
+  return "";
+}
+function traduzirBotao(rotulo) {
+  const r = String(rotulo || "").trim();
+  // 20/11 (3ª conferência do PR #62): o rótulo COMPOSTO ("Yes, and switch to accept edits (…) for this session;
+  // Yes, and always allow access to <pasta> for this session") tem ~250 letras e, cortado, escondia a segunda
+  // permissão — justamente a que fica valendo. Cada metade é traduzida à parte e as duas vão juntas; se alguma não
+  // se traduzir, o rótulo volta INTEIRO em inglês (o corte mostra o começo e o fim), em vez de sair pela metade
+  if (r.includes(";")) {
+    const partes = r.split(";").map(x => x.trim()).filter(Boolean);
+    const pt = partes.map(_conhecido);
+    if (partes.length > 1 && pt.every(Boolean))
+      return pt.map((x, i) => {
+        const limpo = i ? x.replace(/^Permitir e /, "") : x;
+        return i ? limpo.charAt(0).toLowerCase() + limpo.slice(1) : limpo;
+      }).join(" e ");
+    return r;
+  }
+  return _conhecido(r) || r.replace(/^Yes,?\s*/i, "Permitir ").replace(/^No,?\s*/i, "Não ").trim() || r;
 }
 
 // Os botões do cartão de permissão: os que o PC mostra (lidos da tela; mesma regra do agente: o 1º Yes, o 2º Yes e
@@ -132,10 +182,16 @@ function botoesPermissao(perm) {
   const opcoes = Array.isArray(perm.opcoes) ? perm.opcoes : null;
   if (perm.so_tela) {
     // 20/11: o quadro que só está na tela do Herdr: um botão por opção da tela, pelo número dela ("n:2"), menos as que
-    // mudam o modo da sessão e as vazias (o "Yes, and …" que a trava de segredos não tem); o Esc é o "Cancelar"
-    const out = (opcoes || []).map((r, i) => ({escolha: "n:" + (i + 1), rotulo: rotuloDaTela(r), original: r}))
-      .filter(b => b.original && !/switch to auto mode/i.test(b.original) && i9(b.escolha));
-    out.push({escolha: "nao", rotulo: "Cancelar (Esc)"});
+    // mudam o modo da sessão e as vazias (o "Yes, and …" que a trava de segredos não tem); o Esc é o "Cancelar".
+    // O "original" é o que está escrito na TELA DO PC (perm.opcoes_pc quando o botão vai em português), para a dica
+    // "No PC: …" casar com a linha que o Arthur acha lá
+    const naTela = Array.isArray(perm.opcoes_pc) && perm.opcoes_pc.length === (opcoes || []).length ? perm.opcoes_pc : opcoes;
+    const out = (opcoes || []).map((r, i) => [r, (naTela || [])[i] || r, "n:" + (i + 1)])
+      .filter(([r, pc, n]) => r && !/switch to auto mode/i.test(pc) && i9(n))
+      .map(([r, pc, n]) => ({escolha: n, rotulo: cortarRotulo(rotuloDaTela(r)), original: pc}));
+    // 20/11: no recado de outra sessão, o Esc NEGA o recado (não é "cancelar sem efeito") e a opção 1 já faz isso:
+    // nada de um botão "Cancelar". O PC também recusa o "nao" nesse quadro (entrega.HERDR_RECADO_SEM_ESC)
+    if (perm.tipo_tela !== "recado") out.push({escolha: "nao", rotulo: "Cancelar (Esc)"});
     return out;
   }
   if (opcoes) {
@@ -570,7 +626,7 @@ function mover(lista, i, j) {
 
 const Chat = {SINAL, normalizar, versaoMin, montar, estadoDoPedido, pelaCaixa, pedidosDaSessao, respostaDeEnquete, textoResposta,
   AGENTE_QUALQUER, SELO, viaDaResposta, viaDoErro, motivoSemEntrega,
-  ESPERANDO, respostaDePermissao, traduzirBotao, botoesPermissao, textoPermissao, reenviavel, MAX_IMAGENS, imagensDaColagem, imagensDosItens,
+  ESPERANDO, respostaDePermissao, traduzirBotao, tituloDaTela, botoesPermissao, textoPermissao, reenviavel, MAX_IMAGENS, imagensDaColagem, imagensDosItens,
   nImagens, mover, marcaTela, citacao, comCitacao, separarCitacao, acharCitada,
   daOrquestra, temAnexo, corpoDaOrquestra, NOME_ORQ, FOTO_LADO, FOTO_QUALIDADE, FOTO_PEQUENA, FOTO_MAX, PC_GUARDA, tipoDosBytes, orientacaoExif,
   ladoReduzido, bytesDoBase64, comoVaiAFoto,

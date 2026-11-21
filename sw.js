@@ -47,11 +47,18 @@
 // v38 (18/11, a página 0.9.0.27, pro-99 + pro-110): sem script novo na casca; o usoia.js (a leitura mais nova entre os
 // PCs e o chip "lido no TeamZone pelo WIN"), o modo_ia.js (os textos ESTE PC / OUTRO PC do Monitor) e o index.html
 // novo, sobre a v37 da pro-106. Publicar a celular/web INTEIRA da main já juntada, pelo conferir_pagina.py.
+// v42 (20/11, a página 0.9.0.31, celular-aprovacao-herdr-2011): o cartão do recado de outra sessão (os botões
+// Entregar e Negar, o destaque no Negar, o aviso do recado cortado) e o chat.js sem o "Cancelar (Esc)" nesse
+// cartão — ali o Esc nega o recado de verdade. O agente 0.9.0.31 também recusa o "nao" nesse quadro, para a casca
+// guardada de antes não conseguir descartar um recado. Na mesma v42: o pedido mais alto que a tela do Herdr passa a
+// ter botões (o cartão mostra o que apareceu, quantas linhas ficaram acima e, quando dá, o começo que faltava) e o
+// diálogo de trocar de modelo entra como pergunta comum, em português. A casca guardada de antes não responde o
+// quadro cortado: ela não manda o "cortado_visto" que o agente 0.9.0.31 exige.
 // v41 (19/11, a página 0.9.0.30, celular-herdr-1911; a v39 é da pro-113 e a v40 de quem juntar depois dela): sem
 // script novo na casca; o index.html (a caixa que não trava na pergunta do Herdr, o quadro do Herdr respondível, o
 // texto inteiro da trava) e o chat.js (os rótulos do terminal), sobre a v38. Publicar a celular/web INTEIRA da main já
 // juntada, pelo conferir_pagina.py.
-const CACHE = "seaninho-v41";
+const CACHE = "seaninho-v42";
 const CASCA = ["./", "./index.html", "./config.js", "./markdown.js", "./chat.js", "./reacoes.js", "./lista.js", "./prioridades.js", "./workflows.js", "./estoque.js", "./pcs.js", "./maquinas.js", "./modo_ia.js", "./vpsatividade.js", "./vpsatividade.css", "./chrome.js", "./ok_chrome.js", "./cartoes-dia.js", "./volta.js", "./espaco.js", "./sobras.js", "./usoia.js", "./ninja.js", "./ninjavivo.js", "./marcar.js", "./decisoes.js", "./cards.js", "./paravoce.js", "./entregas.js", "./pedidos.js", "./mosaico.js", "./rodar.js", "./revisoes.js", "./manifest.webmanifest", "./icone-180.png", "./icone-192.png"];
 
 self.addEventListener("install", e => {

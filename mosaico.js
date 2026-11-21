@@ -188,7 +188,9 @@ function ladrilho(s, op = {}) {
   const icone = cen ? (cen.icone || ICONE_PADRAO) : icEst;
   const estilo = cen ? ` style="--mz-cor:${cor};--mz-rgb:${rgbDe(cor)}"` : "";
   const fala = typeof op.previa === "function" ? umaLinha(op.previa(s), FALA_MAX) : "";
-  const pergunta = s.permissao && !s.enquete ? umaLinha((s.permissao.plano ? "📋 Plano para aprovar: " : "🔐 Pede permissão: ") + (s.permissao.titulo || ""), FALA_MAX)
+  // 20/11: o recado de outra sessão esperando aprovação não é "pede permissão" (o título já diz quem mandou)
+  const pergunta = s.permissao && !s.enquete ? umaLinha((s.permissao.plano ? "📋 Plano para aprovar: "
+      : s.permissao.tipo_tela === "recado" ? "📨 " : "🔐 Pede permissão: ") + (s.permissao.titulo || ""), FALA_MAX)
     : s.estado === "perguntando" && (s.enquete || s.detalhe) ? umaLinha((s.enquete ? "📊 " : "❓ ") + (s.enquete ? ((arr(s.enquete.perguntas)[0] || {}).pergunta || "Enquete") : s.detalhe), FALA_MAX)
     : s.paraVoce ? umaLinha("🎼 Para você: " + s.paraVoce, FALA_MAX) : "";
   let corpo = "";
